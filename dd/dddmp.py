@@ -12,12 +12,11 @@ included in the CUDD distribution:
 """
 import logging
 logger = logging.getLogger(__name__)
-
 import warnings
-
 import networkx as nx
 import ply.lex
 import ply.yacc
+
 
 TABMODULE = 'dddmp_parsetab'
 LEX_LOG = 'dddmp_lex_logger'
@@ -46,8 +45,7 @@ class Lexer(object):
         'rootids': 'ROOTIDS',
         'rootnames': 'ROOTNAMES',
         'nodes': 'NODES',
-        'end': 'END'
-    }
+        'end': 'END'}
 
     reserved = {'.{k}'.format(k=k): v for k, v in reserved.iteritems()}
 
@@ -96,22 +94,19 @@ class Lexer(object):
             module=self,
             debug=debug,
             debuglog=debuglog,
-            **kwargs
-        )
+            **kwargs)
 
 
 class Parser(object):
     """Production rules to build LTL parser."""
 
     # lowest to highest
-    #precedence
+    # precedence
 
     def __init__(self):
         self.graph = None
-
         self.lexer = Lexer()
         self.tokens = self.lexer.tokens
-
         self.build()
         self.reset()
 
@@ -120,8 +115,7 @@ class Parser(object):
             module=self,
             tabmodule=TABMODULE,
             write_tables=False,
-            debug=False
-        )
+            debug=False)
 
     def rebuild_parsetab(self, tabmodule, outputdir='',
                          debug=True, debuglog=None):
@@ -148,8 +142,7 @@ class Parser(object):
             outputdir=outputdir,
             write_tables=True,
             debug=debug,
-            debuglog=debuglog
-        )
+            debuglog=debuglog)
 
     def parse(self, formula, debuglog=None):
         """Parse formula string and create abstract syntax tree (AST).
@@ -166,15 +159,15 @@ class Parser(object):
         r = self.parser.parse(
             formula,
             lexer=self.lexer.lexer,
-            debug=debuglog
-        )
+            debug=debuglog)
         if r is None:
             raise Exception('failed to parse:\n\t{f}'.format(f=formula))
 
-        #print(g.nodes(data=True))
-        #print(g.edges(data=True))
+        # print(g.nodes(data=True))
+        # print(g.edges(data=True))
         assert(len(g) == self.n_nodes)
-        support_var_ord_ids = {d['var_index'] for u, d in g.nodes_iter(data=True)}
+        support_var_ord_ids = {
+            d['var_index'] for u, d in g.nodes_iter(data=True)}
         assert(len(support_var_ord_ids) == self.n_support_vars)
         assert(len(self.support_vars) == self.n_support_vars)
         assert(len(self.ordered_vars) == self.n_vars)

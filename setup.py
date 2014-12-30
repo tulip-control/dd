@@ -12,7 +12,7 @@ except:
 
 setup(
     name='dd',
-    version='0.0.1',
+    version='0.0.2',
     license='BSD',
     description='Library of decision diagrams and algorithms on them.',
     long_description=long_description,

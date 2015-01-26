@@ -1,0 +1,2 @@
+include tests/*.py
+include README.md

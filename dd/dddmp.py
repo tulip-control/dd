@@ -121,17 +121,7 @@ class Parser(object):
 
     def rebuild_parsetab(self, tabmodule, outputdir='',
                          debug=True, debuglog=None):
-        """Rebuild parsetable in debug mode.
-
-        @param tabmodule: name of table file
-        @type tabmodule: C{{str}}
-
-        @param outputdir: save C{{tabmodule}} in this directory.
-        @type outputdir: c{{str}}
-
-        @param debuglog: defaults to logger C{{"{logger}"}}.
-        @type debuglog: C{{logging.Logger}}
-        """
+        """Rebuild parsetable in debug mode."""
         if debug and debuglog is None:
             debuglog = logging.getLogger(YACC_LOG)
         self.lexer.build(debug=debug)
@@ -145,11 +135,7 @@ class Parser(object):
             debuglog=debuglog)
 
     def parse(self, formula, debuglog=None):
-        """Parse formula string and create abstract syntax tree (AST).
-
-        @param logger: defaults to logger C{{"{logger}"}}.
-        @type logger: C{{logging.Logger}}
-        """
+        """Parse DDDMP file containing BDD."""
         self.reset()
         if debuglog is None:
             debuglog = logging.getLogger(PARSER_LOG)

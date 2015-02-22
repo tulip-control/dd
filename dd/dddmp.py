@@ -100,8 +100,7 @@ class Lexer(object):
 class Parser(object):
     """Production rules to build LTL parser."""
 
-    # lowest to highest
-    # precedence
+    tabmodule = TABMODULE
 
     def __init__(self):
         self.graph = None
@@ -110,11 +109,16 @@ class Parser(object):
         self.build()
         self.reset()
 
-    def build(self):
+    def build(self,
+              tabmodule=None,
+              outputdir=None,
+              write_tables=False):
+        if tabmodule is None:
+            tabmodule = self.tabmodule
         self.parser = ply.yacc.yacc(
             module=self,
-            tabmodule=TABMODULE,
-            write_tables=False,
+            tabmodule=tabmodule,
+            write_tables=write_tables,
             debug=False)
 
     def rebuild_parsetab(self, tabmodule, outputdir='',

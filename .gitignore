@@ -1,3 +1,7 @@
+.coverage
+todo.txt
+dd/version.py
+*parsetab.py
 *.pyc
 *.pdf
 dist/*

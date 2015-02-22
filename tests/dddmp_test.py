@@ -1,6 +1,7 @@
 from dd.dddmp import Parser
 import networkx as nx
 
+
 s = '''
 .ver DDDMP-2.0
 .mode A

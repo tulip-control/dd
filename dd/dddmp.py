@@ -47,11 +47,8 @@ class Lexer(object):
         'rootnames': 'ROOTNAMES',
         'nodes': 'NODES',
         'end': 'END'}
-
     reserved = {'.{k}'.format(k=k): v for k, v in reserved.iteritems()}
-
     misc = ['MINUS', 'DOT', 'NAME', 'NUMBER']
-
     # token rules
     t_MINUS = r'-'
     t_DOT = r'\.'
@@ -137,9 +134,7 @@ class Parser(object):
         """
         if debug and debuglog is None:
             debuglog = logging.getLogger(YACC_LOG)
-
         self.lexer.build(debug=debug)
-
         self.parser = ply.yacc.yacc(
             module=self,
             start='file',
@@ -158,7 +153,6 @@ class Parser(object):
         self.reset()
         if debuglog is None:
             debuglog = logging.getLogger(PARSER_LOG)
-
         g = nx.DiGraph()
         self.graph = g
         r = self.parser.parse(
@@ -167,7 +161,6 @@ class Parser(object):
             debug=debuglog)
         if r is None:
             raise Exception('failed to parse:\n\t{f}'.format(f=formula))
-
         # print(g.nodes(data=True))
         # print(g.edges(data=True))
         assert(len(g) == self.n_nodes)
@@ -179,7 +172,6 @@ class Parser(object):
         assert(len(self.var_ids) == self.n_support_vars)
         assert(len(self.permuted_var_ids) == self.n_support_vars)
         assert(len(self.aux_var_ids) == self.n_support_vars)
-
         # map to var names
         logger.info('var extra info:')
         c = self.var_extra_info
@@ -187,14 +179,12 @@ class Parser(object):
             logger.info('var IDs')
             for u, d in g.nodes_iter(data=True):
                 t = d['var_info']
-
                 # exclude "True" constant
                 if t == 'T':
                     var_name = 'T'
                 else:
                     var_name = self.ordered_vars[t]
                 d['var_name'] = var_name
-
         elif c == 1:
             logger.info('perm IDs')
             raise NotImplementedError
@@ -209,24 +199,21 @@ class Parser(object):
             raise NotImplementedError
         else:
             raise Exception('unknown case')
-
         # TODO: handle roots
-
         # TODO: based on var info type, map var indices (?)
-
         return g
 
     def reset(self):
         self.algebraic_dd = None
         self.var_extra_info = None
         self.n_nodes = None
-
+        # vars
         self.n_vars = None
         self.ordered_vars = None
-
+        # support vars
         self.n_support_vars = None
         self.support_vars = None
-
+        # permuted and aux vars
         self.var_ids = None
         self.permuted_var_ids = None
         self.aux_var_ids = None
@@ -368,12 +355,10 @@ class Parser(object):
         w = p[5]
         var_index = p[3]
         var_info = p[2]
-
+        # complemented edges
         v_complemented = v > 0
         w_complemented = w > 0
-
         self.graph.add_node(u, var_index=var_index, var_info=var_info)
-
         if v != 0:
             self.graph.add_edge(u, abs(v), c=v_complemented)
         if w != 0:

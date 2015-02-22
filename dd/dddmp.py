@@ -60,29 +60,6 @@ class Lexer(object):
         self.build(debug=debug)
         self.file = None
 
-    def input(self, f):
-        self.file = f
-
-    def token(self):
-        # load lexer ?
-        if self.lexer.lexdata is None:
-            token = None
-        else:
-            token = self.lexer.token()
-        if token is not None:
-            return token
-        # update lexer input
-        while token is None:
-            try:
-                line = next(self.file)
-            except StopIteration:
-                # EOF
-                token = None
-                break
-            self.lexer.input(line)
-            token = self.lexer.token()
-        return token
-
     def t_KEYWORD(self, t):
         r"\.[a-zA-Z][a-zA-Z]*"
         t.type = self.reserved.get(t.value, 'NAME')
@@ -169,9 +146,34 @@ class Parser(object):
             debuglog = logging.getLogger(PARSER_LOG)
         g = nx.DiGraph()
         self.graph = g
+        # parse header (small but inhomogeneous)
         with open(filename, 'r') as f:
-            self.lexer.input(f)
-            r = self.parser.parse(lexer=self.lexer, debug=debuglog)
+            a = list()
+            for line in f:
+                if '.nodes' in line:
+                    break
+                a.append(line)
+            s = '\n'.join(a)
+            lexer = self.lexer.lexer
+            lexer.input(s)
+            r = self.parser.parse(lexer=lexer, debug=debuglog)
+        # add nodes at once (more efficient)
+        self.graph.add_nodes_from(xrange(1, self.n_nodes + 1))
+        # parse nodes (large but very uniform)
+        with open(filename, 'r') as f:
+            for line in f:
+                if '.nodes' in line:
+                    break
+            for line in f:
+                if '.end' in line:
+                    break
+                try:
+                    u, info, index, v, w = map(int, line.split(' '))
+                except ValueError:
+                    u, info, index, v, w = line.split(' ')
+                    assert info == 'T', info
+                    u, index, v, w = map(int, (u, index, v, w))
+                self._add_node(u, info, index, v, w)
         if r is None:
             raise Exception('failed to parse')
         # print(g.nodes(data=True))
@@ -364,18 +366,24 @@ class Parser(object):
     def p_node(self, p):
         """node : number opt_info number number number"""
         u = p[1]
+        info = p[2]
+        index = p[3]
         v = p[4]
         w = p[5]
-        var_index = p[3]
-        var_info = p[2]
-        # complemented edges
-        v_complemented = v > 0
-        w_complemented = w > 0
-        self.graph.add_node(u, var_index=var_index, var_info=var_info)
+        self._add_node(u, info, index, v, w)
+
+    def _add_node(self, u, info, index, v, w):
+        """Add new node to BDD graph.
+
+        @type u, index, v, w: `int`
+        @type info: `int` or `"T"`
+        """
+        self.graph.add_node(u, var_index=index, var_info=info)
         if v != 0:
-            self.graph.add_edge(u, abs(v), c=v_complemented)
+            assert v > 0, 'only "else" edges can be complemented'
+            self.graph.add_edge(u, v, c=True)
         if w != 0:
-            self.graph.add_edge(u, abs(w), c=w_complemented)
+            self.graph.add_edge(u, abs(w), c=w > 0)
 
     def p_opt_info(self, p):
         """opt_info : number

@@ -377,7 +377,7 @@ class Parser(object):
         p[0] = p[1]
 
     def p_error(self, p):
-        warnings.warn('Syntax error at "{p}"'.format(p=p.value))
+        raise Exception('Syntax error at "{p}"'.format(p=p.value))
 
 if __name__ == '__main__':
     table = TABMODULE.split('.')[-1]

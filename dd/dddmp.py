@@ -69,6 +69,10 @@ class Lexer(object):
         t.type = self.reserved.get(t.value, 'NAME')
         return t
 
+    def t_comment(self, t):
+        r'\#.*'
+        return
+
     def t_newline(self, t):
         r'\n+'
         t.lexer.lineno += t.value.count("\n")

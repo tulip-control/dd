@@ -1,6 +1,8 @@
 import time
 from dd import dddmp
+import humanize
 import networkx as nx
+from pympler import asizeof
 
 
 parser = dddmp.Parser()
@@ -24,6 +26,8 @@ def load_bdd_2_masters():
     g = parser.parse(fname)
     t1 = time.time()
     print('finished: {t}'.format(t=t1 - t0))
+    print(len(g))
+    print(humanize.naturalsize(asizeof.asizeof(g)))
 
 
 if __name__ == '__main__':

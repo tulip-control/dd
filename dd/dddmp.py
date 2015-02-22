@@ -11,7 +11,7 @@ included in the CUDD distribution:
     http://vlsi.colorado.edu/~fabio/CUDD/
 """
 import logging
-logger = logging.getLogger(__name__)
+import os
 import warnings
 import networkx as nx
 import ply.lex
@@ -405,3 +405,11 @@ class Parser(object):
         warnings.warn('Syntax error at "{p}"'.format(p=p.value))
 
 if __name__ == '__main__':
+    table = TABMODULE.split('.')[-1]
+    parser = Parser()
+    for ext in ('.py', '.pyc'):
+        try:
+            os.remove(table + ext)
+        except:
+            pass
+    parser.build(write_tables=True, outputdir='./', tabmodule=table)

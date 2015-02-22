@@ -58,6 +58,30 @@ class Lexer(object):
     def __init__(self, debug=False):
         self.tokens = self.misc + self.reserved.values()
         self.build(debug=debug)
+        self.file = None
+
+    def input(self, f):
+        self.file = f
+
+    def token(self):
+        # load lexer ?
+        if self.lexer.lexdata is None:
+            token = None
+        else:
+            token = self.lexer.token()
+        if token is not None:
+            return token
+        # update lexer input
+        while token is None:
+            try:
+                line = next(self.file)
+            except StopIteration:
+                # EOF
+                token = None
+                break
+            self.lexer.input(line)
+            token = self.lexer.token()
+        return token
 
     def t_KEYWORD(self, t):
         r"\.[a-zA-Z][a-zA-Z]*"
@@ -138,19 +162,18 @@ class Parser(object):
             debug=debug,
             debuglog=debuglog)
 
-    def parse(self, formula, debuglog=None):
+    def parse(self, filename, debuglog=None):
         """Parse DDDMP file containing BDD."""
         self.reset()
         if debuglog is None:
             debuglog = logging.getLogger(PARSER_LOG)
         g = nx.DiGraph()
         self.graph = g
-        r = self.parser.parse(
-            formula,
-            lexer=self.lexer.lexer,
-            debug=debuglog)
+        with open(filename, 'r') as f:
+            self.lexer.input(f)
+            r = self.parser.parse(lexer=self.lexer, debug=debuglog)
         if r is None:
-            raise Exception('failed to parse:\n\t{f}'.format(f=formula))
+            raise Exception('failed to parse')
         # print(g.nodes(data=True))
         # print(g.edges(data=True))
         assert len(g) == self.n_nodes

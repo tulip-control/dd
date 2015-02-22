@@ -18,10 +18,11 @@ import ply.lex
 import ply.yacc
 
 
-TABMODULE = 'dddmp_parsetab'
-LEX_LOG = 'dddmp_lex_logger'
-YACC_LOG = 'dddmp_yacc_logger'
-PARSER_LOG = 'dddmp_parser_logger'
+logger = logging.getLogger(__name__)
+TABMODULE = 'dd.dddmp_parsetab'
+LEX_LOG = 'dd.dddmp.lex_logger'
+YACC_LOG = 'dd.dddmp.yacc_logger'
+PARSER_LOG = 'dd.dddmp.parser_logger'
 
 
 class Lexer(object):

@@ -153,15 +153,15 @@ class Parser(object):
             raise Exception('failed to parse:\n\t{f}'.format(f=formula))
         # print(g.nodes(data=True))
         # print(g.edges(data=True))
-        assert(len(g) == self.n_nodes)
+        assert len(g) == self.n_nodes
         support_var_ord_ids = {
             d['var_index'] for u, d in g.nodes_iter(data=True)}
-        assert(len(support_var_ord_ids) == self.n_support_vars)
-        assert(len(self.support_vars) == self.n_support_vars)
-        assert(len(self.ordered_vars) == self.n_vars)
-        assert(len(self.var_ids) == self.n_support_vars)
-        assert(len(self.permuted_var_ids) == self.n_support_vars)
-        assert(len(self.aux_var_ids) == self.n_support_vars)
+        assert len(support_var_ord_ids) == self.n_support_vars
+        assert len(self.support_vars) == self.n_support_vars
+        assert len(self.ordered_vars) == self.n_vars
+        assert len(self.var_ids) == self.n_support_vars
+        assert len(self.permuted_var_ids) == self.n_support_vars
+        assert len(self.aux_var_ids) == self.n_support_vars
         # map to var names
         logger.info('var extra info:')
         c = self.var_extra_info

@@ -1,7 +1,34 @@
 from dd.bdd import BDD, preimage
+import dd.bdd
 import nose.tools as nt
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
+
+
+def test_assert_consistent():
+    g = two_vars_xy()
+    with nt.assert_raises(AssertionError):
+        g.assert_consistent()
+    g.roots.add(2)
+    assert g.assert_consistent()
+    g = x_or_y()
+    with nt.assert_raises(AssertionError):
+        g.assert_consistent()
+    g.roots.add(2)
+    assert g.assert_consistent()
+    g._succ[2] = (5, 1, 2)
+    with nt.assert_raises(AssertionError):
+        g.assert_consistent()
+    g = x_or_y()
+    g.roots.add(2)
+    g._succ[4] = (0, 10, 1)
+    with nt.assert_raises(AssertionError):
+        g.assert_consistent()
+    g = x_or_y()
+    g.roots.add(2)
+    g._succ[0] = (2, None, 1)
+    with nt.assert_raises(AssertionError):
+        g.assert_consistent()
 
 
 def test_evaluate():
@@ -25,6 +52,23 @@ def test_evaluate():
     assert g.evaluate(u, {'x': 1, 'y': 1})
 
 
+def test_is_essential():
+    g = two_vars_xy()
+    assert g.is_essential(2, 'x')
+    assert not g.is_essential(2, 'y')
+    assert g.is_essential(3, 'y')
+    assert not g.is_essential(3, 'x')
+    g = x_and_y()
+    assert g.is_essential(2, 'x')
+    assert g.is_essential(2, 'y')
+    assert g.is_essential(3, 'y')
+    assert not g.is_essential(3, 'x')
+    assert not g.is_essential(0, 'x')
+    assert not g.is_essential(0, 'y')
+    assert not g.is_essential(1, 'x')
+    assert not g.is_essential(1, 'y')
+
+
 def test_support():
     g = two_vars_xy()
     assert g.support(2) == {'x'}
@@ -42,6 +86,10 @@ def test_sat_len():
     assert g.sat_len(2) == 1
     g = x_or_y()
     assert g.sat_len(2) == 3
+    with nt.assert_raises(Exception):
+        g.sat_len()
+    g.roots.add(2)
+    assert g.sat_len() == 3
 
 
 def test_sat_iter():
@@ -266,6 +314,25 @@ def test_quantify():
     assert g.quantify(e, {'y'}, forall=True) == zx
 
 
+def test_rename():
+    ordering = {'x': 0, 'xp': 1}
+    g = BDD(ordering)
+    x = g.add_expr('x')
+    xp = g.add_expr('xp')
+    dvars = {'x': 'xp'}
+    xrenamed = dd.bdd.rename(x, g, dvars)
+    assert xrenamed == xp, xrenamed
+    ordering = {'x': 0, 'xp': 1,
+                'y': 2, 'yp': 3,
+                'z': 4, 'zp': 5}
+    g = BDD(ordering)
+    u = g.add_expr('x && y && z')
+    dvars = {'x': 'xp', 'y': 'yp', 'z': 'zp'}
+    urenamed = dd.bdd.rename(u, g, dvars)
+    up = g.add_expr('xp && yp && zp')
+    assert urenamed == up, urenamed
+
+
 def test_preimage():
     # exists: x, y
     # forall: z
@@ -334,6 +401,18 @@ def test_preimage():
     assert p == g.add_expr('x & y')
 
 
+def test_to_pydot():
+    g = x_and_y()
+    g.roots.add(2)
+    pd = dd.bdd.to_pydot(g)
+    r = nx.from_pydot(pd)
+    for u in g:
+        assert str(u) in r
+    for u, (i, v, w) in g._succ.iteritems():
+        assert r.has_edge(str(u), str(v))
+        assert r.has_edge(str(u), str(w))
+
+
 def x_or_y():
     g = two_vars_xy()
     g._succ[2] = (0, 3, 1)
@@ -388,7 +467,7 @@ def ref_x_or_y():
 
 
 def compare(u, bdd, h):
-    g = to_nx(bdd, u)
+    g = dd.bdd.to_nx(bdd, u)
     nx.to_pydot(g).write_pdf('g.pdf')
     post = nx.descendants(g, u)
     post.add(u)

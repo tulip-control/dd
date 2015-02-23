@@ -331,6 +331,23 @@ def test_rename():
     urenamed = dd.bdd.rename(u, g, dvars)
     up = g.add_expr('xp && yp && zp')
     assert urenamed == up, urenamed
+    # assertion violations
+    # non-neighbors
+    dvars = {'x': 'yp'}
+    with nt.assert_raises(AssertionError):
+        dd.bdd.rename(u, g, dvars)
+    # u not in bdd
+    dvars = {'x': 'xp'}
+    with nt.assert_raises(AssertionError):
+        dd.bdd.rename(15, g, dvars)
+    # y essential for u
+    dvars = {'xp': 'y'}
+    with nt.assert_raises(AssertionError):
+        dd.bdd.rename(u, g, dvars)
+    # old and new vars intersect
+    dvars = {'x': 'x'}
+    with nt.assert_raises(AssertionError):
+        dd.bdd.rename(u, g, dvars)
 
 
 def test_preimage():

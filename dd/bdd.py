@@ -605,6 +605,7 @@ def rename(u, bdd, dvars):
     @param dvars: `dict` from variabe indices to variable indices
         or from variable names to variable names
     """
+    assert u in bdd, u
     # map name to indices, if needed
     ordering = bdd.ordering
     k = next(iter(dvars))

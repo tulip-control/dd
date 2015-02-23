@@ -590,7 +590,7 @@ class BDD(object):
         elif op in {'bimplies', '<->'}:
             return self.ite(u, v, self.ite(v, 0, 1))
 
-    def write(self, filename):
+    def dump_pdf(self, filename):
         """Write the BDD graph to `filename` as PDF."""
         g = to_pydot(self)
         if filename.endswith('.pdf'):

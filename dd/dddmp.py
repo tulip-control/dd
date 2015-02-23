@@ -9,11 +9,19 @@ read the file:
 included in the CUDD distribution:
 
     http://vlsi.colorado.edu/~fabio/CUDD/
+
+The text file format details can be found
+by reading the source code:
+    `cudd/dddmp/dddmpStoreBdd.c`
+    lines: 329--331, 345, 954
+
+For the `slugs` exporter, see:
+    `src/BFAbstractionLibrary/BFCuddManager.cpp`
+    method: `BFBddManager.writeBDDToFile`
 """
 import logging
 import os
 import warnings
-import networkx as nx
 import ply.lex
 import ply.yacc
 
@@ -106,7 +114,6 @@ class Parser(object):
     tabmodule = TABMODULE
 
     def __init__(self):
-        self.graph = None
         self.lexer = Lexer()
         self.tokens = self.lexer.tokens
         self.build()
@@ -144,8 +151,6 @@ class Parser(object):
         self.reset()
         if debuglog is None:
             debuglog = logging.getLogger(PARSER_LOG)
-        g = nx.DiGraph()
-        self.graph = g
         # parse header (small but inhomogeneous)
         with open(filename, 'r') as f:
             a = list()
@@ -157,8 +162,39 @@ class Parser(object):
             lexer = self.lexer.lexer
             lexer.input(s)
             r = self.parser.parse(lexer=lexer, debug=debuglog)
-        # add nodes at once (more efficient)
-        self.graph.add_nodes_from(xrange(1, self.n_nodes + 1))
+        assert len(self.support_vars) == self.n_support_vars
+        assert len(self.ordered_vars) == self.n_vars
+        assert len(self.var_ids) == self.n_support_vars
+        assert len(self.permuted_var_ids) == self.n_support_vars
+        assert len(self.aux_var_ids) == self.n_support_vars
+        # prepare mapping from fixed var index to level among all vars
+        # id2name = {
+        #     i: var
+        #     for i, var in zip(self.var_ids, self.support_vars)}
+        ordering = {var: k for k, var in enumerate(self.ordered_vars)}
+        c = self.var_extra_info
+        if c == 0:
+            logger.info('var IDs')
+            id2permid = {
+                i: k
+                for i, k in zip(self.var_ids, self.permuted_var_ids)}
+            self.info2permid = id2permid
+        elif c == 1:
+            logger.info('perm IDs')
+            self.info2permid = {k: k for k in self.permuted_var_ids}
+        elif c == 2:
+            logger.info('aux IDs')
+            raise NotImplementedError
+        elif c == 3:
+            logger.info('var names')
+            self.info2permid = {
+                var: k for k, var in enumerate(self.ordered_vars)}
+        elif c == 4:
+            logger.info('none')
+            raise NotImplementedError
+        else:
+            raise Exception('unknown `varinfo` case')
+        self.info2permid['T'] = len(self.ordered_vars) + 1
         # parse nodes (large but very uniform)
         with open(filename, 'r') as f:
             for line in f:
@@ -174,51 +210,33 @@ class Parser(object):
                     assert info == 'T', info
                     u, index, v, w = map(int, (u, index, v, w))
                 self._add_node(u, info, index, v, w)
+        # TODO: handle roots
         if r is None:
             raise Exception('failed to parse')
-        # print(g.nodes(data=True))
-        # print(g.edges(data=True))
-        assert len(g) == self.n_nodes
-        support_var_ord_ids = {
-            d['var_index'] for u, d in g.nodes_iter(data=True)}
-        assert len(support_var_ord_ids) == self.n_support_vars
-        assert len(self.support_vars) == self.n_support_vars
-        assert len(self.ordered_vars) == self.n_vars
-        assert len(self.var_ids) == self.n_support_vars
-        assert len(self.permuted_var_ids) == self.n_support_vars
-        assert len(self.aux_var_ids) == self.n_support_vars
-        # map to var names
-        logger.info('var extra info:')
-        c = self.var_extra_info
-        if c == 0:
-            logger.info('var IDs')
-            for u, d in g.nodes_iter(data=True):
-                t = d['var_info']
-                # exclude "True" constant
-                if t == 'T':
-                    var_name = 'T'
-                else:
-                    var_name = self.ordered_vars[t]
-                d['var_name'] = var_name
-        elif c == 1:
-            logger.info('perm IDs')
-            raise NotImplementedError
-        elif c == 2:
-            logger.info('aux IDs')
-            raise NotImplementedError
-        elif c == 3:
-            logger.info('var names')
-            raise NotImplementedError
-        elif c == 4:
-            logger.info('none')
-            raise NotImplementedError
+        assert len(self.bdd) == self.n_nodes
+        # support_var_ord_ids = {
+        #     d['var_index'] for u, d in g.nodes_iter(data=True)}
+        # assert len(support_var_ord_ids) == self.n_support_vars
+        return self.bdd, ordering
+
+    def _add_node(self, u, info, index, v, w):
+        """Add new node to BDD.
+
+        @type u, index, v, w: `int`
+        @type info: `int` or `"T"`
+        """
+        if v == 0:
+            v = None
         else:
-            raise Exception('unknown case')
-        # TODO: handle roots
-        # TODO: based on var info type, map var indices (?)
-        return g
+            assert v >= 0, 'only "else" edges can be complemented'
+        if w == 0:
+            w = None
+        # map fixed var index to level among all vars
+        level = self.info2permid[info]
+        self.bdd[u] = (level, v, w)
 
     def reset(self):
+        self.bdd = dict()
         self.algebraic_dd = None
         self.var_extra_info = None
         self.n_nodes = None
@@ -283,7 +301,7 @@ class Parser(object):
 
     def p_dd_name(self, p):
         """diagram_name : DD name"""
-        self.graph.name = p[2]
+        self.bdd.name = p[2]
 
     def p_num_nodes(self, p):
         """nnodes : NNODES number"""
@@ -372,19 +390,6 @@ class Parser(object):
         w = p[5]
         self._add_node(u, info, index, v, w)
 
-    def _add_node(self, u, info, index, v, w):
-        """Add new node to BDD graph.
-
-        @type u, index, v, w: `int`
-        @type info: `int` or `"T"`
-        """
-        self.graph.add_node(u, var_index=index, var_info=info)
-        if v != 0:
-            assert v > 0, 'only "else" edges can be complemented'
-            self.graph.add_edge(u, v, c=True)
-        if w != 0:
-            self.graph.add_edge(u, abs(w), c=w > 0)
-
     def p_opt_info(self, p):
         """opt_info : number
                     | name
@@ -409,6 +414,7 @@ class Parser(object):
 
     def p_error(self, p):
         raise Exception('Syntax error at "{p}"'.format(p=p))
+
 
 if __name__ == '__main__':
     table = TABMODULE.split('.')[-1]

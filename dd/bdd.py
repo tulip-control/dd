@@ -447,7 +447,7 @@ class BDD(object):
         # empty or unsat ?
         if len(self) == 0:
             return
-        if len(self) == 1 and False in self:
+        if len(self) == 1 and 0 in self:
             return
         # satisfiable
         if u is None:

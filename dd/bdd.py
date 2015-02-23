@@ -34,8 +34,8 @@ import logging
 logger = logging.getLogger(__name__)
 from collections import Mapping
 from itertools import tee, izip
-import networkx as nx
 # inline:
+# import networkx
 # import pydot
 # import tulip.spec.lexyacc
 
@@ -740,6 +740,34 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
         r = bdd.find_or_add(m, p, q)
     cache[t] = r
     return r
+
+
+def to_nx(bdd, u=None):
+    """Convert BDD to `networkx.MultiDiGraph`."""
+    import networkx as nx
+    g = nx.MultiDiGraph()
+    if u is None:
+        assert bdd.roots, 'BDD has no roots: give a node `u`'
+        roots = bdd.roots
+    else:
+        roots = {u}
+    for root in roots:
+        Q = {root}
+        while Q:
+            u = Q.pop()
+            i, v, w = bdd._succ[u]
+            g.add_node(u, index=i)
+            if v is None or w is None:
+                assert w is None, w
+                assert v is None, v
+                continue
+            if v not in g:
+                Q.add(v)
+            if w not in g:
+                Q.add(w)
+            g.add_edge(u, v, value=False)
+            g.add_edge(u, w, value=True)
+    return g
 
 
 def to_pydot(bdd):

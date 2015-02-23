@@ -40,7 +40,7 @@ import networkx as nx
 # import tulip.spec.lexyacc
 
 
-class BDD(nx.MultiDiGraph):
+class BDD(object):
     """Shared ordered binary decision diagram.
 
     There must be at least one root.
@@ -49,10 +49,9 @@ class BDD(nx.MultiDiGraph):
     Attributes:
       - `ordering`: `dict` mapping `variables` to `int` indices
       - `roots`: nodes with no predecessors
-
-    Labeling:
-      - each node with `index` of type `int`
-      - each edge with `value` of type `bool`
+      - `_pred`: `dict` mapping tuples `(index, low, high)` to nodes
+      - `_succ`: `dict` mapping nodes to tuples `(index, low, high)`
+    where index, low, high are `int`.
 
     If `ordering` changes, then reordering is needed.
 
@@ -62,16 +61,27 @@ class BDD(nx.MultiDiGraph):
     """
 
     def __init__(self, ordering=None, **kw):
-        super(BDD, self).__init__(**kw)
+        self._pred = dict()
+        self._succ = dict()
         if ordering is None:
             ordering = dict()
         else:
-            self.add_nodes_from([0, 1], index=len(ordering))
+            i = len(ordering)
+            self._succ[0] = (i, None, None)
+            self._succ[1] = (i, None, None)
         self.ordering = ordering
         self.roots = set()
-        self._pairs_table = dict()
         self._ite_table = dict()
         self._parser = None
+
+    def __len__(self):
+        return len(self._succ)
+
+    def __contains__(self, u):
+        return u in self._succ
+
+    def __iter__(self):
+        return iter(self._succ)
 
     def __str__(self):
         return (
@@ -105,17 +115,18 @@ class BDD(nx.MultiDiGraph):
         """Return value of node `u` for evaluation `values`.
 
         @param values: (partial) mapping from `variables` to values
-            keys can be variable names as `str` or indices as `int`
+            keys can be variable names as `str` or indices as `int`.
+            Mapping should be complete with respect to `u`.
         @type values: `dict`
         """
         values = self._map_to_index(values)
         # follow valuation from u to terminal
         while u not in {0, 1}:
-            (_, v, d), (_, w, _) = self.edges_iter(u, data=True)
-            if d['value'] == values[self.node[u]['index']]:
-                u = v
-            else:
+            i, v, w = self._succ[u]
+            if values[i]:
                 u = w
+            else:
+                u = v
         return u
 
     def is_essential(self, u, var):
@@ -123,76 +134,71 @@ class BDD(nx.MultiDiGraph):
         i = self.ordering.get(var)
         if i is None:
             return False
-        iu = self.node[u]['index']
+        iu, v, w = self._succ[u]
         # var above node u ?
         if i < iu:
             return False
+        if i == iu:
+            return True
         # u depends on node labeled with var ?
-        for v in nx.algorithms.dfs_preorder_nodes(self, u):
-            if self.node[v]['index'] == i:
-                return True
+        if self.is_essential(v, var):
+            return True
+        if self.is_essential(w, var):
+            return True
         return False
 
     def support(self, u):
         """Return variables that node `u` depends on."""
         var = set()
-        n = len(self.ordering)
-        for v in nx.algorithms.dfs_preorder_nodes(self, u):
-            var.add(self.node[v]['index'])
-            if len(var) == n:
-                break
-        return map(self.ordering, var)
+        self._support(u, var)
+        self._ind2var = {k: v for v, k in self.ordering.iteritems()}
+        return {self._ind2var[i] for i in var}
 
-    def levels(self):
-        """Put in bins by index."""
-        levels = dict()
-        for u in self:
-            i = self.node[u]['index']
-            levels.setdefault(i, set()).add(u)
-        return levels
+    def _support(self, u, var):
+        """Recurse to collect variables in support."""
+        # exhausted all vars ?
+        if len(var) == len(self.ordering):
+            return
+        # terminal ?
+        if u == 0 or u == 1:
+            return
+        i, v, w = self._succ[u]
+        var.add(i)
+        self._support(v, var)
+        self._support(w, var)
+
+    def levels(self, skip_terminals=False):
+        """Return generator of tuples `(u, i, v, w)`.
+
+        Where `i` ranges from terminals to root
+        """
+        if skip_terminals:
+            n = len(self.ordering) - 1
+        else:
+            n = len(self.ordering)
+        for i in xrange(n, -1, -1):
+            for u, (j, v, w) in self._succ.iteritems():
+                if i != j:
+                    continue
+                yield u, i, v, w
 
     def reduction(self):
-        """Return copy reduced with respect to `self.ordering`."""
-        levels = self.levels()
-        # sort from terminals to root
-        r = iter(sorted(levels.iteritems(), reverse=True))
+        """Return copy reduced with respect to `self.ordering`.
+
+        Not to be used for large BDDs.
+        Instead, construct them directly reduced.
+        """
         # terminals
-        i, s = next(r)
-        umap = {u: u for u in s}
-        assert s == {0, 1}
-        assert i == max(levels)
+        bdd = BDD(self.ordering)
+        umap = {0: 0, 1: 1}
         # non-terminals
-        redundant = set()
-        toint = {0: 0, 1: 1}
-        m = 0
-        for i, s in r:
-            m = m + len(toint)
-            toint = dict()
-            for u in s:
-                (_, v, dv), (_, w, _) = self.edges_iter(
-                    u, data=True)
-                p, q = umap[v], umap[w]
-                # redundant ?
-                if p == q:
-                    umap[u] = p
-                    redundant.add(p)
-                    continue
-                # not redundant
-                # swap succ ?
-                if dv['value']:
-                    pq = (q, p)
-                else:
-                    pq = (p, q)
-                k = toint.setdefault(pq, m + len(toint))
-                umap[u] = k
-        h = nx.relabel_nodes(self, umap)
-        # rm self-loops introduced
-        for u in redundant:
-            h.remove_edge(u, u)
-        # init other attr
-        h.ordering = dict(self.ordering)
-        h.roots = {u for u in h if not h.pred[u]}
-        return h
+        for u, i, v, w in self.levels(skip_terminals=True):
+            p, q = umap[v], umap[w]
+            r = bdd.find_or_add(i, p, q)
+            umap[u] = r
+            if u in self.roots:
+                bdd.roots.add(r)
+        return bdd
 
     def compose(self, f, j, g, cache=None):
         """Return f(x_j=g).
@@ -209,17 +215,14 @@ class BDD(nx.MultiDiGraph):
             cache = dict()
         elif f in cache:
             return cache[f]
-        i = self.node[f]['index']
+        i, v, w = self._succ[f]
         if j < i:
             return f
         elif i == j:
-            (_, v, dv), (_, w, _) = self.edges_iter(f, data=True)
-            if dv['value']:
-                v, w = w, v
             r = self.ite(g, w, v)
         else:
             # i < j
-            z = min(i, self.node[g]['index'])
+            z = min(i, self._succ[g][0])
             f0, f1 = self._top_cofactor(f, z)
             g0, g1 = self._top_cofactor(g, z)
             p = self.compose(f0, j, g0, cache)
@@ -245,9 +248,9 @@ class BDD(nx.MultiDiGraph):
         w = self._ite_table.get(r)
         if w is not None:
             return w
-        z = min(self.node[g]['index'],
-                self.node[u]['index'],
-                self.node[v]['index'])
+        z = min(self._succ[g][0],
+                self._succ[u][0],
+                self._succ[v][0])
         g0, g1 = self._top_cofactor(g, z)
         u0, u1 = self._top_cofactor(u, z)
         v0, v1 = self._top_cofactor(v, z)
@@ -269,7 +272,7 @@ class BDD(nx.MultiDiGraph):
         if u in {0, 1}:
             return (u, u)
         # non-terminal node
-        iu = self.node[u]['index']
+        iu, v, w = self._succ[u]
         # u independent of var ?
         if i < iu:
             return (u, u)
@@ -277,11 +280,7 @@ class BDD(nx.MultiDiGraph):
             raise Exception('call `cofactor` instead')
         # iu == i
         # u labeled with var
-        (_, v, d), (_, w, _) = self.edges_iter(u, data=True)
-        if d['value']:
-            return (w, v)
-        else:
-            return (v, w)
+        return (v, w)
 
     def cofactor(self, u, values):
         """Return restriction of `u` to valuation `values`.
@@ -302,7 +301,7 @@ class BDD(nx.MultiDiGraph):
             return u
         if u in cache:
             return cache[u]
-        i = self.node[u]['index']
+        i, v, w = self._succ[u]
         n = len(ordvar)
         # skip nonessential variables
         while j < n:
@@ -314,19 +313,15 @@ class BDD(nx.MultiDiGraph):
             # exhausted valuation
             return u
         # recurse
-        (_, v, dv), (_, w, _) = self.edges_iter(u, data=True)
         if i in values:
             val = values[i]
-            if bool(dv['value']) != bool(val):
+            if bool(val):
                 v = w
             r = self._cofactor(v, j, ordvar, values, cache)
         else:
             p = self._cofactor(v, j, ordvar, values, cache)
             q = self._cofactor(w, j, ordvar, values, cache)
-            if dv['value']:
-                r = self.find_or_add(i, q, p)
-            else:
-                r = self.find_or_add(i, p, q)
+            r = self.find_or_add(i, p, q)
         cache[u] = r
         return r
 
@@ -354,7 +349,7 @@ class BDD(nx.MultiDiGraph):
             return u
         if u in cache:
             return cache[u]
-        i = self.node[u]['index']
+        i, v, w = self._succ[u]
         n = len(ordvar)
         # skip nonessential variables
         while j < n:
@@ -366,7 +361,6 @@ class BDD(nx.MultiDiGraph):
             # exhausted valuation
             return u
         # recurse
-        (_, v, dv), (_, w, _) = self.edges_iter(u, data=True)
         if i in qvars:
             if forall:
                 r = self.ite(v, w, 0)  # conjoin
@@ -375,10 +369,7 @@ class BDD(nx.MultiDiGraph):
         else:
             p = self._quantify(v, j, ordvar, qvars, forall, cache)
             q = self._quantify(w, j, ordvar, qvars, forall, cache)
-            if dv['value']:
-                r = self.find_or_add(i, q, p)
-            else:
-                r = self.find_or_add(i, p, q)
+            r = self.find_or_add(i, p, q)
         cache[u] = r
         return r
 
@@ -393,29 +384,23 @@ class BDD(nx.MultiDiGraph):
         if v == w:
             return v
         t = (i, v, w)
-        u = self._pairs_table.get(t)
+        u = self._pred.get(t)
         if u is None:
             u = len(self)
             assert u not in self
             assert i < len(self.ordering)
             assert v in self
             assert w in self
-            self._pairs_table[t] = u
-            self.add_node(u, index=i)
-            self.add_edge(u, v, value=False)
-            self.add_edge(u, w, value=True)
+            self._pred[t] = u
+            self._succ[u] = t
         return u
 
     def update_pairs_table(self):
         """Update table that maps (level, low, high) to nodes."""
-        for u, du in self.nodes_iter(data=True):
+        for u, t in self._succ.iteritems():
             if u in {0, 1}:
                 continue
-            (_, v, dv), (_, w, _) = self.successors_iter(u)
-            if dv['value']:
-                v, w = w, v
-            t = (du['index'], v, w)
-            self._pairs_table[t] = u
+            self._pred[t] = u
 
     def sat_len(self, u=None):
         """Return number of models of node `u`.
@@ -426,97 +411,96 @@ class BDD(nx.MultiDiGraph):
         The default node `u` is `self.root`, unless
         BDD has multiple roots.
         """
-        root = u
-        if root is None:
+        if u is None:
             if len(self.roots) != 1:
                 raise Exception(
                     'No single root defined: give `u`')
             else:
                 (root, ) = self.roots
-        levels = self.levels()
+        else:
+            root = u
         # from terminals up to root
-        r = iter(sorted(levels.iteritems(), reverse=True))
         # terminals
-        i, s = next(r)
-        d = self.node
-        idx = lambda u: d[u]['index']
-        a = lambda u: d[u]['sat_len']
-        for u in s:
-            d[u]['sat_len'] = u
+        d = {0: 0, 1: 1}
         # non-terminals
-        for i, s in r:
-            for u in s:
-                p, q = self.succ[u]
-                d[u]['sat_len'] = (
-                    a(p) * 2**(idx(p) - idx(u) - 1) +
-                    a(q) * 2**(idx(q) - idx(u)) - 1)
-        return a(root) * 2**idx(root)
+        idx = lambda x: self._succ[x][0]
+        for u, i, v, w in self.levels(skip_terminals=True):
+            d[u] = (
+                d[v] * 2**(idx(v) - i - 1) +
+                d[w] * 2**(idx(w) - i - 1))
+        i, _, _ = self._succ[root]
+        return d[root] * 2**i
 
-    def sat_iter(self, root=None):
+    def sat_iter(self, u=None):
         """Return iterator over models.
 
         Use `next(BDD.sat_iter())` to get a single
         satisfying valuation.
 
         If the BDD has multiple roots,
-        then a `root` must be given.
+        then a root `u` must be given.
 
         If a variable is missing from the `dict` of a model,
         then it is a "don't care", i.e., the model can be
         completed by assigning any value to that variable.
         """
-        ind2var = {k: v for v, k in self.ordering.iteritems()}
         # empty or unsat ?
         if len(self) == 0:
             return
         if len(self) == 1 and False in self:
             return
         # satisfiable
-        if root is None:
+        if u is None:
             if len(self.roots) != 1:
                 raise Exception(
                     'No single root defined: give `root`')
             else:
-                (root, ) = self.roots
-        g = nx.reverse(self)
-        paths = nx.all_simple_paths(g, 1, root)
-        for p in paths:
-            model = dict()
-            r = iter(p)
-            u = next(r)
-            for v in r:
-                var = ind2var[g.node[v]['index']]
-                # assert no redundant nodes
-                assert len(self[v][u]) == 1
-                val = self[v][u][0]['value']
-                model[var] = val
-                u = v
-            yield model
+                (u, ) = self.roots
+        self._ind2var = {k: v for v, k in self.ordering.iteritems()}
+        return self._sat_iter(u, '')
 
-    def is_consistent(self):
-        """Return `True` if `self` is a valid BDD."""
-        assert self.roots == {u for u in self if not self.node[u]}
+    def _sat_iter(self, u, path):
+        """Recurse to enumerate models."""
+        if u != 0 and u != 1:
+            _, v, w = self._succ[u]
+            for x in self._sat_iter(v, path + '0'):
+                yield x
+            for x in self._sat_iter(w, path + '1'):
+                yield x
+            return
+        # u is terminal
+        if u == 0:
+            return
+        assert u == 1, u
+        model = {self._ind2var[i]: int(v) for i, v in enumerate(path)}
+        yield model
+
+    def assert_consistent(self):
+        """Raise `AssertionError` if not a valid BDD."""
         assert self.roots  # must be rooted
-        for u, d in self.nodes_iter(data=True):
-            k = 'index'
-            assert k in d
-            assert isinstance(d[k], int)
+        for root in self.roots:
+            assert root in self._succ
+        for u, (i, v, w) in self._succ.iteritems():
+            assert isinstance(i, int), i
             # terminal ?
-            if not self.succ[u]:
+            if v is None:
+                assert w is None, w
                 continue
-            # var order should increase
-            values = set()
-            for v, q in self.successors_iter(u, data=True):
-                assert d['index'] < q['index']
-                values.add(bool(q['value']))
-            assert values == {False, True}
-        for u in self.roots:
-            assert not self.in_degree(u)
-        for u, out in self.out_degree_iter():
-            if u in {0, 1}:
-                assert not out
             else:
-                assert out == 2
+                assert v in self._succ, v
+            if w is None:
+                assert v is None, v
+                continue
+            else:
+                assert w in self._succ, w
+            # "high" is regular edge
+            assert v >= 0, v
+            # var order should increase
+            for x in (v, w):
+                assert i < self._succ[x][0], (u, i)
+                # roots don't have predecessors
+                assert x not in self.roots, self.roots
+        return True
 
     def add_expr(self, e):
         """Return node for expression `e` after adding it.
@@ -555,12 +539,15 @@ class BDD(nx.MultiDiGraph):
             # Boolean constant ?
             if t.value in {'True', 'False'}:
                 u = int(t.value == 'True')
-                self.add_node(u, index=len(self.ordering))
+                index = len(self.ordering)
+                self._succ[u] = (index, None, None)
                 return u
             # variable `t.value` must be in `self.ordering`
-            i = self.ordering[t.value]
-            self.add_nodes_from([0, 1], index=len(self.ordering))
-            return self.find_or_add(i, 0, 1)
+            i = len(self.ordering)
+            self._succ[0] = (i, None, None)
+            self._succ[1] = (i, None, None)
+            j = self.ordering[t.value]
+            return self.find_or_add(j, 0, 1)
 
     def to_expr(self, u):
         """Return a Boolean expression for node `u`."""
@@ -570,11 +557,8 @@ class BDD(nx.MultiDiGraph):
     def _to_expr(self, u, ind2var):
         if u in {0, 1}:
             return u
-        i = self.node[u]['index']
+        i, v, w = self._succ[u]
         var = ind2var[i]
-        (_, v, dv), (_, w, _) = self.edges_iter(u, data=True)
-        if dv['value']:
-            v, w = w, v
         p = self._to_expr(v, ind2var)
         q = self._to_expr(w, ind2var)
         # pure var ?
@@ -618,25 +602,42 @@ class BDD(nx.MultiDiGraph):
 def rename(u, bdd, dvars):
     """Efficient rename to non-essential neighbors.
 
-    @param dvars: `dict` from variabe indices to indices
+    @param dvars: `dict` from variabe indices to variable indices
+        or from variable names to variable names
     """
+    # map name to indices, if needed
+    ordering = bdd.ordering
+    k = next(iter(dvars))
+    if k in ordering:
+        dvars = {ordering[k]: ordering[v]
+                 for k, v in dvars.iteritems()}
+    # split
     var = set(dvars)
-    varp = set(dvars.itervalues())
+    varp = set(dvars.itervalues())  # primed vars
     # pairwise disjoint ?
-    assert len(var) == len(varp)
-    assert not var.intersection(varp)
+    assert len(var) == len(varp), dvars
+    assert not var.intersection(varp), dvars
     S = set()
     Q = set([u])
     # u independent of varp ?
     while Q:
         x = Q.pop()
-        r = set(bdd.successors(x)).difference(S)
-        Q.update(r)
-        S.update(r)
-        assert bdd.node[x]['index'] not in varp
+        i, v, w = bdd._succ[x]
+        if v is None or w is None:
+            assert v is None, v
+            assert w is None, w
+            continue
+        if v not in S:
+            Q.add(v)
+            S.add(v)
+        if w not in S:
+            Q.add(w)
+            S.add(w)
+        assert i not in varp, 'target var "{i}" is essential'.format(i=i)
     # neighbors ?
     for v, vp in dvars.iteritems():
-        assert abs(bdd.ordering[v], bdd.ordering[vp]) == 1
+        assert abs(v - vp) == 1, '"{v}" not neighbor of "{vp}"'.format(
+            v=v, vp=vp)
     return _rename(u, bdd, dvars)
 
 
@@ -644,14 +645,11 @@ def _rename(u, bdd, dvars):
     """Recursive renaming, assuming `dvars` is valid."""
     if u in {0, 1}:
         return u
-    (_, v, dv), (_, w, _) = bdd.edges_iter(u, data=True)
-    if dv['value']:
-        v, w = w, v
+    i, v, w = bdd._succ[u]
     p = _rename(v, bdd, dvars)
     q = _rename(w, bdd, dvars)
-    z = bdd.node[u]['index']
     # to be renamed ?
-    z = dvars.get(z, z)
+    z = dvars.get(i, i)
     return bdd.find_or_add(z, p, q)
 
 
@@ -717,8 +715,8 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     if w is not None:
         return w
     # recurse (descend)
-    iu = bdd.node[u]['index']
-    jv = bdd.node[v]['index']
+    iu = bdd._succ[u][0]
+    jv = bdd._succ[v][0]
     if vmap is None:
         iv = jv
     else:
@@ -745,51 +743,49 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
 
 
 def to_pydot(bdd):
-    """Convert BDD to pydot graph.
+    """Convert `BDD` to pydot graph.
 
     Nodes are ordered by variables.
     Edges to low successors are dashed.
     """
-    try:
-        import pydot
-    except ImportError:
-        raise Exception('could not import pydot')
-    idx2var = {k: v for v, k in bdd.ordering.iteritems()}
+    import pydot
     g = pydot.Dot('bdd', graph_type='digraph')
-    levels = bdd.levels()
     skeleton = list()
-    for i, s in sorted(levels.iteritems()):
+    subgraphs = dict()
+    for i in xrange(len(bdd.ordering) + 1):
         h = pydot.Subgraph('', rank='same')
         g.add_subgraph(h)
+        subgraphs[i] = h
         # add phantom node
         u = '-{i}'.format(i=i)
         skeleton.append(u)
         nd = pydot.Node(name=u, label=str(i), shape='none')
         h.add_node(nd)
-        # add nodes of this level
-        for u in s:
-            if u in {0, 1}:
-                label = str(bool(u))
-            else:
-                var = idx2var[bdd.node[u]['index']]
-                label = '{var}-{u}'.format(var=var, u=u)
-            nd = pydot.Node(name=u, label=label)
-            h.add_node(nd)
-            # place node "False" left
-            if u == 0:
-                h.set_rankdir('LR')
-                h.add_edge(pydot.Edge(0, 1, style='invis'))
-    # BDD edges
-    for u, v, d in bdd.edges_iter(data=True):
-        if d['value']:
-            style = 'solid'
-        else:
-            style = 'dashed'
-        e = pydot.Edge(u, v, style=style)
-        g.add_edge(e)
     # auxiliary edges for ranking
     a, b = tee(skeleton)
     next(b, None)
     for u, v in izip(a, b):
-        g.add_edge(pydot.Edge(u, v, style='invis'))
+        g.add_edge(pydot.Edge(str(u), str(v), style='invis'))
+    # add nodes
+    idx2var = {k: v for v, k in bdd.ordering.iteritems()}
+    for u, (i, v, w) in bdd._succ.iteritems():
+        # terminal ?
+        if v is None:
+            var = str(bool(u))
+        else:
+            var = idx2var[i]
+        label = '{var}-{u}'.format(var=var, u=u)
+        nd = pydot.Node(name=u, label=label)
+        # add node to subgraph for level i
+        h = subgraphs[i]
+        h.add_node(nd)
+        # place node "False" left
+        if u == 0:
+            h.set_rankdir('LR')
+            h.add_edge(pydot.Edge(0, 1, style='invis'))
+        # add edges
+        e = pydot.Edge(str(u), str(v), style='dashed')
+        g.add_edge(e)
+        e = pydot.Edge(str(u), str(w), style='solid')
+        g.add_edge(e)
     return g

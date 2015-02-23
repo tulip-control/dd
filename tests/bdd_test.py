@@ -5,6 +5,7 @@ import networkx.algorithms.isomorphism as iso
 
 
 def test_evaluate():
+    # x, y
     g = two_vars_xy()
     u = 2
     assert g.evaluate(u, {'x': 1})
@@ -12,7 +13,7 @@ def test_evaluate():
     u = 3
     assert g.evaluate(u, {'y': 1})
     assert not g.evaluate(u, {'y': 0})
-
+    # x & y
     g = x_and_y()
     u = 2
     # missing value for y
@@ -22,6 +23,18 @@ def test_evaluate():
     assert not g.evaluate(u, {'x': 0, 'y': 1})
     assert not g.evaluate(u, {'x': 1, 'y': 0})
     assert g.evaluate(u, {'x': 1, 'y': 1})
+
+
+def test_support():
+    g = two_vars_xy()
+    assert g.support(2) == {'x'}
+    assert g.support(3) == {'y'}
+    g = x_and_y()
+    assert g.support(2) == {'x', 'y'}
+    assert g.support(3) == {'y'}
+    g = x_or_y()
+    assert g.support(2) == {'x', 'y'}
+    assert g.support(3) == {'y'}
 
 
 def test_sat_len():
@@ -53,39 +66,24 @@ def compare_iter_to_list_of_sets(g, s):
 def test_isomorphism():
     ordering = {'x': 0}
     g = BDD(ordering)
-    g.add_nodes_from([0, 1], index=1)
-    g.add_node(2, index=0)
-    g.add_node(3, index=0)
-
-    g.add_edge(2, 0, value=0)
-    g.add_edge(2, 1, value=1)
-
-    g.add_edge(3, 0, value=0)
-    g.add_edge(3, 1, value=1)
-
+    g.roots.update([2, 3])
+    g._succ[2] = (0, 0, 1)
+    g._succ[3] = (0, 0, 1)
     h = g.reduction()
     assert set(h) == {0, 1, 2}
-    assert h.node[0]['index'] == 1
-    assert h.node[1]['index'] == 1
-    assert h.node[2]['index'] == 0
-    assert set(h.edges()) == {(2, 0), (2, 1)}
-    assert not h[2][0][0]['value']
-    assert h[2][1][0]['value']
+    assert h._succ[0] == (1, None, None)
+    assert h._succ[1] == (1, None, None)
+    assert h._succ[2] == (0, 0, 1)
+    assert h.roots == {2}
 
 
 def test_elimination():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
-    g.add_nodes_from([0, 1], index=2)
-    g.add_node(2, index=0)
-    g.add_node(3, index=1)
-
-    g.add_edge(3, 0, value=False)
-    g.add_edge(3, 1, value=True)
+    g.roots.add(2)
     # high == low, so node 2 is redundant
-    g.add_edge(2, 3, value=False)
-    g.add_edge(2, 3, value=True)
-
+    g._succ[2] = (0, 3, 3)
+    g._succ[3] = (1, 0, 1)
     h = g.reduction()
     assert set(h) == {0, 1, 2}
 
@@ -94,25 +92,12 @@ def test_reduce_combined():
     """Fig.5 in 1986 Bryant TOC"""
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)
-    g.add_node(2, index=0)
-    g.add_node(3, index=1)
-    g.add_node(4, index=1)
-    g.add_node(5, index=2)
-    g.add_node(6, index=2)
-    g.add_node(0, index=3)
-    g.add_node(1, index=3)
-
-    g.add_edge(2, 3, value=0)
-    g.add_edge(2, 4, value=1)
-    g.add_edge(3, 0, value=0)
-    g.add_edge(3, 5, value=1)
-    g.add_edge(4, 5, value=0)
-    g.add_edge(4, 6, value=1)
-    g.add_edge(5, 1, value=1)
-    g.add_edge(5, 0, value=0)
-    g.add_edge(6, 0, value=0)
-    g.add_edge(6, 1, value=1)
-
+    g.roots.add(2)
+    g._succ[2] = (0, 3, 4)
+    g._succ[3] = (1, 0, 5)
+    g._succ[4] = (1, 5, 6)
+    g._succ[5] = (2, 0, 1)
+    g._succ[6] = (2, 0, 1)
     h = g.reduction()
     assert 0 in h and 1 in h
     assert ordering == h.ordering
@@ -147,17 +132,14 @@ def test_find_or_add():
     u = g.find_or_add(i, v, v)
     assert len(g) == n
     assert u == v
-    assert not g._pairs_table
+    assert not g._pred
     # add new node
     n = len(g)
     u = g.find_or_add(i, v, w)
     assert u != v
     assert len(g) == n + 1
-    assert g.node[u]['index'] == i
-    assert set(g.successors(u)) == {0, 1}
-    assert not g[u][0][0]['value']
-    assert g[u][1][0]['value']
-    assert (i, v, w) in g._pairs_table
+    assert g._succ[u] == (i, 0, 1)
+    assert (i, v, w) in g._pred
     # add existing
     r = g.find_or_add(i, v, w)
     assert len(g) == n + 1
@@ -173,7 +155,6 @@ def test_find_or_add():
 def test_top_cofactor():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
-
     x = ordering['x']
     y = ordering['y']
     u = g.find_or_add(y, 0, 1)
@@ -184,7 +165,6 @@ def test_top_cofactor():
 def test_ite():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
-    g.add_nodes_from([0, 1], index=len(ordering))
     # x
     ix = ordering['x']
     x = g.find_or_add(ix, 0, 1)
@@ -356,30 +336,21 @@ def test_preimage():
 
 def x_or_y():
     g = two_vars_xy()
-    g.remove_edge(2, 0)
-    g.add_edge(2, 3, value=0)
+    g._succ[2] = (0, 3, 1)
     return g
 
 
 def x_and_y():
     g = two_vars_xy()
-    g.remove_edge(2, 1)
-    g.add_edge(2, 3, value=1)
+    g._succ[2] = (0, 0, 3)
     return g
 
 
 def two_vars_xy():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
-    g.add_nodes_from([0, 1], index=2)
-    g.add_node(2, index=0)
-    g.add_node(3, index=1)
-
-    g.add_edge(2, 0, value=0)
-    g.add_edge(2, 1, value=1)
-
-    g.add_edge(3, 0, value=0)
-    g.add_edge(3, 1, value=1)
+    g._succ[2] = (0, 0, 1)
+    g._succ[3] = (1, 0, 1)
     return g
 
 
@@ -416,7 +387,9 @@ def ref_x_or_y():
     return h
 
 
-def compare(u, g, h):
+def compare(u, bdd, h):
+    g = to_nx(bdd, u)
+    nx.to_pydot(g).write_pdf('g.pdf')
     post = nx.descendants(g, u)
     post.add(u)
     r = g.subgraph(post)
@@ -433,17 +406,4 @@ def compare(u, g, h):
 
 
 if __name__ == '__main__':
-    test_evaluate()
-    test_sat_len()
-    test_sat_iter()
-    test_isomorphism()
-    test_elimination()
-    test_reduce_combined()
-    test_find_or_add()
-    test_top_cofactor()
     test_ite()
-    test_add_expr()
-    test_compose()
-    test_cofactor()
-    test_quantify()
-    test_preimage()

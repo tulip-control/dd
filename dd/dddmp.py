@@ -152,11 +152,7 @@ class Parser(object):
             lexer = self.lexer.lexer
             lexer.input(s)
             r = self.parser.parse(lexer=lexer, debug=debuglog)
-        assert len(self.support_vars) == self.n_support_vars
-        assert len(self.ordered_vars) == self.n_vars
-        assert len(self.var_ids) == self.n_support_vars
-        assert len(self.permuted_var_ids) == self.n_support_vars
-        assert len(self.aux_var_ids) == self.n_support_vars
+        self._assert_consistent()
         # prepare mapping from fixed var index to level among all vars
         # id2name = {
         #     i: var
@@ -240,6 +236,17 @@ class Parser(object):
         self.var_ids = None
         self.permuted_var_ids = None
         self.aux_var_ids = None
+
+    def _assert_consistent(self):
+        """Check that the loaded attributes are reasonable."""
+        assert len(self.support_vars) == self.n_support_vars
+        if self.ordered_vars is not None:
+            assert len(self.ordered_vars) == self.n_vars
+        assert len(self.var_ids) == self.n_support_vars
+        assert len(self.permuted_var_ids) == self.n_support_vars
+        if self.aux_var_ids is not None:
+            assert len(self.aux_var_ids) == self.n_support_vars
+        assert len(self.rootids) == self.n_roots, self.rootids
 
     def p_file(self, p):
         """file : lines"""

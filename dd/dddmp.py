@@ -100,7 +100,6 @@ class Lexer(object):
         """
         if debug and debuglog is None:
             debuglog = logging.getLogger(LEX_LOG)
-
         self.lexer = ply.lex.lex(
             module=self,
             debug=debug,
@@ -122,27 +121,18 @@ class Parser(object):
     def build(self,
               tabmodule=None,
               outputdir=None,
-              write_tables=False):
+              write_tables=False,
+              debug=False,
+              debuglog=None):
         if tabmodule is None:
             tabmodule = self.tabmodule
-        self.parser = ply.yacc.yacc(
-            module=self,
-            tabmodule=tabmodule,
-            write_tables=write_tables,
-            debug=False)
-
-    def rebuild_parsetab(self, tabmodule, outputdir='',
-                         debug=True, debuglog=None):
-        """Rebuild parsetable in debug mode."""
-        if debug and debuglog is None:
-            debuglog = logging.getLogger(YACC_LOG)
         self.lexer.build(debug=debug)
         self.parser = ply.yacc.yacc(
             module=self,
             start='file',
             tabmodule=tabmodule,
             outputdir=outputdir,
-            write_tables=True,
+            write_tables=write_tables,
             debug=debug,
             debuglog=debuglog)
 

@@ -44,7 +44,9 @@ class BDD(object):
     """Shared ordered binary decision diagram.
 
     There must be at least one root.
-    Terminal nodes are the integers 0, 1.
+    The terminal node is 1.
+    Complemented edges are represented as negative integers.
+    Roots and values returned are edges, possibly complemented.
 
     Attributes:
       - `ordering`: `dict` mapping `variables` to `int` indices
@@ -61,17 +63,16 @@ class BDD(object):
     """
 
     def __init__(self, ordering=None, **kw):
-        self._pred = dict()
-        self._succ = dict()
+        self._pred = dict()  # (i, low, high) -> u
+        self._succ = dict()  # u -> (i, low, high)
+        self._ite_table = dict()  # (cond, high, low)
         if ordering is None:
             ordering = dict()
         else:
             i = len(ordering)
-            self._succ[0] = (i, None, None)
             self._succ[1] = (i, None, None)
         self.ordering = ordering
         self.roots = set()
-        self._ite_table = dict()
         self._parser = None
 
     def __len__(self):
@@ -119,22 +120,30 @@ class BDD(object):
             Mapping should be complete with respect to `u`.
         @type values: `dict`
         """
+        assert abs(u) in self, u
         values = self._map_to_index(values)
-        # follow valuation from u to terminal
-        while u not in {0, 1}:
-            i, v, w = self._succ[u]
-            if values[i]:
-                u = w
-            else:
-                u = v
-        return u
+        return self._evaluate(u, values)
+
+    def _evaluate(self, u, values):
+        """Recurse to compute value."""
+        if abs(u) == 1:
+            return u
+        i, v, w = self._succ[abs(u)]
+        if values[i]:
+            r = self._evaluate(w, values)
+        else:
+            r = self._evaluate(v, values)
+        if u < 0:
+            return -r
+        else:
+            return r
 
     def is_essential(self, u, var):
         """Return `True` if `var` essential for node `u`."""
         i = self.ordering.get(var)
         if i is None:
             return False
-        iu, v, w = self._succ[u]
+        iu, v, w = self._succ[abs(u)]
         # var above node u ?
         if i < iu:
             return False
@@ -160,9 +169,9 @@ class BDD(object):
         if len(var) == len(self.ordering):
             return
         # terminal ?
-        if u == 0 or u == 1:
+        if u == -1 or u == 1:
             return
-        i, v, w = self._succ[u]
+        i, v, w = self._succ[abs(u)]
         var.add(i)
         self._support(v, var)
         self._support(w, var)
@@ -190,7 +199,7 @@ class BDD(object):
         """
         # terminals
         bdd = BDD(self.ordering)
-        umap = {0: 0, 1: 1}
+        umap = {-1: -1, 1: 1}
         # non-terminals
         for u, i, v, w in self.levels(skip_terminals=True):
             p, q = umap[v], umap[w]
@@ -208,21 +217,21 @@ class BDD(object):
         @param cache: stores intermediate results
         """
         # terminal or exhausted valuation ?
-        if f in {0, 1}:
+        if abs(f) == 1:
             return f
         # cached ?
         if cache is None:
             cache = dict()
         elif f in cache:
             return cache[f]
-        i, v, w = self._succ[f]
+        i, v, w = self._succ[abs(f)]
         if j < i:
             return f
         elif i == j:
             r = self.ite(g, w, v)
         else:
             # i < j
-            z = min(i, self._succ[g][0])
+            z = min(i, self._succ[abs(g)][0])
             f0, f1 = self._top_cofactor(f, z)
             g0, g1 = self._top_cofactor(g, z)
             p = self.compose(f0, j, g0, cache)
@@ -232,15 +241,17 @@ class BDD(object):
         return r
 
     def ite(self, g, u, v):
-        """Return node for if-then-else of `g`, `x` and `y`.
+        """Return node for if-then-else of `g`, `u` and `v`.
 
-        @type g, x, y: nodes
+        @param u: high
+        @param v: low
+        @type g, u, v: `int`
         @rtype: [BDD]
         """
         # is g terminal ?
         if g == 1:
             return u
-        elif g == 0:
+        elif g == -1:
             return v
         # g is non-terminal
         # already computed ?
@@ -248,9 +259,9 @@ class BDD(object):
         w = self._ite_table.get(r)
         if w is not None:
             return w
-        z = min(self._succ[g][0],
-                self._succ[u][0],
-                self._succ[v][0])
+        z = min(self._succ[abs(g)][0],
+                self._succ[abs(u)][0],
+                self._succ[abs(v)][0])
         g0, g1 = self._top_cofactor(g, z)
         u0, u1 = self._top_cofactor(u, z)
         v0, v1 = self._top_cofactor(v, z)
@@ -269,10 +280,10 @@ class BDD(object):
         @param value: assignment to variable `i`
         """
         # terminal node ?
-        if u in {0, 1}:
+        if abs(u) == 1:
             return (u, u)
         # non-terminal node
-        iu, v, w = self._succ[u]
+        iu, v, w = self._succ[abs(u)]
         # u independent of var ?
         if i < iu:
             return (u, u)
@@ -280,6 +291,9 @@ class BDD(object):
             raise Exception('call `cofactor` instead')
         # iu == i
         # u labeled with var
+        # complement ?
+        if u < 0:
+            v, w = -v, -w
         return (v, w)
 
     def cofactor(self, u, values):
@@ -297,11 +311,11 @@ class BDD(object):
     def _cofactor(self, u, j, ordvar, values, cache):
         """Recurse to compute cofactor."""
         # terminal ?
-        if u in {0, 1}:
+        if abs(u) == 1:
             return u
         if u in cache:
             return cache[u]
-        i, v, w = self._succ[u]
+        i, v, w = self._succ[abs(u)]
         n = len(ordvar)
         # skip nonessential variables
         while j < n:
@@ -322,6 +336,9 @@ class BDD(object):
             p = self._cofactor(v, j, ordvar, values, cache)
             q = self._cofactor(w, j, ordvar, values, cache)
             r = self.find_or_add(i, p, q)
+        # complement ?
+        if u < 0:
+            r = -r
         cache[u] = r
         return r
 
@@ -345,11 +362,11 @@ class BDD(object):
     def _quantify(self, u, j, ordvar, qvars, forall, cache):
         """Recurse to quantify variables."""
         # terminal ?
-        if u in {0, 1}:
+        if abs(u) == 1:
             return u
         if u in cache:
             return cache[u]
-        i, v, w = self._succ[u]
+        i, v, w = self._succ[abs(u)]
         n = len(ordvar)
         # skip nonessential variables
         while j < n:
@@ -363,7 +380,7 @@ class BDD(object):
         # recurse
         if i in qvars:
             if forall:
-                r = self.ite(v, w, 0)  # conjoin
+                r = self.ite(v, w, -1)  # conjoin
             else:
                 r = self.ite(v, 1, w)  # disjoin
         else:
@@ -378,27 +395,34 @@ class BDD(object):
 
         If one exists, it is quickly found in the cached table.
 
+        @param i: level in `range(n_vars - 1)`
         @param v: low
         @param w: high
         """
+        assert 0 <= i < len(self.ordering), i
+        assert abs(v) in self, v
+        assert abs(w) in self, w
+        # ensure canonicity of complemented edges
+        if w < 0:
+            v, w = -v, -w
+            r = -1
+        else:
+            r = 1
         if v == w:
-            return v
+            return r * v
         t = (i, v, w)
         u = self._pred.get(t)
         if u is None:
-            u = len(self)
-            assert u not in self
-            assert i < len(self.ordering)
-            assert v in self
-            assert w in self
+            u = len(self) + 1
+            assert u not in self, u
             self._pred[t] = u
             self._succ[u] = t
-        return u
+        return r * u
 
     def update_pairs_table(self):
         """Update table that maps (level, low, high) to nodes."""
         for u, t in self._succ.iteritems():
-            if u in {0, 1}:
+            if abs(u) == 1:
                 continue
             self._pred[t] = u
 
@@ -419,17 +443,31 @@ class BDD(object):
                 (root, ) = self.roots
         else:
             root = u
-        # from terminals up to root
-        # terminals
-        d = {0: 0, 1: 1}
-        # non-terminals
-        idx = lambda x: self._succ[x][0]
-        for u, i, v, w in self.levels(skip_terminals=True):
-            d[u] = (
-                d[v] * 2**(idx(v) - i - 1) +
-                d[w] * 2**(idx(w) - i - 1))
-        i, _, _ = self._succ[root]
-        return d[root] * 2**i
+        assert abs(root) in self, root
+        i, _, _ = self._succ[abs(root)]
+        return self._sat_len(root) * 2**i
+
+    def _sat_len(self, u):
+        """Recurse to compute the number of models."""
+        # terminal ?
+        if u == -1:
+            return 0
+        elif u == 1:
+            return 1
+        # non-terminal
+        i, v, w = self._succ[abs(u)]
+        dv = self._sat_len(v)
+        dw = self._sat_len(w)
+        iv, _, _ = self._succ[abs(v)]
+        iw, _, _ = self._succ[w]
+        # complement ?
+        du = (dv * 2**(iv - i - 1) +
+              dw * 2**(iw - i - 1))
+        # complement ?
+        if u < 0:
+            return 2**(len(self.ordering) - iv) - dv
+        else:
+            return du
 
     def sat_iter(self, u=None):
         """Return iterator over models.
@@ -447,8 +485,6 @@ class BDD(object):
         # empty or unsat ?
         if len(self) == 0:
             return
-        if len(self) == 1 and 0 in self:
-            return
         # satisfiable
         if u is None:
             if len(self.roots) != 1:
@@ -457,29 +493,31 @@ class BDD(object):
             else:
                 (u, ) = self.roots
         self._ind2var = {k: v for v, k in self.ordering.iteritems()}
-        return self._sat_iter(u, '')
+        return self._sat_iter(u, '', True)
 
-    def _sat_iter(self, u, path):
+    def _sat_iter(self, u, path, value):
         """Recurse to enumerate models."""
-        if u != 0 and u != 1:
-            _, v, w = self._succ[u]
-            for x in self._sat_iter(v, path + '0'):
-                yield x
-            for x in self._sat_iter(w, path + '1'):
-                yield x
+        if u < 0:
+            value = not value
+        # terminal ?
+        if abs(u) == 1:
+            if value:
+                model = {self._ind2var[i]: int(val)
+                         for i, val in enumerate(path)}
+                yield model
             return
-        # u is terminal
-        if u == 0:
-            return
-        assert u == 1, u
-        model = {self._ind2var[i]: int(v) for i, v in enumerate(path)}
-        yield model
+        # non-terminal
+        _, v, w = self._succ[abs(u)]
+        for x in self._sat_iter(v, path + '0', value):
+            yield x
+        for x in self._sat_iter(w, path + '1', value):
+            yield x
 
     def assert_consistent(self):
         """Raise `AssertionError` if not a valid BDD."""
         assert self.roots  # must be rooted
         for root in self.roots:
-            assert root in self._succ
+            assert abs(root) in self._succ, root
         for u, (i, v, w) in self._succ.iteritems():
             assert isinstance(i, int), i
             # terminal ?
@@ -487,17 +525,17 @@ class BDD(object):
                 assert w is None, w
                 continue
             else:
-                assert v in self._succ, v
+                assert abs(v) in self._succ, v
             if w is None:
                 assert v is None, v
                 continue
             else:
+                assert w >= 0, w  # "high" is regular edge
                 assert w in self._succ, w
-            # "high" is regular edge
-            assert w >= 0, w
             # var order should increase
             for x in (v, w):
-                assert i < self._succ[x][0], (u, i)
+                ix, _, _ = self._succ[abs(x)]
+                assert i < ix, (u, i)
                 # roots don't have predecessors
                 assert x not in self.roots, self.roots
         return True
@@ -529,7 +567,7 @@ class BDD(object):
 
         @type t: `Terminal` or `Operator` of `tulip.spec.ast`
         """
-        # assert 0, 1 in `self`, with index `len(self.ordering)`
+        # assert 1 in `self`, with index `len(self.ordering)`
         # operator ?
         try:
             operands = map(self.add_ast, t.operands)
@@ -538,16 +576,15 @@ class BDD(object):
             # var or bool (terminal AST node)
             # Boolean constant ?
             if t.value in {'True', 'False'}:
-                u = int(t.value == 'True')
                 index = len(self.ordering)
-                self._succ[u] = (index, None, None)
+                self._succ[1] = (index, None, None)
+                u = -1 if t.value == 'False' else 1
                 return u
             # variable `t.value` must be in `self.ordering`
             i = len(self.ordering)
-            self._succ[0] = (i, None, None)
             self._succ[1] = (i, None, None)
             j = self.ordering[t.value]
-            return self.find_or_add(j, 0, 1)
+            return self.find_or_add(j, -1, 1)
 
     def to_expr(self, u):
         """Return a Boolean expression for node `u`."""
@@ -555,16 +592,16 @@ class BDD(object):
         return self._to_expr(u, ind2var)
 
     def _to_expr(self, u, ind2var):
-        if u in {0, 1}:
+        if abs(u) == 1:
             return u
-        i, v, w = self._succ[u]
+        i, v, w = self._succ[abs(u)]
         var = ind2var[i]
         p = self._to_expr(v, ind2var)
         q = self._to_expr(w, ind2var)
         # pure var ?
-        if p == 0 and q == 1:
+        if p == -1 and q == 1:
             return var
-        elif p == 1 and q == 0:
+        elif p == 1 and q == -1:
             return '!{var}'.format(var=var)
         else:
             return '({var} -> {q} : {p})'.format(var=var, p=p, q=q)
@@ -578,17 +615,17 @@ class BDD(object):
         @type u, v: nodes
         """
         if op in {'not', '!'}:
-            return self.ite(u, 0, 1)
+            return -u
         elif op in {'or', '|', '||'}:
             return self.ite(u, 1, v)
         elif op in {'and', '&', '&&'}:
-            return self.ite(u, v, 0)
+            return self.ite(u, v, -1)
         elif op in {'xor', '^'}:
-            return self.ite(u, self.ite(v, 0, 1), v)
+            return self.ite(u, -v, v)
         elif op in {'implies', '->'}:
             return self.ite(u, v, 1)
         elif op in {'bimplies', '<->'}:
-            return self.ite(u, v, self.ite(v, 0, 1))
+            return self.ite(u, v, -v)
 
     def dump_pdf(self, filename):
         """Write the BDD graph to `filename` as PDF."""
@@ -623,7 +660,7 @@ def rename(u, bdd, dvars):
     # u independent of varp ?
     while Q:
         x = Q.pop()
-        i, v, w = bdd._succ[x]
+        i, v, w = bdd._succ[abs(x)]
         if v is None or w is None:
             assert v is None, v
             assert w is None, w
@@ -644,9 +681,9 @@ def rename(u, bdd, dvars):
 
 def _rename(u, bdd, dvars):
     """Recursive renaming, assuming `dvars` is valid."""
-    if u in {0, 1}:
+    if abs(u) == 1:
         return u
-    i, v, w = bdd._succ[u]
+    i, v, w = bdd._succ[abs(u)]
     p = _rename(v, bdd, dvars)
     q = _rename(w, bdd, dvars)
     # to be renamed ?
@@ -706,8 +743,8 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
         that occurs before conjunction with `u`.
     """
     # controlling values for conjunction ?
-    if u == 0 or v == 0:
-        return 0
+    if u == -1 or v == -1:
+        return -1
     if u == 1 and v == 1:
         return 1
     # already computed ?
@@ -716,8 +753,8 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     if w is not None:
         return w
     # recurse (descend)
-    iu = bdd._succ[u][0]
-    jv = bdd._succ[v][0]
+    iu = bdd._succ[abs(u)][0]
+    jv = bdd._succ[abs(v)][0]
     if vmap is None:
         iv = jv
     else:
@@ -730,7 +767,7 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     # quantified ?
     if z in qvars:
         if forall:
-            r = bdd.ite(p, q, 0)  # conjoin
+            r = bdd.ite(p, q, -1)  # conjoin
         else:
             r = bdd.ite(p, 1, q)  # disjoin
     else:
@@ -744,7 +781,11 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
 
 
 def to_nx(bdd, u=None):
-    """Convert BDD to `networkx.MultiDiGraph`."""
+    """Convert `BDD` to `networkx.MultiDiGraph`.
+
+    If a node `u` is given, then only the subgraph
+    rooted at `u` is used.
+    """
     import networkx as nx
     g = nx.MultiDiGraph()
     if u is None:
@@ -753,21 +794,24 @@ def to_nx(bdd, u=None):
     else:
         roots = {u}
     for root in roots:
+        assert abs(root) in bdd, root
         Q = {root}
         while Q:
             u = Q.pop()
-            i, v, w = bdd._succ[u]
-            g.add_node(u, index=i)
+            i, v, w = bdd._succ[abs(u)]
+            g.add_node(abs(u), index=i)
+            # terminal ?
             if v is None or w is None:
                 assert w is None, w
                 assert v is None, v
                 continue
+            # non-terminal
             if v not in g:
                 Q.add(v)
             if w not in g:
                 Q.add(w)
-            g.add_edge(u, v, value=False)
-            g.add_edge(u, w, value=True)
+            g.add_edge(u, abs(v), value=False, complement=(v < 0))
+            g.add_edge(u, abs(w), value=True, complement=False)
     return g
 
 
@@ -797,24 +841,27 @@ def to_pydot(bdd):
         g.add_edge(pydot.Edge(str(u), str(v), style='invis'))
     # add nodes
     idx2var = {k: v for v, k in bdd.ordering.iteritems()}
+    f = lambda x: str(abs(x))
     for u, (i, v, w) in bdd._succ.iteritems():
         # terminal ?
         if v is None:
-            var = str(bool(u))
+            var = str(bool(abs(u)))
         else:
             var = idx2var[i]
-        label = '{var}-{u}'.format(var=var, u=u)
-        nd = pydot.Node(name=u, label=label)
+        su = f(u)
+        label = '{var}-{u}'.format(var=var, u=su)
+        nd = pydot.Node(name=su, label=label)
         # add node to subgraph for level i
         h = subgraphs[i]
         h.add_node(nd)
-        # place node "False" left
-        if u == 0:
-            h.set_rankdir('LR')
-            h.add_edge(pydot.Edge(0, 1, style='invis'))
         # add edges
-        e = pydot.Edge(str(u), str(v), style='dashed')
+        if v is None:
+            continue
+        sv = f(v)
+        sw = f(w)
+        vlabel = '-1' if v < 0 else ' '
+        e = pydot.Edge(su, sv, style='dashed', label=vlabel)
         g.add_edge(e)
-        e = pydot.Edge(str(u), str(w), style='solid')
+        e = pydot.Edge(su, sw, style='solid')
         g.add_edge(e)
     return g

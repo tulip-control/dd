@@ -26,7 +26,7 @@ def test_assert_consistent():
         g.assert_consistent()
     g = x_or_y()
     g.roots.add(2)
-    g._succ[0] = (2, None, 1)
+    g._succ[1] = (2, None, 1)
     with nt.assert_raises(AssertionError):
         g.assert_consistent()
 
@@ -35,21 +35,21 @@ def test_evaluate():
     # x, y
     g = two_vars_xy()
     u = 2
-    assert g.evaluate(u, {'x': 1})
-    assert not g.evaluate(u, {'x': 0})
+    assert g.evaluate(u, {'x': 1}) == 1
+    assert g.evaluate(u, {'x': 0}) == -1
     u = 3
-    assert g.evaluate(u, {'y': 1})
-    assert not g.evaluate(u, {'y': 0})
+    assert g.evaluate(u, {'y': 1}) == 1
+    assert g.evaluate(u, {'y': 0}) == -1
     # x & y
     g = x_and_y()
     u = 2
     # missing value for y
     with nt.assert_raises(KeyError):
         g.evaluate(u, {'x': 1})
-    assert not g.evaluate(u, {'x': 0, 'y': 0})
-    assert not g.evaluate(u, {'x': 0, 'y': 1})
-    assert not g.evaluate(u, {'x': 1, 'y': 0})
-    assert g.evaluate(u, {'x': 1, 'y': 1})
+    assert g.evaluate(u, {'x': 0, 'y': 0}) == -1
+    assert g.evaluate(u, {'x': 0, 'y': 1}) == -1
+    assert g.evaluate(u, {'x': 1, 'y': 0}) == -1
+    assert g.evaluate(u, {'x': 1, 'y': 1}) == 1
 
 
 def test_is_essential():
@@ -63,8 +63,8 @@ def test_is_essential():
     assert g.is_essential(2, 'y')
     assert g.is_essential(3, 'y')
     assert not g.is_essential(3, 'x')
-    assert not g.is_essential(0, 'x')
-    assert not g.is_essential(0, 'y')
+    assert not g.is_essential(-1, 'x')
+    assert not g.is_essential(-1, 'y')
     assert not g.is_essential(1, 'x')
     assert not g.is_essential(1, 'y')
 
@@ -93,11 +93,12 @@ def test_sat_len():
 
 
 def test_sat_iter():
+    # x & y
     g = x_and_y()
     g.roots.add(2)
     s = [{'x': 1, 'y': 1}]
     compare_iter_to_list_of_sets(g, s)
-
+    # x | y
     g = x_or_y()
     g.roots.add(2)
     s = [{'x': 1}, {'x': 0, 'y': 1}]
@@ -115,13 +116,13 @@ def test_isomorphism():
     ordering = {'x': 0}
     g = BDD(ordering)
     g.roots.update([2, 3])
-    g._succ[2] = (0, 0, 1)
-    g._succ[3] = (0, 0, 1)
+    g._succ[2] = (0, -1, 1)
+    g._succ[3] = (0, -1, 1)
     h = g.reduction()
-    assert set(h) == {0, 1, 2}
-    assert h._succ[0] == (1, None, None)
+    assert set(h) == {1, 2}, set(h)
+    assert 0 not in h
     assert h._succ[1] == (1, None, None)
-    assert h._succ[2] == (0, 0, 1)
+    assert h._succ[2] == (0, -1, 1)
     assert h.roots == {2}
 
 
@@ -131,9 +132,9 @@ def test_elimination():
     g.roots.add(2)
     # high == low, so node 2 is redundant
     g._succ[2] = (0, 3, 3)
-    g._succ[3] = (1, 0, 1)
+    g._succ[3] = (1, -1, 1)
     h = g.reduction()
-    assert set(h) == {0, 1, 2}
+    assert set(h) == {1, 2}
 
 
 def test_reduce_combined():
@@ -142,26 +143,26 @@ def test_reduce_combined():
     g = BDD(ordering)
     g.roots.add(2)
     g._succ[2] = (0, 3, 4)
-    g._succ[3] = (1, 0, 5)
+    g._succ[3] = (1, -1, 5)
     g._succ[4] = (1, 5, 6)
-    g._succ[5] = (2, 0, 1)
-    g._succ[6] = (2, 0, 1)
+    g._succ[5] = (2, -1, 1)
+    g._succ[6] = (2, -1, 1)
     h = g.reduction()
-    assert 0 in h and 1 in h
+    assert 1 in h
     assert ordering == h.ordering
 
     r = nx.MultiDiGraph()
-    r.add_nodes_from([0, 1], index=3)
+    r.add_node(1, index=3)
     r.add_node(2, index=0)
     r.add_node(3, index=1)
     r.add_node(4, index=2)
 
-    r.add_edge(2, 3, value=False)
-    r.add_edge(2, 4, value=True)
-    r.add_edge(3, 4, value=True)
-    r.add_edge(3, 0, value=False)
-    r.add_edge(4, 0, value=False)
-    r.add_edge(4, 1, value=True)
+    r.add_edge(2, 3, value=False, complement=False)
+    r.add_edge(2, 4, value=True, complement=False)
+    r.add_edge(3, 4, value=True, complement=False)
+    r.add_edge(3, 1, value=False, complement=True)
+    r.add_edge(4, 1, value=False, complement=True)
+    r.add_edge(4, 1, value=True, complement=False)
 
     (u, ) = h.roots
     compare(u, h, r)
@@ -174,7 +175,7 @@ def test_find_or_add():
     g = BDD(ordering)
     # elimination rule
     i = 0
-    v = 0
+    v = -1
     w = 1
     n = len(g)
     u = g.find_or_add(i, v, v)
@@ -186,7 +187,7 @@ def test_find_or_add():
     u = g.find_or_add(i, v, w)
     assert u != v
     assert len(g) == n + 1
-    assert g._succ[u] == (i, 0, 1)
+    assert g._succ[u] == (i, -1, 1)
     assert (i, v, w) in g._pred
     # add existing
     r = g.find_or_add(i, v, w)
@@ -194,7 +195,7 @@ def test_find_or_add():
     assert u == r
     # only non-terminals can be added
     with nt.assert_raises(AssertionError):
-        g.find_or_add(2, 0, 1)
+        g.find_or_add(2, -1, 1)
     # low and high must already exist
     with nt.assert_raises(AssertionError):
         g.find_or_add(0, 3, 4)
@@ -205,9 +206,9 @@ def test_top_cofactor():
     g = BDD(ordering)
     x = ordering['x']
     y = ordering['y']
-    u = g.find_or_add(y, 0, 1)
+    u = g.find_or_add(y, -1, 1)
     assert g._top_cofactor(u, x) == (u, u)
-    assert g._top_cofactor(u, y) == (0, 1)
+    assert g._top_cofactor(u, y) == (-1, 1)
 
 
 def test_ite():
@@ -215,16 +216,16 @@ def test_ite():
     g = BDD(ordering)
     # x
     ix = ordering['x']
-    x = g.find_or_add(ix, 0, 1)
+    x = g.find_or_add(ix, -1, 1)
     h = ref_var(ix)
     compare(x, g, h)
     # y
     iy = ordering['y']
-    y = g.find_or_add(iy, 0, 1)
+    y = g.find_or_add(iy, -1, 1)
     h = ref_var(iy)
     compare(y, g, h)
     # x and y
-    u = g.ite(x, y, 0)
+    u = g.ite(x, y, -1)
     h = ref_x_and_y()
     compare(u, g, h)
     # x or y
@@ -285,9 +286,9 @@ def test_cofactor():
     x = g.add_expr('x')
     y = g.add_expr('y')
     assert g.cofactor(e, {'x': 1}) == y
-    assert g.cofactor(e, {'x': 0}) == 0
+    assert g.cofactor(e, {'x': 0}) == -1
     assert g.cofactor(e, {'y': 1}) == x
-    assert g.cofactor(e, {'y': 0}) == 0
+    assert g.cofactor(e, {'y': 0}) == -1
 
 
 def test_quantify():
@@ -298,9 +299,9 @@ def test_quantify():
     x = g.add_expr('x')
     y = g.add_expr('y')
     assert g.quantify(e, {'x'}) == y
-    assert g.quantify(e, {'x'}, forall=True) == 0
+    assert g.quantify(e, {'x'}, forall=True) == -1
     assert g.quantify(e, {'y'}) == x
-    assert g.quantify(e, {'x'}, forall=True) == 0
+    assert g.quantify(e, {'x'}, forall=True) == -1
 
     e = g.add_expr('x || y || z')
     xy = g.add_expr('x || y')
@@ -364,7 +365,7 @@ def test_preimage():
     qvars = {1, 3}
     p = preimage(t, f, rename, qvars, g)
     x = g.add_expr('x')
-    assert x == p
+    assert x == p, (x, p)
 
     # a cycle
     # (x & y) -> (!x & y) ->
@@ -410,7 +411,7 @@ def test_preimage():
     f = g.add_expr('x && !y')
     ep = preimage(t, f, rename, qvars, g)
     p = g.quantify(ep, {'zp'}, forall=True)
-    assert p == 0
+    assert p == -1
 
     f = g.add_expr('(x & !y) | (!x & y)')
     ep = preimage(t, f, rename, qvars, g)
@@ -423,11 +424,16 @@ def test_to_pydot():
     g.roots.add(2)
     pd = dd.bdd.to_pydot(g)
     r = nx.from_pydot(pd)
+    f = lambda x: str(abs(x))
     for u in g:
-        assert str(u) in r
+        assert f(u) in r, u
     for u, (i, v, w) in g._succ.iteritems():
-        assert r.has_edge(str(u), str(v))
-        assert r.has_edge(str(u), str(w))
+        if v is None or w is None:
+            assert v is None, v
+            assert w is None, w
+            continue
+        assert r.has_edge(f(u), f(v)), (u, v)
+        assert r.has_edge(f(u), f(w)), (u, w)
 
 
 def x_or_y():
@@ -438,48 +444,48 @@ def x_or_y():
 
 def x_and_y():
     g = two_vars_xy()
-    g._succ[2] = (0, 0, 3)
+    g._succ[2] = (0, -1, 3)
     return g
 
 
 def two_vars_xy():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
-    g._succ[2] = (0, 0, 1)
-    g._succ[3] = (1, 0, 1)
+    g._succ[2] = (0, -1, 1)
+    g._succ[3] = (1, -1, 1)
     return g
 
 
 def ref_var(i):
     h = nx.MultiDiGraph()
-    h.add_nodes_from([0, 1], index=2)
+    h.add_node(1, index=2)
     h.add_node(2, index=i)
-    h.add_edge(2, 0, value=False)
-    h.add_edge(2, 1, value=True)
+    h.add_edge(2, 1, value=False, complement=True)
+    h.add_edge(2, 1, value=True, complement=False)
     return h
 
 
 def ref_x_and_y():
     h = nx.MultiDiGraph()
-    h.add_nodes_from([0, 1], index=2)
+    h.add_node(1, index=2)
     h.add_node(2, index=0)
     h.add_node(3, index=1)
-    h.add_edge(2, 0, value=False)
-    h.add_edge(2, 3, value=True)
-    h.add_edge(3, 0, value=False)
-    h.add_edge(3, 1, value=True)
+    h.add_edge(2, 1, value=False, complement=True)
+    h.add_edge(2, 3, value=True, complement=False)
+    h.add_edge(3, 1, value=False, complement=True)
+    h.add_edge(3, 1, value=True, complement=False)
     return h
 
 
 def ref_x_or_y():
     h = nx.MultiDiGraph()
-    h.add_nodes_from([0, 1], index=2)
+    h.add_node(1, index=2)
     h.add_node(2, index=0)
     h.add_node(3, index=1)
-    h.add_edge(2, 3, value=False)
-    h.add_edge(2, 1, value=True)
-    h.add_edge(3, 0, value=False)
-    h.add_edge(3, 1, value=True)
+    h.add_edge(2, 3, value=False, complement=False)
+    h.add_edge(2, 1, value=True, complement=False)
+    h.add_edge(3, 1, value=False, complement=True)
+    h.add_edge(3, 1, value=True, complement=False)
     return h
 
 
@@ -493,11 +499,12 @@ def compare(u, bdd, h):
     # nx.to_pydot(r).write_pdf('r.pdf')
     # nx.to_pydot(h).write_pdf('h.pdf')
     nm = lambda x, y: x['index'] == y['index']
-    em = lambda x, y: bool(x[0]['value']) == bool(y[0]['value'])
+    em = lambda x, y: (
+        bool(x[0]['value']) == bool(y[0]['value']) and
+        bool(x[0]['complement']) == bool(y[0]['complement']))
     gm = iso.GraphMatcher(r, h, node_match=nm, edge_match=em)
     assert gm.is_isomorphic()
     d = gm.mapping
-    assert d[0] == 0
     assert d[1] == 1
 
 

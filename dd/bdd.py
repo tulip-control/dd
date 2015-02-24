@@ -444,10 +444,12 @@ class BDD(object):
         else:
             root = u
         assert abs(root) in self, root
+        d = dict()
+        d[root] = self._sat_len(root, d)
         i, _, _ = self._succ[abs(root)]
-        return self._sat_len(root) * 2**i
+        return d[root] * 2**i
 
-    def _sat_len(self, u):
+    def _sat_len(self, u, d):
         """Recurse to compute the number of models."""
         # terminal ?
         if u == -1:
@@ -456,16 +458,18 @@ class BDD(object):
             return 1
         # non-terminal
         i, v, w = self._succ[abs(u)]
-        dv = self._sat_len(v)
-        dw = self._sat_len(w)
+        if v not in d:
+            d[v] = self._sat_len(v, d)
+        if w not in d:
+            d[w] = self._sat_len(w, d)
         iv, _, _ = self._succ[abs(v)]
         iw, _, _ = self._succ[w]
         # complement ?
-        du = (dv * 2**(iv - i - 1) +
-              dw * 2**(iw - i - 1))
+        du = (d[v] * 2**(iv - i - 1) +
+              d[w] * 2**(iw - i - 1))
         # complement ?
         if u < 0:
-            return 2**(len(self.ordering) - iv) - dv
+            return 2**(len(self.ordering) - iv) - d[v]
         else:
             return du
 

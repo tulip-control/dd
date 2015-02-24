@@ -157,7 +157,6 @@ class Parser(object):
         # id2name = {
         #     i: var
         #     for i, var in zip(self.var_ids, self.support_vars)}
-        ordering = {var: k for k, var in enumerate(self.ordered_vars)}
         c = self.var_extra_info
         if c == 0:
             logger.info('var IDs')
@@ -180,7 +179,7 @@ class Parser(object):
             raise NotImplementedError
         else:
             raise Exception('unknown `varinfo` case')
-        self.info2permid['T'] = len(self.ordered_vars) + 1
+        self.info2permid['T'] = self.n_vars + 1
         # parse nodes (large but very uniform)
         with open(filename, 'r') as f:
             for line in f:
@@ -203,7 +202,16 @@ class Parser(object):
         # support_var_ord_ids = {
         #     d['var_index'] for u, d in g.nodes_iter(data=True)}
         # assert len(support_var_ord_ids) == self.n_support_vars
-        return self.bdd, ordering
+        # prepare ordering
+        if self.ordered_vars is None:
+            permid2var = {
+                k: var for k, var in zip(self.permuted_var_ids,
+                                         self.support_vars)}
+            ordering = {
+                permid2var[k]: k for k in sorted(self.permuted_var_ids)}
+        else:
+            ordering = {var: k for k, var in enumerate(self.ordered_vars)}
+        return self.bdd, self.n_vars, ordering, roots
 
     def _add_node(self, u, info, index, v, w):
         """Add new node to BDD.

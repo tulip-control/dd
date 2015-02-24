@@ -50,6 +50,19 @@ def test_evaluate():
     assert g.evaluate(u, {'x': 0, 'y': 1}) == -1
     assert g.evaluate(u, {'x': 1, 'y': 0}) == -1
     assert g.evaluate(u, {'x': 1, 'y': 1}) == 1
+    # x & !y
+    g = x_and_not_y()
+    u = -2
+    assert g.evaluate(u, {'x': 0, 'y': 0}) == -1
+    assert g.evaluate(u, {'x': 0, 'y': 1}) == -1
+    assert g.evaluate(u, {'x': 1, 'y': 0}) == 1
+    assert g.evaluate(u, {'x': 1, 'y': 1}) == -1
+    # !(x & !y) = !x | y
+    u = 2
+    assert g.evaluate(u, {'x': 0, 'y': 0}) == 1
+    assert g.evaluate(u, {'x': 0, 'y': 1}) == 1
+    assert g.evaluate(u, {'x': 1, 'y': 0}) == -1
+    assert g.evaluate(u, {'x': 1, 'y': 1}) == 1
 
 
 def test_is_essential():
@@ -67,6 +80,8 @@ def test_is_essential():
     assert not g.is_essential(-1, 'y')
     assert not g.is_essential(1, 'x')
     assert not g.is_essential(1, 'y')
+    # variable not in the ordering
+    assert not g.is_essential(2, 'z')
 
 
 def test_support():
@@ -86,6 +101,7 @@ def test_sat_len():
     assert g.sat_len(2) == 1
     g = x_or_y()
     assert g.sat_len(2) == 3
+    assert g.sat_len(-2) == 1
     with nt.assert_raises(Exception):
         g.sat_len()
     g.roots.add(2)
@@ -102,6 +118,11 @@ def test_sat_iter():
     g = x_or_y()
     g.roots.add(2)
     s = [{'x': 1}, {'x': 0, 'y': 1}]
+    compare_iter_to_list_of_sets(g, s)
+    # x & !y
+    g = x_and_not_y()
+    g.roots.add(-2)
+    s = [{'x': 1, 'y': 0}]
     compare_iter_to_list_of_sets(g, s)
 
 
@@ -209,6 +230,9 @@ def test_top_cofactor():
     u = g.find_or_add(y, -1, 1)
     assert g._top_cofactor(u, x) == (u, u)
     assert g._top_cofactor(u, y) == (-1, 1)
+    u = g.find_or_add(x, -1, 1)
+    assert g._top_cofactor(u, x) == (-1, 1)
+    assert g._top_cofactor(-u, x) == (1, -1)
 
 
 def test_ite():
@@ -232,6 +256,9 @@ def test_ite():
     u = g.ite(x, 1, y)
     h = ref_x_or_y()
     compare(u, g, h)
+    # negation
+    assert g.ite(x, -1, 1) == -x, g._succ
+    assert g.ite(-x, -1, 1) == x, g._succ
 
 
 def test_add_expr():
@@ -284,11 +311,20 @@ def test_cofactor():
 
     e = g.add_expr('x && y')
     x = g.add_expr('x')
+    assert g.cofactor(x, {'x': 0}) == -1
+    assert g.cofactor(x, {'x': 1}) == 1
+    assert g.cofactor(-x, {'x': 0}) == 1
+    assert g.cofactor(-x, {'x': 1}) == -1
     y = g.add_expr('y')
     assert g.cofactor(e, {'x': 1}) == y
     assert g.cofactor(e, {'x': 0}) == -1
     assert g.cofactor(e, {'y': 1}) == x
     assert g.cofactor(e, {'y': 0}) == -1
+
+    assert g.cofactor(-e, {'x': 0}) == 1
+    assert g.cofactor(-e, {'x': 1}) == -y
+    assert g.cofactor(-e, {'y': 0}) == 1
+    assert g.cofactor(-e, {'y': 1}) == -x
 
 
 def test_quantify():
@@ -452,6 +488,17 @@ def two_vars_xy():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
     g._succ[2] = (0, -1, 1)
+    g._succ[3] = (1, -1, 1)
+    return g
+
+
+def x_and_not_y():
+    # remember:
+    # 2 = !(x & !y)
+    # -2 = x & !y
+    ordering = {'x': 0, 'y': 1}
+    g = BDD(ordering)
+    g._succ[2] = (0, 1, 3)
     g._succ[3] = (1, -1, 1)
     return g
 

@@ -266,7 +266,6 @@ class Parser(object):
                 | auxids
                 | nroots
                 | rootids
-                | all_nodes
                 | algdd
                 | rootnames
         """
@@ -360,25 +359,6 @@ class Parser(object):
     def p_root_names(self, p):
         """rootnames : ROOTNAMES varnames"""
         raise NotImplementedError
-
-    def p_nodes(self, p):
-        """all_nodes : NODES nodes END"""
-        logger.debug('nodes found')
-
-    def p_nodes_iter(self, p):
-        """nodes : nodes node"""
-
-    def p_nodes_end(self, p):
-        """nodes : node"""
-
-    def p_node(self, p):
-        """node : number opt_info number number number"""
-        u = p[1]
-        info = p[2]
-        index = p[3]
-        v = p[4]
-        w = p[5]
-        self._add_node(u, info, index, v, w)
 
     def p_opt_info(self, p):
         """opt_info : number

@@ -227,7 +227,9 @@ class Parser(object):
             w = None
         # map fixed var index to level among all vars
         level = self.info2permid[info]
-        self.bdd[u] = (level, v, w)
+        # dddmp stores (high, low)
+        # swap to (low, high), as used in `dd.bdd`
+        self.bdd[u] = (level, w, v)
 
     def reset(self):
         self.bdd = dict()

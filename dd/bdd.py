@@ -494,7 +494,7 @@ class BDD(object):
             else:
                 assert w in self._succ, w
             # "high" is regular edge
-            assert v >= 0, v
+            assert w >= 0, w
             # var order should increase
             for x in (v, w):
                 assert i < self._succ[x][0], (u, i)

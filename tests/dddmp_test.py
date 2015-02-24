@@ -1,8 +1,10 @@
+import logging
 import time
 from dd import dddmp
 import networkx as nx
 
 
+logging.getLogger('dd.dddmp.parser_logger').setLevel(logging.ERROR)
 parser = dddmp.Parser()
 
 

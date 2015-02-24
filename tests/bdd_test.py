@@ -1,8 +1,12 @@
+import logging
 from dd.bdd import BDD, preimage
 import dd.bdd
 import nose.tools as nt
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
+
+
+logging.getLogger('tulip.ltl_parser_log').setLevel(logging.ERROR)
 
 
 def test_assert_consistent():

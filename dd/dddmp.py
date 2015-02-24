@@ -195,7 +195,8 @@ class Parser(object):
                     assert info == 'T', info
                     u, index, v, w = map(int, (u, index, v, w))
                 self._add_node(u, info, index, v, w)
-        # TODO: handle roots
+        roots = set(self.rootids)
+        # ok ?
         if r is None:
             raise Exception('failed to parse')
         assert len(self.bdd) == self.n_nodes
@@ -236,6 +237,8 @@ class Parser(object):
         self.algebraic_dd = None
         self.var_extra_info = None
         self.n_nodes = None
+        self.rootids = None
+        self.n_roots = None
         # vars
         self.n_vars = None
         self.ordered_vars = None

@@ -305,7 +305,7 @@ class Parser(object):
 
     def p_dd_name(self, p):
         """diagram_name : DD name"""
-        self.bdd.name = p[2]
+        self.bdd_name = p[2]
 
     def p_num_nodes(self, p):
         """nnodes : NNODES number"""

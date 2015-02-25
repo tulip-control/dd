@@ -11,14 +11,8 @@ logging.getLogger('tulip.ltl_parser_log').setLevel(logging.ERROR)
 
 def test_assert_consistent():
     g = two_vars_xy()
-    with nt.assert_raises(AssertionError):
-        g.assert_consistent()
-    g.roots.add(2)
     assert g.assert_consistent()
     g = x_or_y()
-    with nt.assert_raises(AssertionError):
-        g.assert_consistent()
-    g.roots.add(2)
     assert g.assert_consistent()
     g._succ[2] = (5, 1, 2)
     with nt.assert_raises(AssertionError):
@@ -108,30 +102,29 @@ def test_sat_len():
     assert g.sat_len(-2) == 1
     with nt.assert_raises(Exception):
         g.sat_len()
-    g.roots.add(2)
-    assert g.sat_len() == 3
+    assert g.sat_len(2) == 3
 
 
 def test_sat_iter():
     # x & y
     g = x_and_y()
-    g.roots.add(2)
+    u = 2
     s = [{'x': 1, 'y': 1}]
-    compare_iter_to_list_of_sets(g, s)
+    compare_iter_to_list_of_sets(u, g, s)
     # x | y
     g = x_or_y()
-    g.roots.add(2)
+    u = 2
     s = [{'x': 1}, {'x': 0, 'y': 1}]
-    compare_iter_to_list_of_sets(g, s)
+    compare_iter_to_list_of_sets(u, g, s)
     # x & !y
     g = x_and_not_y()
-    g.roots.add(-2)
+    u = -2
     s = [{'x': 1, 'y': 0}]
-    compare_iter_to_list_of_sets(g, s)
+    compare_iter_to_list_of_sets(u, g, s)
 
 
-def compare_iter_to_list_of_sets(g, s):
-    for d in g.sat_iter():
+def compare_iter_to_list_of_sets(u, g, s):
+    for d in g.sat_iter(u):
         assert d in s
         s.remove(d)
     assert not s
@@ -541,7 +534,7 @@ def ref_x_or_y():
 
 
 def compare(u, bdd, h):
-    g = dd.bdd.to_nx(bdd, u)
+    g = dd.bdd.to_nx(bdd, [u])
     nx.to_pydot(g).write_pdf('g.pdf')
     post = nx.descendants(g, u)
     post.add(u)

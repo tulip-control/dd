@@ -43,16 +43,15 @@ from itertools import tee, izip
 class BDD(object):
     """Shared ordered binary decision diagram.
 
-    There must be at least one root.
     The terminal node is 1.
     Complemented edges are represented as negative integers.
-    Roots and values returned are edges, possibly complemented.
+    Values returned by methods are edges, possibly complemented.
 
     Attributes:
       - `ordering`: `dict` mapping `variables` to `int` indices
-      - `roots`: nodes with no predecessors
       - `_pred`: `dict` mapping tuples `(index, low, high)` to nodes
       - `_succ`: `dict` mapping nodes to tuples `(index, low, high)`
+      - `roots`: (optional) edges used by `to_nx`.
     where index, low, high are `int`.
 
     If `ordering` changes, then reordering is needed.
@@ -426,28 +425,13 @@ class BDD(object):
                 continue
             self._pred[t] = u
 
-    def sat_len(self, u=None):
-        """Return number of models of node `u`.
-
-        Labels nodes with `"sat_len"`, the number of
-        satisfying valuations for the corresponding factor.
-
-        The default node `u` is `self.root`, unless
-        BDD has multiple roots.
-        """
-        if u is None:
-            if len(self.roots) != 1:
-                raise Exception(
-                    'No single root defined: give `u`')
-            else:
-                (root, ) = self.roots
-        else:
-            root = u
-        assert abs(root) in self, root
+    def sat_len(self, u):
+        """Return number of models of node `u`."""
+        assert abs(u) in self, u
         d = dict()
-        d[root] = self._sat_len(root, d)
-        i, _, _ = self._succ[abs(root)]
-        return d[root] * 2**i
+        d[u] = self._sat_len(u, d)
+        i, _, _ = self._succ[abs(u)]
+        return d[u] * 2**i
 
     def _sat_len(self, u, d):
         """Recurse to compute the number of models."""
@@ -473,29 +457,18 @@ class BDD(object):
         else:
             return du
 
-    def sat_iter(self, u=None):
+    def sat_iter(self, u):
         """Return iterator over models.
 
-        Use `next(BDD.sat_iter())` to get a single
-        satisfying valuation.
-
-        If the BDD has multiple roots,
-        then a root `u` must be given.
+        A model is a satisfying assignment to variables.
 
         If a variable is missing from the `dict` of a model,
         then it is a "don't care", i.e., the model can be
         completed by assigning any value to that variable.
         """
-        # empty or unsat ?
-        if len(self) == 0:
+        # empty ?
+        if not self._succ:
             return
-        # satisfiable
-        if u is None:
-            if len(self.roots) != 1:
-                raise Exception(
-                    'No single root defined: give `root`')
-            else:
-                (u, ) = self.roots
         self._ind2var = {k: v for v, k in self.ordering.iteritems()}
         return self._sat_iter(u, '', True)
 
@@ -519,7 +492,6 @@ class BDD(object):
 
     def assert_consistent(self):
         """Raise `AssertionError` if not a valid BDD."""
-        assert self.roots  # must be rooted
         for root in self.roots:
             assert abs(root) in self._succ, root
         for u, (i, v, w) in self._succ.iteritems():
@@ -540,8 +512,6 @@ class BDD(object):
             for x in (v, w):
                 ix, _, _ = self._succ[abs(x)]
                 assert i < ix, (u, i)
-                # roots don't have predecessors
-                assert x not in self.roots, self.roots
         return True
 
     def add_expr(self, e):
@@ -784,19 +754,10 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     return r
 
 
-def to_nx(bdd, u=None):
-    """Convert `BDD` to `networkx.MultiDiGraph`.
-
-    If a node `u` is given, then only the subgraph
-    rooted at `u` is used.
-    """
+def to_nx(bdd, roots):
+    """Convert functions at `roots` to `networkx.MultiDiGraph`."""
     import networkx as nx
     g = nx.MultiDiGraph()
-    if u is None:
-        assert bdd.roots, 'BDD has no roots: give a node `u`'
-        roots = bdd.roots
-    else:
-        roots = {u}
     for root in roots:
         assert abs(root) in bdd, root
         Q = {root}

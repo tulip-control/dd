@@ -49,8 +49,6 @@ class BDD(object):
 
     Attributes:
       - `ordering`: `dict` mapping `variables` to `int` indices
-      - `_pred`: `dict` mapping tuples `(index, low, high)` to nodes
-      - `_succ`: `dict` mapping nodes to tuples `(index, low, high)`
       - `roots`: (optional) edges used by `to_nx`.
     where index, low, high are `int`.
 

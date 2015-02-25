@@ -59,7 +59,7 @@ class BDD(object):
 
     To ensure `ite` maintains reducedness add new
     nodes using `find_or_add` to keep the table updated,
-    or call `update_pairs_table` prior to calling `ite`.
+    or call `update_predecessors` prior to calling `ite`.
     """
 
     def __init__(self, ordering=None, **kw):
@@ -419,7 +419,7 @@ class BDD(object):
             self._succ[u] = t
         return r * u
 
-    def update_pairs_table(self):
+    def update_predecessors(self):
         """Update table that maps (level, low, high) to nodes."""
         for u, t in self._succ.iteritems():
             if abs(u) == 1:

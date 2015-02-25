@@ -88,6 +88,14 @@ class BDD(object):
             'var ordering: {self.ordering}\n'
             'roots: {self.roots}\n').format(self=self)
 
+    def level_to_variable(self, i):
+        """Return variable with index `i`."""
+        if self._ind2var is None:
+            self._ind2var = {
+                k: var
+                for var, k in self.ordering.iteritems()}
+        return self._ind2var[i]
+
     def _map_to_index(self, d):
         """Map keys of `d` to variable indices.
 
@@ -157,8 +165,7 @@ class BDD(object):
         """Return variables that node `u` depends on."""
         var = set()
         self._support(u, var)
-        self._ind2var = {k: v for v, k in self.ordering.iteritems()}
-        return {self._ind2var[i] for i in var}
+        return {self.level_to_variable(i) for i in var}
 
     def _support(self, u, var):
         """Recurse to collect variables in support."""
@@ -467,7 +474,9 @@ class BDD(object):
         # empty ?
         if not self._succ:
             return
-        self._ind2var = {k: v for v, k in self.ordering.iteritems()}
+        # non-empty
+        assert abs(u) in self._succ, u
+        self.level_to_variable(0)
         return self._sat_iter(u, '', True)
 
     def _sat_iter(self, u, path, value):

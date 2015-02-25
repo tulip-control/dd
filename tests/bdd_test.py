@@ -29,6 +29,15 @@ def test_assert_consistent():
         g.assert_consistent()
 
 
+def test_level_to_variable():
+    ordering = {'x': 0, 'y': 1}
+    g = BDD(ordering)
+    assert g.level_to_variable(0) == 'x'
+    assert g.level_to_variable(1) == 'y'
+    with nt.assert_raises(KeyError):
+        g.level_to_variable(10)
+
+
 def test_evaluate():
     # x, y
     g = two_vars_xy()

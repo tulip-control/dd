@@ -270,6 +270,33 @@ def test_find_or_add():
     # low and high must already exist
     with nt.assert_raises(AssertionError):
         g.find_or_add(0, 3, 4)
+    # canonicity of complemented edges
+    # v < 0, w > 0
+    g = BDD(ordering)
+    i = 0
+    v = -1
+    w = 1
+    u = g.find_or_add(i, v, w)
+    assert u > 0, u
+    # v > 0, w < 0
+    v = 1
+    w = -1
+    u = g.find_or_add(i, v, w)
+    assert u < 0, u
+    assert abs(u) in g._succ, u
+    _, v, w = g._succ[abs(u)]
+    assert v < 0, v
+    assert w > 0, w
+    # v < 0, w < 0
+    v = -1
+    w = -2
+    u = g.find_or_add(i, v, w)
+    assert u < 0, u
+    _, v, w = g._succ[abs(u)]
+    assert v > 0, v
+    assert w > 0, w
+
+
 def test_next_free_int():
     g = BDD()
     # contiguous

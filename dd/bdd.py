@@ -30,6 +30,7 @@ Henrik R. Andersen
     Lecture notes for "Efficient Algorithms and Programs", 1999
     The IT University of Copenhagen
 """
+import copy
 import logging
 logger = logging.getLogger(__name__)
 from collections import Mapping
@@ -83,6 +84,16 @@ class BDD(object):
         self.roots = set()
         self._parser = None
         self.max_nodes = sys.maxint
+
+    def __copy__(self):
+        bdd = BDD(self.ordering)
+        bdd._pred = dict(self._pred)
+        bdd._succ = dict(self._succ)
+        bdd.ref = dict(self.ref)
+        bdd._min_free = self._min_free
+        bdd.roots = set(self.roots)
+        bdd.max_nodes = self.max_nodes
+        return bdd
 
     def __len__(self):
         return len(self._succ)

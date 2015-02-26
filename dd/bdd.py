@@ -32,13 +32,17 @@ Henrik R. Andersen
 """
 import copy
 import logging
-logger = logging.getLogger(__name__)
 from collections import Mapping
 from itertools import tee, izip
+import pickle
+import sys
 # inline:
 # import networkx
 # import pydot
 # import tulip.spec.lexyacc
+
+
+logger = logging.getLogger(__name__)
 
 
 class BDD(object):
@@ -689,6 +693,33 @@ class BDD(object):
             g.write_pdf(filename)
         else:
             raise Exception('file type not supported')
+
+    def dump(self, filename):
+        """Write the BDD to `filename` as JSON."""
+        d = {
+            'ordering': self.ordering,
+            'max_nodes': self.max_nodes,
+            'roots': self.roots,
+            'pred': self._pred,
+            'succ': self._succ,
+            'ref': self.ref,
+            'min_free': self._min_free}
+        with open(filename, 'w') as f:
+            pickle.dump(d, f)
+
+    @classmethod
+    def load(cls, filename):
+        """Load `BDD` from JSON file `filename`."""
+        with open(filename, 'r') as f:
+            d = pickle.load(f)
+        bdd = cls(d['ordering'])
+        bdd.max_nodes = d['max_nodes']
+        bdd.roots = d['roots']
+        bdd._pred = d['pred']
+        bdd._succ = d['succ']
+        bdd.ref = d['ref']
+        bdd._min_free = d['min_free']
+        return bdd
 
 
 def rename(u, bdd, dvars):

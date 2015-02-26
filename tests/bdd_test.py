@@ -200,32 +200,127 @@ def test_reduce_combined():
 def test_find_or_add():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
+    # init
+    n = len(g)
+    m = g._min_free
+    assert n == 1, n
+    assert m == 2, m
     # elimination rule
     i = 0
     v = -1
     w = 1
     n = len(g)
     u = g.find_or_add(i, v, v)
-    assert len(g) == n
-    assert u == v
-    assert not g._pred
+    n_ = len(g)
+    assert n == n_, (n, n_)
+    assert u == v, (u, v)
+    assert not g._pred, g._pred
+    # unchanged min_free
+    v = 1
+    m = g._min_free
+    g.find_or_add(i, v, v)
+    m_ = g._min_free
+    assert m_ == m, (m_, m)
     # add new node
+    g = BDD(ordering)
+    v = -1
+    w = 1
     n = len(g)
+    m = g._min_free
+    assert n == 1, n
     u = g.find_or_add(i, v, w)
-    assert u != v
-    assert len(g) == n + 1
+    n_ = len(g)
+    m_ = g._min_free
+    assert u != v, (u, v)
+    assert n_ == n + 1, (n, n_)
+    assert m_ == m + 1, (m, m_)
     assert g._succ[u] == (i, -1, 1)
     assert (i, v, w) in g._pred
+    assert abs(u) in g.ref
+    assert g.ref[abs(u)] == 0
+    assert g.ref[abs(v)] == 2, g.ref
+    # independent increase of reference counters
+    v = u
+    w = w
+    refv = g.ref[abs(v)]
+    refw = g.ref[w]
+    u = g.find_or_add(i, v, w)
+    refv_ = g.ref[abs(v)]
+    refw_ = g.ref[w]
+    assert refv + 1 == refv_, (refv, refv_)
+    assert refw + 1 == refw_, (refw, refw_)
     # add existing
+    n = len(g)
+    m = g._min_free
+    refv = g.ref[abs(v)]
+    refw = g.ref[w]
     r = g.find_or_add(i, v, w)
-    assert len(g) == n + 1
-    assert u == r
+    n_ = len(g)
+    m_ = g._min_free
+    refv_ = g.ref[abs(v)]
+    refw_ = g.ref[w]
+    assert n == n_, (n, n_)
+    assert m == m_, (m, m_)
+    assert u == r, u
+    assert refv == refv_, (refv, refv_)
+    assert refw == refw_, (refw, refw_)
     # only non-terminals can be added
     with nt.assert_raises(AssertionError):
         g.find_or_add(2, -1, 1)
     # low and high must already exist
     with nt.assert_raises(AssertionError):
         g.find_or_add(0, 3, 4)
+def test_next_free_int():
+    g = BDD()
+    # contiguous
+    g._succ = {1, 2, 3}
+    n = g._next_free_int(start=1, debug=True)
+    assert n == 4, n
+    n = g._next_free_int(start=3, debug=True)
+    assert n == 4, n
+    # with blanks
+    g._succ = {1, 3}
+    n = g._next_free_int(start=1, debug=True)
+    assert n == 2, n
+    n = g._next_free_int(start=3)
+    assert n == 4, n
+    # full
+    g._succ = {1, 2, 3}
+    g.max_nodes = 3
+    with nt.assert_raises(Exception):
+        g._next_free_int(start=1)
+
+
+def test_collect_garbage():
+    # all nodes are garbage
+    g = BDD({'x': 0, 'y': 1})
+    u = g.add_expr('x & y')
+    n = len(g)
+    assert n == 4, n
+    uref = g.ref[abs(u)]
+    assert uref == 0, uref
+    _, v, w = g._succ[abs(u)]
+    vref = g.ref[abs(v)]
+    wref = g.ref[w]
+    assert vref == 5, vref
+    assert wref == 1, wref
+    g.collect_garbage()
+    n = len(g)
+    assert n == 1, n
+    assert u not in g, g._succ
+    assert w not in g, g._succ
+    # some nodes not garbage
+    # projection of x is garbage
+    g = BDD({'x': 0, 'y': 1})
+    u = g.add_expr('x & y')
+    n = len(g)
+    assert n == 4, n
+    g.ref[abs(u)] += 1
+    uref = g.ref[abs(u)]
+    assert uref == 1, uref
+    g.collect_garbage()
+    n = len(g)
+    assert n == 3, n
 
 
 def test_top_cofactor():
@@ -480,21 +575,39 @@ def test_to_pydot():
 
 def x_or_y():
     g = two_vars_xy()
-    g._succ[2] = (0, 3, 1)
+    u = 2
+    t = (0, 3, 1)
+    g._succ[u] = t
+    g._pred[t] = u
+    g._min_free = u + 1
     return g
 
 
 def x_and_y():
     g = two_vars_xy()
-    g._succ[2] = (0, -1, 3)
+    u = 2
+    t = (0, -1, 3)
+    g._succ[u] = t
+    g._pred[t] = u
+    g.ref[u] = 1
+    g._min_free = u + 1
     return g
 
 
 def two_vars_xy():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
-    g._succ[2] = (0, -1, 1)
-    g._succ[3] = (1, -1, 1)
+    u = 2
+    t = (0, -1, 1)
+    g._succ[u] = t
+    g._pred[t] = u
+    g.ref[u] = 1
+    u = 3
+    t = (1, -1, 1)
+    g._succ[u] = t
+    g._pred[t] = u
+    g.ref[u] = 1
+    g._min_free = u + 1
     return g
 
 
@@ -504,8 +617,25 @@ def x_and_not_y():
     # -2 = x & !y
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
-    g._succ[2] = (0, 1, 3)
-    g._succ[3] = (1, -1, 1)
+    u = 3
+    v = -1
+    w = 1
+    t = (1, v, w)
+    g._succ[u] = t
+    g._pred[t] = u
+    g.ref[abs(v)] += 1
+    g.ref[abs(w)] += 1
+    g.ref[abs(u)] = 0
+    u = 2
+    v = 1
+    w = 3
+    t = (0, v, w)
+    g._succ[u] = t
+    g._pred[t] = u
+    g.ref[abs(v)] += 1
+    g.ref[abs(w)] += 1
+    g.ref[abs(u)] = 0
+    g._min_free = 4
     return g
 
 

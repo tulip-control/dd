@@ -52,25 +52,35 @@ class BDD(object):
       - `roots`: (optional) edges used by `to_nx`.
     where index, low, high are `int`.
 
-    If `ordering` changes, then reordering is needed.
+    To ensure that the target node of a returned edge
+    is not garbage collected during reordering,
+    increase its reference counter:
 
-    To ensure `ite` maintains reducedness add new
+    `bdd.ref[abs(edge)] += 1`
+
+    To ensure that `ite` maintains reducedness add new
     nodes using `find_or_add` to keep the table updated,
     or call `update_predecessors` prior to calling `ite`.
+
+    At most `self.max_nodes` are created.
+    The default value is `sys.max_int`. Increase it if needed.
     """
 
     def __init__(self, ordering=None, **kw):
         self._pred = dict()  # (i, low, high) -> u
         self._succ = dict()  # u -> (i, low, high)
+        self.ref = dict()  # reference counters
+        self._min_free = 2  # all smaller positive integers used
         self._ite_table = dict()  # (cond, high, low)
         if ordering is None:
             ordering = dict()
         else:
             i = len(ordering)
             self._succ[1] = (i, None, None)
-        self.ordering = ordering
+            self.ref[1] = 0
         self.roots = set()
         self._parser = None
+        self.max_nodes = sys.maxint
 
     def __len__(self):
         return len(self._succ)
@@ -412,16 +422,61 @@ class BDD(object):
             r = -1
         else:
             r = 1
+        # eliminate
         if v == w:
             return r * v
+        # already exists ?
         t = (i, v, w)
         u = self._pred.get(t)
         if u is None:
-            u = len(self) + 1
-            assert u not in self, u
+            # find a free integer
+            u = self._min_free
+            assert u not in self, (self._succ, u)
+            # add node
             self._pred[t] = u
             self._succ[u] = t
+            self.ref[u] = 0
+            self._min_free = self._next_free_int(u)
+            # increment reference counters
+            self.ref[abs(v)] += 1
+            self.ref[abs(w)] += 1
         return r * u
+
+    def _next_free_int(self, start, debug=False):
+        """Return the smallest unused integer larger than `start`."""
+        for i in xrange(start, self.max_nodes):
+            if i not in self._succ:
+                if debug:
+                    for j in xrange(1, start + 1):
+                        assert j in self, j
+                return i
+        raise Exception('full: reached `self.max_nodes` nodes.')
+
+    def collect_garbage(self):
+        """Recursively remove nodes with zero reference count."""
+        dead = {u for u, c in self.ref.iteritems() if not c}
+        while dead:
+            u = dead.pop()
+            # ignore terminals
+            if u == 1:
+                continue
+            # remove
+            i, v, w = self._succ.pop(u)
+            u_ = self._pred.pop((i, v, w))
+            uref = self.ref.pop(u)
+            self._min_free = min(u, self._min_free)
+            assert u == u_, (u, u_)
+            assert not uref, uref
+            assert self._min_free > 1, self._min_free
+            # decrement reference counters
+            self.ref[abs(v)] -= 1
+            self.ref[w] -= 1
+            # died ?
+            if not self.ref[abs(v)]:
+                dead.add(abs(v))
+            if not self.ref[w]:
+                dead.add(w)
+        self._ite_table = dict()
 
     def update_predecessors(self):
         """Update table that maps (level, low, high) to nodes."""

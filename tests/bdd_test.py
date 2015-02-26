@@ -27,6 +27,8 @@ def test_assert_consistent():
     g._succ[1] = (2, None, 1)
     with nt.assert_raises(AssertionError):
         g.assert_consistent()
+    g = x_and_y()
+    assert g.assert_consistent()
 
 
 def test_level_to_variable():
@@ -436,7 +438,10 @@ def test_compose():
 def test_cofactor():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)
-
+    # u not in g
+    with nt.assert_raises(AssertionError):
+        g.cofactor(5, {'x': 0, 'y': 1, 'z': 0})
+    # x & y
     e = g.add_expr('x && y')
     x = g.add_expr('x')
     assert g.cofactor(x, {'x': 0}) == -1

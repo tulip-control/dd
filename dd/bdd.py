@@ -318,9 +318,7 @@ class BDD(object):
         # u independent of var ?
         if i < iu:
             return (u, u)
-        elif iu < i:
-            raise Exception('call `cofactor` instead')
-        # iu == i
+        assert iu == i, 'for i > iu, call cofactor instead'
         # u labeled with var
         # complement ?
         if u < 0:
@@ -337,6 +335,7 @@ class BDD(object):
         cache = dict()
         ordvar = sorted(values)
         j = 0
+        assert abs(u) in self, u
         return self._cofactor(u, j, ordvar, values, cache)
 
     def _cofactor(self, u, j, ordvar, values, cache):
@@ -642,6 +641,8 @@ class BDD(object):
             # variable `t.value` must be in `self.ordering`
             i = len(self.ordering)
             self._succ[1] = (i, None, None)
+            assert t.value in self.ordering, (
+                'undefined variable "{v}"'.format(v=t.value))
             j = self.ordering[t.value]
             return self.find_or_add(j, -1, 1)
 
@@ -687,7 +688,7 @@ class BDD(object):
             return self.ite(u, v, -v)
 
     def dump_pdf(self, filename):
-        """Write the BDD graph to `filename` as PDF."""
+        """Write the BDD to `filename` as PDF."""
         g = to_pydot(self)
         if filename.endswith('.pdf'):
             g.write_pdf(filename)

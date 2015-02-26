@@ -78,6 +78,8 @@ class BDD(object):
             i = len(ordering)
             self._succ[1] = (i, None, None)
             self.ref[1] = 0
+        self.ordering = dict(ordering)
+        self._ind2var = None
         self.roots = set()
         self._parser = None
         self.max_nodes = sys.maxint

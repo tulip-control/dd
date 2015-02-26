@@ -587,6 +587,12 @@ class BDD(object):
             for x in (v, w):
                 ix, _, _ = self._succ[abs(x)]
                 assert i < ix, (u, i)
+            # 1-1 mapping
+            assert (i, v, w) in self._pred, (i, v, w)
+            assert self._pred[(i, v, w)] == u, u
+            # reference count
+            assert u in self.ref, u
+            assert self.ref[u] >= 0, self.ref[u]
         return True
 
     def add_expr(self, e):

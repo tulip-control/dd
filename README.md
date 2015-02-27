@@ -41,14 +41,14 @@ Garbage collection is triggered either explicitly by the user, or when invoking 
 The nodes `u`, `v`, `w` will be deleted if next garbage collection is invoked. To prevent this from happening, their reference counts must be increased. For example, if we want to keep `w` from being collected as gargabe, then
 
 ```python
-bdd.ref[abs(w)] += 1
+bdd.incref(w)
 ```
 
 The absolute value is used, because `w` may be a negative integer representing a complemented edge that points to the node `abs(w)` that is present in `bdd`.
 To decrement the reference count:
 
 ```python
-bdd.ref[abs(w)] = max(0, bdd.ref[abs(w)])
+bdd.decref(w)
 ```
 
 `Function` objects can be used to avoid having to manually keep track of incrementing and decrementing the reference counts. Using `Function`s, the above becomes:

@@ -238,29 +238,29 @@ def test_find_or_add():
     assert m_ == m + 1, (m, m_)
     assert g._succ[u] == (i, -1, 1)
     assert (i, v, w) in g._pred
-    assert abs(u) in g.ref
-    assert g.ref[abs(u)] == 0
-    assert g.ref[abs(v)] == 2, g.ref
+    assert abs(u) in g._ref
+    assert g._ref[abs(u)] == 0
+    assert g._ref[abs(v)] == 2, g._ref
     # independent increase of reference counters
     v = u
     w = w
-    refv = g.ref[abs(v)]
-    refw = g.ref[w]
+    refv = g._ref[abs(v)]
+    refw = g._ref[w]
     u = g.find_or_add(i, v, w)
-    refv_ = g.ref[abs(v)]
-    refw_ = g.ref[w]
+    refv_ = g._ref[abs(v)]
+    refw_ = g._ref[w]
     assert refv + 1 == refv_, (refv, refv_)
     assert refw + 1 == refw_, (refw, refw_)
     # add existing
     n = len(g)
     m = g._min_free
-    refv = g.ref[abs(v)]
-    refw = g.ref[w]
+    refv = g._ref[abs(v)]
+    refw = g._ref[w]
     r = g.find_or_add(i, v, w)
     n_ = len(g)
     m_ = g._min_free
-    refv_ = g.ref[abs(v)]
-    refw_ = g.ref[w]
+    refv_ = g._ref[abs(v)]
+    refw_ = g._ref[w]
     assert n == n_, (n, n_)
     assert m == m_, (m, m_)
     assert u == r, u
@@ -326,11 +326,11 @@ def test_collect_garbage():
     u = g.add_expr('x & y')
     n = len(g)
     assert n == 4, n
-    uref = g.ref[abs(u)]
+    uref = g._ref[abs(u)]
     assert uref == 0, uref
     _, v, w = g._succ[abs(u)]
-    vref = g.ref[abs(v)]
-    wref = g.ref[w]
+    vref = g._ref[abs(v)]
+    wref = g._ref[w]
     assert vref == 5, vref
     assert wref == 1, wref
     g.collect_garbage()
@@ -344,8 +344,8 @@ def test_collect_garbage():
     u = g.add_expr('x & y')
     n = len(g)
     assert n == 4, n
-    g.ref[abs(u)] += 1
-    uref = g.ref[abs(u)]
+    g._ref[abs(u)] += 1
+    uref = g._ref[abs(u)]
     assert uref == 1, uref
     g.collect_garbage()
     n = len(g)
@@ -464,7 +464,7 @@ def test_dump_load():
     g = BDD({'x': 0, 'y': 1})
     e = 'x & !y'
     u = g.add_expr(e)
-    g.ref[abs(u)] += 1
+    g._ref[abs(u)] += 1
     fname = 'hehe.pk'
     g.dump(fname)
     h = BDD.load(fname)
@@ -635,7 +635,7 @@ def x_and_y():
     t = (0, -1, 3)
     g._succ[u] = t
     g._pred[t] = u
-    g.ref[u] = 1
+    g._ref[u] = 1
     g._min_free = u + 1
     return g
 
@@ -647,12 +647,12 @@ def two_vars_xy():
     t = (0, -1, 1)
     g._succ[u] = t
     g._pred[t] = u
-    g.ref[u] = 1
+    g._ref[u] = 1
     u = 3
     t = (1, -1, 1)
     g._succ[u] = t
     g._pred[t] = u
-    g.ref[u] = 1
+    g._ref[u] = 1
     g._min_free = u + 1
     return g
 
@@ -669,18 +669,18 @@ def x_and_not_y():
     t = (1, v, w)
     g._succ[u] = t
     g._pred[t] = u
-    g.ref[abs(v)] += 1
-    g.ref[abs(w)] += 1
-    g.ref[abs(u)] = 0
+    g._ref[abs(v)] += 1
+    g._ref[abs(w)] += 1
+    g._ref[abs(u)] = 0
     u = 2
     v = 1
     w = 3
     t = (0, v, w)
     g._succ[u] = t
     g._pred[t] = u
-    g.ref[abs(v)] += 1
-    g.ref[abs(w)] += 1
-    g.ref[abs(u)] = 0
+    g._ref[abs(v)] += 1
+    g._ref[abs(w)] += 1
+    g._ref[abs(u)] = 0
     g._min_free = 4
     return g
 

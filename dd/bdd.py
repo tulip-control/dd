@@ -55,26 +55,25 @@ class BDD(object):
     Attributes:
       - `ordering`: `dict` mapping `variables` to `int` indices
       - `roots`: (optional) edges used by `to_nx`.
+      - `max_nodes`: raise `Exception` if this limit is reached.
+        The default value is `sys.max_int`. Increase it if needed.
     where index, low, high are `int`.
 
     To ensure that the target node of a returned edge
     is not garbage collected during reordering,
-    increase its reference counter:
+    increment its reference counter:
 
-    `bdd.ref[abs(edge)] += 1`
+    `bdd.incref(edge)`
 
     To ensure that `ite` maintains reducedness add new
     nodes using `find_or_add` to keep the table updated,
     or call `update_predecessors` prior to calling `ite`.
-
-    At most `self.max_nodes` are created.
-    The default value is `sys.max_int`. Increase it if needed.
     """
 
     def __init__(self, ordering=None, **kw):
         self._pred = dict()  # (i, low, high) -> u
         self._succ = dict()  # u -> (i, low, high)
-        self.ref = dict()  # reference counters
+        self._ref = dict()  # reference counters
         self._min_free = 2  # all smaller positive integers used
         self._ite_table = dict()  # (cond, high, low)
         if ordering is None:
@@ -82,7 +81,7 @@ class BDD(object):
         else:
             i = len(ordering)
             self._succ[1] = (i, None, None)
-            self.ref[1] = 0
+            self._ref[1] = 0
         self.ordering = dict(ordering)
         self._ind2var = None
         self.roots = set()
@@ -93,7 +92,7 @@ class BDD(object):
         bdd = BDD(self.ordering)
         bdd._pred = dict(self._pred)
         bdd._succ = dict(self._succ)
-        bdd.ref = dict(self.ref)
+        bdd._ref = dict(self._ref)
         bdd._min_free = self._min_free
         bdd.roots = set(self.roots)
         bdd.max_nodes = self.max_nodes
@@ -114,6 +113,15 @@ class BDD(object):
             '------------------------\n'
             'var ordering: {self.ordering}\n'
             'roots: {self.roots}\n').format(self=self)
+
+    def incref(self, u):
+        """Increment reference count of node `u`."""
+        self._ref[abs(u)] += 1
+
+    def decref(self, u):
+        """Decrement reference count of node `u`, with 0 as min."""
+        if self._ref[abs(u)] > 0:
+            self._ref[abs(u)] -= 1
 
     def level_to_variable(self, i):
         """Return variable with index `i`."""
@@ -451,11 +459,11 @@ class BDD(object):
             # add node
             self._pred[t] = u
             self._succ[u] = t
-            self.ref[u] = 0
+            self._ref[u] = 0
             self._min_free = self._next_free_int(u)
             # increment reference counters
-            self.ref[abs(v)] += 1
-            self.ref[abs(w)] += 1
+            self.incref(v)
+            self.incref(w)
         return r * u
 
     def _next_free_int(self, start, debug=False):
@@ -470,7 +478,7 @@ class BDD(object):
 
     def collect_garbage(self):
         """Recursively remove nodes with zero reference count."""
-        dead = {u for u, c in self.ref.iteritems() if not c}
+        dead = {u for u, c in self._ref.iteritems() if not c}
         while dead:
             u = dead.pop()
             # ignore terminals
@@ -479,18 +487,18 @@ class BDD(object):
             # remove
             i, v, w = self._succ.pop(u)
             u_ = self._pred.pop((i, v, w))
-            uref = self.ref.pop(u)
+            uref = self._ref.pop(u)
             self._min_free = min(u, self._min_free)
             assert u == u_, (u, u_)
             assert not uref, uref
             assert self._min_free > 1, self._min_free
             # decrement reference counters
-            self.ref[abs(v)] -= 1
-            self.ref[w] -= 1
+            self.decref(v)
+            self.decref(w)
             # died ?
-            if not self.ref[abs(v)]:
+            if not self._ref[abs(v)]:
                 dead.add(abs(v))
-            if not self.ref[w]:
+            if not self._ref[w]:
                 dead.add(w)
         self._ite_table = dict()
 
@@ -594,8 +602,8 @@ class BDD(object):
             assert (i, v, w) in self._pred, (i, v, w)
             assert self._pred[(i, v, w)] == u, u
             # reference count
-            assert u in self.ref, u
-            assert self.ref[u] >= 0, self.ref[u]
+            assert u in self._ref, u
+            assert self._ref[u] >= 0, self._ref[u]
         return True
 
     def add_expr(self, e):
@@ -703,7 +711,7 @@ class BDD(object):
             'roots': self.roots,
             'pred': self._pred,
             'succ': self._succ,
-            'ref': self.ref,
+            'ref': self._ref,
             'min_free': self._min_free}
         with open(filename, 'w') as f:
             pickle.dump(d, f)
@@ -718,7 +726,7 @@ class BDD(object):
         bdd.roots = d['roots']
         bdd._pred = d['pred']
         bdd._succ = d['succ']
-        bdd.ref = d['ref']
+        bdd._ref = d['ref']
         bdd._min_free = d['min_free']
         return bdd
 

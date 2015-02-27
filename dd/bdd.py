@@ -595,6 +595,7 @@ class BDD(object):
             self._pred[r] = u
             done.add(u)
         # x nodes dependent on y
+        xfresh = set()
         for u, (v, w) in levels[x].iteritems():
             if u in done:
                 continue
@@ -616,6 +617,10 @@ class BDD(object):
             assert q >= 0, q
             assert p != q, (
                 'No elimination: node depends on both x and y')
+            if self._succ[abs(p)][0] == y:
+                xfresh.add(abs(p))
+            if self._succ[q][0] == y:
+                xfresh.add(q)
             r = (x, p, q)
             self._succ[u] = r
             assert r not in self._pred, (u, r, levels, self._pred)
@@ -635,6 +640,31 @@ class BDD(object):
         # count nodes
         self.collect_garbage()
         newsize = len(self._succ)
+        # new levels
+        newx = set()
+        newy = set()
+        for u in levels[x]:
+            if u not in self._succ:
+                continue
+            i, _, _ = self._succ[u]
+            if i == x:
+                newy.add(u)
+            elif i == y:
+                newx.add(u)
+            else:
+                raise AssertionError((u, i, x, y))
+        for u in xfresh:
+            i, _, _ = self._succ[u]
+            assert i == y, (u, i, x, y)
+            newx.add(u)
+        for u in levels[y]:
+            if u not in self._succ:
+                continue
+            i, _, _ = self._succ[u]
+            assert i == x, (u, i, x, y)
+            newy.add(u)
+        all_levels[x] = newy
+        all_levels[y] = newx
         return (oldsize, newsize)
 
     def _low_high(self, u):
@@ -1051,22 +1081,27 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
 def reorder(bdd):
     """Apply Rudell's sifting algorithm to reduce `bdd` size.
 
+    Reordering invokes the garbage collector,
+    so be sure to `incref` nodes that should remain.
+
     @type bdd: `BDD`
     """
     bdd.collect_garbage()
     n = len(bdd)
     # using `set` injects some randomness
+    levels = bdd._levels()
     names = set(bdd.ordering)
     for var in names:
-        k = _reorder_var(bdd, var)
+        k = _reorder_var(bdd, var, levels)
         m = len(bdd)
         logger.info(
             '{m} nodes for variable "{v}" at level {k}'.format(
                 m=m, v=var, k=k))
     assert m <= n, (m, n)
+    logger.info('final variable ordering:\b{v}'.format(v=bdd.ordering))
 
 
-def _reorder_var(bdd, var):
+def _reorder_var(bdd, var, levels):
     """Reorder by sifting a variable `var`.
 
     @type bdd: `BDD`
@@ -1082,17 +1117,17 @@ def _reorder_var(bdd, var):
     # closer to top ?
     if (2 * level) >= n:
         start, end = end, start
-    _shift(bdd, level, start)
-    sizes = _shift(bdd, start, end)
+    _shift(bdd, level, start, levels)
+    sizes = _shift(bdd, start, end, levels)
     k = min(sizes, key=sizes.get)
-    _shift(bdd, end, k)
+    _shift(bdd, end, k, levels)
     m_ = len(bdd)
     assert sizes[k] == m_, (sizes[k], m_)
     assert m_ <= m, (m_, m)
     return k
 
 
-def _shift(bdd, start, end):
+def _shift(bdd, start, end, levels):
     """Shift level `start` to become `end`, by swapping.
 
     @type bdd: `BDD`
@@ -1105,7 +1140,7 @@ def _shift(bdd, start, end):
     d = 1 if start < end else -1
     for i in xrange(start, end, d):
         j = i + d
-        oldn, n = bdd.swap(i, j)
+        oldn, n = bdd.swap(i, j, levels)
         sizes[i] = oldn
         sizes[j] = n
     return sizes

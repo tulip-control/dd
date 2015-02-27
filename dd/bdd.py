@@ -953,3 +953,114 @@ def to_pydot(bdd):
         e = pydot.Edge(su, sw, style='solid')
         g.add_edge(e)
     return g
+
+
+class Function(object):
+    """Convenience wrapper for edges returned by `BDD`.
+
+    A convenience is the constructor `from_expr`:
+
+    ```
+    bdd = BDD({'x': 0, 'y': 1})
+    f = bdd.from_expr('x & y', bdd)
+    ```
+
+    A function can be created also directly from a goal:
+
+    ```
+    u = bdd.add_expr('x & y')
+    f = Function(u, bdd)
+    ```
+
+    Operations are valid only between functions with
+    the same `BDD` in `Function.bdd`.
+
+    After all references to a `Function` have been deleted,
+    the reference count of its associated node is decremented.
+    To explicitly release a `Function` instance, invoke `del f`.
+    """
+
+    def __init__(self, node, bdd):
+        assert abs(node) in bdd, node
+        self.bdd = bdd
+        bdd.incref(node)
+        self.node = node
+
+    @classmethod
+    def from_expr(cls, expr, bdd):
+        """Return `Function` for `expr`, after adding it to `bdd`.
+
+        @type expr: `str`
+        @type bdd: `BDD`
+        """
+        u = bdd.add_expr(expr)
+        return cls(u, bdd)
+
+    def to_expr(self):
+        """Return Boolean expression of function as `str`."""
+        return self.bdd.to_expr(self.node)
+
+    def __del__(self):
+        """Decrement reference count of `self.node` in `self.bdd`."""
+        self.bdd.decref(self.node)
+
+    def __eq__(self, other):
+        assert self.bdd is other.bdd
+        return self.node == other.node
+
+    def __invert__(self):
+        return self._apply('not', other=None)
+
+    def __and__(self, other):
+        return self._apply('and', other)
+
+    def __or__(self, other):
+        return self._apply('or', other)
+
+    def __xor__(self, other):
+        return self._apply('xor', other)
+
+    def implies(self, other):
+        return self._apply('implies', other)
+
+    def bimplies(self, other):
+        return self._apply('bimplies', other)
+
+    def _apply(self, op, other):
+        """Return result of operation `op` with `other` as `Function`."""
+        # unary op ?
+        if other is None:
+            u = self.bdd.apply(op, self.node)
+        else:
+            assert self.bdd is other.bdd, (self.bdd, other.bdd)
+            u = self.bdd.apply(op, self.node, other.node)
+        return Function(u, self.bdd)
+
+    @property
+    def level(self):
+        """Return level that function belongs to."""
+        i, _, _ = self.bdd._succ[abs(self.node)]
+        return i
+
+    @property
+    def var(self):
+        """Return name of variable annotating function node."""
+        i, _, _ = self.bdd._succ[abs(self.node)]
+        return self.bdd.level_to_variable(i)
+
+    @property
+    def low(self):
+        """Return "else" node as `Function`."""
+        _, v, _ = self.bdd._succ[abs(self.node)]
+        return Function(v, self.bdd)
+
+    @property
+    def high(self):
+        """Return "then" node as `Function`."""
+        _, _, w = self.bdd._succ[abs(self.node)]
+        return Function(w, self.bdd)
+
+    @property
+    def ref(self):
+        """Return reference cound of `self.node` in `self.bdd`."""
+        return self.bdd._ref[abs(self.node)]

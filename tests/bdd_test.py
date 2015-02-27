@@ -1,12 +1,13 @@
 import logging
-from dd.bdd import BDD, preimage
+from dd.bdd import BDD, Function, preimage
 import dd.bdd
 import nose.tools as nt
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 
 
-logging.getLogger('tulip.ltl_parser_log').setLevel(logging.ERROR)
+log = logging.getLogger('tulip.ltl_parser_log')
+log.setLevel(logging.ERROR)
 
 
 def test_assert_consistent():
@@ -617,6 +618,67 @@ def test_to_pydot():
             continue
         assert r.has_edge(f(u), f(v)), (u, v)
         assert r.has_edge(f(u), f(w)), (u, w)
+
+
+def test_function_wrapper():
+    bdd = BDD({'x': 0, 'y': 1, 'z': 2})
+    u = Function.from_expr('x & y', bdd)
+    assert u.bdd is bdd, u.bdd
+    assert abs(u.node) in bdd, (u, bdd._succ)
+    # operators
+    x = Function.from_expr('x', bdd)
+    z = Function.from_expr('z', bdd)
+    v = x.implies(z)
+    w = u & ~v
+    w_node = bdd.add_expr('(x & y) & !((! x) | z)')
+    assert w_node == w.node, (w_node, w.node)
+    r = (u | v) ^ w
+    r_node = bdd.add_expr(
+        '( (x & y) | ((! x) | z) ) ^'
+        '( (x & y) & !((! x) | z) )')
+    assert r_node == r.node, (r_node, r.node)
+    p = Function.from_expr('y', bdd)
+    q = p.bimplies(x)
+    q_node = bdd.add_expr('x <-> y')
+    assert q_node == q.node, (q_node, q.node)
+    # to_expr
+    s = q.to_expr()
+    assert s == '(x -> y : (! y))', s
+    # equality
+    p_ = Function.from_expr('y', bdd)
+    assert p_ == p, p_
+    # decref and collect garbage
+    bdd.collect_garbage()
+    n = len(bdd)
+    assert n > 1, bdd._ref
+    del p
+    del q
+    del r
+    bdd.collect_garbage()
+    m = len(bdd)
+    assert m > 1, bdd._ref
+    assert m < n, (m, n)
+    del u
+    del v
+    del w
+    del x
+    del z
+    bdd.collect_garbage()
+    n = len(bdd)
+    assert n == 2, bdd._ref
+    del p_
+    bdd.collect_garbage()
+    n = len(bdd)
+    assert n == 1, bdd._ref
+    # properties
+    bdd = BDD({'x': 0, 'y': 1, 'z': 2})
+    u = Function.from_expr('x | !y', bdd)
+    assert u.level == 0, u.level
+    assert u.var == 'x', u.var
+    y = bdd.add_expr('!y')
+    assert u.low.node == y, (u.low.node, y)
+    assert u.high.node == 1, u.high.node
+    assert u.ref == 1, u.ref
 
 
 def x_or_y():

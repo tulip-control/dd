@@ -462,17 +462,18 @@ def test_cofactor():
 
 
 def test_dump_load():
+    prefix = 'test_dump_load'
     g = BDD({'x': 0, 'y': 1})
     e = 'x & !y'
     u = g.add_expr(e)
     g._ref[abs(u)] += 1
-    fname = 'hehe.pk'
+    fname = prefix + '.p'
     g.dump(fname)
     h = BDD.load(fname)
     assert h.assert_consistent()
     u_ = h.add_expr(e)
     assert u == u_, (u, u_)
-    # h.dump_pdf('hehe.pdf')
+    h.dump(prefix + '.pdf')
 
 
 def test_quantify():

@@ -697,16 +697,36 @@ class BDD(object):
         elif op in {'bimplies', '<->'}:
             return self.ite(u, v, -v)
 
-    def dump_pdf(self, filename):
-        """Write the BDD to `filename` as PDF."""
-        g = to_pydot(self)
-        if filename.endswith('.pdf'):
-            g.write_pdf(filename)
-        else:
-            raise Exception('file type not supported')
+    def dump(self, filename, filetype=None):
+        """Write `BDD` to `filename` as pickle or PDF.
 
-    def dump(self, filename):
-        """Write the BDD to `filename` as JSON."""
+        The file type is inferred from the
+        extension ".p" or ".pdf" (case insensitive),
+        unless a `filetype` is explicitly given.
+
+        @type filename: `str`
+        @type filetype: `"pdf"` or `"pickle"`
+        """
+        if filetype is None:
+            name = filename.lower()
+            if name.endswith('.pdf'):
+                filetype = 'pdf'
+            elif name.endswith('.p'):
+                filetype = 'pickle'
+            else:
+                raise Exception('file type not supported')
+        if filetype == 'pdf':
+            self._dump_pdf(filename)
+        elif filetype == 'pickle':
+            self._dump_pickle(filename)
+
+    def _dump_pdf(self, filename):
+        """Write `BDD` to `filename` as PDF."""
+        g = to_pydot(self)
+        g.write_pdf(filename)
+
+    def _dump_pickle(self, filename):
+        """Write `BDD` to `filename` as pickle."""
         d = {
             'ordering': self.ordering,
             'max_nodes': self.max_nodes,
@@ -720,7 +740,7 @@ class BDD(object):
 
     @classmethod
     def load(cls, filename):
-        """Load `BDD` from JSON file `filename`."""
+        """Load `BDD` from pickle file `filename`."""
         with open(filename, 'r') as f:
             d = pickle.load(f)
         bdd = cls(d['ordering'])

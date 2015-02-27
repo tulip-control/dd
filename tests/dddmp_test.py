@@ -1,10 +1,10 @@
 import logging
-from dd import dddmp
+from dd.dddmp import Parser, load
 import networkx as nx
 
 
 logging.getLogger('dd.dddmp.parser_logger').setLevel(logging.ERROR)
-parser = dddmp.Parser()
+parser = Parser()
 
 
 def test_sample0():
@@ -38,15 +38,35 @@ def test_sample1():
     assert roots == {6, -13, -16}, roots
 
 
-def test_bdd_from_dddmp():
+def test_load_dddmp():
+    # small sample
     fname = 'sample0.txt'
-    bdd = dddmp.load_bdd(fname)
-    print bdd
-
-
+    bdd = load(fname)
+    n = len(bdd)
+    n_vars = len(bdd.ordering)
+    assert n == 5, n
+    assert n_vars == 3, n_vars
+    assert bdd.roots == {-5}, bdd.roots
+    root = -5
+    u = bdd.add_expr('! ( (a & (b |c)) | (!a & (b | !c)) )')
+    assert u == root, (u, root)
+    # larger sample
+    fname = 'sample1.txt'
+    bdd = load(fname)
+    n = len(bdd)
+    n_vars = len(bdd.ordering)
+    assert n == 16, n
+    assert n_vars == 10, n_vars
+    assert bdd.roots == {6, -13, -16}
+    varnames = {'G0', 'G1', 'G2', 'G3', 'G5', 'G6',
+                'G7', 'TMP1', 'TMP2', 'TMP3'}
+    bddvars = set(bdd.ordering)
+    assert bddvars == varnames, bddvars
+    assert bdd.assert_consistent()
 
 
 def to_nx(bdd, n_vars, ordering, roots):
+    """Convert result of `Parser.parse` to `networkx.MultiDiGraph`."""
     level2var = {k: v for v, k in ordering.iteritems()}
     level2var[n_vars + 1] = 'T'
     h = nx.MultiDiGraph()
@@ -68,4 +88,4 @@ def to_nx(bdd, n_vars, ordering, roots):
 
 
 if __name__ == '__main__':
-    test_bdd_from_dddmp()
+    test_load_dddmp()

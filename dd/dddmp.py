@@ -24,6 +24,7 @@ import os
 import warnings
 import ply.lex
 import ply.yacc
+from dd.bdd import BDD
 
 
 logger = logging.getLogger(__name__)
@@ -404,6 +405,46 @@ class Parser(object):
 
     def p_error(self, p):
         raise Exception('Syntax error at "{p}"'.format(p=p))
+
+
+def load(fname):
+    """Return a `BDD` loaded from DDDMP file `fname`.
+
+    If no `.orderedvarnames` appear in the file,
+    then `.suppvarnames` and `.permids` are used instead.
+    In the second case, the variable levels contains blanks.
+    To avoid blanks, the levels are re-indexed here.
+    This has no effect if `.orderedvarnames` appears in the file.
+
+    DDDMP files are dumped by [CUDD](http://vlsi.colorado.edu/~fabio/CUDD/).
+    """
+    parser = Parser()
+    bdd_succ, n_vars, ordering, roots = parser.parse(fname)
+    # reindex to ensure no blanks
+    perm = {k: var for var, k in ordering.iteritems()}
+    perm = {i: perm[k] for i, k in enumerate(sorted(perm))}
+    new_ordering = {var: k for k, var in perm.iteritems()}
+    old2new = {ordering[var]: new_ordering[var] for var in ordering}
+    # convert
+    bdd = BDD(new_ordering)
+    umap = {-1: -1, 1: 1}
+    for j in xrange(len(new_ordering) - 1, -1, -1):
+        for u, (k, v, w) in bdd_succ.iteritems():
+            # terminal ?
+            if v is None:
+                assert w is None, w
+                continue
+            # non-terminal
+            i = old2new[k]
+            if i != j:
+                continue
+            p, q = umap[abs(v)], umap[w]
+            if v < 0:
+                p = -p
+            r = bdd.find_or_add(i, p, q)
+            umap[abs(u)] = r
+    bdd.roots.update(roots)
+    return bdd
 
 
 if __name__ == '__main__':

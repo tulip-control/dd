@@ -1,6 +1,9 @@
 # based on the CUDD test `dddmp/exp/0.bdd`
 # http://vlsi.colorado.edu/~fabio/CUDD/
 
+# the root is the function:
+# ! ( (a & (b | c)) | (!a & (b | !c)) )
+
 .ver DDDMP-2.0
 .mode A
 .varinfo 0

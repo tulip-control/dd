@@ -5,7 +5,7 @@ dd/version.py
 *.pyc
 *.pdf
 *.txt
-*.pk
+*.p
 dist/*
 build/*
 *.egg-info

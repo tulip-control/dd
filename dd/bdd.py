@@ -558,7 +558,6 @@ class BDD(object):
             x, y = y, x
         assert x < y, (x, y)
         # count nodes
-        self.collect_garbage()
         oldsize = len(self._succ)
         # collect levels x and y
         levels = {x: dict(), y: dict()}
@@ -595,6 +594,7 @@ class BDD(object):
             self._pred[r] = u
             done.add(u)
         # x nodes dependent on y
+        garbage = set()
         xfresh = set()
         for u, (v, w) in levels[x].iteritems():
             if u in done:
@@ -603,6 +603,9 @@ class BDD(object):
             assert i == x, (i, x)
             self.decref(v)
             self.decref(w)
+            # possibly dead
+            garbage.add(abs(v))
+            garbage.add(w)
             # calling cofactor can fail because y moved
             iv, v0, v1 = self._swap_cofactor(v, y)
             iw, w0, w1 = self._swap_cofactor(w, y)
@@ -638,7 +641,7 @@ class BDD(object):
         self._ind2var = None
         self._ite_table = dict()
         # count nodes
-        self.collect_garbage()
+        self.collect_garbage(garbage)
         newsize = len(self._succ)
         # new levels
         newx = set()

@@ -508,6 +508,123 @@ class BDD(object):
                 continue
             self._pred[t] = u
 
+    def swap(self, x, y):
+        """Permute adjacent variables `x` and `y`.
+
+        @param x, y: name or level
+        @type x, y: `str` or `int`
+        """
+        logger.debug(
+            'swap variables "{x}" and "{y}"'.format(x=x, y=y))
+        x = self.ordering.get(x, x)
+        y = self.ordering.get(y, y)
+        assert 0 <= x < len(self.ordering), x
+        assert 0 <= y < len(self.ordering), y
+        # ensure x < y
+        if x > y:
+            x, y = y, x
+        assert x < y, (x, y)
+        # count nodes
+        self.collect_garbage()
+        oldsize = len(self._succ)
+        # collect levels x and y
+        levels = {x: dict(), y: dict()}
+        for u, (i, v, w) in self._succ.iteritems():
+            if i != x and i != y:
+                continue
+            # remove from _pred
+            u_ = self._pred.pop((i, v, w))
+            assert u_ == u, (u_, u)
+            levels[i][u] = (v, w)
+        # move level y up
+        for u, (v, w) in levels[y].iteritems():
+            i, _, _ = self._succ[u]
+            assert i == y, (i, y)
+            r = (x, v, w)
+            self._succ[u] = r
+            assert r not in self._pred, r
+            self._pred[r] = u
+        # move level x down
+        # first x nodes independent of y
+        done = set()
+        for u, (v, w) in levels[x].iteritems():
+            i, _, _ = self._succ[u]
+            assert i == x, (i, x)
+            iv, v0, v1 = self._low_high(v)
+            iw, w0, w1 = self._low_high(w)
+            # dependeds on y ?
+            if iv <= y or iw <= y:
+                continue
+            # independent of y
+            r = (y, v, w)
+            self._succ[u] = r
+            assert r not in self._pred, r
+            self._pred[r] = u
+            done.add(u)
+        # x nodes dependent on y
+        for u, (v, w) in levels[x].iteritems():
+            if u in done:
+                continue
+            i, _, _ = self._succ[u]
+            assert i == x, (i, x)
+            self.decref(v)
+            self.decref(w)
+            # calling cofactor can fail because y moved
+            iv, v0, v1 = self._swap_cofactor(v, y)
+            iw, w0, w1 = self._swap_cofactor(w, y)
+            # x node depends on y
+            assert y <= iv and y <= iw, (iv, iw, y)
+            assert y == iv or y == iw, (iv, iw, y)
+            # complemented edge ?
+            if v < 0 and y == iv:
+                v0, v1 = -v0, -v1
+            p = self.find_or_add(y, v0, w0)
+            q = self.find_or_add(y, v1, w1)
+            assert q >= 0, q
+            assert p != q, (
+                'No elimination: node depends on both x and y')
+            r = (x, p, q)
+            self._succ[u] = r
+            assert r not in self._pred, (u, r, levels, self._pred)
+            self._pred[r] = u
+            self.incref(p)
+            self.incref(q)
+            # garbage collection could be interleaved
+            # but only if there is substantial loss of efficiency
+        # swap x and y in ordering
+        vx = self.level_to_variable(x)
+        self.ordering[vx] = y
+        vy = self.level_to_variable(y)
+        self.ordering[vy] = x
+        # reset
+        self._ind2var = None
+        self._ite_table = dict()
+        # count nodes
+        self.collect_garbage()
+        newsize = len(self._succ)
+        return (oldsize, newsize)
+
+    def _low_high(self, u):
+        """Return low and high, or `u` itself, if terminal."""
+        i, v, w = self._succ[abs(u)]
+        if abs(u) == 1:
+            return (i, u, u)
+        return i, v, w
+
+    def _swap_cofactor(self, u, y):
+        """Return cofactor of node `u` wrt level `y`.
+
+        If node `u` is above level `y`, that means
+        it was at level `y` when the swap started.
+        To account for this, `y` is returned as the node level.
+        """
+        i, v, w = self._succ[abs(u)]
+        if y < i:
+            return (i, u, u)
+        else:
+            # restore index of y node that moved up
+            return (y, v, w)
+
     def sat_len(self, u):
         """Return number of models of node `u`."""
         assert abs(u) in self, u

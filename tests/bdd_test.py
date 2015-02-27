@@ -459,6 +459,92 @@ def test_cofactor():
     assert g.cofactor(-e, {'y': 1}) == -x
 
 
+def test_swap():
+    # x, y
+    g = BDD({'x': 0, 'y': 1})
+    x = g.add_expr('x')
+    y = g.add_expr('y')
+    g.incref(x)
+    g.incref(y)
+    n = len(g)
+    assert n == 3, n
+    nold, n = g.swap('x', 'y')
+    assert n == 3, n
+    assert nold == n, nold
+    assert g.ordering == {'y': 0, 'x': 1}, g.ordering
+    assert g.assert_consistent()
+    # functions remain invariant
+    x_ = g.add_expr('x')
+    y_ = g.add_expr('y')
+    assert x == x_, (x, x_, g._succ)
+    assert y == y_, (y, y_, g._succ)
+    # external reference counts remain unchanged
+    assert g._ref[abs(x)] == 1
+    assert g._ref[abs(y)] == 1
+    # x & y
+    g = BDD({'x': 0, 'y': 1})
+    u = g.add_expr('x & y')
+    g.incref(u)
+    nold, n = g.swap('x', 'y')
+    assert nold == n, (nold, n)
+    assert g.ordering == {'y': 0, 'x': 1}, g.ordering
+    u_ = g.add_expr('x & y')
+    assert u == u_, (u, u_)
+    assert g.assert_consistent()
+    # reference counts unchanged
+    assert g._ref[abs(u)] == 1
+    # x & !y
+    # tests handling of complement edges
+    e = 'x & !y'
+    g = x_and_not_y()
+    u = g.add_expr(e)
+    g.incref(u)
+    g.collect_garbage()
+    n = len(g)
+    assert n == 3, n
+    nold, n = g.swap('x', 'y')
+    assert n == 3, n
+    assert nold == n, nold
+    assert g.ordering == {'x': 1, 'y': 0}
+    assert g.assert_consistent()
+    u_ = g.add_expr(e)
+    # function u must have remained unaffected
+    assert u_ == u, (u, u_, g._succ)
+    # invert swap of:
+    # x & !y
+    nold, n = g.swap('x', 'y')
+    assert n == 3, n
+    assert nold == n, nold
+    assert g.ordering == {'x': 0, 'y': 1}
+    assert g.assert_consistent()
+    u_ = g.add_expr(e)
+    assert u_ == u, (u, u_, g._succ)
+    # Figs. 6.24, 6.25 Baier 2008
+    g = BDD({'z1': 0, 'y1': 1, 'z2': 2,
+             'y2': 3, 'z3': 4, 'y3': 5})
+    u = g.add_expr('(z1 & y1) | (z2 & y2) | (z3 & y3)')
+    g.incref(u)
+    n = len(g)
+    assert n == 16, n
+    g.collect_garbage()
+    n = len(g)
+    assert n == 7, n
+    # sift to inefficient order
+    g.swap('y1', 'z2')  # z1, z2, y1, y2, z3, y3
+    g.swap('y2', 'z3')  # z1, z2, y1, z3, y2, y3
+    g.swap('y1', 'z3')  # z1, z2, z3, y1, y2, y3
+    n = len(g)
+    assert n == 15, n
+    assert g.assert_consistent()
+    new_ordering = {
+        'z1': 0, 'z2': 1, 'z3': 2,
+        'y1': 3, 'y2': 4, 'y3': 5}
+    assert g.ordering == new_ordering, g.ordering
+    u_ = g.add_expr('(z1 & y1) | (z2 & y2) | (z3 & y3)')
+    assert u_ == u, (u, u_, g._succ)
+    # g.dump('g.pdf')
+
+
 def test_dump_load():
     prefix = 'test_dump_load'
     g = BDD({'x': 0, 'y': 1})

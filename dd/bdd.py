@@ -485,11 +485,12 @@ class BDD(object):
     def collect_garbage(self):
         """Recursively remove nodes with zero reference count."""
         dead = {u for u, c in self._ref.iteritems() if not c}
+        # keep terminals
+        if 1 in dead:
+            dead.remove(1)
         while dead:
             u = dead.pop()
-            # ignore terminals
-            if u == 1:
-                continue
+            assert u != 1
             # remove
             i, v, w = self._succ.pop(u)
             u_ = self._pred.pop((i, v, w))
@@ -502,9 +503,9 @@ class BDD(object):
             self.decref(v)
             self.decref(w)
             # died ?
-            if not self._ref[abs(v)]:
+            if not self._ref[abs(v)] and abs(v) != 1:
                 dead.add(abs(v))
-            if not self._ref[w]:
+            if not self._ref[w] and w != 1:
                 dead.add(w)
         self._ite_table = dict()
 

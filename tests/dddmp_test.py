@@ -2,10 +2,28 @@ import logging
 import os
 from dd.dddmp import Lexer, Parser, load, _rebuild_parsetab
 import networkx as nx
+from nose import tools as nt
 
 
 logging.getLogger('dd.dddmp.parser_logger').setLevel(logging.ERROR)
 parser = Parser()
+
+
+def test_lexer():
+    lexer = Lexer()
+    s = '.ghs?5'
+    lexer.lexer.input(s)
+    tok = lexer.lexer.token()
+    assert tok.value == '.ghs'
+    with nt.assert_raises(Exception):
+        lexer.lexer.token()
+
+
+def test_parser():
+    parser = Parser()
+    with nt.assert_raises(Exception):
+        parser.parser.parse(input='.mode C',
+                            lexer=parser.lexer.lexer)
 
 
 def test_sample0():

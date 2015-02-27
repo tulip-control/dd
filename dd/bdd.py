@@ -236,6 +236,16 @@ class BDD(object):
                     continue
                 yield u, i, v, w
 
+    def _levels(self):
+        """Return `dict` from levels to `set`s of nodes."""
+        n = len(self.ordering)
+        levels = {i: set() for var, i in self.ordering.iteritems()}
+        levels[n] = set()
+        for u, (i, v, w) in self._succ.iteritems():
+            levels[i].add(u)
+        levels.pop(n)
+        return levels
+
     def reduction(self):
         """Return copy reduced with respect to `self.ordering`.
 
@@ -525,12 +535,18 @@ class BDD(object):
                 continue
             self._pred[t] = u
 
-    def swap(self, x, y):
+    def swap(self, x, y, all_levels=None):
         """Permute adjacent variables `x` and `y`.
+
+        Swapping invokes the garbage collector,
+        so be sure to `incref` nodes that should remain.
 
         @param x, y: name or level
         @type x, y: `str` or `int`
         """
+        if all_levels is None:
+            self.collect_garbage()
+            all_levels = self._levels()
         logger.debug(
             'swap variables "{x}" and "{y}"'.format(x=x, y=y))
         x = self.ordering.get(x, x)
@@ -546,13 +562,13 @@ class BDD(object):
         oldsize = len(self._succ)
         # collect levels x and y
         levels = {x: dict(), y: dict()}
-        for u, (i, v, w) in self._succ.iteritems():
-            if i != x and i != y:
-                continue
-            # remove from _pred
-            u_ = self._pred.pop((i, v, w))
-            assert u_ == u, (u_, u)
-            levels[i][u] = (v, w)
+        for j in (x, y):
+            for u in all_levels[j]:
+                i, v, w = self._succ[abs(u)]
+                assert i == j, (i, x, y)
+                u_ = self._pred.pop((i, v, w))
+                assert u == u_, (u, u_)
+                levels[j][u] = (v, w)
         # move level y up
         for u, (v, w) in levels[y].iteritems():
             i, _, _ = self._succ[u]

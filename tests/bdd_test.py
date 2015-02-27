@@ -545,6 +545,23 @@ def test_swap():
     # g.dump('g.pdf')
 
 
+def test_sifting():
+    # Figs. 6.24, 6.25 Baier 2008
+    g = BDD({'z1': 0, 'z2': 1, 'z3': 2,
+             'y1': 3, 'y2': 4, 'y3': 5})
+    u = g.add_expr('(z1 & y1) | (z2 & y2) | (z3 & y3)')
+    g.incref(u)
+    g.collect_garbage()
+    n = len(g)
+    assert n == 15, n
+    dd.bdd.reorder(g)
+    u_ = g.add_expr('(z1 & y1) | (z2 & y2) | (z3 & y3)')
+    g.incref(u)
+    g.collect_garbage()
+    g.assert_consistent()
+    assert u == u_, (u, u_)
+
+
 def test_dump_load():
     prefix = 'test_dump_load'
     g = BDD({'x': 0, 'y': 1})
@@ -876,4 +893,4 @@ def compare(u, bdd, h):
 
 
 if __name__ == '__main__':
-    test_ite()
+    test_sifting()

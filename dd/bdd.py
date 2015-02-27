@@ -14,6 +14,13 @@ Karl S. Brace, Richard L. Rudell, Randal E. Bryant
     27th ACM/IEEE Design Automation Conference, 1990
     pp.40--45
 
+Richard Rudell
+    "Dynamic variable ordering for
+    ordered binary decision diagrams"
+    IEEE/ACM International Conference on
+    Computer-Aided Design, 1993
+    pp.42--47
+
 Christel Baier and Joost-Pieter Katoen
     "Principles of model checking"
     MIT Press, 2008
@@ -1013,6 +1020,69 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
         r = bdd.find_or_add(m, p, q)
     cache[t] = r
     return r
+
+
+def reorder(bdd):
+    """Apply Rudell's sifting algorithm to reduce `bdd` size.
+
+    @type bdd: `BDD`
+    """
+    bdd.collect_garbage()
+    n = len(bdd)
+    # using `set` injects some randomness
+    names = set(bdd.ordering)
+    for var in names:
+        k = _reorder_var(bdd, var)
+        m = len(bdd)
+        logger.info(
+            '{m} nodes for variable "{v}" at level {k}'.format(
+                m=m, v=var, k=k))
+    assert m <= n, (m, n)
+
+
+def _reorder_var(bdd, var):
+    """Reorder by sifting a variable `var`.
+
+    @type bdd: `BDD`
+    @type var: `str`
+    """
+    assert var in bdd.ordering, (var, bdd.ordering)
+    m = len(bdd)
+    n = len(bdd.ordering) - 1
+    assert n >= 0, n
+    start = 0
+    end = n
+    level = bdd.ordering[var]
+    # closer to top ?
+    if (2 * level) >= n:
+        start, end = end, start
+    _shift(bdd, level, start)
+    sizes = _shift(bdd, start, end)
+    k = min(sizes, key=sizes.get)
+    _shift(bdd, end, k)
+    m_ = len(bdd)
+    assert sizes[k] == m_, (sizes[k], m_)
+    assert m_ <= m, (m_, m)
+    return k
+
+
+def _shift(bdd, start, end):
+    """Shift level `start` to become `end`, by swapping.
+
+    @type bdd: `BDD`
+    @type start, end: `0 <= int < len(bdd.ordering)`
+    """
+    m = len(bdd.ordering)
+    assert 0 <= start < m, (start, m)
+    assert 0 <= end < m, (end, m)
+    sizes = dict()
+    d = 1 if start < end else -1
+    for i in xrange(start, end, d):
+        j = i + d
+        oldn, n = bdd.swap(i, j)
+        sizes[i] = oldn
+        sizes[j] = n
+    return sizes
 
 
 def to_nx(bdd, roots):

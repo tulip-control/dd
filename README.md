@@ -20,7 +20,7 @@ Two interfaces are available:
 
 The `n` variables are ordered from `0` (top level) to `n-1` (bottom level). The terminal node `1` is at level `n`.
 
-```
+```python
 from dd.bdd import BDD
 
 ordering = {'x': 0, 'y': 1, 'z': 2}
@@ -29,7 +29,7 @@ bdd = BDD(ordering)
 
 To add Boolean functions using the `BDD` interface directly (assuming the optional dependency `tulip` is present):
 
-```
+```python
 u = bdd.add_expr('x | y')
 v = bdd.add_expr('!x | z')
 w = bdd.apply('and', u, v)
@@ -40,20 +40,20 @@ r = bdd.apply('->', u, w)
 Garbage collection is triggered either explicitly by the user, or when invoking the reordering algorithm.
 The nodes `u`, `v`, `w` will be deleted if next garbage collection is invoked. To prevent this from happening, their reference counts must be increased. For example, if we want to keep `w` from being collected as gargabe, then
 
-```
+```python
 bdd.ref[abs(w)] += 1
 ```
 
 The absolute value is used, because `w` may be a negative integer representing a complemented edge that points to the node `abs(w)` that is present in `bdd`.
 To decrement the reference count:
 
-```
+```python
 bdd.ref[abs(w)] = max(0, bdd.ref[abs(w)])
 ```
 
 `Function` objects can be used to avoid having to manually keep track of incrementing and decrementing the reference counts. Using `Function`s, the above becomes:
 
-```
+```python
 from dd.bdd import Function
 
 u = Function.from_expr('x & y', bdd)

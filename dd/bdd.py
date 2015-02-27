@@ -482,9 +482,18 @@ class BDD(object):
                 return i
         raise Exception('full: reached `self.max_nodes` nodes.')
 
-    def collect_garbage(self):
-        """Recursively remove nodes with zero reference count."""
-        dead = {u for u, c in self._ref.iteritems() if not c}
+    def collect_garbage(self, roots=None):
+        """Recursively remove nodes with zero reference count.
+
+        Removal starts from the nodes in `roots` with zero
+        reference count. If no `roots` are given, then
+        all nodes are scanned for zero reference counts.
+
+        @type roots: `set`, Caution: it is modified
+        """
+        if roots is None:
+            roots = self._ref
+        dead = {u for u in roots if not self._ref[abs(u)]}
         # keep terminals
         if 1 in dead:
             dead.remove(1)

@@ -668,11 +668,13 @@ class BDD(object):
         q = self._to_expr(w, ind2var)
         # pure var ?
         if p == -1 and q == 1:
-            return var
-        elif p == 1 and q == -1:
-            return '!{var}'.format(var=var)
+            s = var
         else:
-            return '({var} -> {q} : {p})'.format(var=var, p=p, q=q)
+            s = '({var} -> {q} : {p})'.format(var=var, p=p, q=q)
+        # complemented ?
+        if u < 0:
+            s = '(! {s})'.format(s=s)
+        return s
 
     def apply(self, op, u, v=None):
         """Apply Boolean connective `op` between nodes `u` and `v`.

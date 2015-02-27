@@ -409,24 +409,22 @@ def test_add_expr():
 def test_compose():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)
-
+    # x & (x | z)
     a = g.add_expr('x && y')
     b = g.add_expr('x || z')
     c = g.compose(a, ordering['y'], b)
     d = g.add_expr('x && (x || z)')
     assert c == d
-
+    # (y | z) & x
     ordering = {'x': 0, 'y': 1, 'z': 2, 'w': 3}
     g = BDD(ordering)
-
     a = g.add_expr('(x && y) || z')
     b = g.add_expr('(y || z) && x')
     c = g.compose(a, ordering['z'], b)
     assert c == b
-
+    # long expr
     ordering = {'x': 0, 'y': 1, 'z': 2, 'w': 3}
     g = BDD(ordering)
-
     a = g.add_expr('(x && y) || (!z || (w && y && x))')
     b = g.add_expr('(y || z) && x')
     c = g.compose(a, ordering['y'], b)
@@ -466,7 +464,7 @@ def test_dump_load():
     g = BDD({'x': 0, 'y': 1})
     e = 'x & !y'
     u = g.add_expr(e)
-    g._ref[abs(u)] += 1
+    g.incref(u)
     fname = prefix + '.p'
     g.dump(fname)
     h = BDD.load(fname)
@@ -479,7 +477,7 @@ def test_dump_load():
 def test_quantify():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)
-
+    # x & y
     e = g.add_expr('x && y')
     x = g.add_expr('x')
     y = g.add_expr('y')
@@ -487,7 +485,7 @@ def test_quantify():
     assert g.quantify(e, {'x'}, forall=True) == -1
     assert g.quantify(e, {'y'}) == x
     assert g.quantify(e, {'x'}, forall=True) == -1
-
+    # x | y | z
     e = g.add_expr('x || y || z')
     xy = g.add_expr('x || y')
     yz = g.add_expr('y || z')
@@ -544,14 +542,12 @@ def test_preimage():
                 'z': 4, 'zp': 5}
     rename = {0: 1, 2: 3, 4: 5}
     g = BDD(ordering)
-
     f = g.add_expr('!x')
     t = g.add_expr('x <-> !xp')
     qvars = {1, 3}
     p = preimage(t, f, rename, qvars, g)
     x = g.add_expr('x')
     assert x == p, (x, p)
-
     # a cycle
     # (x & y) -> (!x & y) ->
     # (!x & !y) -> (x & !y) -> wrap around
@@ -560,15 +556,12 @@ def test_preimage():
         '((!x & y) -> (!xp & !yp)) && '
         '((!x & !y) -> (xp & !yp)) && '
         '((x & !y) -> (xp & yp))')
-
     f = g.add_expr('x && y')
     p = preimage(t, f, rename, qvars, g)
     assert p == g.add_expr('x & !y')
-
     f = g.add_expr('x && !y')
     p = preimage(t, f, rename, qvars, g)
     assert p == g.add_expr('!x & !y')
-
     # backward reachable set
     f = g.add_expr('x & y')
     oldf = None
@@ -577,7 +570,6 @@ def test_preimage():
         oldf = f
         f = g.apply('or', p, oldf)
     assert f == 1
-
     # go around once
     f = g.add_expr('x & y')
     start = f
@@ -585,7 +577,6 @@ def test_preimage():
         f = preimage(t, f, rename, qvars, g)
     end = f
     assert start == end
-
     # forall z exists x, y
     t = g.add_expr(
         '('
@@ -597,7 +588,6 @@ def test_preimage():
     ep = preimage(t, f, rename, qvars, g)
     p = g.quantify(ep, {'zp'}, forall=True)
     assert p == -1
-
     f = g.add_expr('(x & !y) | (!x & y)')
     ep = preimage(t, f, rename, qvars, g)
     p = g.quantify(ep, {'zp'}, forall=True)
@@ -783,11 +773,10 @@ def ref_x_or_y():
 
 def compare(u, bdd, h):
     g = dd.bdd.to_nx(bdd, [u])
-    nx.to_pydot(g).write_pdf('g.pdf')
+    # nx.to_pydot(g).write_pdf('g.pdf')
     post = nx.descendants(g, u)
     post.add(u)
     r = g.subgraph(post)
-    # nx.to_pydot(r).write_pdf('g.pdf')
     # nx.to_pydot(r).write_pdf('r.pdf')
     # nx.to_pydot(h).write_pdf('h.pdf')
     nm = lambda x, y: x['index'] == y['index']

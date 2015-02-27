@@ -30,7 +30,6 @@ Henrik R. Andersen
     Lecture notes for "Efficient Algorithms and Programs", 1999
     The IT University of Copenhagen
 """
-import copy
 import logging
 from collections import Mapping
 from itertools import tee, izip
@@ -788,11 +787,13 @@ def rename(u, bdd, dvars):
         if w not in S:
             Q.add(w)
             S.add(w)
-        assert i not in varp, 'target var "{i}" is essential'.format(i=i)
+        assert i not in varp, (
+            'target var "{i}" is essential'.format(i=i))
     # neighbors ?
     for v, vp in dvars.iteritems():
-        assert abs(v - vp) == 1, '"{v}" not neighbor of "{vp}"'.format(
-            v=v, vp=vp)
+        assert abs(v - vp) == 1, (
+            '"{v}" not neighbor of "{vp}"'.format(
+                v=v, vp=vp))
     return _rename(u, bdd, dvars)
 
 
@@ -898,7 +899,11 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
 
 
 def to_nx(bdd, roots):
-    """Convert functions at `roots` to `networkx.MultiDiGraph`."""
+    """Convert functions in `roots` to `networkx.MultiDiGraph`.
+
+    @type bdd: `BDD`
+    @type roots: iterable of edges, each a signed `int`
+    """
     import networkx as nx
     g = nx.MultiDiGraph()
     for root in roots:
@@ -1047,7 +1052,7 @@ class Function(object):
         return self._apply('bimplies', other)
 
     def _apply(self, op, other):
-        """Return result of operation `op` with `other` as `Function`."""
+        """Return result of operation `op` with `other`."""
         # unary op ?
         if other is None:
             u = self.bdd.apply(op, self.node)

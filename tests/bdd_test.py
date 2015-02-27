@@ -460,6 +460,20 @@ def test_cofactor():
     assert g.cofactor(-e, {'y': 1}) == -x
 
 
+def test_dump_load():
+    g = BDD({'x': 0, 'y': 1})
+    e = 'x & !y'
+    u = g.add_expr(e)
+    g.ref[abs(u)] += 1
+    fname = 'hehe.pk'
+    g.dump(fname)
+    h = BDD.load(fname)
+    assert h.assert_consistent()
+    u_ = h.add_expr(e)
+    assert u == u_, (u, u_)
+    # h.dump_pdf('hehe.pdf')
+
+
 def test_quantify():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)

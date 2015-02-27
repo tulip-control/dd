@@ -447,7 +447,7 @@ def load(fname):
     return bdd
 
 
-if __name__ == '__main__':
+def _rebuild_parsetab():
     table = TABMODULE.split('.')[-1]
     parser = Parser()
     for ext in ('.py', '.pyc'):
@@ -456,3 +456,7 @@ if __name__ == '__main__':
         except:
             pass
     parser.build(write_tables=True, outputdir='./', tabmodule=table)
+
+
+if __name__ == '__main__':
+    _rebuild_parsetab()

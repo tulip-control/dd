@@ -1,5 +1,6 @@
 import logging
-from dd.dddmp import Parser, load
+import os
+from dd.dddmp import Lexer, Parser, load, _rebuild_parsetab
 import networkx as nx
 
 
@@ -63,6 +64,17 @@ def test_load_dddmp():
     bddvars = set(bdd.ordering)
     assert bddvars == varnames, bddvars
     assert bdd.assert_consistent()
+
+
+def test_rebuild_parsetab():
+    prefix = 'dddmp_parsetab'
+    for ext in ('.py', '.pyc'):
+        try:
+            os.remove(prefix + ext)
+        except:
+            pass
+    _rebuild_parsetab()
+    assert os.path.isfile(prefix + '.py')
 
 
 def to_nx(bdd, n_vars, ordering, roots):

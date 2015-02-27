@@ -4,6 +4,8 @@ dd/version.py
 *parsetab.py
 *.pyc
 *.pdf
+*.txt
+*.pk
 dist/*
 build/*
 *.egg-info

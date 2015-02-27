@@ -1,5 +1,4 @@
 import logging
-import time
 from dd import dddmp
 import networkx as nx
 
@@ -45,13 +44,6 @@ def test_bdd_from_dddmp():
     print bdd
 
 
-def load_bdd_2_masters():
-    fname = 'bdd_16_masters.txt'
-    t0 = time.time()
-    bdd, n, ordering, roots = parser.parse(fname)
-    t1 = time.time()
-    print('finished: {t}'.format(t=t1 - t0))
-    print(len(bdd))
 
 
 def to_nx(bdd, n_vars, ordering, roots):

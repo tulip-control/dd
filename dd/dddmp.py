@@ -88,8 +88,7 @@ class Lexer(object):
         t.lexer.lineno += t.value.count("\n")
 
     def t_error(self, t):
-        warnings.warn('Illegal character "{t}"'.format(t=t.value[0]))
-        t.lexer.skip(1)
+        raise Exception('Illegal character "{t}"'.format(t=t.value[0]))
 
     def build(self, debug=False, debuglog=None, **kwargs):
         """Create a lexer.

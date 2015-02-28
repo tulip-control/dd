@@ -446,7 +446,8 @@ def load(fname):
     return bdd
 
 
-def _rebuild_parsetab():
+def _rewrite_tables(outputdir='./'):
+    """Write the parser table file, even if it exists."""
     table = TABMODULE.split('.')[-1]
     parser = Parser()
     for ext in ('.py', '.pyc'):
@@ -454,8 +455,11 @@ def _rebuild_parsetab():
             os.remove(table + ext)
         except:
             pass
-    parser.build(write_tables=True, outputdir='./', tabmodule=table)
+    parser.build(
+        write_tables=True,
+        outputdir=outputdir,
+        tabmodule=table)
 
 
 if __name__ == '__main__':
-    _rebuild_parsetab()
+    _rewrite_tables()

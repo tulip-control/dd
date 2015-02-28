@@ -75,22 +75,26 @@ Using `setuptools`:
 python setup.py install
 ```
 
-or using `pip`:
+or using `pip >= 6.0.8`:
 
 ```
 pip install dd
 ```
 
-Two optional extras are available:
+Three optional extras are available:
 
-- `expr` that enables constructing BDDs from Boolean expressions as strings, and requires a development version of [`tulip`](https://github.com/johnyf/tulip-control/tree/easysetup)
-- `dot` that requires [`pydot`](http://pypi.python.org/pydot) and [graphviz](http://graphviz.org/).
+- `expr` for constructing BDDs from Boolean expressions as strings (requires a development version of [`tulip`](https://github.com/johnyf/tulip-control/tree/easysetup))
+- `dot` for graph layout (requires [`pydot`](http://pypi.python.org/pydot) and [graphviz](http://graphviz.org/)).
+- `nx` for conversion of BDDs to [`networkx`](https://github.com/networkx/networkx) graphs (requires `networkx`).
 
 These can be [specified when installing with `pip`](https://pip.pypa.io/en/latest/reference/pip_install.html#examples) as, for example:
 
 ```
 pip install dd[dot]
 ```
+
+Successfully running the tests requires the above extra dependencies.
+
 
 License
 =======

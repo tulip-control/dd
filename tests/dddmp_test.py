@@ -1,6 +1,6 @@
 import logging
 import os
-from dd.dddmp import Lexer, Parser, load, _rebuild_parsetab
+from dd.dddmp import Lexer, Parser, load, _rewrite_tables
 import networkx as nx
 from nose import tools as nt
 
@@ -84,14 +84,14 @@ def test_load_dddmp():
     assert bdd.assert_consistent()
 
 
-def test_rebuild_parsetab():
+def test_rewrite_tables():
     prefix = 'dddmp_parsetab'
     for ext in ('.py', '.pyc'):
         try:
             os.remove(prefix + ext)
         except:
             pass
-    _rebuild_parsetab()
+    _rewrite_tables()
     assert os.path.isfile(prefix + '.py')
 
 

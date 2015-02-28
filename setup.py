@@ -19,6 +19,8 @@ if __name__ == '__main__':
     pip.main(['install', 'ply == 3.4'])
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
+    from dd import dddmp
+    dddmp._rewrite_tables('dd/')
     setup(
         name='dd',
         version=version,

@@ -45,5 +45,6 @@ if __name__ == '__main__':
              'archive/easysetup.zip#egg=tulip-1.2.dev')],
         packages=['dd'],
         package_dir={'dd': 'dd'},
-        keywords=['bdd', 'binary decision diagram',
-                  'decision diagram', 'networkx', 'boolean'])
+        keywords=[
+            'bdd', 'binary decision diagram', 'decision diagram',
+            'boolean', 'networkx', 'dot'])

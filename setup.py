@@ -1,3 +1,4 @@
+import pip
 from setuptools import setup
 
 
@@ -15,6 +16,7 @@ s = (
 
 
 if __name__ == '__main__':
+    pip.main(['install', 'ply == 3.4'])
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
     setup(

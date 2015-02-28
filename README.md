@@ -90,8 +90,10 @@ Three optional extras are available:
 These can be [specified when installing with `pip`](https://pip.pypa.io/en/latest/reference/pip_install.html#examples) as, for example:
 
 ```
-pip install dd[dot]
+pip install --process-dependency-links dd[expr]
 ```
+
+The option `--process-dependency-links` tells `pip` that it can look at the `dependency_links` attribute passed as argument to `setuptools.setup` in `setup.py`, in order to find a [suitable development version of `tulip`](https://github.com/johnyf/tulip-control/tree/easysetup).
 
 Successfully running the tests requires the above extra dependencies.
 

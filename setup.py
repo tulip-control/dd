@@ -40,6 +40,9 @@ if __name__ == '__main__':
             'networkx >= 1.9.1',
             'pydot >= 1.0.28',
             'tulip >= 1.2.dev'],
+        dependency_links=[
+            ('https://github.com/johnyf/tulip-control/'
+             'archive/easysetup.zip#egg=tulip-1.2.dev')],
         packages=['dd'],
         package_dir={'dd': 'dd'},
         keywords=['bdd', 'binary decision diagram',

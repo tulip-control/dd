@@ -421,6 +421,9 @@ class BDD(object):
         if u in cache:
             return cache[u]
         i, v, w = self._succ[abs(u)]
+        # complement ?
+        if u < 0:
+            v, w = -v, -w
         n = len(ordvar)
         # skip nonessential variables
         while j < n:

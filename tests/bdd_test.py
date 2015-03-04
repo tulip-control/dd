@@ -599,6 +599,10 @@ def test_quantify():
     assert g.quantify(e, {'z'}, forall=True) == xy
     assert g.quantify(e, {'x'}, forall=True) == yz
     assert g.quantify(e, {'y'}, forall=True) == zx
+    # complement edges
+    u = -x
+    v = g.quantify(u, {'y'}, forall=True)
+    assert v == -x, g.to_expr(v)
 
 
 def test_rename():

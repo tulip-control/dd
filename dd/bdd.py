@@ -1166,7 +1166,7 @@ def to_nx(bdd, roots):
         while Q:
             u = Q.pop()
             i, v, w = bdd._succ[abs(u)]
-            g.add_node(abs(u), index=i)
+            g.add_node(abs(u), level=i)
             # terminal ?
             if v is None or w is None:
                 assert w is None, w

@@ -182,10 +182,10 @@ def test_reduce_combined():
     assert ordering == h.ordering
 
     r = nx.MultiDiGraph()
-    r.add_node(1, index=3)
-    r.add_node(2, index=0)
-    r.add_node(3, index=1)
-    r.add_node(4, index=2)
+    r.add_node(1, level=3)
+    r.add_node(2, level=0)
+    r.add_node(3, level=1)
+    r.add_node(4, level=2)
 
     r.add_edge(2, 3, value=False, complement=False)
     r.add_edge(2, 4, value=True, complement=False)
@@ -847,8 +847,8 @@ def x_and_not_y():
 
 def ref_var(i):
     h = nx.MultiDiGraph()
-    h.add_node(1, index=2)
-    h.add_node(2, index=i)
+    h.add_node(1, level=2)
+    h.add_node(2, level=i)
     h.add_edge(2, 1, value=False, complement=True)
     h.add_edge(2, 1, value=True, complement=False)
     return h
@@ -856,9 +856,9 @@ def ref_var(i):
 
 def ref_x_and_y():
     h = nx.MultiDiGraph()
-    h.add_node(1, index=2)
-    h.add_node(2, index=0)
-    h.add_node(3, index=1)
+    h.add_node(1, level=2)
+    h.add_node(2, level=0)
+    h.add_node(3, level=1)
     h.add_edge(2, 1, value=False, complement=True)
     h.add_edge(2, 3, value=True, complement=False)
     h.add_edge(3, 1, value=False, complement=True)
@@ -868,9 +868,9 @@ def ref_x_and_y():
 
 def ref_x_or_y():
     h = nx.MultiDiGraph()
-    h.add_node(1, index=2)
-    h.add_node(2, index=0)
-    h.add_node(3, index=1)
+    h.add_node(1, level=2)
+    h.add_node(2, level=0)
+    h.add_node(3, level=1)
     h.add_edge(2, 3, value=False, complement=False)
     h.add_edge(2, 1, value=True, complement=False)
     h.add_edge(3, 1, value=False, complement=True)
@@ -886,7 +886,7 @@ def compare(u, bdd, h):
     r = g.subgraph(post)
     # nx.to_pydot(r).write_pdf('r.pdf')
     # nx.to_pydot(h).write_pdf('h.pdf')
-    nm = lambda x, y: x['index'] == y['index']
+    nm = lambda x, y: x['level'] == y['level']
     em = lambda x, y: (
         bool(x[0]['value']) == bool(y[0]['value']) and
         bool(x[0]['complement']) == bool(y[0]['complement']))

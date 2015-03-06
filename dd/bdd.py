@@ -136,7 +136,7 @@ class BDD(object):
                 for var, k in self.ordering.iteritems()}
         return self._ind2var[i]
 
-    def _map_to_index(self, d):
+    def _map_to_level(self, d):
         """Map keys of `d` to variable levels.
 
         If `d` is an iterable but not a mapping,
@@ -166,7 +166,7 @@ class BDD(object):
         @type values: `dict`
         """
         assert abs(u) in self, u
-        values = self._map_to_index(values)
+        values = self._map_to_level(values)
         return self._evaluate(u, values)
 
     def _evaluate(self, u, values):
@@ -354,7 +354,7 @@ class BDD(object):
         @param u: node
         @param values: `dict` that maps var levels to values
         """
-        values = self._map_to_index(values)
+        values = self._map_to_level(values)
         cache = dict()
         ordvar = sorted(values)
         j = 0
@@ -406,7 +406,7 @@ class BDD(object):
             then quantify `dvars` universally,
             else quantify existentially.
         """
-        qvars = self._map_to_index(qvars)
+        qvars = self._map_to_level(qvars)
         cache = dict()
         ordvar = sorted(qvars)
         j = 0

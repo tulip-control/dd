@@ -1078,8 +1078,8 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     if w is not None:
         return w
     # recurse (descend)
-    iu = bdd._succ[abs(u)][0]
-    jv = bdd._succ[abs(v)][0]
+    iu, _, _ = bdd._succ[abs(u)]
+    jv, _, _ = bdd._succ[abs(v)]
     if vmap is None:
         iv = jv
     else:
@@ -1096,10 +1096,10 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
         else:
             r = bdd.ite(p, 1, q)  # disjoin
     else:
-        if umap is not None:
-            m = umap.get(z, z)
-        else:
+        if umap is None:
             m = z
+        else:
+            m = umap.get(z, z)
         r = bdd.find_or_add(m, p, q)
     cache[t] = r
     return r

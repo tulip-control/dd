@@ -59,11 +59,10 @@ class BDD(object):
     Values returned by methods are edges, possibly complemented.
 
     Attributes:
-      - `ordering`: `dict` mapping `variables` to `int` indices
+      - `ordering`: `dict` mapping `variables` to `int` levels
       - `roots`: (optional) edges used by `to_nx`.
       - `max_nodes`: raise `Exception` if this limit is reached.
         The default value is `sys.max_int`. Increase it if needed.
-    where index, low, high are `int`.
 
     To ensure that the target node of a returned edge
     is not garbage collected during reordering,
@@ -130,7 +129,7 @@ class BDD(object):
             self._ref[abs(u)] -= 1
 
     def level_to_variable(self, i):
-        """Return variable with index `i`."""
+        """Return variable with level `i`."""
         if self._ind2var is None:
             self._ind2var = {
                 k: var
@@ -138,7 +137,7 @@ class BDD(object):
         return self._ind2var[i]
 
     def _map_to_index(self, d):
-        """Map keys of `d` to variable indices.
+        """Map keys of `d` to variable levels.
 
         If `d` is an iterable but not a mapping,
         then an iterable is returned.
@@ -162,7 +161,7 @@ class BDD(object):
         """Return value of node `u` for evaluation `values`.
 
         @param values: (partial) mapping from `variables` to values
-            keys can be variable names as `str` or indices as `int`.
+            keys can be variable names as `str` or levels as `int`.
             Mapping should be complete with respect to `u`.
         @type values: `dict`
         """
@@ -268,7 +267,7 @@ class BDD(object):
         """Return f(x_j=g).
 
         @param u, v: nodes
-        @param j: variable index
+        @param j: variable level
         @param cache: stores intermediate results
         """
         # terminal or exhausted valuation ?
@@ -331,7 +330,7 @@ class BDD(object):
         """Return restriction for assignment to single variable.
 
         @param u: node
-        @param i: variable index
+        @param i: variable level
         @param value: assignment to variable `i`
         """
         # terminal node ?
@@ -353,7 +352,7 @@ class BDD(object):
         """Return restriction of `u` to valuation `values`.
 
         @param u: node
-        @param values: `dict` that maps var indices to values
+        @param values: `dict` that maps var levels to values
         """
         values = self._map_to_index(values)
         cache = dict()
@@ -544,7 +543,7 @@ class BDD(object):
         Swapping invokes the garbage collector,
         so be sure to `incref` nodes that should remain.
 
-        @param x, y: name or level
+        @param x, y: variable name or level
         @type x, y: `str` or `int`
         """
         if all_levels is None:
@@ -941,11 +940,11 @@ class BDD(object):
 def rename(u, bdd, dvars):
     """Efficient rename to non-essential neighbors.
 
-    @param dvars: `dict` from variabe indices to variable indices
+    @param dvars: `dict` from variabe levels to variable levels
         or from variable names to variable names
     """
     assert u in bdd, u
-    # map name to indices, if needed
+    # map variable names to levels, if needed
     ordering = bdd.ordering
     k = next(iter(dvars))
     if k in ordering:
@@ -1021,7 +1020,7 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
 
     Also known as the "relational product".
     Assumes that primed and unprimed variables are neighbors.
-    Variables are identified by their indices.
+    Variables are identified by their levels.
 
     @param trans: transition relation
     @param target: the transition must end in this set
@@ -1185,7 +1184,7 @@ def to_nx(bdd, roots):
 def to_pydot(bdd):
     """Convert `BDD` to pydot graph.
 
-    Nodes are ordered by variables.
+    Nodes are ordered by variable levels.
     Edges to low successors are dashed.
     """
     import pydot

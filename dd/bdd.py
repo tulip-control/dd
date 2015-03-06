@@ -184,7 +184,11 @@ class BDD(object):
             return r
 
     def is_essential(self, u, var):
-        """Return `True` if `var` essential for node `u`."""
+        """Return `True` if `var` is essential for node `u`.
+
+        @param var: level in `ordering`
+        @type var: `int`
+        """
         i = self.ordering.get(var)
         if i is None:
             return False
@@ -202,7 +206,10 @@ class BDD(object):
         return False
 
     def support(self, u):
-        """Return variables that node `u` depends on."""
+        """Return variables that node `u` depends on.
+
+        @rtype: `set`
+        """
         var = set()
         self._support(u, var)
         return {self.level_to_variable(i) for i in var}
@@ -223,7 +230,10 @@ class BDD(object):
     def levels(self, skip_terminals=False):
         """Return generator of tuples `(u, i, v, w)`.
 
-        Where `i` ranges from terminals to root
+        Where `i` ranges from terminals to root.
+
+        @param skip_terminals: if `True`, then omit
+            terminal nodes.
         """
         if skip_terminals:
             n = len(self.ordering) - 1
@@ -300,7 +310,7 @@ class BDD(object):
         @param u: high
         @param v: low
         @type g, u, v: `int`
-        @rtype: [BDD]
+        @rtype: `BDD`
         """
         # is g terminal ?
         if g == 1:
@@ -396,15 +406,15 @@ class BDD(object):
         return r
 
     def quantify(self, u, qvars, forall=False):
-        """Return existential of universal abstraction.
+        """Return existential or universal abstraction.
 
-        Caution: `dvars` is modified.
+        Caution: `qvars` is modified.
 
         @param u: node
         @param qvars: `set` of quantified variables
         @param forall: if `True`,
-            then quantify `dvars` universally,
-            else quantify existentially.
+            then quantify `qvars` universally,
+            else existentially.
         """
         qvars = self._map_to_level(qvars)
         cache = dict()
@@ -452,8 +462,8 @@ class BDD(object):
         If one exists, it is quickly found in the cached table.
 
         @param i: level in `range(n_vars - 1)`
-        @param v: low
-        @param w: high
+        @param v: low edge
+        @param w: high edge
         """
         assert 0 <= i < len(self.ordering), i
         assert abs(v) in self, v
@@ -726,13 +736,15 @@ class BDD(object):
             return du
 
     def sat_iter(self, u):
-        """Return iterator over models.
+        """Return generator over models.
 
         A model is a satisfying assignment to variables.
 
         If a variable is missing from the `dict` of a model,
         then it is a "don't care", i.e., the model can be
         completed by assigning any value to that variable.
+
+        @rtype: generator of `dict`
         """
         # empty ?
         if not self._succ:
@@ -791,7 +803,13 @@ class BDD(object):
         return True
 
     def add_expr(self, e):
-        """Return node for expression `e` after adding it.
+        """Return node for expression `e`, after adding it.
+
+        If the attribute `_parser` is `None`,
+        then it is attempted to import `tulip.spec`.
+        To avoid this, set `_parser` to a custom parser
+        with a method `parse` that returns a syntax tree
+        that conforms to `add_ast`.
 
         @type expr: `str`
         """
@@ -1000,10 +1018,10 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     @param trans: transition relation
     @param source: the transition must start in this set
     @param rename: `dict` that maps primed variables in
-        `u` to unprimed variables in `u`.
-        Applied to the quantified conjunction of `u` and `v`.
-    @param qvars: `set` of quantified variables
-    @param bdd: [BDD]
+        `trans` to unprimed variables in `trans`.
+        Applied to the quantified conjunction of `trans` and `source`.
+    @param qvars: `set` of variables to quantify
+    @param bdd: `BDD`
     @param forall: if `True`,
         then quantify `qvars` universally,
         else existentially.
@@ -1016,7 +1034,7 @@ def image(trans, source, rename, qvars, bdd, forall=False):
 
 
 def preimage(trans, target, rename, qvars, bdd, forall=False):
-    """Return set that can reach target `v` under `u`.
+    """Return set that can reach `target` under `trans`.
 
     Also known as the "relational product".
     Assumes that primed and unprimed variables are neighbors.
@@ -1024,9 +1042,13 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
 
     @param trans: transition relation
     @param target: the transition must end in this set
-    @param rename: `dict` that maps variables in `v` to
-        variables in `u`
-    @param qvars: `set` of quantified variables
+    @param rename: `dict` that maps (unprimed) variables in `target` to
+        (primed) variables in `trans`
+    @param qvars: `set` of variables to quantify
+    @param bdd: `BDD`
+    @param forall: if `True`,
+        then quantify `qvars` universally,
+        else existentially.
     """
     cache = dict()
     rename_u = None
@@ -1154,6 +1176,14 @@ def _shift(bdd, start, end, levels):
 def to_nx(bdd, roots):
     """Convert functions in `roots` to `networkx.MultiDiGraph`.
 
+    The resulting graph has:
+
+      - nodes labeled with:
+        - `level`: `int` from 0 to `len(bdd)`
+      - edges labeled with:
+        - `value`: `False` for low/"else", `True` for high/"then"
+        - `complement`: `True` if target node is negated
+
     @type bdd: `BDD`
     @type roots: iterable of edges, each a signed `int`
     """
@@ -1186,6 +1216,9 @@ def to_pydot(bdd):
 
     Nodes are ordered by variable levels.
     Edges to low successors are dashed.
+    Complemented edges are labeled with "-1".
+
+    @type bdd: `BDD`
     """
     import pydot
     g = pydot.Dot('bdd', graph_type='digraph')

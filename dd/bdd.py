@@ -813,11 +813,11 @@ class BDD(object):
 
         @type expr: `str`
         """
-        try:
-            from tulip.spec import lexyacc
-        except ImportError:
-            raise Exception('failed to import `tulip.spec`')
         if self._parser is None:
+            try:
+                from tulip.spec import lexyacc
+            except ImportError:
+                raise Exception('failed to import `tulip.spec`')
             self._parser = lexyacc.Parser()
         return self.add_ast(self._parser.parse(e))
 

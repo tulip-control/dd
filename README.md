@@ -1,3 +1,7 @@
+[![Build Status][build_img]][travis]
+[![Coverage Status][coverage]][coveralls]
+
+
 About
 =====
 
@@ -101,3 +105,9 @@ Successfully running the tests requires the above extra dependencies.
 License
 =======
 [BSD-3](http://opensource.org/licenses/BSD-3-Clause), see `LICENSE` file.
+
+
+[build_img]: https://travis-ci.org/johnyf/dd.svg?branch=master
+[travis]: https://travis-ci.org/johnyf/dd
+[coverage]: https://coveralls.io/repos/johnyf/dd/badge.svg?branch=master
+[coveralls]: https://coveralls.io/r/johnyf/dd?branch=master

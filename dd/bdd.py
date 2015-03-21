@@ -1259,7 +1259,7 @@ def to_pydot(bdd):
         sv = f(v)
         sw = f(w)
         vlabel = '-1' if v < 0 else ' '
-        e = pydot.Edge(su, sv, style='dashed', label=vlabel)
+        e = pydot.Edge(su, sv, style='dashed', taillabel=vlabel)
         g.add_edge(e)
         e = pydot.Edge(su, sw, style='solid')
         g.add_edge(e)

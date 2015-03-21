@@ -408,8 +408,6 @@ class BDD(object):
     def quantify(self, u, qvars, forall=False):
         """Return existential or universal abstraction.
 
-        Caution: `qvars` is modified.
-
         @param u: node
         @param qvars: `set` of quantified variables
         @param forall: if `True`,

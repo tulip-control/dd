@@ -1012,7 +1012,10 @@ def _rename(u, bdd, dvars):
     q = _rename(w, bdd, dvars)
     # to be renamed ?
     z = dvars.get(i, i)
-    return bdd.find_or_add(z, p, q)
+    r = bdd.find_or_add(z, p, q)
+    if u < 0:
+        r = -r
+    return r
 
 
 def image(trans, source, rename, qvars, bdd, forall=False):

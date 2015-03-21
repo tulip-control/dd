@@ -628,10 +628,10 @@ def test_rename():
                 'y': 2, 'yp': 3,
                 'z': 4, 'zp': 5}
     g = BDD(ordering)
-    u = g.add_expr('x && y && z')
+    u = g.add_expr('x && y && ! z')
     dvars = {'x': 'xp', 'y': 'yp', 'z': 'zp'}
     urenamed = dd.bdd.rename(u, g, dvars)
-    up = g.add_expr('xp && yp && zp')
+    up = g.add_expr('xp && yp && ! zp')
     assert urenamed == up, urenamed
     # assertion violations
     # non-neighbors

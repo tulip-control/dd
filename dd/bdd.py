@@ -891,6 +891,8 @@ class BDD(object):
           - `'!', '|', '||', '&', '&&', '^', '->', '<->'`
         @type u, v: nodes
         """
+        assert abs(u) in self, u
+        assert v is None or abs(v) in self, v
         if op in {'not', '!'}:
             return -u
         elif op in {'or', '|', '||'}:
@@ -966,7 +968,7 @@ def rename(u, bdd, dvars):
     @param dvars: `dict` from variabe levels to variable levels
         or from variable names to variable names
     """
-    assert u in bdd, u
+    assert abs(u) in bdd, u
     # map variable names to levels, if needed
     ordering = bdd.ordering
     k = next(iter(dvars))

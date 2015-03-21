@@ -905,6 +905,8 @@ class BDD(object):
             return self.ite(u, v, 1)
         elif op in {'bimplies', '<->'}:
             return self.ite(u, v, -v)
+        elif op in {'diff', '-'}:
+            return self.ite(u, -v, -1)
 
     def dump(self, filename, filetype=None):
         """Write `BDD` to `filename` as pickle or PDF.

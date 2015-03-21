@@ -133,6 +133,12 @@ def test_sat_iter():
     u = -2
     s = [{'x': 1, 'y': 0}]
     compare_iter_to_list_of_sets(u, g, s)
+    # gaps in order
+    order = {'x': 0, 'y': 1, 'z': 2}
+    bdd = BDD(order)
+    u = bdd.add_expr('x & z')
+    (m,) = bdd.sat_iter(u)
+    assert m == {'x': 1, 'z': 1}, m
 
 
 def compare_iter_to_list_of_sets(u, g, s):

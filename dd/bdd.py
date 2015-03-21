@@ -750,24 +750,29 @@ class BDD(object):
         # non-empty
         assert abs(u) in self._succ, u
         self.level_to_variable(0)
-        return self._sat_iter(u, '', True)
+        return self._sat_iter(u, dict(), True)
 
-    def _sat_iter(self, u, path, value):
+    def _sat_iter(self, u, model, value):
         """Recurse to enumerate models."""
         if u < 0:
             value = not value
         # terminal ?
         if abs(u) == 1:
             if value:
-                model = {self._ind2var[i]: int(val)
-                         for i, val in enumerate(path)}
+                model = {
+                    self._ind2var[i]: v
+                    for i, v in model.iteritems()}
                 yield model
             return
         # non-terminal
-        _, v, w = self._succ[abs(u)]
-        for x in self._sat_iter(v, path + '0', value):
+        i, v, w = self._succ[abs(u)]
+        d0 = dict(model)
+        d0[i] = 0
+        d1 = dict(model)
+        d1[i] = 1
+        for x in self._sat_iter(v, d0, value):
             yield x
-        for x in self._sat_iter(w, path + '1', value):
+        for x in self._sat_iter(w, d1, value):
             yield x
 
     def assert_consistent(self):

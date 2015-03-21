@@ -855,7 +855,9 @@ class BDD(object):
             i = len(self.ordering)
             self._succ[1] = (i, None, None)
             assert t.value in self.ordering, (
-                'undefined variable "{v}"'.format(v=t.value))
+                'undefined variable "{v}",'
+                ' known variables are:\n {d}').format(
+                    v=t.value, d=self.ordering)
             j = self.ordering[t.value]
             return self.find_or_add(j, -1, 1)
 
@@ -994,7 +996,8 @@ def rename(u, bdd, dvars):
             Q.add(w)
             S.add(w)
         assert i not in varp, (
-            'target var "{i}" is essential'.format(i=i))
+            'target var "{v}" at level {i} is essential'.format(
+                v=bdd.level_to_variable(i), i=i))
     # neighbors ?
     for v, vp in dvars.iteritems():
         assert abs(v - vp) == 1, (

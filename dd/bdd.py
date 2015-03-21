@@ -442,14 +442,14 @@ class BDD(object):
             # exhausted valuation
             return u
         # recurse
+        p = self._quantify(v, j, ordvar, qvars, forall, cache)
+        q = self._quantify(w, j, ordvar, qvars, forall, cache)
         if i in qvars:
             if forall:
-                r = self.ite(v, w, -1)  # conjoin
+                r = self.ite(p, q, -1)  # conjoin
             else:
-                r = self.ite(v, 1, w)  # disjoin
+                r = self.ite(p, 1, q)  # disjoin
         else:
-            p = self._quantify(v, j, ordvar, qvars, forall, cache)
-            q = self._quantify(w, j, ordvar, qvars, forall, cache)
             r = self.find_or_add(i, p, q)
         cache[u] = r
         return r

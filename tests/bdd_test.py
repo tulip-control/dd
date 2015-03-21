@@ -581,10 +581,10 @@ def test_quantify():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)
     # x & y
-    e = g.add_expr('x && y')
+    e = g.add_expr('x && ! y')
     x = g.add_expr('x')
-    y = g.add_expr('y')
-    assert g.quantify(e, {'x'}) == y
+    not_y = g.add_expr('! y')
+    assert g.quantify(e, {'x'}) == not_y
     assert g.quantify(e, {'x'}, forall=True) == -1
     assert g.quantify(e, {'y'}) == x
     assert g.quantify(e, {'x'}, forall=True) == -1
@@ -603,6 +603,11 @@ def test_quantify():
     u = -x
     v = g.quantify(u, {'y'}, forall=True)
     assert v == -x, g.to_expr(v)
+    # multiple values: test recursion
+    e = g.add_expr('x & y & z')
+    x = g.add_expr('x')
+    r = g.quantify(e, {'y', 'z'})
+    assert r == x, r
 
 
 def test_rename():

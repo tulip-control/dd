@@ -971,6 +971,9 @@ def rename(u, bdd, dvars):
         or from variable names to variable names
     """
     assert abs(u) in bdd, u
+    # nothing to rename ?
+    if not dvars:
+        return u
     # map variable names to levels, if needed
     ordering = bdd.ordering
     k = next(iter(dvars))

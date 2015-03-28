@@ -893,19 +893,19 @@ class BDD(object):
         """
         assert abs(u) in self, u
         assert v is None or abs(v) in self, v
-        if op in {'not', '!'}:
+        if op in ('not', '!'):
             return -u
-        elif op in {'or', '|', '||'}:
+        elif op in ('or', '|', '||'):
             return self.ite(u, 1, v)
-        elif op in {'and', '&', '&&'}:
+        elif op in ('and', '&', '&&'):
             return self.ite(u, v, -1)
-        elif op in {'xor', '^'}:
+        elif op in ('xor', '^'):
             return self.ite(u, -v, v)
-        elif op in {'implies', '->'}:
+        elif op in ('implies', '->'):
             return self.ite(u, v, 1)
-        elif op in {'bimplies', '<->'}:
+        elif op in ('bimplies', '<->'):
             return self.ite(u, v, -v)
-        elif op in {'diff', '-'}:
+        elif op in ('diff', '-'):
             return self.ite(u, -v, -1)
 
     def dump(self, filename, filetype=None):

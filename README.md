@@ -85,19 +85,16 @@ or using `pip >= 6.0.8`:
 pip install dd
 ```
 
-Three optional extras are available:
+Two optional extras are available:
 
-- `expr` for constructing BDDs from Boolean expressions as strings (requires a development version of [`tulip`](https://github.com/johnyf/tulip-control/tree/easysetup))
 - `dot` for graph layout (requires [`pydot`](http://pypi.python.org/pydot) and [graphviz](http://graphviz.org/)).
 - `nx` for conversion of BDDs to [`networkx`](https://github.com/networkx/networkx) graphs (requires `networkx`).
 
 These can be [specified when installing with `pip`](https://pip.pypa.io/en/latest/reference/pip_install.html#examples) as, for example:
 
 ```
-pip install --process-dependency-links dd[expr]
+pip install dd[dot]
 ```
-
-The option `--process-dependency-links` tells `pip` that it can look at the `dependency_links` attribute passed as argument to `setuptools.setup` in `setup.py`, in order to find a [suitable development version of `tulip`](https://github.com/johnyf/tulip-control/tree/easysetup).
 
 Successfully running the tests requires the above extra dependencies.
 

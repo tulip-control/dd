@@ -37,18 +37,20 @@ Henrik R. Andersen
     Lecture notes for "Efficient Algorithms and Programs", 1999
     The IT University of Copenhagen
 """
-import logging
 from collections import Mapping
 from itertools import tee, izip
+import logging
 import pickle
 import sys
+import astutils
 # inline:
 # import networkx
 # import pydot
-# import tulip.spec.lexyacc
 
 
 logger = logging.getLogger(__name__)
+TABMODULE = 'dd.bdd_parsetab'
+PLY_LOG = 'dd.bdd.ply'
 
 
 class BDD(object):
@@ -817,11 +819,7 @@ class BDD(object):
         @type expr: `str`
         """
         if self._parser is None:
-            try:
-                from tulip.spec import lexyacc
-            except ImportError:
-                raise Exception('failed to import `tulip.spec`')
-            self._parser = lexyacc.Parser()
+            self._parser = Parser()
         return self.add_ast(self._parser.parse(e))
 
     def add_ast(self, t):
@@ -840,26 +838,26 @@ class BDD(object):
         """
         # assert 1 in `self`, with index `len(self.ordering)`
         # operator ?
-        try:
+        if t.type == 'operator':
             operands = map(self.add_ast, t.operands)
             return self.apply(t.operator, *operands)
-        except AttributeError:
-            # var or bool (terminal AST node)
-            # Boolean constant ?
-            if t.value in {'True', 'False'}:
-                index = len(self.ordering)
-                self._succ[1] = (index, None, None)
-                u = -1 if t.value == 'False' else 1
-                return u
-            # variable `t.value` must be in `self.ordering`
+        elif t.type == 'bool':
+            index = len(self.ordering)
+            self._succ[1] = (index, None, None)
+            u = -1 if t.value.lower() == 'false' else 1
+            return u
+        elif t.type == 'var':
             i = len(self.ordering)
             self._succ[1] = (i, None, None)
             assert t.value in self.ordering, (
-                'undefined variable "{v}",'
-                ' known variables are:\n {d}').format(
+                'undefined variable "{v}", '
+                'known variables are:\n {d}').format(
                     v=t.value, d=self.ordering)
             j = self.ordering[t.value]
             return self.find_or_add(j, -1, 1)
+        else:
+            raise Exception(
+                'unknown node type "{t}"'.format(t=t.type))
 
     def to_expr(self, u):
         """Return a Boolean expression for node `u`."""
@@ -907,6 +905,9 @@ class BDD(object):
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
             return self.ite(u, -v, -1)
+        else:
+            raise Exception(
+                'unknown operator "{op}"'.format(op=op))
 
     def dump(self, filename, filetype=None):
         """Write `BDD` to `filename` as pickle or PDF.
@@ -1391,3 +1392,113 @@ class Function(object):
     def ref(self):
         """Return reference cound of `self.node` in `self.bdd`."""
         return self.bdd._ref[abs(self.node)]
+
+
+class Lexer(astutils.Lexer):
+    """Lexer for Boolean formulae."""
+
+    reserved = {
+        'ite': 'ITE',
+        'False': 'FALSE',
+        'True': 'TRUE'}
+    delimiters = ['LPAREN', 'RPAREN', 'COMMA']
+    operators = ['NOT', 'AND', 'OR', 'XOR', 'IMP', 'BIMP',
+                 'EQUALS', 'NEQUALS']
+    misc = ['NAME', 'NUMBER']
+
+    def t_NAME(self, t):
+        r"[A-Za-z_][A-za-z0-9_.']*"
+        t.type = self.reserved.get(t.value, 'NAME')
+        return t
+
+    def t_AND(self, t):
+        r'\&\&|\&'
+        t.value = '&'
+        return t
+
+    def t_OR(self, t):
+        r'\|\||\|'
+        t.value = '|'
+        return t
+
+    t_NOT = r'\!'
+    t_XOR = r'\^'
+    t_EQUALS = r'\='
+    t_NEQUALS = r'\!\='
+    t_LPAREN = r'\('
+    t_RPAREN = r'\)'
+    t_NUMBER = r'\d+'
+    t_IMP = '->'
+    t_BIMP = '\<->'
+    t_COMMA = r','
+    t_ignore = " \t"
+
+    def t_comment(self, t):
+        r'\#.*'
+        return
+
+    def t_newline(self, t):
+        r'\n+'
+        t.lexer.lineno += t.value.count("\n")
+
+
+class Parser(astutils.Parser):
+    """Parser for Boolean formulae."""
+
+    tabmodule = TABMODULE
+    start = 'expr'
+    # low to high
+    precedence = (
+        ('left', 'BIMP'),
+        ('left', 'IMP'),
+        ('left', 'XOR'),
+        ('left', 'OR'),
+        ('left', 'AND'),
+        ('left', 'EQUALS', 'NEQUALS'),
+        ('right', 'NOT'))
+    Lexer = Lexer
+
+    def p_bool(self, p):
+        """expr : TRUE
+                | FALSE
+        """
+        p[0] = self.nodes.Terminal(p[1], 'bool')
+
+    def p_number(self, p):
+        """expr : NUMBER"""
+        p[0] = self.nodes.Terminal(p[1], 'num')
+
+    def p_var(self, p):
+        """expr : NAME"""
+        p[0] = self.nodes.Terminal(p[1], 'var')
+
+    def p_unary(self, p):
+        """expr : NOT expr"""
+        p[0] = self.nodes.Operator(p[1], p[2])
+
+    def p_binary(self, p):
+        """expr : expr AND expr
+                | expr OR expr
+                | expr XOR expr
+                | expr IMP expr
+                | expr BIMP expr
+                | expr EQUALS expr
+                | expr NEQUALS expr
+        """
+        p[0] = self.nodes.Operator(p[2], p[1], p[3])
+
+    def p_ternary_conditional(self, p):
+        """expr : ITE LPAREN expr COMMA expr COMMA expr RPAREN"""
+        p[0] = self.nodes.Operator(p[1], p[3], p[5], p[7])
+
+    def p_paren(self, p):
+        """expr : LPAREN expr RPAREN"""
+        p[0] = p[2]
+
+
+def _rewrite_tables(outputdir='./'):
+    astutils.rewrite_tables(Parser, TABMODULE, outputdir)
+
+
+if __name__ == '__main__':
+    _rewrite_tables()

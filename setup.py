@@ -34,15 +34,10 @@ if __name__ == '__main__':
         extras_require={
             'dot': 'pydot >= 1.0.28',
             'nx': 'networkx >= 1.9.1',
-            'expr': 'tulip >= 1.2.dev'},
         tests_require=[
             'nose >= 1.3.4',
             'networkx >= 1.9.1',
             'pydot >= 1.0.28',
-            'tulip >= 1.2.dev'],
-        dependency_links=[
-            ('https://github.com/johnyf/tulip-control/'
-             'archive/easysetup.zip#egg=tulip-1.2.dev')],
         packages=['dd'],
         package_dir={'dd': 'dd'},
         keywords=[

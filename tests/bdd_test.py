@@ -6,7 +6,7 @@ import networkx as nx
 import networkx.algorithms.isomorphism as iso
 
 
-log = logging.getLogger('tulip.ltl_parser_log')
+log = logging.getLogger('dd.bdd.ply')
 log.setLevel(logging.ERROR)
 
 

@@ -85,18 +85,26 @@ or using `pip >= 6.0.8`:
 pip install dd
 ```
 
-Two optional extras are available:
+If you also want:
 
-- `dot` for graph layout (requires [`pydot`](http://pypi.python.org/pydot) and [graphviz](http://graphviz.org/)).
-- `nx` for conversion of BDDs to [`networkx`](https://github.com/networkx/networkx) graphs (requires `networkx`).
+- graph layout, then install [`pydot`](http://pypi.python.org/pydot) and [graphviz](http://graphviz.org/)).
+- conversion of BDDs to `networkx` graphs, then install [`networkx`](https://github.com/networkx/networkx).
 
-These can be [specified when installing with `pip`](https://pip.pypa.io/en/latest/reference/pip_install.html#examples) as, for example:
+Using `pip`, these can be installed as [extras](https://pip.pypa.io/en/latest/reference/pip_install.html#examples) called `dot` and `nx`. For example:
 
 ```
 pip install dd[dot]
 ```
 
-Successfully running the tests requires the above extra dependencies.
+Tests
+=====
+
+Require `nose` and the extras. Run with:
+
+```
+cd tests/
+nosetests
+```
 
 
 License

@@ -574,6 +574,7 @@ class BDD(object):
         if x > y:
             x, y = y, x
         assert x < y, (x, y)
+        assert abs(x - y) == 1, (x, y)
         # count nodes
         oldsize = len(self._succ)
         # collect levels x and y

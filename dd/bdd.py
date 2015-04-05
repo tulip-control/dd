@@ -130,6 +130,10 @@ class BDD(object):
         if self._ref[abs(u)] > 0:
             self._ref[abs(u)] -= 1
 
+    def ref(self, u):
+        """Return reference count of edge `u`."""
+        return self._ref[abs(u)]
+
     def level_to_variable(self, i):
         """Return variable with level `i`."""
         if self._ind2var is None:

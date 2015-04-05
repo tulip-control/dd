@@ -77,7 +77,7 @@ class BDD(object):
     or call `update_predecessors` prior to calling `ite`.
     """
 
-    def __init__(self, ordering=None, **kw):
+    def __init__(self, ordering=None):
         self._pred = dict()  # (i, low, high) -> u
         self._succ = dict()  # u -> (i, low, high)
         self._ref = dict()  # reference counters

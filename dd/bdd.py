@@ -480,18 +480,19 @@ class BDD(object):
         # already exists ?
         t = (i, v, w)
         u = self._pred.get(t)
-        if u is None:
-            # find a free integer
-            u = self._min_free
-            assert u not in self, (self._succ, u)
-            # add node
-            self._pred[t] = u
-            self._succ[u] = t
-            self._ref[u] = 0
-            self._min_free = self._next_free_int(u)
-            # increment reference counters
-            self.incref(v)
-            self.incref(w)
+        if u is not None:
+            return r * u
+        # find a free integer
+        u = self._min_free
+        assert u not in self, (self._succ, u)
+        # add node
+        self._pred[t] = u
+        self._succ[u] = t
+        self._ref[u] = 0
+        self._min_free = self._next_free_int(u)
+        # increment reference counters
+        self.incref(v)
+        self.incref(w)
         return r * u
 
     def _next_free_int(self, start, debug=False):
@@ -1254,7 +1255,8 @@ def to_pydot(bdd):
     a, b = tee(skeleton)
     next(b, None)
     for u, v in izip(a, b):
-        g.add_edge(pydot.Edge(str(u), str(v), style='invis'))
+        e = pydot.Edge(str(u), str(v), style='invis')
+        g.add_edge(e)
     # add nodes
     idx2var = {k: v for v, k in bdd.ordering.iteritems()}
 

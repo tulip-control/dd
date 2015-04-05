@@ -526,7 +526,7 @@ class BDD(object):
             dead.remove(1)
         while dead:
             u = dead.pop()
-            assert u != 1
+            assert u != 1, u
             # remove
             i, v, w = self._succ.pop(u)
             u_ = self._pred.pop((i, v, w))
@@ -1216,8 +1216,10 @@ def to_nx(bdd, roots):
         Q = {root}
         while Q:
             u = Q.pop()
-            i, v, w = bdd._succ[abs(u)]
-            g.add_node(abs(u), level=i)
+            u = abs(u)
+            i, v, w = bdd._succ[u]
+            assert u > 0, u
+            g.add_node(u, level=i)
             # terminal ?
             if v is None or w is None:
                 assert w is None, w

@@ -701,7 +701,7 @@ def test_preimage():
         '    ((x & y) -> (zp & xp & !yp)) | '
         '    ((x & y) -> (!zp & !xp & yp))'
         ') & '
-        '(!(x & y) -> false)')
+        '(!(x & y) -> False)')
     f = g.add_expr('x && !y')
     ep = preimage(t, f, rename, qvars, g)
     p = g.quantify(ep, {'zp'}, forall=True)

@@ -109,7 +109,7 @@ class BDD(object):
         return len(self._succ)
 
     def __contains__(self, u):
-        return u in self._succ
+        return abs(u) in self._succ
 
     def __iter__(self):
         return iter(self._succ)

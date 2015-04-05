@@ -1257,7 +1257,8 @@ def to_pydot(bdd):
         g.add_edge(pydot.Edge(str(u), str(v), style='invis'))
     # add nodes
     idx2var = {k: v for v, k in bdd.ordering.iteritems()}
-    f = lambda x: str(abs(x))
+
+    def f(x): return str(abs(x))
     for u, (i, v, w) in bdd._succ.iteritems():
         # terminal ?
         if v is None:

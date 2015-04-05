@@ -1226,12 +1226,17 @@ def to_nx(bdd, roots):
                 assert v is None, v
                 continue
             # non-terminal
+            r = (v < 0)
+            v = abs(v)
+            w = abs(w)
             if v not in g:
                 Q.add(v)
             if w not in g:
                 Q.add(w)
-            g.add_edge(u, abs(v), value=False, complement=(v < 0))
-            g.add_edge(u, abs(w), value=True, complement=False)
+            assert v > 0, v
+            assert w > 0, w
+            g.add_edge(u, v, value=False, complement=r)
+            g.add_edge(u, w, value=True, complement=False)
     return g
 
 

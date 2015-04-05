@@ -66,7 +66,6 @@ class Lexer(object):
     def __init__(self, debug=False):
         self.tokens = self.misc + self.reserved.values()
         self.build(debug=debug)
-        self.file = None
 
     def t_KEYWORD(self, t):
         r"\.[a-zA-Z][a-zA-Z]*"

@@ -1,4 +1,4 @@
-"""Ordered binary decision diagrams based on `networkx`.
+"""Ordered binary decision diagrams.
 
 
 References
@@ -11,14 +11,14 @@ Randal E. Bryant
 
 Karl S. Brace, Richard L. Rudell, Randal E. Bryant
     "Efficient implementation of a BDD package"
-    27th ACM/IEEE Design Automation Conference, 1990
+    27th ACM/IEEE Design Automation Conference (DAC), 1990
     pp.40--45
 
 Richard Rudell
     "Dynamic variable ordering for
     ordered binary decision diagrams"
     IEEE/ACM International Conference on
-    Computer-Aided Design, 1993
+    Computer-Aided Design (ICCAD), 1993
     pp.42--47
 
 Christel Baier and Joost-Pieter Katoen
@@ -316,7 +316,7 @@ class BDD(object):
         @param u: high
         @param v: low
         @type g, u, v: `int`
-        @rtype: `BDD`
+        @rtype: `int`
         """
         # is g terminal ?
         if g == 1:
@@ -521,7 +521,7 @@ class BDD(object):
         if roots is None:
             roots = self._ref
         dead = {u for u in roots if not self._ref[abs(u)]}
-        # keep terminals
+        # keep terminal
         if 1 in dead:
             dead.remove(1)
         while dead:

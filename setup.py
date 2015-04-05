@@ -30,8 +30,9 @@ if __name__ == '__main__':
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
     pip.main(['install', ply_required])
-    from dd import dddmp
+    from dd import bdd, dddmp
     dddmp._rewrite_tables(outputdir=name)
+    bdd._rewrite_tables(outputdir=name)
     setup(
         name=name,
         version=version,

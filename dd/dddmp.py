@@ -20,10 +20,9 @@ For the `slugs` exporter, see:
     method: `BFBddManager.writeBDDToFile`
 """
 import logging
-import os
-import warnings
 import ply.lex
 import ply.yacc
+import astutils
 from dd.bdd import BDD
 
 
@@ -448,17 +447,7 @@ def load(fname):
 
 def _rewrite_tables(outputdir='./'):
     """Write the parser table file, even if it exists."""
-    table = TABMODULE.split('.')[-1]
-    parser = Parser()
-    for ext in ('.py', '.pyc'):
-        try:
-            os.remove(table + ext)
-        except:
-            pass
-    parser.build(
-        write_tables=True,
-        outputdir=outputdir,
-        tabmodule=table)
+    astutils.rewrite_tables(Parser, TABMODULE, outputdir)
 
 
 if __name__ == '__main__':

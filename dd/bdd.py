@@ -744,13 +744,14 @@ class BDD(object):
     def sat_iter(self, u):
         """Return generator over models.
 
-        A model is a satisfying assignment to variables.
+        A model is a satisfying assignment, as
+        a `dict` that maps each variable to a `bool`.
 
         If a variable is missing from the `dict` of a model,
         then it is a "don't care", i.e., the model can be
         completed by assigning any value to that variable.
 
-        @rtype: generator of `dict`
+        @rtype: generator of `dict` (from `str` to `bool`)
         """
         # empty ?
         if not self._succ:
@@ -758,7 +759,7 @@ class BDD(object):
         # non-empty
         assert abs(u) in self._succ, u
         self.level_to_variable(0)
-        return self._sat_iter(u, dict(), True)
+        return self._sat_iter(u, model=dict(), value=True)
 
     def _sat_iter(self, u, model, value):
         """Recurse to enumerate models."""
@@ -775,9 +776,9 @@ class BDD(object):
         # non-terminal
         i, v, w = self._succ[abs(u)]
         d0 = dict(model)
-        d0[i] = 0
+        d0[i] = False
         d1 = dict(model)
-        d1[i] = 1
+        d1[i] = True
         for x in self._sat_iter(v, d0, value):
             yield x
         for x in self._sat_iter(w, d1, value):

@@ -2,21 +2,25 @@
 
 CUDD exports Binary Decision Diagrams (BDD) in DDDMP.
 For more details on the Decision Diagram DuMP (DDDMP) package,
-read the file:
-
-    dddmp/doc/dddmp-2.0-*
-
-included in the CUDD distribution:
-
-    http://vlsi.colorado.edu/~fabio/CUDD/
-
+read the file [1] included in the CUDD distribution [2].
 The text file format details can be found
-by reading the source code:
-    `cudd/dddmp/dddmpStoreBdd.c`
-    lines: 329--331, 345, 954
+by reading the source code [3].
 
-For the `slugs` exporter, see:
-    `src/BFAbstractionLibrary/BFCuddManager.cpp`
+For the `slugs` exporter, see [4].
+
+
+References
+==========
+
+[1] Gianpiero Cabodi and Stefano Quer
+    "DDDMP: Decision Diagram DuMP package"
+    `cudd-X.Y.Z/dddmp/doc/dddmp-2.0-Letter.ps`, 2004
+
+[2] http://vlsi.colorado.edu/~fabio/CUDD/
+
+[3] `cudd-X.Y.Z/dddmp/dddmpStoreBdd.c`, lines: 329--331, 345, 954
+
+[4] `src/BFAbstractionLibrary/BFCuddManager.cpp`
     method: `BFBddManager.writeBDDToFile`
 """
 import logging

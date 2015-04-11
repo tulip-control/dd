@@ -1,5 +1,6 @@
 include README.md
 include LICENSE
+include doc.md
 include download.py
 include tests/*_test.py
 include tests/sample*.txt

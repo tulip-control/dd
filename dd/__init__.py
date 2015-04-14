@@ -1,5 +1,5 @@
-from .bdd import BDD
+from dd.bdd import BDD
 try:
-    from .version import version as __version__
+    from ._version import version as __version__
 except:
     __version__ = None

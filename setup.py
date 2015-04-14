@@ -6,7 +6,7 @@ name = 'dd'
 description = 'Library of decision diagrams and algorithms on them.'
 url = 'https://github.com/johnyf/{name}'.format(name=name)
 README = 'README.md'
-VERSION_FILE = '{name}/version.py'.format(name=name)
+VERSION_FILE = '{name}/_version.py'.format(name=name)
 MAJOR = 0
 MINOR = 0
 MICRO = 3

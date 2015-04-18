@@ -8,8 +8,9 @@ install:
   - sudo apt-get install -y graphviz
   - pip install --upgrade pip setuptools
   - pip install coveralls
+  - pip install .
   - pip install pydot --allow-unverified pydot --allow-external pydot
-  - pip install -e .[expr] --process-dependency-links
+  - pip install networkx==1.9.1
 
 script:
   - cd tests/

@@ -15,8 +15,8 @@ version = '{major}.{minor}.{micro}'.format(
 s = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n").format(version=version)
-ply_required = 'ply >= 3.4'
-install_requires = [ply_required]
+parser_requires = ['ply >= 3.4', 'astutils >= 0.0.1']
+install_requires = parser_requires
 extras_require = {
     'dot': 'pydot >= 1.0.28',
     'nx': 'networkx >= 1.9.1'}
@@ -29,7 +29,7 @@ tests_require = [
 if __name__ == '__main__':
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
-    pip.main(['install', ply_required])
+    pip.main(['install'] + parser_requires)
     from dd import bdd, dddmp
     dddmp._rewrite_tables(outputdir=name)
     bdd._rewrite_tables(outputdir=name)

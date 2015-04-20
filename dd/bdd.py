@@ -1273,16 +1273,25 @@ def _sort_to_order(bdd, order):
     """Swap variables to obtain the given `order` of variables."""
     # TODO: use min number of swaps
     assert len(bdd.ordering) == len(order)
+    m = 0
+    levels = bdd._levels()
     n = len(order)
     for k in xrange(n):
         for i in xrange(n - 1):
+            for root in bdd.roots:
+                assert root in bdd
             x = bdd.level_to_variable(i)
             y = bdd.level_to_variable(i + 1)
             p = order[x]
             q = order[y]
             if p > q:
-                bdd.swap(i, i + 1)
-            bdd.assert_consistent()
+                bdd.swap(i, i + 1, levels)
+                m += 1
+                logger.debug(
+                    'swap: {p} with {q}, {i}'.format(p=p, q=q, i=i))
+            if logger.getEffectiveLevel() < logging.DEBUG:
+                bdd.assert_consistent()
+    logger.info('total swaps: {m}'.format(m=m))
 
 
 def to_nx(bdd, roots):

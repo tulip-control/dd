@@ -1,6 +1,7 @@
 .coverage
 todo.txt
 dd/_version.py
+*.out
 *parsetab.py
 *.pyc
 *.pdf

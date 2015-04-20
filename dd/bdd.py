@@ -943,6 +943,21 @@ class BDD(object):
             raise Exception(
                 'unknown operator "{op}"'.format(op=op))
 
+    def cube(self, dvars):
+        """Return node for conjunction of literals in `dvars`.
+
+        @param dvars: assignment of values to some variables
+        @type dvars: `dict`
+        """
+        r = 1
+        for var, val in dvars.iteritems():
+            i = self.ordering.get(var, var)
+            u = self.find_or_add(i, -1, 1)
+            if not val:
+                u = -u
+            r = self.apply('and', u, r)
+        return r
+
     def dump(self, filename, filetype=None):
         """Write `BDD` to `filename` as pickle or PDF.
 

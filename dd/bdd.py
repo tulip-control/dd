@@ -431,9 +431,10 @@ class BDD(object):
                 j += 1
             else:
                 break
-        else:
+        if j == n:
             # exhausted valuation
             return u
+        assert j < n, (j, n)
         # recurse
         if i in values:
             val = values[i]

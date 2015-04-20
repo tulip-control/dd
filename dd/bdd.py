@@ -238,14 +238,18 @@ class BDD(object):
             return True
         return False
 
-    def support(self, u):
+    def support(self, u, as_levels=False):
         """Return variables that node `u` depends on.
 
+        @param as_levels: if `True`, then return variables
+            as integers, insted of strings
         @rtype: `set`
         """
         levels = set()
         nodes = set()
         self._support(u, levels, nodes)
+        if as_levels:
+            return levels
         return {self.level_to_variable(i) for i in levels}
 
     def _support(self, u, levels, nodes):

@@ -163,6 +163,33 @@ class BDD(object):
             r = {self.ordering[k] for k in d}
         return r
 
+    def descendants(self, u):
+        """Return BDD nodes reachable from node `u`.
+
+        Node `u` is included.
+        Nodes are represented as positive integers.
+        """
+        assert u in self, u
+        nodes = set()
+        self._descendants(u, nodes)
+        assert nodes
+        return nodes
+
+    def _descendants(self, u, nodes):
+        """Recurse to count number of BDD nodes."""
+        # visited ?
+        r = abs(u)
+        if r in nodes:
+            return
+        nodes.add(r)
+        # terminal ?
+        if r == 1:
+            return
+        # recurse
+        _, v, w = self._succ[r]
+        self._descendants(v, nodes)
+        self._descendants(w, nodes)
+
     def evaluate(self, u, values):
         """Return value of node `u` for evaluation `values`.
 

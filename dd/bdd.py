@@ -1028,36 +1028,7 @@ def rename(u, bdd, dvars):
     if k in ordering:
         dvars = {ordering[k]: ordering[v]
                  for k, v in dvars.iteritems()}
-    # split
-    var = set(dvars)
-    varp = set(dvars.itervalues())  # primed vars
-    # pairwise disjoint ?
-    assert len(var) == len(varp), dvars
-    assert not var.intersection(varp), dvars
-    S = set()
-    Q = set([u])
-    # u independent of varp ?
-    while Q:
-        x = Q.pop()
-        i, v, w = bdd._succ[abs(x)]
-        if v is None or w is None:
-            assert v is None, v
-            assert w is None, w
-            continue
-        if v not in S:
-            Q.add(v)
-            S.add(v)
-        if w not in S:
-            Q.add(w)
-            S.add(w)
-        assert i not in varp, (
-            'target var "{v}" at level {i} is essential'.format(
-                v=bdd.level_to_variable(i), i=i))
-    # neighbors ?
-    for v, vp in dvars.iteritems():
-        assert abs(v - vp) == 1, (
-            '"level {v}" not adjacent to "{vp}"'.format(
-                v=v, vp=vp))
+    _assert_valid_rename(u, bdd, dvars)
     return _rename(u, bdd, dvars)
 
 
@@ -1074,6 +1045,40 @@ def _rename(u, bdd, dvars):
     if u < 0:
         r = -r
     return r
+
+
+def _assert_valid_rename(u, bdd, dvars):
+    """Raise `AssertionError` if rename of non-adjacent vars."""
+    if not dvars:
+        return
+    # pairwise disjoint ?
+    _assert_no_overlap(dvars)
+    # u independent of primed vars ?
+    s = bdd.support(u, as_levels=True)
+    for i in dvars.itervalues():
+        assert i not in s, (
+            'renaming target var "{v}" at '
+            'level {i} is essential').format(
+                v=bdd.level_to_variable(i), i=i)
+    # neighbors ?
+    for v, vp in dvars.iteritems():
+        _assert_adjacent(v, vp, bdd)
+
+
+def _assert_adjacent(i, j, bdd):
+    """Raise `AssertionError` if level `i` not adjacent to `j`."""
+    assert abs(i - j) == 1, (
+        'level {i} ("{x}") not adjacent to '
+        'level {j} ("{y}")').format(
+            i=i,
+            j=j,
+            x=bdd.level_to_variable(i),
+            y=bdd.level_to_variable(j))
+
+
+def _assert_no_overlap(d):
+    """Raise `AssertionError` if keys and values overlap."""
+    assert not set(d).intersection(d.itervalues()), d
 
 
 def image(trans, source, rename, qvars, bdd, forall=False):

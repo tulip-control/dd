@@ -1110,6 +1110,16 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     cache = dict()
     rename_u = rename
     rename_v = None
+    # no overlap and neighbors
+    _assert_no_overlap(rename)
+    for v, vp in rename.iteritems():
+        _assert_adjacent(v, vp, bdd)
+    # unpriming maps to qvars or outside support of conjunction
+    s = bdd.support(trans, as_levels=True)
+    s.update(bdd.support(source, as_levels=True))
+    s.difference_update(qvars)
+    s.intersection_update(rename.itervalues())
+    assert not s, s
     return _image(trans, source, rename_u, rename_v,
                   qvars, bdd, forall, cache)
 
@@ -1134,12 +1144,17 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     cache = dict()
     rename_u = None
     rename_v = rename
+    # check
+    _assert_valid_rename(target, bdd, rename)
     return _image(trans, target, rename_u, rename_v,
                   qvars, bdd, forall, cache)
 
 
 def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     """Recursive (pre)image computation.
+
+    Renaming requires that in each pair
+    the variables are adjacent.
 
     @param u, v: nodes
     @param umap: renaming of variables in `u`

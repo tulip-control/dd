@@ -652,6 +652,39 @@ def test_rename():
         dd.bdd.rename(u, g, dvars)
 
 
+def test_image_rename_map_checks():
+    ordering = {'x': 0, 'xp': 1,
+                'y': 2, 'yp': 3,
+                'z': 4, 'zp': 5}
+    bdd = BDD(ordering)
+    # non-adjacent
+    rename = {0: 2, 3: 4}
+    qvars = set()
+    with nt.assert_raises(AssertionError):
+        dd.bdd.image(1, 1, rename, qvars, bdd)
+    with nt.assert_raises(AssertionError):
+        dd.bdd.preimage(1, 1, rename, qvars, bdd)
+    # overlapping keys and values
+    rename = {0: 1, 1: 2}
+    with nt.assert_raises(AssertionError):
+        dd.bdd.image(1, 1, rename, qvars, bdd)
+    with nt.assert_raises(AssertionError):
+        dd.bdd.preimage(1, 1, rename, qvars, bdd)
+    # may be in support after quantification ?
+    trans = bdd.add_expr('x -> xp')
+    source = bdd.add_expr('x & y')
+    qvars = {0}
+    rename = {1: 0, 3: 2}
+    with nt.assert_raises(AssertionError):
+        dd.bdd.image(trans, source, rename, qvars, bdd)
+    # in support of `target` ?
+    qvars = set()
+    target = bdd.add_expr('y & yp')
+    rename = {2: 3}
+    with nt.assert_raises(AssertionError):
+        dd.bdd.preimage(trans, target, rename, qvars, bdd)
+
+
 def test_preimage():
     # exists: x, y
     # forall: z

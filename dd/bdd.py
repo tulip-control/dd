@@ -559,6 +559,8 @@ class BDD(object):
 
         @type roots: `set`, Caution: it is modified
         """
+        logger.info('++ collecting BDD garbage')
+        n = len(self)
         if roots is None:
             roots = self._ref
         dead = {u for u in roots if not self._ref[abs(u)]}
@@ -585,6 +587,12 @@ class BDD(object):
             if not self._ref[w] and w != 1:
                 dead.add(w)
         self._ite_table = dict()
+        m = len(self)
+        k = n - m
+        assert k >= 0, (n, m)
+        logger.info(
+            '-- done: colected {n} - {m} = {k} nodes.'.format(
+                n=n, m=m, k=k))
 
     def update_predecessors(self):
         """Update table that maps (level, low, high) to nodes."""

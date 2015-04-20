@@ -286,17 +286,7 @@ def bdd_to_mdd(bdd, dvars):
         ordering.extend(bits)
     bit_to_sort = {bit: k for k, bit in enumerate(ordering)}
     # reorder
-    # TODO: use min number of swaps
-    n = len(ordering)
-    for k in xrange(n):
-        for i in xrange(n - 1):
-            x = bdd.level_to_variable(i)
-            y = bdd.level_to_variable(i + 1)
-            p = bit_to_sort[x]
-            q = bit_to_sort[y]
-            if p > q:
-                bdd.swap(i, i + 1)
-            bdd.assert_consistent()
+    _sort_to_order(bdd, order=bit_to_sort)
     # BDD -> MDD
     mdd = MDD(dvars)
     # zones of bits per integer var
@@ -382,6 +372,22 @@ def bdd_to_mdd(bdd, dvars):
         # opposite to canonicity chosen for BDDs
         umap[u] = r
     return mdd, umap
+
+
+def _sort_to_order(bdd, order):
+    """Swap variables to obtain the given `order` of variables."""
+    # TODO: use min number of swaps
+    assert len(bdd.ordering) == len(order)
+    n = len(order)
+    for k in xrange(n):
+        for i in xrange(n - 1):
+            x = bdd.level_to_variable(i)
+            y = bdd.level_to_variable(i + 1)
+            p = order[x]
+            q = order[y]
+            if p > q:
+                bdd.swap(i, i + 1)
+            bdd.assert_consistent()
 
 
 def _enumerate_integer(bits):

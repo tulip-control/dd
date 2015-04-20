@@ -1056,7 +1056,7 @@ def rename(u, bdd, dvars):
     # neighbors ?
     for v, vp in dvars.iteritems():
         assert abs(v - vp) == 1, (
-            '"{v}" not neighbor of "{vp}"'.format(
+            '"level {v}" not adjacent to "{vp}"'.format(
                 v=v, vp=vp))
     return _rename(u, bdd, dvars)
 

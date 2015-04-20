@@ -713,11 +713,12 @@ def test_preimage():
 
 
 def test_to_pydot():
+    def f(x):
+        return str(abs(x))
     g = x_and_y()
     g.roots.add(2)
     pd = dd.bdd.to_pydot(g)
     r = nx.from_pydot(pd)
-    f = lambda x: str(abs(x))
     for u in g:
         assert f(u) in r, u
     for u, (i, v, w) in g._succ.iteritems():
@@ -897,15 +898,20 @@ def compare(u, bdd, h):
     r = g.subgraph(post)
     # nx.to_pydot(r).write_pdf('r.pdf')
     # nx.to_pydot(h).write_pdf('h.pdf')
-    nm = lambda x, y: x['level'] == y['level']
-    em = lambda x, y: (
-        bool(x[0]['value']) == bool(y[0]['value']) and
-        bool(x[0]['complement']) == bool(y[0]['complement']))
-    gm = iso.GraphMatcher(r, h, node_match=nm, edge_match=em)
+    gm = iso.GraphMatcher(r, h, node_match=_nm, edge_match=_em)
     assert gm.is_isomorphic()
     d = gm.mapping
     assert d[1] == 1
 
+
+def _nm(x, y):
+    return x['level'] == y['level']
+
+
+def _em(x, y):
+    return (
+        bool(x[0]['value']) == bool(y[0]['value']) and
+        bool(x[0]['complement']) == bool(y[0]['complement']))
 
 if __name__ == '__main__':
     test_sifting()

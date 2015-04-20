@@ -41,6 +41,7 @@ from collections import Mapping
 from itertools import tee, izip
 import logging
 import pickle
+import random
 import sys
 import astutils
 # inline:
@@ -819,6 +820,9 @@ class BDD(object):
         d0[i] = False
         d1 = dict(model)
         d1[i] = True
+        if random.randint(0, 1):
+            v, w = w, v
+            d0, d1 = d1, d0
         for x in self._sat_iter(v, d0, value):
             yield x
         for x in self._sat_iter(w, d1, value):

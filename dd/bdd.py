@@ -1303,6 +1303,30 @@ def _sort_to_order(bdd, order):
     logger.info('total swaps: {m}'.format(m=m))
 
 
+def reorder_to_pairs(bdd, pairs):
+    """Reorder variables to make adjacent the given pairs.
+
+    @type pairs: `dict` of variables as `str`
+    """
+    m = 0
+    levels = bdd._levels()
+    for x, y in pairs.iteritems():
+        jx = bdd.ordering[x]
+        jy = bdd.ordering[y]
+        k = abs(jx - jy)
+        assert k > 0, (jx, jy)
+        # already adjacent ?
+        if k == 1:
+            continue
+        # shift x next to y
+        if jx > jy:
+            jx, jy = jy, jx
+        _shift(bdd, start=jx, end=jy - 1, levels=levels)
+        m += k
+        logger.debug('shift by {k}'.format(k=k))
+    logger.info('total swaps: {m}'.format(m=m))
+
+
 def to_nx(bdd, roots):
     """Convert functions in `roots` to `networkx.MultiDiGraph`.
 

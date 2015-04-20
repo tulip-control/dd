@@ -1269,6 +1269,22 @@ def _shift(bdd, start, end, levels):
     return sizes
 
 
+def _sort_to_order(bdd, order):
+    """Swap variables to obtain the given `order` of variables."""
+    # TODO: use min number of swaps
+    assert len(bdd.ordering) == len(order)
+    n = len(order)
+    for k in xrange(n):
+        for i in xrange(n - 1):
+            x = bdd.level_to_variable(i)
+            y = bdd.level_to_variable(i + 1)
+            p = order[x]
+            q = order[y]
+            if p > q:
+                bdd.swap(i, i + 1)
+            bdd.assert_consistent()
+
+
 def to_nx(bdd, roots):
     """Convert functions in `roots` to `networkx.MultiDiGraph`.
 

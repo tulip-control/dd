@@ -1201,14 +1201,23 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     return r
 
 
-def reorder(bdd):
+def reorder(bdd, order=None):
     """Apply Rudell's sifting algorithm to reduce `bdd` size.
 
     Reordering invokes the garbage collector,
     so be sure to `incref` nodes that should remain.
 
+    @param order: if given, then swap vars to obtain this order.
     @type bdd: `BDD`
     """
+    if order is None:
+        _apply_sifting(bdd)
+    else:
+        _sort_to_order(bdd, order)
+
+
+def _apply_sifting(bdd):
+    """Apply Rudell's sifting algorithm."""
     bdd.collect_garbage()
     n = len(bdd)
     # using `set` injects some randomness

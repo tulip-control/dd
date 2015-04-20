@@ -854,6 +854,8 @@ class BDD(object):
         """
         if self._parser is None:
             self._parser = Parser()
+        i = len(self.ordering)
+        self._succ[1] = (i, None, None)
         return self.add_ast(self._parser.parse(e))
 
     def add_ast(self, t):
@@ -876,13 +878,9 @@ class BDD(object):
             operands = map(self.add_ast, t.operands)
             return self.apply(t.operator, *operands)
         elif t.type == 'bool':
-            index = len(self.ordering)
-            self._succ[1] = (index, None, None)
             u = -1 if t.value.lower() == 'false' else 1
             return u
         elif t.type == 'var':
-            i = len(self.ordering)
-            self._succ[1] = (i, None, None)
             assert t.value in self.ordering, (
                 'undefined variable "{v}", '
                 'known variables are:\n {d}').format(

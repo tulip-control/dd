@@ -243,22 +243,30 @@ class BDD(object):
 
         @rtype: `set`
         """
-        var = set()
-        self._support(u, var)
-        return {self.level_to_variable(i) for i in var}
+        levels = set()
+        nodes = set()
+        self._support(u, levels, nodes)
+        return {self.level_to_variable(i) for i in levels}
 
-    def _support(self, u, var):
+    def _support(self, u, levels, nodes):
         """Recurse to collect variables in support."""
         # exhausted all vars ?
-        if len(var) == len(self.ordering):
+        if len(levels) == len(self.ordering):
             return
+        # visited ?
+        r = abs(u)
+        if r in nodes:
+            return
+        nodes.add(r)
         # terminal ?
-        if u == -1 or u == 1:
+        if r == 1:
             return
-        i, v, w = self._succ[abs(u)]
-        var.add(i)
-        self._support(v, var)
-        self._support(w, var)
+        # add var
+        i, v, w = self._succ[r]
+        levels.add(i)
+        # recurse
+        self._support(v, levels, nodes)
+        self._support(w, levels, nodes)
 
     def levels(self, skip_terminals=False):
         """Return generator of tuples `(u, i, v, w)`.

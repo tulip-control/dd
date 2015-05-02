@@ -931,7 +931,7 @@ class BDD(object):
         p = self._to_expr(v, ind2var)
         q = self._to_expr(w, ind2var)
         # pure var ?
-        if p == -1 and q == 1:
+        if p == 'False' and q == 'True':
             s = var
         else:
             s = 'ite({var}, {q}, {p})'.format(var=var, p=p, q=q)

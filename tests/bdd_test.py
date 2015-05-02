@@ -786,7 +786,7 @@ def test_function_wrapper():
     assert q_node == q.node, (q_node, q.node)
     # to_expr
     s = q.to_expr()
-    assert s == '(x -> y : (! y))', s
+    assert s == 'ite(x, y, (! y))', s
     # equality
     p_ = Function.from_expr('y', bdd)
     assert p_ == p, p_

@@ -922,8 +922,10 @@ class BDD(object):
         return self._to_expr(u, ind2var)
 
     def _to_expr(self, u, ind2var):
-        if abs(u) == 1:
-            return u
+        if u == 1:
+            return 'True'
+        if u == -1:
+            return 'False'
         i, v, w = self._succ[abs(u)]
         var = ind2var[i]
         p = self._to_expr(v, ind2var)
@@ -932,7 +934,7 @@ class BDD(object):
         if p == -1 and q == 1:
             s = var
         else:
-            s = '({var} -> {q} : {p})'.format(var=var, p=p, q=q)
+            s = 'ite({var}, {q}, {p})'.format(var=var, p=p, q=q)
         # complemented ?
         if u < 0:
             s = '(! {s})'.format(s=s)

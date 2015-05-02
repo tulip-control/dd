@@ -20,6 +20,8 @@ from itertools import tee, izip
 import logging
 import sys
 from dd import bdd as _bdd
+from dd.bdd import to_nx
+import networkx as nx
 # inline:
 # import pydot
 
@@ -333,8 +335,6 @@ def bdd_to_mdd(bdd, dvars):
     # build layer by layer
     # TODO: use bins, instad of iterating through all nodes
     bdd.assert_consistent()
-    import networkx as nx
-    from dd.bdd import to_nx
     g = to_nx(bdd, roots=[u])
     for u in pred:
         g.add_node(u, color='red')

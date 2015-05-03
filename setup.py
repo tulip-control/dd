@@ -16,12 +16,12 @@ s = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n").format(version=version)
 parser_requires = [
-	'ply >= 3.4',
-	'astutils >= 0.0.1',
-	'networkx >= 1.9.1']
+    'ply >= 3.4',
+    'astutils >= 0.0.1',
+    'networkx >= 1.9.1']
 install_requires = parser_requires
 extras_require = {
-    'dot': 'pydot >= 1.0.28',}
+    'dot': 'pydot >= 1.0.28'}
 tests_require = [
     'nose >= 1.3.4',
     'pydot >= 1.0.28']

@@ -1,6 +1,7 @@
 import logging
-import pip
 from setuptools import setup
+# inline:
+# from dd import bdd, dddmp
 
 
 name = 'dd'
@@ -16,11 +17,10 @@ version = '{major}.{minor}.{micro}'.format(
 s = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n").format(version=version)
-parser_requires = [
-    'ply >= 3.4',
+install_requires = [
     'astutils >= 0.0.1',
-    'networkx >= 1.9.1']
-install_requires = parser_requires
+    'networkx >= 1.9.1',
+    'ply >= 3.4']
 extras_require = {
     'dot': 'pydot >= 1.0.28'}
 tests_require = [
@@ -31,11 +31,14 @@ tests_require = [
 if __name__ == '__main__':
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
-    pip.main(['install'] + parser_requires)
-    from dd import bdd, dddmp
-    logging.getLogger('astutils').setLevel('ERROR')
-    dddmp._rewrite_tables(outputdir=name)
-    bdd._rewrite_tables(outputdir=name)
+    try:
+        from dd import bdd, dddmp
+        logging.getLogger('astutils').setLevel('ERROR')
+        dddmp._rewrite_tables(outputdir=name)
+        bdd._rewrite_tables(outputdir=name)
+    except ImportError:
+        print('WARNING: `dd` could not cache parser tables '
+              '(ignore this if running only for "egg_info").')
     setup(
         name=name,
         version=version,

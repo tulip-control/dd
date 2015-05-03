@@ -1,3 +1,4 @@
+import logging
 import pip
 from setuptools import setup
 
@@ -32,6 +33,7 @@ if __name__ == '__main__':
         f.write(s)
     pip.main(['install'] + parser_requires)
     from dd import bdd, dddmp
+    logging.getLogger('astutils').setLevel('ERROR')
     dddmp._rewrite_tables(outputdir=name)
     bdd._rewrite_tables(outputdir=name)
     setup(

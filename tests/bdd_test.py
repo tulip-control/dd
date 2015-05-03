@@ -6,7 +6,7 @@ import networkx as nx
 import networkx.algorithms.isomorphism as iso
 
 
-log = logging.getLogger('dd.bdd.ply')
+log = logging.getLogger('astutils')
 log.setLevel(logging.ERROR)
 
 

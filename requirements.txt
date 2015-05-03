@@ -1,0 +1,7 @@
+pyparsing==2.0.3
+http://pydot.googlecode.com/files/pydot-1.0.28.tar.gz
+
+
+# dev
+nose==1.3.4
+coveralls

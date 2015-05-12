@@ -339,6 +339,9 @@ class BDD(object):
             return f
         elif i == j:
             r = self.ite(g, w, v)
+            # complemented edge ?
+            if f < 0:
+                r = -r
         else:
             # i < j
             z = min(i, self._succ[abs(g)][0])

@@ -438,6 +438,15 @@ def test_compose():
         '(x && ((y || z) && x)) ||'
         ' (!z || (w && ((y || z) && x) && x))')
     assert c == d
+    # complemented edges
+    ordering = {'x': 0, 'y': 1}
+    g = BDD(ordering)
+    f = g.add_expr('x <-> y')
+    level = 1
+    new_level = 0
+    var_node = g.find_or_add(new_level, -1, 1)
+    u = g.compose(f, level, var_node)
+    assert u == 1, g.to_expr(u)
 
 
 def test_cofactor():

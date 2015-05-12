@@ -332,8 +332,8 @@ class BDD(object):
         # cached ?
         if cache is None:
             cache = dict()
-        elif f in cache:
-            return cache[f]
+        if (f, g) in cache:
+            return cache[(f, g)]
         # independent of j ?
         i, v, w = self._succ[abs(f)]
         if j < i:

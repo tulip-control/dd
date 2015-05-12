@@ -420,14 +420,14 @@ def test_compose():
     b = g.add_expr('x || z')
     c = g.compose(a, ordering['y'], b)
     d = g.add_expr('x && (x || z)')
-    assert c == d
+    assert c == d, (c, d)
     # (y | z) & x
     ordering = {'x': 0, 'y': 1, 'z': 2, 'w': 3}
     g = BDD(ordering)
     a = g.add_expr('(x && y) || z')
     b = g.add_expr('(y || z) && x')
     c = g.compose(a, ordering['z'], b)
-    assert c == b
+    assert c == b, (c, b)
     # long expr
     ordering = {'x': 0, 'y': 1, 'z': 2, 'w': 3}
     g = BDD(ordering)
@@ -437,7 +437,7 @@ def test_compose():
     d = g.add_expr(
         '(x && ((y || z) && x)) ||'
         ' (!z || (w && ((y || z) && x) && x))')
-    assert c == d
+    assert c == d, (c, d)
     # complemented edges
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)

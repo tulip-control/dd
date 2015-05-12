@@ -322,7 +322,7 @@ class BDD(object):
     def compose(self, f, j, g, cache=None):
         """Return f(x_j=g).
 
-        @param u, v: nodes
+        @param f, g: nodes
         @param j: variable level
         @param cache: stores intermediate results
         """
@@ -334,6 +334,7 @@ class BDD(object):
             cache = dict()
         elif f in cache:
             return cache[f]
+        # independent of j ?
         i, v, w = self._succ[abs(f)]
         if j < i:
             return f
@@ -343,8 +344,9 @@ class BDD(object):
             if f < 0:
                 r = -r
         else:
-            # i < j
-            z = min(i, self._succ[abs(g)][0])
+            assert i < j, (i, j)
+            k, _, _ = self._succ[abs(g)]
+            z = min(i, k)
             f0, f1 = self._top_cofactor(f, z)
             g0, g1 = self._top_cofactor(g, z)
             p = self.compose(f0, j, g0, cache)

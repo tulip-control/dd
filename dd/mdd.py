@@ -264,6 +264,8 @@ class MDD(object):
 def bdd_to_mdd(bdd, dvars):
     """Return MDD for given BDD.
 
+    Caution: collects garbage.
+
     `dvars` must map each MDD variable to the
     corresponding bits in BDD.
     Also, it should give the order as "level" keys.
@@ -289,6 +291,7 @@ def bdd_to_mdd(bdd, dvars):
         ordering.extend(bits)
     bit_to_sort = {bit: k for k, bit in enumerate(ordering)}
     # reorder
+    bdd.collect_garbage()
     _bdd.reorder(bdd, order=bit_to_sort)
     # BDD -> MDD
     mdd = MDD(dvars)

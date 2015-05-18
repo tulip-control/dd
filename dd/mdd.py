@@ -296,14 +296,13 @@ def bdd_to_mdd(bdd, dvars):
     # BDD -> MDD
     mdd = MDD(dvars)
     # zones of bits per integer var
-    dorder = {bit: i for i, bit in enumerate(ordering)}
     zones = dict()
     for var, d in dvars.iteritems():
         bits = d['bitnames']
         lsb = bits[0]
         msb = bits[-1]
-        min_level = dorder[lsb]
-        max_level = dorder[msb]
+        min_level = bit_to_sort[lsb]
+        max_level = bit_to_sort[msb]
         zones[var] = (min_level, max_level)
     # reverse edges
     pred = {u: set() for u in bdd}

@@ -91,7 +91,7 @@ class BDD(object):
             self._succ[1] = (i, None, None)
             self._ref[1] = 0
         self.ordering = dict(ordering)
-        self._ind2var = None
+        self._level_to_var = None
         self.roots = set()
         self._parser = None
         self.max_nodes = sys.maxint
@@ -137,11 +137,11 @@ class BDD(object):
 
     def level_to_variable(self, i):
         """Return variable with level `i`."""
-        if self._ind2var is None:
-            self._ind2var = {
+        if self._level_to_var is None:
+            self._level_to_var = {
                 k: var
                 for var, k in self.ordering.iteritems()}
-        return self._ind2var[i]
+        return self._level_to_var[i]
 
     def _map_to_level(self, d):
         """Map keys of `d` to variable levels.
@@ -710,7 +710,7 @@ class BDD(object):
         vy = self.level_to_variable(y)
         self.ordering[vy] = x
         # reset
-        self._ind2var = None
+        self._level_to_var = None
         self._ite_table = dict()
         # count nodes
         self.collect_garbage(garbage)
@@ -823,7 +823,7 @@ class BDD(object):
         if abs(u) == 1:
             if value:
                 model = {
-                    self._ind2var[i]: v
+                    self._level_to_var[i]: v
                     for i, v in model.iteritems()}
                 yield model
             return

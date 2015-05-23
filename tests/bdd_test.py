@@ -1,6 +1,6 @@
 import logging
 from dd.bdd import BDD, Function, preimage
-import dd.bdd
+from dd import bdd as _bdd
 import nose.tools as nt
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -569,7 +569,7 @@ def test_sifting():
     g.collect_garbage()
     n = len(g)
     assert n == 15, n
-    dd.bdd.reorder(g)
+    _bdd.reorder(g)
     u_ = g.add_expr('(z1 & y1) | (z2 & y2) | (z3 & y3)')
     g.incref(u)
     g.collect_garbage()
@@ -631,7 +631,7 @@ def test_rename():
     x = g.add_expr('x')
     xp = g.add_expr('xp')
     dvars = {'x': 'xp'}
-    xrenamed = dd.bdd.rename(x, g, dvars)
+    xrenamed = _bdd.rename(x, g, dvars)
     assert xrenamed == xp, xrenamed
     ordering = {'x': 0, 'xp': 1,
                 'y': 2, 'yp': 3,
@@ -639,26 +639,26 @@ def test_rename():
     g = BDD(ordering)
     u = g.add_expr('x && y && ! z')
     dvars = {'x': 'xp', 'y': 'yp', 'z': 'zp'}
-    urenamed = dd.bdd.rename(u, g, dvars)
+    urenamed = _bdd.rename(u, g, dvars)
     up = g.add_expr('xp && yp && ! zp')
     assert urenamed == up, urenamed
     # assertion violations
     # non-neighbors
     dvars = {'x': 'yp'}
     with nt.assert_raises(AssertionError):
-        dd.bdd.rename(u, g, dvars)
+        _bdd.rename(u, g, dvars)
     # u not in bdd
     dvars = {'x': 'xp'}
     with nt.assert_raises(AssertionError):
-        dd.bdd.rename(15, g, dvars)
+        _bdd.rename(15, g, dvars)
     # y essential for u
     dvars = {'xp': 'y'}
     with nt.assert_raises(AssertionError):
-        dd.bdd.rename(u, g, dvars)
+        _bdd.rename(u, g, dvars)
     # old and new vars intersect
     dvars = {'x': 'x'}
     with nt.assert_raises(AssertionError):
-        dd.bdd.rename(u, g, dvars)
+        _bdd.rename(u, g, dvars)
 
 
 def test_image_rename_map_checks():
@@ -670,28 +670,28 @@ def test_image_rename_map_checks():
     rename = {0: 2, 3: 4}
     qvars = set()
     with nt.assert_raises(AssertionError):
-        dd.bdd.image(1, 1, rename, qvars, bdd)
+        _bdd.image(1, 1, rename, qvars, bdd)
     with nt.assert_raises(AssertionError):
-        dd.bdd.preimage(1, 1, rename, qvars, bdd)
+        _bdd.preimage(1, 1, rename, qvars, bdd)
     # overlapping keys and values
     rename = {0: 1, 1: 2}
     with nt.assert_raises(AssertionError):
-        dd.bdd.image(1, 1, rename, qvars, bdd)
+        _bdd.image(1, 1, rename, qvars, bdd)
     with nt.assert_raises(AssertionError):
-        dd.bdd.preimage(1, 1, rename, qvars, bdd)
+        _bdd.preimage(1, 1, rename, qvars, bdd)
     # may be in support after quantification ?
     trans = bdd.add_expr('x -> xp')
     source = bdd.add_expr('x & y')
     qvars = {0}
     rename = {1: 0, 3: 2}
     with nt.assert_raises(AssertionError):
-        dd.bdd.image(trans, source, rename, qvars, bdd)
+        _bdd.image(trans, source, rename, qvars, bdd)
     # in support of `target` ?
     qvars = set()
     target = bdd.add_expr('y & yp')
     rename = {2: 3}
     with nt.assert_raises(AssertionError):
-        dd.bdd.preimage(trans, target, rename, qvars, bdd)
+        _bdd.preimage(trans, target, rename, qvars, bdd)
 
 
 def test_preimage():
@@ -759,7 +759,7 @@ def test_to_pydot():
         return str(abs(x))
     g = x_and_y()
     g.roots.add(2)
-    pd = dd.bdd.to_pydot(g)
+    pd = _bdd.to_pydot(g)
     r = nx.from_pydot(pd)
     for u in g:
         assert f(u) in r, u
@@ -933,7 +933,7 @@ def ref_x_or_y():
 
 
 def compare(u, bdd, h):
-    g = dd.bdd.to_nx(bdd, [u])
+    g = _bdd.to_nx(bdd, [u])
     # nx.to_pydot(g).write_pdf('g.pdf')
     post = nx.descendants(g, u)
     post.add(u)

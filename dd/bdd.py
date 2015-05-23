@@ -925,6 +925,8 @@ class BDD(object):
                     v=t.value, d=self.ordering)
             j = self.ordering[t.value]
             return self.find_or_add(j, -1, 1)
+        elif t.type == 'num':
+            return int(t.value)
         else:
             raise Exception(
                 'unknown node type "{t}"'.format(t=t.type))
@@ -1577,7 +1579,7 @@ class Lexer(astutils.Lexer):
         'True': 'TRUE'}
     delimiters = ['LPAREN', 'RPAREN', 'COMMA']
     operators = ['NOT', 'AND', 'OR', 'XOR', 'IMP', 'BIMP',
-                 'EQUALS', 'NEQUALS', 'DOT', 'QUESTION']
+                 'EQUALS', 'NEQUALS', 'DOT', 'QUESTION', 'MINUS']
     misc = ['NAME', 'NUMBER']
 
     def t_NAME(self, t):
@@ -1601,6 +1603,7 @@ class Lexer(astutils.Lexer):
     t_NEQUALS = r'\!\='
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
+    t_MINUS = r'-'
     t_NUMBER = r'\d+'
     t_IMP = '->'
     t_BIMP = '\<->'
@@ -1634,6 +1637,7 @@ class Parser(astutils.Parser):
         ('left', 'AND'),
         ('left', 'EQUALS', 'NEQUALS'),
         ('right', 'NOT'),
+        ('right', 'UMINUS'))
     Lexer = Lexer
 
     def p_bool(self, p):
@@ -1645,6 +1649,11 @@ class Parser(astutils.Parser):
     def p_number(self, p):
         """expr : NUMBER"""
         p[0] = self.nodes.Terminal(p[1], 'num')
+
+    def p_negative_number(self, p):
+        """expr : MINUS NUMBER %prec UMINUS"""
+        x = p[1] + p[2]
+        p[0] = self.nodes.Terminal(x, 'num')
 
     def p_var(self, p):
         """expr : name"""

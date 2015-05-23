@@ -905,8 +905,16 @@ class BDD(object):
         # assert 1 in `self`, with index `len(self.ordering)`
         # operator ?
         if t.type == 'operator':
-            operands = map(self.add_ast, t.operands)
-            return self.apply(t.operator, *operands)
+            if t.operator in ('!', '?') and len(t.operands) == 2:
+                qvars, expr = t.operands
+                u = self.add_ast(expr)
+                qvars = {x.value for x in qvars}
+                assert t.operator in ('!', '?'), t.operator
+                forall = (t.operator == '!')
+                return self.quantify(u, qvars, forall=forall)
+            else:
+                operands = map(self.add_ast, t.operands)
+                return self.apply(t.operator, *operands)
         elif t.type == 'bool':
             u = -1 if t.value.lower() == 'false' else 1
             return u
@@ -1569,11 +1577,11 @@ class Lexer(astutils.Lexer):
         'True': 'TRUE'}
     delimiters = ['LPAREN', 'RPAREN', 'COMMA']
     operators = ['NOT', 'AND', 'OR', 'XOR', 'IMP', 'BIMP',
-                 'EQUALS', 'NEQUALS']
+                 'EQUALS', 'NEQUALS', 'DOT', 'QUESTION']
     misc = ['NAME', 'NUMBER']
 
     def t_NAME(self, t):
-        r"[A-Za-z_][A-za-z0-9_.']*"
+        r"[A-Za-z_][A-za-z0-9_']*"
         t.type = self.reserved.get(t.value, 'NAME')
         return t
 
@@ -1597,6 +1605,8 @@ class Lexer(astutils.Lexer):
     t_IMP = '->'
     t_BIMP = '\<->'
     t_COMMA = r','
+    t_DOT = r'\.'
+    t_QUESTION = r'\?'
     t_ignore = " \t"
 
     def t_comment(self, t):
@@ -1615,13 +1625,14 @@ class Parser(astutils.Parser):
     start = 'expr'
     # low to high
     precedence = (
+        ('left', 'DOT'),
         ('left', 'BIMP'),
         ('left', 'IMP'),
         ('left', 'XOR'),
         ('left', 'OR'),
         ('left', 'AND'),
         ('left', 'EQUALS', 'NEQUALS'),
-        ('right', 'NOT'))
+        ('right', 'NOT'),
     Lexer = Lexer
 
     def p_bool(self, p):
@@ -1635,8 +1646,8 @@ class Parser(astutils.Parser):
         p[0] = self.nodes.Terminal(p[1], 'num')
 
     def p_var(self, p):
-        """expr : NAME"""
-        p[0] = self.nodes.Terminal(p[1], 'var')
+        """expr : name"""
+        p[0] = p[1]
 
     def p_unary(self, p):
         """expr : NOT expr"""
@@ -1656,6 +1667,26 @@ class Parser(astutils.Parser):
     def p_ternary_conditional(self, p):
         """expr : ITE LPAREN expr COMMA expr COMMA expr RPAREN"""
         p[0] = self.nodes.Operator(p[1], p[3], p[5], p[7])
+
+    def p_quantifier(self, p):
+        """expr : NOT names DOT expr
+                | QUESTION names DOT expr
+        """
+        p[0] = self.nodes.Operator(p[1], p[2], p[4])
+
+    def p_names_iter(self, p):
+        """names : names name"""
+        u = p[1]
+        u.append(p[2])
+        p[0] = u
+
+    def p_names_end(self, p):
+        """names : name"""
+        p[0] = [p[1]]
+
+    def p_name(self, p):
+        """name : NAME"""
+        p[0] = self.nodes.Terminal(p[1], 'var')
 
     def p_paren(self, p):
         """expr : LPAREN expr RPAREN"""

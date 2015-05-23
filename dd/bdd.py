@@ -766,34 +766,39 @@ class BDD(object):
     def sat_len(self, u):
         """Return number of models of node `u`."""
         assert abs(u) in self, u
-        d = dict()
-        d[u] = self._sat_len(u, d)
+        r = self._sat_len(u, d=dict())
         i, _, _ = self._succ[abs(u)]
-        return d[u] * 2**i
+        return r * 2**i
 
     def _sat_len(self, u, d):
         """Recurse to compute the number of models."""
+        i, _, _ = self._succ[abs(u)]
+        # memoized ?
+        if abs(u) in d:
+            n = d[abs(u)]
+            # complement ?
+            if u < 0:
+                n = 2**(len(self.ordering) - i) - n
+            return n
         # terminal ?
+        if u == 1:
+            return 1
         if u == -1:
             return 0
-        elif u == 1:
-            return 1
         # non-terminal
         i, v, w = self._succ[abs(u)]
-        if v not in d:
-            d[v] = self._sat_len(v, d)
-        if w not in d:
-            d[w] = self._sat_len(w, d)
+        nu = self._sat_len(v, d)
+        nw = self._sat_len(w, d)
         iv, _, _ = self._succ[abs(v)]
         iw, _, _ = self._succ[w]
-        # complement ?
-        du = (d[v] * 2**(iv - i - 1) +
-              d[w] * 2**(iw - i - 1))
+        # sum
+        n = (nu * 2**(iv - i - 1) +
+             nw * 2**(iw - i - 1))
+        d[abs(u)] = n
         # complement ?
         if u < 0:
-            return 2**(len(self.ordering) - iv) - d[v]
-        else:
-            return du
+            n = 2**(len(self.ordering) - i) - n
+        return n
 
     def sat_iter(self, u):
         """Return generator over models.

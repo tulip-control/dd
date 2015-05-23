@@ -933,6 +933,7 @@ class BDD(object):
 
     def to_expr(self, u):
         """Return a Boolean expression for node `u`."""
+        assert u in self, u
         ind2var = {k: v for v, k in self.ordering.iteritems()}
         return self._to_expr(u, ind2var)
 
@@ -1709,4 +1710,7 @@ def _rewrite_tables(outputdir='./'):
 
 
 if __name__ == '__main__':
+    log = logging.getLogger('astutils')
+    log.setLevel('DEBUG')
+    log.addHandler(logging.StreamHandler())
     _rewrite_tables()

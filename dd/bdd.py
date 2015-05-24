@@ -1004,7 +1004,7 @@ class BDD(object):
             r = self.apply('and', u, r)
         return r
 
-    def dump(self, filename, filetype=None):
+    def dump(self, filename, filetype=None, **kw):
         """Write `BDD` to `filename` as pickle or PDF.
 
         The file type is inferred from the
@@ -1023,16 +1023,16 @@ class BDD(object):
             else:
                 raise Exception('file type not supported')
         if filetype == 'pdf':
-            self._dump_pdf(filename)
+            self._dump_pdf(filename, **kw)
         elif filetype == 'pickle':
-            self._dump_pickle(filename)
+            self._dump_pickle(filename, **kw)
 
-    def _dump_pdf(self, filename):
+    def _dump_pdf(self, filename, **kw):
         """Write `BDD` to `filename` as PDF."""
         g = to_pydot(self)
-        g.write_pdf(filename)
+        g.write_pdf(filename, **kw)
 
-    def _dump_pickle(self, filename):
+    def _dump_pickle(self, filename, **kw):
         """Write `BDD` to `filename` as pickle."""
         d = {
             'ordering': self.ordering,
@@ -1043,7 +1043,7 @@ class BDD(object):
             'ref': self._ref,
             'min_free': self._min_free}
         with open(filename, 'w') as f:
-            pickle.dump(d, f)
+            pickle.dump(d, f, **kw)
 
     @classmethod
     def load(cls, filename):

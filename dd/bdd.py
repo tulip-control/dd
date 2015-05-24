@@ -1628,6 +1628,7 @@ class Parser(astutils.Parser):
         ('left', 'DOT'),
         ('left', 'BIMP'),
         ('left', 'IMP'),
+        ('left', 'MINUS'),
         ('left', 'XOR'),
         ('left', 'OR'),
         ('left', 'AND'),
@@ -1661,6 +1662,7 @@ class Parser(astutils.Parser):
                 | expr BIMP expr
                 | expr EQUALS expr
                 | expr NEQUALS expr
+                | expr MINUS expr
         """
         p[0] = self.nodes.Operator(p[2], p[1], p[3])
 

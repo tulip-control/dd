@@ -1077,19 +1077,32 @@ def rename(u, bdd, dvars):
         dvars = {ordering[k]: ordering[v]
                  for k, v in dvars.iteritems()}
     _assert_valid_rename(u, bdd, dvars)
-    return _rename(u, bdd, dvars)
+    umap = dict()
+    return _rename(u, bdd, dvars, umap)
 
 
-def _rename(u, bdd, dvars):
+def _rename(u, bdd, dvars, umap):
     """Recursive renaming, assuming `dvars` is valid."""
+    # terminal ?
     if abs(u) == 1:
         return u
+    # memoized ?
+    r = umap.get(abs(u))
+    if r is not None:
+        # complement ?
+        if u < 0:
+            r = -r
+        return r
     i, v, w = bdd._succ[abs(u)]
-    p = _rename(v, bdd, dvars)
-    q = _rename(w, bdd, dvars)
+    p = _rename(v, bdd, dvars, umap)
+    q = _rename(w, bdd, dvars, umap)
     # to be renamed ?
     z = dvars.get(i, i)
     r = bdd.find_or_add(z, p, q)
+    # memoize
+    assert r > 0, r
+    umap[abs(u)] = r
+    # complement ?
     if u < 0:
         r = -r
     return r

@@ -90,6 +90,7 @@ class BDD(object):
             i = len(ordering)
             self._succ[1] = (i, None, None)
             self._ref[1] = 0
+        _assert_valid_ordering(ordering)
         self.ordering = dict(ordering)
         self._level_to_var = None
         self.roots = set()
@@ -1061,6 +1062,38 @@ class BDD(object):
         bdd._ref = d['ref']
         bdd._min_free = d['min_free']
         return bdd
+
+
+def _assert_isomorphic_orders(old, new, support):
+    """Raise `AssertionError` if not isomorphic.
+
+    @param old, new: orderings
+    @param support: `old` and `new` compared after
+        restriction to `support`.
+    """
+    _assert_valid_ordering(old)
+    _assert_valid_ordering(new)
+    s = {k: v for k, v in old.iteritems() if k in support}
+    t = {k: v for k, v in new.iteritems() if k in support}
+    old = sorted(s, key=s.get)
+    new = sorted(t, key=t.get)
+    assert old == new, (old, new)
+
+
+def _assert_valid_ordering(ordering):
+    """Check that `ordering` is well-formed.
+
+    - bijection
+    - contiguous levels
+    """
+    # levels are contiguous integers ?
+    n = len(ordering)
+    levels = set(ordering.values())
+    levels_ = set(xrange(n))
+    assert levels == levels_, (n, levels)
+    # contiguous levels -> each level : single var
+    # ordering is a mapping -> each var : single level
+    assert isinstance(ordering, Mapping), ordering
 
 
 def rename(u, bdd, dvars):

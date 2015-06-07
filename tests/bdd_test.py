@@ -754,6 +754,20 @@ def test_preimage():
     assert p == g.add_expr('x & y')
 
 
+def test_assert_valid_ordering():
+    ordering = {'x': 0, 'y': 1}
+    _bdd._assert_valid_ordering(ordering)
+    incorrect_ordering = {'x': 0, 'y': 2}
+    with nt.assert_raises(AssertionError):
+        _bdd._assert_valid_ordering(incorrect_ordering)
+
+
+def test_assert_refined_ordering():
+    ordering = {'x': 0, 'y': 1}
+    new_ordering = {'z': 0, 'x': 1, 'w': 2, 'y': 3}
+    _bdd._assert_isomorphic_orders(ordering, new_ordering, ordering)
+
+
 def test_to_pydot():
     def f(x):
         return str(abs(x))

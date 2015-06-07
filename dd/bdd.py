@@ -164,6 +164,9 @@ class BDD(object):
             r = {self.ordering[k] for k in d}
         return r
 
+    def _top_var(self, *nodes):
+        return min(map(lambda x: self._succ[abs(x)][0], nodes))
+
     def descendants(self, u):
         """Return BDD nodes reachable from node `u`.
 

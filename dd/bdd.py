@@ -1122,8 +1122,9 @@ def _assert_valid_rename(u, bdd, dvars):
     for i in dvars.itervalues():
         assert i not in s, (
             'renaming target var "{v}" at '
-            'level {i} is essential').format(
-                v=bdd.level_to_variable(i), i=i)
+            'level {i} is essential, rename: {r}, support: {s}').format(
+                v=bdd.level_to_variable(i), i=i,
+                r=dvars, s=s)
     # neighbors ?
     for v, vp in dvars.iteritems():
         _assert_adjacent(v, vp, bdd)

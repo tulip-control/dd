@@ -5,6 +5,8 @@ dd/_version.py
 *parsetab.py
 *.pyc
 *.pdf
+*.png
+*.svg
 *.txt
 *.p
 dist/*

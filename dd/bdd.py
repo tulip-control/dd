@@ -1064,6 +1064,25 @@ class BDD(object):
         return bdd
 
 
+def _enumerate_minterms(cube, bits):
+    """Generator of complete assignments in `cube`.
+
+    @type cube: `dict`
+    @param bits: enumerate over these care bits
+    @rtype: generator of `dict(str: bool)`
+    """
+    assert cube is not None
+    bits = set(bits).difference(cube)
+    # fix order
+    bits = list(bits)
+    n = len(bits)
+    for i in xrange(2**n):
+        values = bin(i).lstrip('-0b').zfill(n)
+        model = {k: bool(int(v)) for k, v in zip(bits, values)}
+        model.update(cube)
+        yield model
+
+
 def _assert_isomorphic_orders(old, new, support):
     """Raise `AssertionError` if not isomorphic.
 

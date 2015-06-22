@@ -148,6 +148,39 @@ def compare_iter_to_list_of_sets(u, g, s):
     assert not s
 
 
+def test_enumerate_minterms():
+    # non-empty cube
+    cube = dict(x=False)
+    bits = ['x', 'y', 'z']
+    r = _bdd._enumerate_minterms(cube, bits)
+    p = set_from_generator_of_dict(r)
+    q = set()
+    for y in (False, True):
+        for z in (False, True):
+            m = (('x', False), ('y', y), ('z', z))
+            q.add(m)
+    assert p == q, (p, q)
+    # empty cube
+    cube = dict()
+    bits = ['x', 'y', 'z']
+    r = _bdd._enumerate_minterms(cube, bits)
+    p = set_from_generator_of_dict(r)
+    q = set()
+    for x in (False, True):
+        for y in (False, True):
+            for z in (False, True):
+                m = (('x', x), ('y', y), ('z', z))
+                q.add(m)
+    assert p == q, (p, q)
+
+
+def set_from_generator_of_dict(gen):
+    r = list(gen)
+    p = {tuple(sorted(m.items(), key=lambda x: x[0]))
+         for m in r}
+    return p
+
+
 def test_isomorphism():
     ordering = {'x': 0}
     g = BDD(ordering)

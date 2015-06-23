@@ -804,17 +804,19 @@ class BDD(object):
             n = 2**(len(self.ordering) - i) - n
         return n
 
-    def sat_iter(self, u):
-        """Return generator over models.
+    def sat_iter(self, u, full=False, care_bits=None):
+        """Return generator over assignments.
 
-        A model is a satisfying assignment, as
-        a `dict` that maps each variable to a `bool`.
+        An assignment is `dict` that
+        maps each variable to a `bool`.
 
-        If a variable is missing from the `dict` of a model,
-        then it is a "don't care", i.e., the model can be
-        completed by assigning any value to that variable.
+        @param full: if `True`,
+            then return complete assignments (minterms),
+            otherwise (possibly) partial assignments (cubes).
+        @param care_bits: if `full`, then enumerate
+            only over these additional bits.
 
-        @rtype: generator of `dict` (from `str` to `bool`)
+        @rtype: generator of `dict(str: bool)`
         """
         # empty ?
         if not self._succ:
@@ -822,25 +824,35 @@ class BDD(object):
         # non-empty
         assert abs(u) in self._succ, u
         self.level_to_variable(0)
-        return self._sat_iter(u, model=dict(), value=True)
+        cube = dict()
+        value = True
+        if care_bits is None:
+            care_bits = set(self.ordering)
+        for cube in self._sat_iter(u, cube, value):
+            if not full:
+                yield cube
+                continue
+            # complete assignments
+            for m in _enumerate_minterms(cube, care_bits):
+                yield m
 
-    def _sat_iter(self, u, model, value):
+    def _sat_iter(self, u, cube, value):
         """Recurse to enumerate models."""
         if u < 0:
             value = not value
         # terminal ?
         if abs(u) == 1:
             if value:
-                model = {
+                cube = {
                     self._level_to_var[i]: v
-                    for i, v in model.iteritems()}
-                yield model
+                    for i, v in cube.iteritems()}
+                yield cube
             return
         # non-terminal
         i, v, w = self._succ[abs(u)]
-        d0 = dict(model)
+        d0 = dict(cube)
         d0[i] = False
-        d1 = dict(model)
+        d1 = dict(cube)
         d1[i] = True
         if random.randint(0, 1):
             v, w = w, v

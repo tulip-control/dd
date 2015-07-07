@@ -3,3 +3,4 @@ include LICENSE
 include tests/*.py
 include tests/*.txt
 include examples/*.py
+global-include *.pyx *.pxd

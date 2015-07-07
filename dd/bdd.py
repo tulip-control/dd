@@ -907,6 +907,7 @@ class BDD(object):
             self._parser = Parser()
         i = len(self.ordering)
         self._succ[1] = (i, None, None)
+        self._ref[1] = 0
         return self.add_ast(self._parser.parse(e))
 
     def add_ast(self, t):

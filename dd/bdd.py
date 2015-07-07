@@ -41,7 +41,6 @@ from collections import Mapping
 from itertools import tee, izip
 import logging
 import pickle
-import random
 import sys
 import astutils
 # inline:
@@ -137,7 +136,6 @@ class BDD(object):
     def ref(self, u):
         """Return reference count of edge `u`."""
         return self._ref[abs(u)]
-
 
     def add_var(self, var, level=None):
         """Add a variable named `var` at `level`.
@@ -911,9 +909,6 @@ class BDD(object):
         d0[i] = False
         d1 = dict(cube)
         d1[i] = True
-        if random.randint(0, 1):
-            v, w = w, v
-            d0, d1 = d1, d0
         for x in self._sat_iter(v, d0, value):
             yield x
         for x in self._sat_iter(w, d1, value):
@@ -1154,6 +1149,7 @@ def _enumerate_minterms(cube, bits):
         values = bin(i).lstrip('-0b').zfill(n)
         model = {k: bool(int(v)) for k, v in zip(bits, values)}
         model.update(cube)
+        assert len(model) >= len(bits), (model, bits)
         yield model
 
 

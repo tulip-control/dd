@@ -136,6 +136,16 @@ class BDD(object):
         """Return reference count of edge `u`."""
         return self._ref[abs(u)]
 
+    def var(self, var):
+        """Return node for variable named `var`."""
+        assert var in self.ordering, (
+            'undefined variable "{v}", '
+            'known variables are:\n {d}').format(
+                v=var, d=self.ordering)
+        j = self.ordering[var]
+        u = self.find_or_add(j, -1, 1)
+        return u
+
     def var_at_level(self, level):
         """Return variable with `level`."""
         if self._level_to_var is None:
@@ -946,12 +956,7 @@ class BDD(object):
             u = -1 if t.value.lower() == 'false' else 1
             return u
         elif t.type == 'var':
-            assert t.value in self.ordering, (
-                'undefined variable "{v}", '
-                'known variables are:\n {d}').format(
-                    v=t.value, d=self.ordering)
-            j = self.ordering[t.value]
-            return self.find_or_add(j, -1, 1)
+            return self.var(t.value)
         elif t.type == 'num':
             return int(t.value)
         else:

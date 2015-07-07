@@ -10,6 +10,18 @@ A pure-Python package for manipulating:
 - [Binary decision diagrams](https://en.wikipedia.org/wiki/Binary_decision_diagram) (BDDs).
 - [Multi-valued decision diagrams](http://dx.doi.org/10.1109/ICCAD.1990.129849) (MDDs).
 
+as well as [Cython](http://cython.org/) bindings to the C libraries:
+
+- [CUDD](http://vlsi.colorado.edu/~fabio/CUDD/)
+- [BuDDy](http://buddy.sourceforge.net)
+
+These bindings expose almost identical interfaces as the Python implementation. The intended workflow is:
+
+- develop your algorithm in pure Python (easy to debug and introspect),
+- use the bindings to benchmark and deploy
+
+Your code remains the same.
+
 An ordered BDD is represented using dictionaries for the successors, unique table, and reference counts. Nodes are positive integers, and edges signed integers. A complemented edge is represented as a negative integer. Garbage collection uses reference counting.
 
 Contains:
@@ -23,7 +35,9 @@ Contains:
 - Conversion from BDDs to MDDs.
 - Conversion functions to [`networkx`](https://networkx.github.io/) and [`pydot`](http://pypi.python.org/pydot) graphs.
 - BDDs have methods to `dump` and `load` them as nested `dict`s using `pickle`.
-- BDDs dumped by [CUDD](http://vlsi.colorado.edu/~fabio/CUDD/) can be loaded using a [PLY](https://github.com/dabeaz/ply/)-based parser for the header, and a fast simple by-line parser for the main body of nodes.
+- BDDs dumped by CUDD can be loaded using a [PLY](https://github.com/dabeaz/ply/)-based parser for the header, and a fast simple by-line parser for the main body of nodes.
+- Cython bindings to CUDD
+- Cython bindings to BuDDy
 
 
 Examples
@@ -81,35 +95,81 @@ The functions `rename`, `image`, `preimage`, `reorder`, `to_nx`, `to_pydot` in `
 Use the method `BDD.dump` to write a `BDD` to a `pickle` file, and `BDD.load` to load it back. A CUDD dddmp file can be loaded using the function `dd.dddmp.load`.
 
 
+CUDD
+----
+
+Some elementary usage:
+
+```python
+from dd import cudd
+
+bdd = cudd.BDD()
+bdd.add_var('x')
+x = bdd.var('x')
+bdd.add_var('y')
+xy = bdd.add_expr('x & y')
+u = bdd.quantify(xy, {'x', 'y'}, forall=False)
+assert u == bdd.True, u
+```
+
+
 Installation
 ============
 
+
+pure-Python
+-----------
+
 Recommended to use `pip`, because the latest version will install dependencies first:
 
-```
+```shell
 pip install dd
 ```
 
 Otherwise:
 
-```
+```shell
 python setup.py install
 ```
 
-If you use the latter, remember to install `ply` before `dd`. If `ply` is absent, then the parser tables will not be cached.
+If you use the latter, remember to install `ply` before `dd`. If `ply` is absent, then the parser tables will not be cached. You can 
 
 Optional: For graph layout, [`pydot`](http://pypi.python.org/pydot) and [graphviz](http://graphviz.org/) are required. Using `pip`, these can be installed as [extra](https://pip.pypa.io/en/latest/reference/pip_install.html#examples) called `dot`:
 
-```
+```shell
 pip install dd[dot]
 ```
+
+
+Cython bindings
+---------------
+
+By default, the package will try to compile the Cython bindings to CUDD. If it fails, then it installs the Python modules only. You can select either or both extensions by the `setup.py` options `--cudd` and `--buddy`.
+
+Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD. For example:
+
+```shell
+python setup.py install --fetch
+```
+
+These options can be passed also to `pip`, via the [`--install-option`](https://pip.pypa.io/en/latest/reference/pip_install.html#cmdoption--install-option). For example,
+
+```shell
+pip install --install-option="--fetch"
+```
+
+Otherwise, ensure that:
+
+- the header files and libraries of either CUDD or BuDDy are present, and
+- suitable compiler, include, linking, and library flags are passed, either with an `export` prior to calling `pip`, or by editing the file `download.py`.
+
 
 Tests
 =====
 
 Require `nose` and the extras. Run with:
 
-```
+```shell
 cd tests/
 nosetests
 ```

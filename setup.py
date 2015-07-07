@@ -1,5 +1,7 @@
 import logging
+import sys
 from setuptools import setup
+import download
 # inline:
 # from dd import _parser, dddmp
 
@@ -21,14 +23,32 @@ install_requires = [
     'astutils >= 0.0.1',
     'networkx >= 1.9.1',
     'ply >= 3.4']
-extras_require = {
-    'dot': 'pydot >= 1.0.28'}
+extras_require = dict(
+    dot='pydot >= 1.0.28')
 tests_require = [
     'nose >= 1.3.4',
     'pydot >= 1.0.28']
 
 
-if __name__ == '__main__':
+def run_setup(with_ext):
+    # install build deps ?
+    if '--fetch' in sys.argv:
+        sys.argv.remove('--fetch')
+        download.fetch_cudd()
+    # build extensions ?
+    e = list()
+    for opt in ('--cudd', '--buddy'):
+        if opt in sys.argv:
+            e.append(opt[2:])
+            sys.argv.remove(opt)
+    # default
+    if not e:
+        e.append('cudd')
+    if not with_ext:
+        e = list()
+    extensions = download.extensions()
+    ext_modules = list(extensions[k] for k in e)
+    # build parsers
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
     try:
@@ -53,6 +73,19 @@ if __name__ == '__main__':
         tests_require=tests_require,
         packages=[name],
         package_dir={name: name},
+        ext_modules=ext_modules,
         keywords=[
             'bdd', 'binary decision diagram', 'decision diagram',
             'boolean', 'networkx', 'dot'])
+
+
+if __name__ == '__main__':
+    with_ext = False
+    for opt in ('--fetch', '--cudd', '--buddy'):
+        if opt in sys.argv:
+            with_ext = True
+    try:
+        run_setup(with_ext=True)
+    except:
+        print('WARNING: `dd` failed to compile C extensions.')
+        run_setup(with_ext=with_ext)

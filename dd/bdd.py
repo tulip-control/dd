@@ -1075,6 +1075,15 @@ class BDD(object):
         bdd._min_free = d['min_free']
         return bdd
 
+    # !!! DO NOT MOVE up, because arg defaults affected
+    @property
+    def False(self):
+        return -1
+
+    @property
+    def True(self):
+        return 1
+
 
 def _enumerate_minterms(cube, bits):
     """Generator of complete assignments in `cube`.

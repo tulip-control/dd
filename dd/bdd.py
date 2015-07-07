@@ -136,13 +136,18 @@ class BDD(object):
         """Return reference count of edge `u`."""
         return self._ref[abs(u)]
 
-    def level_to_variable(self, i):
-        """Return variable with level `i`."""
+    def var_at_level(self, level):
+        """Return variable with `level`."""
         if self._level_to_var is None:
             self._level_to_var = {
                 k: var
                 for var, k in self.ordering.iteritems()}
-        return self._level_to_var[i]
+        return self._level_to_var.get(level)
+
+    def level_to_variable(self, i):
+        """Deprecated, use `var_at_level` instead."""
+        raise Exception(
+            'Renamed in v0.0.5 to `var_at_level`.')
 
     def _map_to_level(self, d):
         """Map keys of `d` to variable levels.
@@ -255,7 +260,7 @@ class BDD(object):
         self._support(u, levels, nodes)
         if as_levels:
             return levels
-        return {self.level_to_variable(i) for i in levels}
+        return {self.var_at_level(i) for i in levels}
 
     def _support(self, u, levels, nodes):
         """Recurse to collect variables in support."""
@@ -709,9 +714,9 @@ class BDD(object):
             # garbage collection could be interleaved
             # but only if there is substantial loss of efficiency
         # swap x and y in ordering
-        vx = self.level_to_variable(x)
+        vx = self.var_at_level(x)
         self.ordering[vx] = y
-        vy = self.level_to_variable(y)
+        vy = self.var_at_level(y)
         self.ordering[vy] = x
         # reset
         self._level_to_var = None
@@ -823,7 +828,7 @@ class BDD(object):
             return
         # non-empty
         assert abs(u) in self._succ, u
-        self.level_to_variable(0)
+        self.var_at_level(0)
         cube = dict()
         value = True
         if care_bits is None:
@@ -1197,7 +1202,7 @@ def _assert_valid_rename(u, bdd, dvars):
         assert i not in s, (
             'renaming target var "{v}" at '
             'level {i} is essential, rename: {r}, support: {s}').format(
-                v=bdd.level_to_variable(i), i=i,
+                v=bdd.var_at_level(i), i=i,
                 r=dvars, s=s)
     # neighbors ?
     for v, vp in dvars.iteritems():
@@ -1211,8 +1216,8 @@ def _assert_adjacent(i, j, bdd):
         'level {j} ("{y}")').format(
             i=i,
             j=j,
-            x=bdd.level_to_variable(i),
-            y=bdd.level_to_variable(j))
+            x=bdd.var_at_level(i),
+            y=bdd.var_at_level(j))
 
 
 def _assert_no_overlap(d):
@@ -1416,8 +1421,8 @@ def _sort_to_order(bdd, order):
         for i in xrange(n - 1):
             for root in bdd.roots:
                 assert root in bdd
-            x = bdd.level_to_variable(i)
-            y = bdd.level_to_variable(i + 1)
+            x = bdd.var_at_level(i)
+            y = bdd.var_at_level(i + 1)
             p = order[x]
             q = order[y]
             if p > q:

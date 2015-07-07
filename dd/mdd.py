@@ -324,7 +324,7 @@ def bdd_to_mdd(bdd, dvars):
             continue
         # has refs from outside zone ?
         i, _, _ = bdd._succ[u]
-        bit = bdd.level_to_variable(i)
+        bit = bdd.var_at_level(i)
         var = bit_to_var[bit]
         min_level, _ = zones[var]
         pred_levels = {bdd._succ[v][0] for v in p}
@@ -344,7 +344,7 @@ def bdd_to_mdd(bdd, dvars):
         if u == 1:
             continue
         i, _, _ = bdd._succ[u]
-        var = bdd.level_to_variable(i)
+        var = bdd.var_at_level(i)
         label = '{var}-{u}'.format(var=var, u=u)
         g.add_node(u, label=label)
     pd = nx.to_pydot(g)
@@ -357,7 +357,7 @@ def bdd_to_mdd(bdd, dvars):
         if u not in pred:
             continue
         # keep `u`
-        bit = bdd.level_to_variable(i)
+        bit = bdd.var_at_level(i)
         var = bit_to_var[bit]
         bits = dvars[var]['bitnames']
         bit_succ = list()

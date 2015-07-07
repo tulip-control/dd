@@ -91,7 +91,9 @@ class BDD(object):
             self._succ[1] = (i, None, None)
             self._ref[1] = 0
         _assert_valid_ordering(ordering)
+        # TODO: deprecate `self.ordering`
         self.ordering = dict(ordering)
+        self.vars = self.ordering
         self._level_to_var = None
         self.roots = set()
         self._parser = None

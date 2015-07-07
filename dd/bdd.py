@@ -136,6 +136,42 @@ class BDD(object):
         """Return reference count of edge `u`."""
         return self._ref[abs(u)]
 
+
+    def add_var(self, var, level=None):
+        """Add a variable named `var` at `level`.
+
+        If `level` is absent, then add at bottom.
+        Raise `Exception` if:
+            - `var` exists at different level, or
+            - `level` is occupied.
+
+        Currently, `add_var` must be called
+        *only* before adding any nodes.
+        In the future, this will change.
+
+        @type level: `int`
+        """
+        # var already exists ?
+        if var in self.ordering:
+            k = self.ordering[var]
+            if level is not None:
+                assert level == k, (var, k, level)
+            return k
+        # level occupied ?
+        try:
+            other = self.var_at_level(level)
+        except AssertionError:
+            other = None
+        assert other is None, (
+            'level {level} occupied'.format(level=level))
+        # create var
+        if level is None:
+            level = len(self.ordering)
+        self.ordering[var] = level
+        self._level_to_var[level] = var
+        self._init_terminal(len(self.ordering))
+        return level
+
     def var(self, var):
         """Return node for variable named `var`."""
         assert var in self.ordering, (
@@ -158,6 +194,10 @@ class BDD(object):
         """Deprecated, use `var_at_level` instead."""
         raise Exception(
             'Renamed in v0.0.5 to `var_at_level`.')
+
+    def level_of_var(self, var):
+        """Return level of `var`, or `None`."""
+        return self.ordering.get(var)
 
     def _map_to_level(self, d):
         """Map keys of `d` to variable levels.

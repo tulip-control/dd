@@ -1,5 +1,6 @@
 import logging
-from dd.bdd import BDD, Function, preimage
+from dd.bdd import BDD, preimage
+from dd.autoref import Function
 from dd import bdd as _bdd
 import nose.tools as nt
 import networkx as nx

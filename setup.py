@@ -1,7 +1,7 @@
 import logging
 from setuptools import setup
 # inline:
-# from dd import bdd, dddmp
+# from dd import _parser, dddmp
 
 
 name = 'dd'
@@ -32,10 +32,10 @@ if __name__ == '__main__':
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
     try:
-        from dd import bdd, dddmp
+        from dd import _parser, dddmp
         logging.getLogger('astutils').setLevel('ERROR')
         dddmp._rewrite_tables(outputdir=name)
-        bdd._rewrite_tables(outputdir=name)
+        _parser._rewrite_tables(outputdir=name)
     except ImportError:
         print('WARNING: `dd` could not cache parser tables '
               '(ignore this if running only for "egg_info").')

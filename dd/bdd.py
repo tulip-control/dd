@@ -1341,6 +1341,7 @@ def reorder(bdd, order=None):
     so be sure to `incref` nodes that should remain.
 
     @param order: if given, then swap vars to obtain this order.
+    @type order: `dict(str: int)` from each var to a level
     @type bdd: `BDD`
     """
     if order is None:
@@ -1412,7 +1413,10 @@ def _shift(bdd, start, end, levels):
 
 
 def _sort_to_order(bdd, order):
-    """Swap variables to obtain the given `order` of variables."""
+    """Swap variables to obtain the given `order` of variables.
+
+    @type order: `dict`
+    """
     # TODO: use min number of swaps
     assert len(bdd.ordering) == len(order)
     m = 0

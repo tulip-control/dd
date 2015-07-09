@@ -121,6 +121,10 @@ class BDD(object):
             'var ordering: {self.ordering}\n'
             'roots: {self.roots}\n').format(self=self)
 
+    def _init_terminal(self, i):
+        self._succ[1] = (i, None, None)
+        self._ref[1] = 0
+
     def incref(self, u):
         """Increment reference count of node `u`."""
         self._ref[abs(u)] += 1

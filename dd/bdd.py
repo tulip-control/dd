@@ -185,11 +185,10 @@ class BDD(object):
 
     def var_at_level(self, level):
         """Return variable with `level`."""
-        if self._level_to_var is None:
-            self._level_to_var = {
-                k: var
-                for var, k in self.ordering.iteritems()}
-        return self._level_to_var.get(level)
+        if level not in self._level_to_var:
+            raise AssertionError(
+                'level {j} does not exist'.format(j=level))
+        return self._level_to_var[level]
 
     def level_to_variable(self, i):
         """Deprecated, use `var_at_level` instead."""

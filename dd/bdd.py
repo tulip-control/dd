@@ -1195,6 +1195,10 @@ def _assert_valid_rename(u, bdd, dvars):
     """Raise `AssertionError` if rename of non-adjacent vars."""
     if not dvars:
         return
+    # valid levels ?
+    bdd.var_at_level(0)
+    assert set(dvars).issubset(bdd._level_to_var), dvars
+    assert set(dvars.itervalues()).issubset(bdd._level_to_var), dvars
     # pairwise disjoint ?
     _assert_no_overlap(dvars)
     # u independent of primed vars ?

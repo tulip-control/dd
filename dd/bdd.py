@@ -81,17 +81,15 @@ class BDD(object):
         self._ref = dict()  # reference counters
         self._min_free = 2  # all smaller positive integers used
         self._ite_table = dict()  # (cond, high, low)
+        # TODO: deprecate `self.ordering`
+        self.ordering = dict()
+        self.vars = self.ordering
+        self._level_to_var = dict()
         if ordering is None:
             ordering = dict()
-        else:
-            i = len(ordering)
-            self._succ[1] = (i, None, None)
-            self._ref[1] = 0
         _assert_valid_ordering(ordering)
-        # TODO: deprecate `self.ordering`
-        self.ordering = dict(ordering)
-        self.vars = self.ordering
-        self._level_to_var = None
+        for var, level in ordering.iteritems():
+            self.add_var(var, level)
         self.roots = set()
         self.max_nodes = sys.maxint
 
@@ -879,7 +877,6 @@ class BDD(object):
             return
         # non-empty
         assert abs(u) in self._succ, u
-        self.var_at_level(0)
         cube = dict()
         value = True
         if care_bits is None:

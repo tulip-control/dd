@@ -1240,6 +1240,12 @@ def image(trans, source, rename, qvars, bdd, forall=False):
         then quantify `qvars` universally,
         else existentially.
     """
+    # map to levels
+    qvars = bdd._map_to_level(qvars)
+    rename = {
+        bdd.ordering.get(k, k): bdd.ordering.get(v, v)
+        for k, v in rename.iteritems()}
+    # init
     cache = dict()
     rename_u = rename
     rename_v = None
@@ -1274,6 +1280,12 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
         then quantify `qvars` universally,
         else existentially.
     """
+    # map to levels
+    qvars = bdd._map_to_level(qvars)
+    rename = {
+        bdd.ordering.get(k, k): bdd.ordering.get(v, v)
+        for k, v in rename.iteritems()}
+    # init
     cache = dict()
     rename_u = None
     rename_v = rename

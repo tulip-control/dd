@@ -770,7 +770,8 @@ class BDD(object):
         vy = self.var_at_level(y)
         self.ordering[vy] = x
         # reset
-        self._level_to_var = None
+        self._level_to_var[y] = vx
+        self._level_to_var[x] = vy
         self._ite_table = dict()
         # count nodes
         self.collect_garbage(garbage)

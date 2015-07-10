@@ -452,7 +452,7 @@ def test_compose():
     # x & (x | z)
     a = g.add_expr('x && y')
     b = g.add_expr('x || z')
-    c = g.compose(a, ordering['y'], b)
+    c = g.compose(a, 'y', b)
     d = g.add_expr('x && (x || z)')
     assert c == d, (c, d)
     # (y | z) & x
@@ -460,14 +460,14 @@ def test_compose():
     g = BDD(ordering)
     a = g.add_expr('(x && y) || z')
     b = g.add_expr('(y || z) && x')
-    c = g.compose(a, ordering['z'], b)
+    c = g.compose(a, 'z', b)
     assert c == b, (c, b)
     # long expr
     ordering = {'x': 0, 'y': 1, 'z': 2, 'w': 3}
     g = BDD(ordering)
     a = g.add_expr('(x && y) || (!z || (w && y && x))')
     b = g.add_expr('(y || z) && x')
-    c = g.compose(a, ordering['y'], b)
+    c = g.compose(a, 'y', b)
     d = g.add_expr(
         '(x && ((y || z) && x)) ||'
         ' (!z || (w && ((y || z) && x) && x))')
@@ -476,10 +476,10 @@ def test_compose():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)
     f = g.add_expr('x <-> y')
-    level = 1
+    var = 'y'
     new_level = 0
     var_node = g.find_or_add(new_level, -1, 1)
-    u = g.compose(f, level, var_node)
+    u = g.compose(f, var, var_node)
     assert u == 1, g.to_expr(u)
 
 

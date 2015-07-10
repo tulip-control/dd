@@ -376,19 +376,23 @@ class BDD(object):
                 bdd.roots.add(r)
         return bdd
 
-    def compose(self, f, j, g, cache=None):
-        """Return f(x_j=g).
+    def compose(self, f, var, g):
+        """Return f(x_var=g).
 
         @param f, g: nodes
-        @param j: variable level
+        @param var: variable name
         @param cache: stores intermediate results
         """
+        j = self.level_of_var(var)
+        cache = dict()
+        u = self._compose(f, j, g, cache)
+        return u
+
+    def _compose(self, f, j, g, cache):
         # terminal or exhausted valuation ?
         if abs(f) == 1:
             return f
         # cached ?
-        if cache is None:
-            cache = dict()
         if (f, g) in cache:
             return cache[(f, g)]
         # independent of j ?
@@ -406,8 +410,8 @@ class BDD(object):
             z = min(i, k)
             f0, f1 = self._top_cofactor(f, z)
             g0, g1 = self._top_cofactor(g, z)
-            p = self.compose(f0, j, g0, cache)
-            q = self.compose(f1, j, g1, cache)
+            p = self._compose(f0, j, g0, cache)
+            q = self._compose(f1, j, g1, cache)
             r = self.find_or_add(z, p, q)
         cache[(f, g)] = r
         return r

@@ -1,6 +1,6 @@
 import logging
 from dd.bdd import BDD, preimage
-from dd.autoref import Function
+from dd import autoref
 from dd import bdd as _bdd
 import nose.tools as nt
 import networkx as nx
@@ -821,13 +821,13 @@ def test_to_pydot():
 
 
 def test_function_wrapper():
-    bdd = BDD({'x': 0, 'y': 1, 'z': 2})
-    u = Function.from_expr('x & y', bdd)
-    assert u.bdd is bdd, u.bdd
-    assert abs(u.node) in bdd, (u, bdd._succ)
+    bdd = autoref.BDD({'x': 0, 'y': 1, 'z': 2})
+    u = autoref.Function.from_expr('x & y', bdd)
+    assert u.bdd is bdd._bdd, u.bdd
+    assert abs(u.node) in bdd._bdd, (u.node, bdd._bdd._succ)
     # operators
-    x = Function.from_expr('x', bdd)
-    z = Function.from_expr('z', bdd)
+    x = autoref.Function.from_expr('x', bdd)
+    z = autoref.Function.from_expr('z', bdd)
     v = x.implies(z)
     w = u & ~v
     w_node = bdd.add_expr('(x & y) & !((! x) | z)')
@@ -837,7 +837,7 @@ def test_function_wrapper():
         '( (x & y) | ((! x) | z) ) ^'
         '( (x & y) & !((! x) | z) )')
     assert r_node == r.node, (r_node, r.node)
-    p = Function.from_expr('y', bdd)
+    p = autoref.Function.from_expr('y', bdd)
     q = p.bimplies(x)
     q_node = bdd.add_expr('x <-> y')
     assert q_node == q.node, (q_node, q.node)
@@ -845,7 +845,7 @@ def test_function_wrapper():
     s = q.to_expr()
     assert s == 'ite(x, y, (! y))', s
     # equality
-    p_ = Function.from_expr('y', bdd)
+    p_ = autoref.Function.from_expr('y', bdd)
     assert p_ == p, p_
     # decref and collect garbage
     bdd.collect_garbage()
@@ -871,8 +871,8 @@ def test_function_wrapper():
     n = len(bdd)
     assert n == 1, bdd._ref
     # properties
-    bdd = BDD({'x': 0, 'y': 1, 'z': 2})
-    u = Function.from_expr('x | !y', bdd)
+    bdd = autoref.BDD({'x': 0, 'y': 1, 'z': 2})
+    u = autoref.Function.from_expr('x | !y', bdd)
     assert u.level == 0, u.level
     assert u.var == 'x', u.var
     y = bdd.add_expr('!y')

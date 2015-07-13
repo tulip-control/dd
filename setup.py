@@ -10,8 +10,8 @@ url = 'https://github.com/johnyf/{name}'.format(name=name)
 README = 'README.md'
 VERSION_FILE = '{name}/_version.py'.format(name=name)
 MAJOR = 0
-MINOR = 0
-MICRO = 5
+MINOR = 1
+MICRO = 0
 version = '{major}.{minor}.{micro}'.format(
     major=MAJOR, minor=MINOR, micro=MICRO)
 s = (

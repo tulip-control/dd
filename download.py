@@ -69,8 +69,9 @@ def extensions():
             libraries=CUDD_LIB,
             extra_compile_args=CUDD_CFLAGS),
         buddy=Extension(
-            'buddy',
-            sources=['dd/buddy' + pyx]))
+            'dd.buddy',
+            sources=['dd/buddy' + pyx],
+            libraries=['bdd']))
     return extensions
 
 

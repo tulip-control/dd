@@ -107,7 +107,6 @@ def make_cudd():
     patch = 'osx.patch'
     fname = os.path.join(cwd, patch)
     fetch(CUDD_PATCH, CUDD_PATCH_SHA256, fname=fname)
-    # TODO: check sha256 of patch
     subprocess.call(['patch', '-p0', '-i', patch], cwd=cwd)
     subprocess.call(['make', 'build', XCFLAGS], cwd=cwd)
     print('-- done making CUDD.')

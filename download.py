@@ -27,8 +27,9 @@ CUDD_PATCH_SHA256 = (
     '8de3ceb2930efd2e16a5d90990be4586'
     '42b43dede3a96b2aa6cab7cc3ceb6e5d')
 CC = 'gcc'
+FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 CUDD_PATH = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)),
+    FILE_PATH,
     'cudd-{v}'.format(v=CUDD_VERSION))
 CUDD_INCLUDE = [
     [CUDD_PATH, 'include']]

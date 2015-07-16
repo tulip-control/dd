@@ -16,7 +16,7 @@ import sys
 from libcpp cimport bool
 from libc.stdio cimport FILE, fdopen, fopen
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
-cimport buddy
+cimport buddy_ as buddy
 APPLY_MAP = {
     'and': 0, 'xor': 1, 'or': 2, 'nand': 3, 'nor': 4,
     'imp': 5, 'biimp': 6, 'diff': 7, 'less': 8, 'invimp': 9}

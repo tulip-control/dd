@@ -42,21 +42,65 @@ Contains:
 
 Examples
 ========
+
 Two interfaces are available:
 
-- "low level": requires that the user in/decrement the reference counters associated to nodes that they are using outside of a `BDD`
-- convenience: the class `Function` wraps nodes and takes care of reference counting.
+- convenience: the module [`dd.autoref`](https://github.com/johnyf/dd/blob/master/dd/autoref.py) wraps `dd.bdd` and takes care of reference counting, using [`__del__`](https://docs.python.org/2/reference/datamodel.html#object.__del__).
 
-The `n` variables are ordered from `0` (top level) to `n-1` (bottom level). The terminal node `1` is at level `n`.
+- "low level": the module [`dd.bdd`](https://github.com/johnyf/dd/blob/master/dd/bdd.py) requires that the user in/decrement the reference counters associated with nodes that are used outside of a `BDD`.
+
+
+## Automated reference counting
+
+The module `dd.autoref` wraps the pure-Python BDD implementation in `dd.bdd`.
+A `Function` object wraps a node and decrements its reference count when disposed by Python's garbage collector:
+
+```python
+from dd.autoref import BDD, Function
+
+bdd = BDD()
+for var in ['x', 'y']:
+    bdd.add_var(var)
+x = bdd.var('x')
+not_x = ~ x
+y = bdd.var('y')
+u = not_x | y
+
+v = Function.from_expr('x -> y', bdd)
+assert u == v
+```
+
+
+## CUDD
+
+The interface to CUDD in `dd.cudd` looks similar to `dd.autoref`, including automated reference counting:
+
+```python
+from dd import cudd
+
+bdd = cudd.BDD()
+for var in ['x', 'y']:
+    bdd.add_var(var)
+xy = bdd.add_expr('x & y')
+u = bdd.quantify(xy, {'x', 'y'}, forall=False)
+assert u == bdd.True, u
+```
+
+
+## Reference counting by the user
+
+The pure-Python module `dd.bdd` can be used directly, which allows access more extensive than `dd.autoref`.
+The `n` variables in a `dd.bdd.BDD` are ordered from `0` (top level) to `n-1` (bottom level). The terminal node `1` is at level `n`.
 
 ```python
 from dd.bdd import BDD
 
-ordering = {'x': 0, 'y': 1, 'z': 2}
+ordering = dict(x=0, y=1)
 bdd = BDD(ordering)
+bdd.add_var('z')
 ```
 
-To add Boolean functions using the `BDD` interface directly (assuming the optional dependency `tulip` is present):
+Boolean expressions can be added with the method `BDD.add_expr`:
 
 ```python
 u = bdd.add_expr('x | y')
@@ -67,60 +111,32 @@ r = bdd.apply('->', u, w)
 ```
 
 Garbage collection is triggered either explicitly by the user, or when invoking the reordering algorithm.
-The nodes `u`, `v`, `w` will be deleted if next garbage collection is invoked. To prevent this from happening, their reference counts must be increased. For example, if we want to keep `w` from being collected as gargabe, then
+If we invoked garbage collection next, then the nodes `u`, `v`, `w` would be deleted. To prevent this from happening, their reference counts should be incremented. For example, if we want to prevent `w` from being collected as gargabe, then
 
 ```python
 bdd.incref(w)
 ```
 
-The absolute value is used, because `w` may be a negative integer representing a complemented edge that points to the node `abs(w)` that is present in `bdd`.
 To decrement the reference count:
 
 ```python
 bdd.decref(w)
 ```
 
-`Function` objects can be used to avoid having to manually keep track of incrementing and decrementing the reference counts. Using `Function`s, the above becomes:
-
-```python
-from dd.bdd import Function
-
-u = Function.from_expr('x & y', bdd)
-v = Function.from_expr('(! x) | z', bdd)
-w = u & y
-```
-
-The functions `rename`, `image`, `preimage`, `reorder`, `to_nx`, `to_pydot` in `dd.bdd` can be invoked to use the algorithms with the corresponding names.
+The more useful functions in `dd.bdd` are `rename`, `image`, `preimage`, `reorder`, `to_nx`, `to_pydot`.
 
 Use the method `BDD.dump` to write a `BDD` to a `pickle` file, and `BDD.load` to load it back. A CUDD dddmp file can be loaded using the function `dd.dddmp.load`.
 
-
-CUDD
-----
-
-Some elementary usage:
-
-```python
-from dd import cudd
-
-bdd = cudd.BDD()
-bdd.add_var('x')
-x = bdd.var('x')
-bdd.add_var('y')
-xy = bdd.add_expr('x & y')
-u = bdd.quantify(xy, {'x', 'y'}, forall=False)
-assert u == bdd.True, u
-```
+Examples of how `dd` can be used to implement symbolic algorithms can be found in the [`omega` package](https://github.com/johnyf/omega/blob/master/doc/doc.md).
 
 
 Installation
 ============
 
 
-pure-Python
------------
+## pure-Python
 
-Recommended to use `pip`, because the latest version will install dependencies first:
+Recommended to use `pip`, because the latest version will install dependencies before `dd`:
 
 ```shell
 pip install dd
@@ -141,8 +157,10 @@ pip install dd[dot]
 ```
 
 
-Cython bindings
----------------
+## Cython bindings
+
+
+### `dd` fetching CUDD
 
 By default, the package will try to compile the Cython bindings to CUDD. If it fails, then it installs the Python modules only. You can select either or both extensions by the `setup.py` options `--cudd` and `--buddy`.
 
@@ -152,16 +170,27 @@ Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD. Fo
 python setup.py install --fetch
 ```
 
-These options can be passed also to `pip`, via the [`--install-option`](https://pip.pypa.io/en/latest/reference/pip_install.html#cmdoption--install-option). For example,
+These options can be passed to `pip` too, using the [`--install-option`](https://pip.pypa.io/en/latest/reference/pip_install.html#per-requirement-overrides) in a requirements file, for example:
 
-```shell
-pip install --install-option="--fetch"
+```
+dd >= 0.1.1 --install-option="--fetch" --install-option="--cudd"
 ```
 
-Otherwise, ensure that:
+The command line behavior of `pip` [is currently different](https://github.com/pypa/pip/issues/1883), so
+
+```shell
+pip install --install-option="--fetch" dd
+```
+
+will propagate option `--fetch` to dependencies, and so raise an error.
+
+
+### User fetching build dependencies
+
+If you build and install CUDD or BuDDy yourself, then ensure that:
 
 - the header files and libraries of either CUDD or BuDDy are present, and
-- suitable compiler, include, linking, and library flags are passed, either with an `export` prior to calling `pip`, or by editing the file `download.py`.
+- suitable compiler, include, linking, and library flags are passed, either by setting [environment variables](https://en.wikipedia.org/wiki/Environment_variable) prior to calling `pip`, or by editing the file [`download.py`](https://github.com/johnyf/dd/blob/master/download.py).
 
 
 Tests
@@ -174,10 +203,12 @@ cd tests/
 nosetests
 ```
 
+If the extension module `dd.cudd` has not been compiled and installed, then the CUDD tests will fail.
+
 
 License
 =======
-[BSD-3](http://opensource.org/licenses/BSD-3-Clause), see `LICENSE` file.
+[BSD-3](http://opensource.org/licenses/BSD-3-Clause), see file `LICENSE`.
 
 
 [build_img]: https://travis-ci.org/johnyf/dd.svg?branch=master

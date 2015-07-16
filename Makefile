@@ -16,5 +16,5 @@ rm_cudd:
 	-rm -rf cudd*/ cudd*.tar.gz
 
 clean:
-	-rm -rf build/ dist/ dd.egg-info/ dd/*.so
+	-rm -rf build/ dist/ dd.egg-info/ dd/*.so dd/*.c
 

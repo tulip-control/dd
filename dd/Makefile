@@ -13,4 +13,4 @@ cudd:
 	python ./dd/_setup.py build_ext --inplace -g
 
 clean:
-	-rm *.so
+	-rm *.so *.c

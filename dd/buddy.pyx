@@ -47,7 +47,7 @@ cdef class BDD(object):
 
     def __cinit__(self):
         self.var_to_index = dict()
-        if bdd_isrunning():
+        if buddy.bdd_isrunning():
             return
         n_nodes = 10**2
         cache = 10**4
@@ -204,7 +204,7 @@ def rename(u, bdd, dvars):
         jb = bdd.add_var(b)
         oldvars[i] = ja
         newvars[i] = jb
-    cdef bddPair *pair = bdd_newpair()
+    cdef buddy.bddPair *pair = buddy.bdd_newpair()
     try:
         buddy.bdd_setpairs(pair, oldvars, newvars, n)
         r = buddy.bdd_replace(u.node, pair)

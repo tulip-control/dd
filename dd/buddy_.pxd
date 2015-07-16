@@ -10,6 +10,7 @@ Reference
     v2.4, 2002
     http://buddy.sourceforge.net
 """
+from libc.stdio cimport FILE
 
 
 cdef extern from 'bdd.h':

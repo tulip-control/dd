@@ -1,8 +1,9 @@
 build: clean cudd develop
 
 sdist_test:
-	python setup.py sdist; \
-	pip install dist/dd*.tar.gz
+	python setup.py sdist --cudd --buddy; \
+	cd dist; \
+	pip install dd*.tar.gz; \
 
 develop:
 	python setup.py develop

@@ -7,7 +7,9 @@ import download
 
 
 name = 'dd'
-description = 'Library of decision diagrams and algorithms on them.'
+description = (
+    'Library of decision diagrams and algorithms on them, '
+    'in pure Python, as well as Cython bindings to CUDD and BuDDy.')
 url = 'https://github.com/johnyf/{name}'.format(name=name)
 README = 'README.md'
 VERSION_FILE = '{name}/_version.py'.format(name=name)

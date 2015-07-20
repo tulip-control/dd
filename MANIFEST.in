@@ -1,8 +1,8 @@
 include README.md
 include LICENSE
 include download.py
-include tests/*.py
-include tests/*.txt
+include tests/*_test.py
+include tests/sample*.txt
 include examples/*.py
 include dd/*.pyx
 include dd/*.pxd

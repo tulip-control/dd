@@ -6,7 +6,7 @@ import sys
 import tarfile
 import urllib2
 try:
-    __import__('cython')
+    from Cython.Build import cythonize
     pyx = '.pyx'
 except ImportError:
     pyx = '.c'
@@ -72,6 +72,9 @@ def extensions():
             'dd.buddy',
             sources=['dd/buddy' + pyx],
             libraries=['bdd']))
+    if pyx == '.pyx':
+        for k, v in extensions.iteritems():
+            extensions[k] = cythonize(v)[0]
     return extensions
 
 

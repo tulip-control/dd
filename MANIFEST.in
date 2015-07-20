@@ -4,7 +4,8 @@ include download.py
 include tests/*.py
 include tests/*.txt
 include examples/*.py
-global-include *.pyx *.pxd
+include dd/*.pyx
+include dd/*.pxd
 include dd/*.c
 exclude dd/_setup.py
 

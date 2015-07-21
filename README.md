@@ -196,7 +196,7 @@ If you build and install CUDD or BuDDy yourself, then ensure that:
 Tests
 =====
 
-Require `nose` and the extras. Run with:
+Require [`nose`](https://pypi.python.org/pypi/nose) and the extras. Run with:
 
 ```shell
 cd tests/

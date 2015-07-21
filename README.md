@@ -33,7 +33,7 @@ Contains:
 - Pre/Image computation (relational product).
 - Renaming variables to their neighbors.
 - Conversion from BDDs to MDDs.
-- Conversion functions to [`networkx`](https://networkx.github.io/) and [`pydot`](http://pypi.python.org/pydot) graphs.
+- Conversion functions to [`networkx`](https://networkx.github.io/) and [`pydot`](https://pypi.python.org/pypi/pydot) graphs.
 - BDDs have methods to `dump` and `load` them as nested `dict`s using `pickle`.
 - BDDs dumped by CUDD can be loaded using a [PLY](https://github.com/dabeaz/ply/)-based parser for the header, and a fast simple by-line parser for the main body of nodes.
 - Cython bindings to CUDD
@@ -111,7 +111,7 @@ r = bdd.apply('->', u, w)
 ```
 
 Garbage collection is triggered either explicitly by the user, or when invoking the reordering algorithm.
-If we invoked garbage collection next, then the nodes `u`, `v`, `w` would be deleted. To prevent this from happening, their reference counts should be incremented. For example, if we want to prevent `w` from being collected as gargabe, then
+If we invoked garbage collection next, then the nodes `u`, `v`, `w` would be deleted. To prevent this from happening, their reference counts should be incremented. For example, if we want to prevent `w` from being collected as garbage, then
 
 ```python
 bdd.incref(w)
@@ -148,9 +148,9 @@ Otherwise:
 python setup.py install
 ```
 
-If you use the latter, remember to install `ply` before `dd`. If `ply` is absent, then the parser tables will not be cached. You can 
+If you use the latter, remember to install `ply` before `dd`. If `ply` is absent, then the parser tables will not be cached.
 
-Optional: For graph layout, [`pydot`](http://pypi.python.org/pydot) and [graphviz](http://graphviz.org/) are required. Using `pip`, these can be installed as [extra](https://pip.pypa.io/en/latest/reference/pip_install.html#examples) called `dot`:
+Optional: For graph layout, [`pydot`](https://pypi.python.org/pypi/pydot) and [graphviz](http://graphviz.org/) are required. Using `pip`, these can be installed as [extra](https://pip.pypa.io/en/latest/reference/pip_install.html#examples) called `dot`:
 
 ```shell
 pip install dd[dot]

@@ -216,27 +216,41 @@ cdef class BDD(object):
             return False
 
     def __str__(self):
-        n = Cudd_ReadNodeCount(self.manager)
-        peak = Cudd_ReadPeakLiveNodeCount(self.manager)
-        n_vars = Cudd_ReadSize(self.manager)
-        reordering_time = Cudd_ReadReorderingTime(self.manager)
-        reordering_time = reordering_time / 1000.0
-        n_reorderings = Cudd_ReadReorderings(self.manager)
-        mem = Cudd_ReadMemoryInUse(self.manager)
-        mem = float(mem) / 10**6
+        d = self.statistics()
         s = (
             'Binary decision diagram (CUDD wrapper) with:\n'
             '\t {n} live nodes now\n'
             '\t {peak} live nodes at peak\n'
             '\t {n_vars} BDD variables\n'
             '\t {mem:10.1f} MB in use\n'
-            '\t {reorder_t:10.1f} sec spent reordering\n'
-            '\t {n_reorder} reorderings\n').format(
-                n=n, peak=peak, n_vars=n_vars,
-                reorder_t=reordering_time,
-                n_reorder=n_reorderings,
-                mem=mem)
+            '\t {reorder_time:10.1f} sec spent reordering\n'
+            '\t {n_reorderings} reorderings\n').format(
+                n=d['n_nodes'],
+                peak=d['peak_n_nodes'],
+                n_vars=d['n_vars'],
+                reorder_time=d['reordering_time'],
+                n_reorderings=d['n_reorderings'],
+                mem=d['mem'])
         return s
+
+    def statistics(self):
+        """Return `dict` with CUDD node counts and times."""
+        n_vars = Cudd_ReadSize(self.manager)
+        n_nodes = Cudd_ReadNodeCount(self.manager)
+        peak_n_nodes = Cudd_ReadPeakLiveNodeCount(self.manager)
+        t = Cudd_ReadReorderingTime(self.manager)
+        reordering_time = t / 1000.0
+        n_reorderings = Cudd_ReadReorderings(self.manager)
+        m = Cudd_ReadMemoryInUse(self.manager)
+        mem = float(m) / 10**6
+        d = dict(
+            n_vars=n_vars,
+            n_nodes=n_nodes,
+            peak_n_nodes=peak_n_nodes,
+            reordering_time=reordering_time,
+            n_reorderings=n_reorderings,
+            mem=mem)
+        return d
 
     cdef incref(self, DdNode *u):
         Cudd_Ref(u)

@@ -474,7 +474,8 @@ cdef class BDD(object):
                             qvars, forall=False):
         """Abstract variables `qvars` from node `u`."""
         cdef DdManager *mgr = u.manager
-        cube = self.cube(qvars)
+        c = set(qvars)
+        cube = self.cube(c)
         # quantify
         if forall:
             r = Cudd_bddUnivAbstract(mgr, u.node, cube.node)

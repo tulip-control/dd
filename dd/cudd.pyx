@@ -670,6 +670,15 @@ cpdef reorder(BDD bdd, dict dvars):
     assert r == 1, 'failed to reorder'
 
 
+def copy_vars(BDD source, BDD target):
+    """Copy variables, preserving CUDD indices.
+
+    @type source, target: `BDD`
+    """
+    for var, index in source._index_of_var.iteritems():
+        target.add_var(var, index=index)
+
+
 cpdef copy_bdd(Function u, BDD source, BDD target):
     """Transfer the node `u` to `bdd`.
 

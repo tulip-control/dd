@@ -170,6 +170,14 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
                          qvars, trans.bdd, forall)
 
 
+def copy_vars(source, target):
+    return _bdd.copy_vars(source, target)
+
+
+def copy_bdd(u, source, target):
+    return _bdd.copy_bdd(u, source, target)
+
+
 class Function(object):
     """Convenience wrapper for edges returned by `BDD`.
 

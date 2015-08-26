@@ -1485,6 +1485,87 @@ def reorder_to_pairs(bdd, pairs):
     logger.info('total swaps: {m}'.format(m=m))
 
 
+def copy_vars(source, target):
+    """Copy variables, preserving levels.
+
+    @type source, target: `BDD`
+    """
+    for var in source.vars:
+        level = source.level_of_var(var)
+        target.add_var(var, level=level)
+
+
+def copy_bdd(u, from_bdd, to_bdd):
+    """Copy function of node `u` `from_bdd` `to_bdd`.
+
+    @param u: node in `from_bdd`
+    @type from_bdd, to_bdd: `BDD`
+    """
+    # TODO: more efficient bottom-up implementation
+    # first find all descendants of given roots
+    # then map them, starting from the bottom layer
+    _assert_valid_ordering(from_bdd.ordering)
+    _assert_valid_ordering(to_bdd.ordering)
+    support = from_bdd.support(u)
+    level_map = _level_map(from_bdd, to_bdd, support)
+    umap = dict()
+    umap[1] = 1
+    r = _copy_bdd(u, umap, level_map, from_bdd, to_bdd)
+    return r
+
+
+def _level_map(from_bdd, to_bdd, support):
+    """Return map from old to new levels.
+
+    @type from_bdd, to_bdd: `BDD`
+    @param support: restrict the map to these variables
+    @type support: var names as `str`
+    """
+    old = from_bdd.ordering
+    new = to_bdd.ordering
+    _assert_isomorphic_orders(old, new, support)
+    level_map = {old[x]: new[x] for x in support}
+    return level_map
+
+
+def _copy_bdd(u, umap, level_map, old_bdd, bdd):
+    """Recurse to copy nodes from `old_bdd` to `bdd`.
+
+    @param u: node in `old_bdd`
+    @type umap: `dict`
+    @type level_map: `dict` as returned by `_level_map`
+    @type old_bdd, bdd: `BDD`
+    """
+    # terminal ?
+    if abs(u) == 1:
+        return u
+    # non-terminal
+    # memoized ?
+    if abs(u) in umap:
+        r = umap[abs(u)]
+        assert r > 0
+        # complement ?
+        if u < 0:
+            r = -r
+        return r
+    # recurse
+    jold, v, w = old_bdd._succ[abs(u)]
+    jnew = level_map[jold]
+    p = _copy_bdd(v, umap, level_map, old_bdd, bdd)
+    q = _copy_bdd(w, umap, level_map, old_bdd, bdd)
+    assert p * v > 0, (p, v)
+    assert q > 0, q
+    # add node
+    r = bdd.find_or_add(jnew, p, q)
+    assert r > 0
+    # memoize
+    umap[abs(u)] = abs(r)
+    # negate ?
+    if u < 0:
+        r = -r
+    return r
+
+
 def to_nx(bdd, roots):
     """Convert functions in `roots` to `networkx.MultiDiGraph`.
 

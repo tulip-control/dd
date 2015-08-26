@@ -188,11 +188,6 @@ class BDD(object):
                 'level {j} does not exist'.format(j=level))
         return self._level_to_var[level]
 
-    def level_to_variable(self, i):
-        """Deprecated, use `var_at_level` instead."""
-        raise Exception(
-            'Renamed in v0.0.5 to `var_at_level`.')
-
     def level_of_var(self, var):
         """Return level of `var`, or `None`."""
         return self.ordering.get(var)

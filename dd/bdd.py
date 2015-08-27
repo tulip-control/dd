@@ -1048,6 +1048,9 @@ class BDD(object):
             self._dump_pdf(filename, **kw)
         elif filetype == 'pickle':
             self._dump_pickle(filename, **kw)
+        else:
+            raise Exception(
+                'unknown file type "{t}"'.format(t=filetype))
 
     def _dump_pdf(self, filename, **kw):
         """Write `BDD` to `filename` as PDF."""

@@ -154,20 +154,25 @@ class BDD(object):
         return self._wrap(u)
 
 
-def rename(u, dvars):
-    return _bdd.rename(u.node, u.bdd, dvars)
+def rename(u, bdd, dvars):
+    r = _bdd.rename(u.node, u.bdd, dvars)
+    return bdd._wrap(r)
 
 
 def image(trans, source, rename, qvars, bdd, forall=False):
     assert trans.bdd == source.bdd
-    return _bdd.image(trans.node, source.node, rename,
-                      qvars, trans.bdd, forall)
+    assert trans.bdd == bdd._bdd
+    u = _bdd.image(trans.node, source.node, rename,
+                   qvars, trans.bdd, forall)
+    return bdd._wrap(u)
 
 
 def preimage(trans, target, rename, qvars, bdd, forall=False):
     assert trans.bdd == target.bdd
-    return _bdd.preimage(trans.node, target.node, rename,
-                         qvars, trans.bdd, forall)
+    assert trans.bdd == bdd._bdd
+    u = _bdd.preimage(trans.node, target.node, rename,
+                      qvars, trans.bdd, forall)
+    return bdd._wrap(u)
 
 
 def copy_vars(source, target):
@@ -175,7 +180,8 @@ def copy_vars(source, target):
 
 
 def copy_bdd(u, source, target):
-    return _bdd.copy_bdd(u, source, target)
+    r = _bdd.copy_bdd(u.node, source._bdd, target._bdd)
+    return target._wrap(r)
 
 
 class Function(object):

@@ -241,6 +241,9 @@ class Function(object):
         assert self.bdd is other.bdd
         return self.node == other.node
 
+    def __ne__(self, other):
+        return not (self == other)
+
     def __invert__(self):
         return self._apply('not', other=None)
 

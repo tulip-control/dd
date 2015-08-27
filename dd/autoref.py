@@ -236,6 +236,8 @@ class Function(object):
         self.bdd.decref(self.node)
 
     def __eq__(self, other):
+        if other is None:
+            return False
         assert self.bdd is other.bdd
         return self.node == other.node
 

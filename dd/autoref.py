@@ -176,7 +176,7 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
 
 
 def copy_vars(source, target):
-    return _bdd.copy_vars(source, target)
+    _bdd.copy_vars(source._bdd, target._bdd)
 
 
 def copy_bdd(u, source, target):

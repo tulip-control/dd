@@ -240,12 +240,20 @@ class MDD(object):
         cond = {v: set() for v in c}
         for j, x in enumerate(nodes):
             cond[x].add(j)
+        # format
+        cond_str = dict()
+        for k, v in cond.iteritems():
+            if len(v) == 1:
+                (j,) = v
+                cond_str[k] = '= {j}'.format(j=j)
+            else:
+                cond_str[k] = 'in {v}'.format(v=v)
         x = c[0]
-        s = 'if ({var} in {j}): {p}, '.format(
-            var=var, j=cond[x], p=e[x])
+        s = 'if ({var} {j}): {p}, '.format(
+            var=var, j=cond_str[x], p=e[x])
         s += ', '.join(
-            '\nelif ({var} in {j}): {p}'.format(
-                var=var, j=cond[x], p=e[x])
+            '\nelif ({var} {j}): {p}'.format(
+                var=var, j=cond_str[x], p=e[x])
             for x in c[1:])
         if u < 0:
             s = '! {s}'.format(s=s)

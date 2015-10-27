@@ -93,7 +93,7 @@ def fetch(url, sha256, fname=None):
         fname = url.split('/')[-1]
     with open(fname, 'wb') as f:
         f.write(u.read())
-    with open(fname, 'r') as f:
+    with open(fname, 'rb') as f:
         s = f.read()
         h = hashlib.sha256(s)
         x = h.hexdigest()

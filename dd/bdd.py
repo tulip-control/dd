@@ -43,6 +43,7 @@ import logging
 import pickle
 import sys
 from dd import _parser
+from dd._compat import items
 # inline:
 # import networkx
 # import pydot
@@ -88,7 +89,7 @@ class BDD(object):
         if ordering is None:
             ordering = dict()
         _assert_valid_ordering(ordering)
-        for var, level in ordering.iteritems():
+        for var, level in items(ordering):
             self.add_var(var, level)
         self.roots = set()
         self.max_nodes = sys.maxint
@@ -208,7 +209,7 @@ class BDD(object):
         if isinstance(d, Mapping):
             r = {
                 self.ordering[var]: bool(val)
-                for var, val in d.iteritems()}
+                for var, val in items(d)}
         else:
             r = {self.ordering[k] for k in d}
         return r
@@ -338,7 +339,7 @@ class BDD(object):
         else:
             n = len(self.ordering)
         for i in xrange(n, -1, -1):
-            for u, (j, v, w) in self._succ.iteritems():
+            for u, (j, v, w) in items(self._succ):
                 if i != j:
                     continue
                 yield u, i, v, w
@@ -346,9 +347,9 @@ class BDD(object):
     def _levels(self):
         """Return `dict` from levels to `set`s of nodes."""
         n = len(self.ordering)
-        levels = {i: set() for var, i in self.ordering.iteritems()}
+        levels = {i: set() for var, i in items(self.ordering)}
         levels[n] = set()
-        for u, (i, v, w) in self._succ.iteritems():
+        for u, (i, v, w) in items(self._succ):
             levels[i].add(u)
         levels.pop(n)
         return levels
@@ -657,7 +658,7 @@ class BDD(object):
 
     def update_predecessors(self):
         """Update table that maps (level, low, high) to nodes."""
-        for u, t in self._succ.iteritems():
+        for u, t in items(self._succ):
             if abs(u) == 1:
                 continue
             self._pred[t] = u
@@ -697,7 +698,7 @@ class BDD(object):
                 assert u == u_, (u, u_)
                 levels[j][u] = (v, w)
         # move level y up
-        for u, (v, w) in levels[y].iteritems():
+        for u, (v, w) in items(levels[y]):
             i, _, _ = self._succ[u]
             assert i == y, (i, y)
             r = (x, v, w)
@@ -707,7 +708,7 @@ class BDD(object):
         # move level x down
         # first x nodes independent of y
         done = set()
-        for u, (v, w) in levels[x].iteritems():
+        for u, (v, w) in items(levels[x]):
             i, _, _ = self._succ[u]
             assert i == x, (i, x)
             iv, v0, v1 = self._low_high(v)
@@ -724,7 +725,7 @@ class BDD(object):
         # x nodes dependent on y
         garbage = set()
         xfresh = set()
-        for u, (v, w) in levels[x].iteritems():
+        for u, (v, w) in items(levels[x]):
             if u in done:
                 continue
             i, _, _ = self._succ[u]
@@ -897,7 +898,7 @@ class BDD(object):
             if value:
                 cube = {
                     self._level_to_var[i]: v
-                    for i, v in cube.iteritems()}
+                    for i, v in items(cube)}
                 yield cube
             return
         # non-terminal
@@ -915,7 +916,7 @@ class BDD(object):
         """Raise `AssertionError` if not a valid BDD."""
         for root in self.roots:
             assert abs(root) in self._succ, root
-        for u, (i, v, w) in self._succ.iteritems():
+        for u, (i, v, w) in items(self._succ):
             assert isinstance(i, int), i
             # terminal ?
             if v is None:
@@ -961,7 +962,7 @@ class BDD(object):
     def to_expr(self, u):
         """Return a Boolean expression for node `u`."""
         assert u in self, u
-        ind2var = {k: v for v, k in self.ordering.iteritems()}
+        ind2var = {k: v for v, k in items(self.ordering)}
         return self._to_expr(u, ind2var)
 
     def _to_expr(self, u, ind2var):
@@ -1018,7 +1019,7 @@ class BDD(object):
         @type dvars: `dict`
         """
         r = 1
-        for var, val in dvars.iteritems():
+        for var, val in items(dvars):
             i = self.ordering.get(var, var)
             u = self.find_or_add(i, -1, 1)
             if not val:
@@ -1123,8 +1124,8 @@ def _assert_isomorphic_orders(old, new, support):
     """
     _assert_valid_ordering(old)
     _assert_valid_ordering(new)
-    s = {k: v for k, v in old.iteritems() if k in support}
-    t = {k: v for k, v in new.iteritems() if k in support}
+    s = {k: v for k, v in items(old) if k in support}
+    t = {k: v for k, v in items(new) if k in support}
     old = sorted(s, key=s.get)
     new = sorted(t, key=t.get)
     assert old == new, (old, new)
@@ -1161,7 +1162,7 @@ def rename(u, bdd, dvars):
     k = next(iter(dvars))
     if k in ordering:
         dvars = {ordering[k]: ordering[v]
-                 for k, v in dvars.iteritems()}
+                 for k, v in items(dvars)}
     _assert_valid_rename(u, bdd, dvars)
     umap = dict()
     return _rename(u, bdd, dvars, umap)
@@ -1213,7 +1214,7 @@ def _assert_valid_rename(u, bdd, dvars):
                 v=bdd.var_at_level(i), i=i,
                 r=dvars, s=s)
     # neighbors ?
-    for v, vp in dvars.iteritems():
+    for v, vp in items(dvars):
         _assert_adjacent(v, vp, bdd)
 
 
@@ -1251,14 +1252,14 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     qvars = bdd._map_to_level(qvars)
     rename = {
         bdd.ordering.get(k, k): bdd.ordering.get(v, v)
-        for k, v in rename.iteritems()}
+        for k, v in items(rename)}
     # init
     cache = dict()
     rename_u = rename
     rename_v = None
     # no overlap and neighbors
     _assert_no_overlap(rename)
-    for v, vp in rename.iteritems():
+    for v, vp in items(rename):
         _assert_adjacent(v, vp, bdd)
     # unpriming maps to qvars or outside support of conjunction
     s = bdd.support(trans, as_levels=True)
@@ -1291,7 +1292,7 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     qvars = bdd._map_to_level(qvars)
     rename = {
         bdd.ordering.get(k, k): bdd.ordering.get(v, v)
-        for k, v in rename.iteritems()}
+        for k, v in items(rename)}
     # init
     cache = dict()
     rename_u = None
@@ -1466,7 +1467,7 @@ def reorder_to_pairs(bdd, pairs):
     """
     m = 0
     levels = bdd._levels()
-    for x, y in pairs.iteritems():
+    for x, y in items(pairs):
         jx = bdd.ordering[x]
         jy = bdd.ordering[y]
         k = abs(jx - jy)
@@ -1638,10 +1639,10 @@ def to_pydot(bdd):
         e = pydot.Edge(str(u), str(v), style='invis')
         g.add_edge(e)
     # add nodes
-    idx2var = {k: v for v, k in bdd.ordering.iteritems()}
+    idx2var = {k: v for v, k in items(bdd.ordering)}
 
     def f(x): return str(abs(x))
-    for u, (i, v, w) in bdd._succ.iteritems():
+    for u, (i, v, w) in items(bdd._succ):
         # terminal ?
         if v is None:
             var = str(bool(abs(u)))

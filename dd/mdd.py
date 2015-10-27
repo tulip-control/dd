@@ -21,6 +21,7 @@ import logging
 import sys
 from dd import bdd as _bdd
 from dd.bdd import to_nx
+from dd._compat import items
 import networkx as nx
 # inline:
 # import pydot
@@ -121,7 +122,7 @@ class MDD(object):
         if self._level_to_var is None:
             self._level_to_var = {
                 d['level']: var
-                for var, d in self.vars.iteritems()}
+                for var, d in items(self.vars)}
         return self._level_to_var[i]
 
     def level_of_var(self, var):
@@ -242,7 +243,7 @@ class MDD(object):
             cond[x].add(j)
         # format
         cond_str = dict()
-        for k, v in cond.iteritems():
+        for k, v in items(cond):
             if len(v) == 1:
                 (j,) = v
                 cond_str[k] = '= {j}'.format(j=j)
@@ -285,13 +286,13 @@ def bdd_to_mdd(bdd, dvars):
     #
     # map from bits to integers
     bit_to_var = dict()
-    for var, d in dvars.iteritems():
+    for var, d in items(dvars):
         bits = d['bitnames']
         b = {bit: var for bit in bits}
         bit_to_var.update(b)
     # find target bit ordering
     ordering = list()  # target
-    levels = {d['level']: var for var, d in dvars.iteritems()}
+    levels = {d['level']: var for var, d in items(dvars)}
     m = len(levels)
     for j in xrange(m):
         var = levels[j]
@@ -305,7 +306,7 @@ def bdd_to_mdd(bdd, dvars):
     mdd = MDD(dvars)
     # zones of bits per integer var
     zones = dict()
-    for var, d in dvars.iteritems():
+    for var, d in items(dvars):
         bits = d['bitnames']
         lsb = bits[0]
         msb = bits[-1]
@@ -314,7 +315,7 @@ def bdd_to_mdd(bdd, dvars):
         zones[var] = (min_level, max_level)
     # reverse edges
     pred = {u: set() for u in bdd}
-    for u, (_, v, w) in bdd._succ.iteritems():
+    for u, (_, v, w) in items(bdd._succ):
         assert u > 0, u
         # terminal ?
         if u == 1:
@@ -324,7 +325,7 @@ def bdd_to_mdd(bdd, dvars):
         pred[abs(w)].add(u)
     # find BDD nodes mentioned from above
     rm = set()
-    for u, p in pred.iteritems():
+    for u, p in items(pred):
         rc = bdd.ref(u)
         k = len(p)  # number of predecessors
         # has external refs ?
@@ -341,7 +342,7 @@ def bdd_to_mdd(bdd, dvars):
             continue
         # referenced only from inside zone
         rm.add(u)
-    pred = {u: p for u, p in pred.iteritems() if u not in rm}
+    pred = {u: p for u, p in items(pred) if u not in rm}
     # build layer by layer
     # TODO: use bins, instad of iterating through all nodes
     bdd.assert_consistent()
@@ -417,7 +418,7 @@ def to_pydot(mdd):
         e = pydot.Edge(str(u), str(v), style='invis')
         g.add_edge(e)
     # add nodes
-    for u, t in mdd._succ.iteritems():
+    for u, t in items(mdd._succ):
         assert u > 0, u
         i = t[0]
         nodes = t[1:]

@@ -444,7 +444,8 @@ def test_reorder():
         assert level == i, (var, level, i)
     order = dict(y=0, z=1, x=2)
     cudd.reorder(bdd, order)
-    for var, level_ in order.iteritems():
+    for var in order:
+        level_ = order[var]
         level = bdd.level_of_var(var)
         assert level == level_, (var, level, level_)
 
@@ -504,7 +505,8 @@ def test_copy_bdd_different_order():
     order = dict(w=0, x=1, y=2, z=3)
     cudd.reorder(other, order)
     # confirm resultant order
-    for var, level_ in order.iteritems():
+    for var in order:
+        level_ = order[var]
         level = other.level_of_var(var)
         assert level == level_, (var, level, level_)
     # same indices

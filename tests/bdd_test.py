@@ -811,7 +811,8 @@ def test_to_pydot():
     r = nx.from_pydot(pd)
     for u in g:
         assert f(u) in r, u
-    for u, (i, v, w) in g._succ.iteritems():
+    for u in g._succ:
+        i, v, w = g._succ[u]
         if v is None or w is None:
             assert v is None, v
             assert w is None, w

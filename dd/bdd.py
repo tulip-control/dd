@@ -104,9 +104,7 @@ class BDD(object):
         self.ordering = dict()
         self.vars = self.ordering
         self._level_to_var = dict()
-        ordering = dict(ordering)
-        if ordering is None:
-            ordering = dict()
+        ordering = dict(ordering or {})
         _assert_valid_ordering(ordering)
         for var, level in ordering.iteritems():
             self.add_var(var, level)

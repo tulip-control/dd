@@ -767,7 +767,7 @@ def test_preimage():
     # go around once
     f = g.add_expr('x & y')
     start = f
-    for i in xrange(4):
+    for i in range(4):
         f = preimage(t, f, rename, qvars, g)
     end = f
     assert start == end

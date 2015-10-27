@@ -429,7 +429,7 @@ def load(fname):
     # convert
     bdd = BDD(new_ordering)
     umap = {-1: -1, 1: 1}
-    for j in xrange(len(new_ordering) - 1, -1, -1):
+    for j in range(len(new_ordering) - 1, -1, -1):
         for u, (k, v, w) in bdd_succ.iteritems():
             # terminal ?
             if v is None:

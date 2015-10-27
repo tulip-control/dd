@@ -77,7 +77,7 @@ def extensions():
             sources=['dd/buddy' + pyx],
             libraries=['bdd']))
     if pyx == '.pyx':
-        for k, v in extensions.iteritems():
+        for k, v in extensions.items():
             extensions[k] = cythonize(v)[0]
     return extensions
 

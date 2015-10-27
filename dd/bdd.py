@@ -38,7 +38,6 @@ Henrik R. Andersen
     The IT University of Copenhagen
 """
 from collections import Mapping
-from itertools import tee, izip
 import logging
 import pickle
 import sys
@@ -1633,9 +1632,8 @@ def to_pydot(bdd):
         nd = pydot.Node(name=u, label=str(i), shape='none')
         h.add_node(nd)
     # auxiliary edges for ranking
-    a, b = tee(skeleton)
-    next(b, None)
-    for u, v in izip(a, b):
+    for i, u in enumerate(skeleton[:-1]):
+        v = skeleton[i + 1]
         e = pydot.Edge(str(u), str(v), style='invis')
         g.add_edge(e)
     # add nodes

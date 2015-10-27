@@ -49,6 +49,11 @@ from dd._compat import items
 
 
 logger = logging.getLogger(__name__)
+# for python 3
+try:
+    xrange(0)
+except NameError:
+    xrange = range
 
 
 class BDD(object):

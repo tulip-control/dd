@@ -29,6 +29,11 @@ import networkx as nx
 logger = logging.getLogger(__name__)
 TABMODULE = 'dd.mdd_parsetab'
 PLY_LOG = 'dd.mdd.ply'
+# for python 3
+try:
+    xrange(0)
+except NameError:
+    xrange = range
 
 
 class MDD(object):

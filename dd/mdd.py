@@ -16,7 +16,6 @@ Michael Miller and Rolf Drechsler
     Multiple-Valued Logic (ISMVL), 1998
     pp.52--57
 """
-from itertools import tee, izip
 import logging
 import sys
 from dd import bdd as _bdd
@@ -412,9 +411,8 @@ def to_pydot(mdd):
         nd = pydot.Node(name=u, label=str(i), shape='none')
         h.add_node(nd)
     # auxiliary edges for ranking
-    a, b = tee(skeleton)
-    next(b, None)
-    for u, v in izip(a, b):
+    for i, u in enumerate(skeleton[:-1]):
+        v = skeleton[i + 1]
         e = pydot.Edge(str(u), str(v), style='invis')
         g.add_edge(e)
     # add nodes

@@ -97,11 +97,12 @@ def test_rewrite_tables():
 
 def to_nx(bdd, n_vars, ordering, roots):
     """Convert result of `Parser.parse` to `networkx.MultiDiGraph`."""
-    level2var = {k: v for v, k in ordering.iteritems()}
+    level2var = {ordering[k]: k for k in ordering}
     level2var[n_vars + 1] = 'T'
     h = nx.MultiDiGraph()
     h.roots = roots
-    for u, (i, v, w) in bdd.iteritems():
+    for u in bdd:
+        i, v, w = bdd[u]
         assert u >= 0, u
         label = level2var[i]
         h.add_node(u, label=label)

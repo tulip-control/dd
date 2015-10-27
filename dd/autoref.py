@@ -144,12 +144,12 @@ class BDD(object):
         self._bdd.assert_consistent()
 
     @property
-    def False(self):
+    def false(self):
         u = self._bdd.false
         return self._wrap(u)
 
     @property
-    def True(self):
+    def true(self):
         u = self._bdd.true
         return self._wrap(u)
 

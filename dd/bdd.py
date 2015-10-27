@@ -1087,11 +1087,11 @@ class BDD(object):
 
     # !!! DO NOT MOVE up, because arg defaults affected
     @property
-    def False(self):
+    def false(self):
         return -1
 
     @property
-    def True(self):
+    def true(self):
         return 1
 
 

@@ -82,12 +82,12 @@ cdef class BDD(object):
     cdef decref(self, int u):
         buddy.bdd_delref(u)
 
-    property False:
+    property false:
 
         def __get__(self):
             return self._bool(False)
 
-    property True:
+    property true:
 
         def __get__(self):
             return self._bool(True)
@@ -116,7 +116,7 @@ cdef class BDD(object):
             var, self.var_to_index)
         j = self.var_to_index[var]
         r = buddy.bdd_ithvar(j)
-        assert r != self.False.node, 'failed'
+        assert r != self.false.node, 'failed'
         buddy.bdd_intaddvarblock(j, j, 0)
         return Function(r)
 

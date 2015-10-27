@@ -174,8 +174,8 @@ def add_ast(t, bdd):
 
     @type t: `Terminal` or `Operator` of `astutils`
     @type bdd: object with:
-      - `bdd.False`
-      - `bdd.True`
+      - `bdd.false`
+      - `bdd.true`
       - `bdd.var`
       - `bdd.apply`
       - `bdd.quantify`
@@ -194,7 +194,7 @@ def add_ast(t, bdd):
             operands = [add_ast(x, bdd) for x in t.operands]
             return bdd.apply(t.operator, *operands)
     elif t.type == 'bool':
-        u = bdd.False if t.value.lower() == 'false' else bdd.True
+        u = bdd.false if t.value.lower() == 'false' else bdd.true
         return u
     elif t.type == 'var':
         return bdd.var(t.value)

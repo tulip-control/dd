@@ -83,7 +83,7 @@ for var in ['x', 'y']:
     bdd.add_var(var)
 xy = bdd.add_expr('x & y')
 u = bdd.quantify(xy, {'x', 'y'}, forall=False)
-assert u == bdd.True, u
+assert u == bdd.true, u
 ```
 
 

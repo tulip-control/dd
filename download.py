@@ -4,7 +4,11 @@ import os
 import subprocess
 import sys
 import tarfile
-import urllib2
+try:
+    import urllib2
+except ImportError:
+    import urllib.request, urllib.error, urllib.parse
+    urllib2 = urllib.request
 try:
     from Cython.Build import cythonize
     pyx = '.pyx'
@@ -73,7 +77,7 @@ def extensions():
             sources=['dd/buddy' + pyx],
             libraries=['bdd']))
     if pyx == '.pyx':
-        for k, v in extensions.iteritems():
+        for k, v in extensions.items():
             extensions[k] = cythonize(v)[0]
     return extensions
 
@@ -89,7 +93,7 @@ def fetch(url, sha256, fname=None):
         fname = url.split('/')[-1]
     with open(fname, 'wb') as f:
         f.write(u.read())
-    with open(fname, 'r') as f:
+    with open(fname, 'rb') as f:
         s = f.read()
         h = hashlib.sha256(s)
         x = h.hexdigest()

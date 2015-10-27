@@ -724,8 +724,8 @@ cdef class Function(object):
     In Python, use as:
     ```
     bdd = BDD()
-    u = bdd.True
-    v = bdd.False
+    u = bdd.true
+    v = bdd.false
     w = u | ~ v
 
     In Cython, use as:
@@ -854,7 +854,7 @@ cdef class Function(object):
 cpdef _test_incref():
     bdd = BDD()
     cdef Function f
-    f = bdd.True
+    f = bdd.true
     i = f.ref
     bdd.incref(f.node)
     j = f.ref
@@ -866,7 +866,7 @@ cpdef _test_incref():
 cpdef _test_decref():
     bdd = BDD()
     cdef Function f
-    f = bdd.True
+    f = bdd.true
     i = f.ref
     assert i == 2, i
     bdd.incref(f.node)

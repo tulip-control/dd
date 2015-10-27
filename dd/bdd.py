@@ -38,14 +38,33 @@ Henrik R. Andersen
     The IT University of Copenhagen
 """
 from collections import Mapping
-from itertools import tee, izip
+from itertools import tee
+try:  # python3 compat
+    from itertools import izip
+except ImportError:
+    izip = zip
 import logging
 import pickle
 import sys
+try:
+    sys.maxint
+except AttributeError:
+    sys.maxint = sys.maxsize
 from dd import _parser
 # inline:
 # import networkx
 # import pydot
+
+if not 'iteritems' in dict.__dict__: # python3 compat
+    class _dict(dict):
+        def iteritems(self):
+            return self.items()
+    dict = _dict
+
+try: # python3 compat
+    xrange(1)
+except NameError:
+    xrange = range
 
 
 logger = logging.getLogger(__name__)
@@ -85,8 +104,7 @@ class BDD(object):
         self.ordering = dict()
         self.vars = self.ordering
         self._level_to_var = dict()
-        if ordering is None:
-            ordering = dict()
+        ordering = dict(ordering or {})
         _assert_valid_ordering(ordering)
         for var, level in ordering.iteritems():
             self.add_var(var, level)
@@ -1018,7 +1036,7 @@ class BDD(object):
         @type dvars: `dict`
         """
         r = 1
-        for var, val in dvars.iteritems():
+        for var, val in dict(dvars).iteritems():
             i = self.ordering.get(var, var)
             u = self.find_or_add(i, -1, 1)
             if not val:
@@ -1086,11 +1104,11 @@ class BDD(object):
 
     # !!! DO NOT MOVE up, because arg defaults affected
     @property
-    def False(self):
+    def false(self):
         return -1
 
     @property
-    def True(self):
+    def true(self):
         return 1
 
 
@@ -1161,7 +1179,7 @@ def rename(u, bdd, dvars):
     k = next(iter(dvars))
     if k in ordering:
         dvars = {ordering[k]: ordering[v]
-                 for k, v in dvars.iteritems()}
+                 for k, v in dict(dvars).iteritems()}
     _assert_valid_rename(u, bdd, dvars)
     umap = dict()
     return _rename(u, bdd, dvars, umap)
@@ -1251,14 +1269,14 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     qvars = bdd._map_to_level(qvars)
     rename = {
         bdd.ordering.get(k, k): bdd.ordering.get(v, v)
-        for k, v in rename.iteritems()}
+        for k, v in dict(rename).iteritems()}
     # init
     cache = dict()
     rename_u = rename
     rename_v = None
     # no overlap and neighbors
     _assert_no_overlap(rename)
-    for v, vp in rename.iteritems():
+    for v, vp in dict(rename).iteritems():
         _assert_adjacent(v, vp, bdd)
     # unpriming maps to qvars or outside support of conjunction
     s = bdd.support(trans, as_levels=True)
@@ -1291,7 +1309,7 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     qvars = bdd._map_to_level(qvars)
     rename = {
         bdd.ordering.get(k, k): bdd.ordering.get(v, v)
-        for k, v in rename.iteritems()}
+        for k, v in dict(rename).iteritems()}
     # init
     cache = dict()
     rename_u = None
@@ -1466,7 +1484,7 @@ def reorder_to_pairs(bdd, pairs):
     """
     m = 0
     levels = bdd._levels()
-    for x, y in pairs.iteritems():
+    for x, y in dict(pairs).iteritems():
         jx = bdd.ordering[x]
         jy = bdd.ordering[y]
         k = abs(jx - jy)

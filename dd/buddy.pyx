@@ -116,7 +116,7 @@ cdef class BDD(object):
             var, self.var_to_index)
         j = self.var_to_index[var]
         r = buddy.bdd_ithvar(j)
-        assert r != self.False.node, 'failed'
+        assert r != self.false.node, 'failed'
         buddy.bdd_intaddvarblock(j, j, 0)
         return Function(r)
 

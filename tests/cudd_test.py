@@ -8,8 +8,8 @@ logging.getLogger('astutils').setLevel('ERROR')
 
 def test_true_false():
     bdd = cudd.BDD()
-    true = bdd.True
-    false = bdd.False
+    true = bdd.true
+    false = bdd.false
     assert false != true
     assert false == ~true
     assert false == false & true
@@ -42,10 +42,10 @@ def test_var_cofactor():
     x = bdd.var('x')
     values = dict(x=False)
     u = bdd.cofactor(x, values)
-    assert u == bdd.False, u
+    assert u == bdd.false, u
     values = dict(x=True)
     u = bdd.cofactor(x, values)
-    assert u == bdd.True, u
+    assert u == bdd.true, u
     del x, u
 
 
@@ -77,12 +77,12 @@ def test_richcmp():
 def test_len():
     bdd = cudd.BDD()
     assert len(bdd) == 0, len(bdd)
-    u = bdd.True
+    u = bdd.true
     assert len(bdd) == 1, len(bdd)
     del u
     assert len(bdd) == 0, len(bdd)
-    u = bdd.True
-    v = bdd.False
+    u = bdd.true
+    v = bdd.false
     assert len(bdd) == 1, len(bdd)
     bdd.add_var('x')
     x = bdd.var('x')
@@ -102,14 +102,14 @@ def test_len():
 
 def test_contains():
     bdd = cudd.BDD()
-    true = bdd.True
+    true = bdd.true
     assert true in bdd
     bdd.add_var('x')
     x = bdd.var('x')
     assert x in bdd
     # undefined `__contains__`
     other_bdd = cudd.BDD()
-    other_true = other_bdd.True
+    other_true = other_bdd.true
     with assert_raises(AssertionError):
         other_true in bdd
     del x, true, other_true
@@ -150,35 +150,35 @@ def test_cofactor():
     # x & y
     u = bdd.apply('and', x, y)
     r = bdd.cofactor(u, dict(x=False, y=False))
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     r = bdd.cofactor(u, dict(x=True, y=False))
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     r = bdd.cofactor(u, dict(x=False, y=True))
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     r = bdd.cofactor(u, dict(x=True, y=True))
-    assert r == bdd.True, r
+    assert r == bdd.true, r
     # x & !y
     not_y = bdd.apply('not', y)
     u = bdd.apply('and', x, not_y)
     r = bdd.cofactor(u, dict(x=False, y=False))
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     r = bdd.cofactor(u, dict(x=True, y=False))
-    assert r == bdd.True, r
+    assert r == bdd.true, r
     r = bdd.cofactor(u, dict(x=False, y=True))
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     r = bdd.cofactor(u, dict(x=True, y=True))
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     # !x | y
     not_x = bdd.apply('not', x)
     u = bdd.apply('or', not_x, y)
     r = bdd.cofactor(u, dict(x=False, y=False))
-    assert r == bdd.True, r
+    assert r == bdd.true, r
     r = bdd.cofactor(u, dict(x=True, y=False))
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     r = bdd.cofactor(u, dict(x=False, y=True))
-    assert r == bdd.True, r
+    assert r == bdd.true, r
     r = bdd.cofactor(u, dict(x=True, y=True))
-    assert r == bdd.True, r
+    assert r == bdd.true, r
     del x, not_x, y, not_y, u, r
 
 
@@ -192,10 +192,10 @@ def test_apply():
     # x | !x = 1
     not_x = bdd.apply('not', x)
     true = bdd.apply('or', x, not_x)
-    assert true == bdd.True, true
+    assert true == bdd.true, true
     # x & !x = 0
     false = bdd.apply('and', x, not_x)
-    assert false == bdd.False, false
+    assert false == bdd.false, false
     # x & y = ! (!x | !y)
     u = bdd.apply('and', x, y)
     not_y = bdd.apply('not', y)
@@ -205,13 +205,13 @@ def test_apply():
     # xor
     u = bdd.apply('xor', x, y)
     r = bdd.cofactor(u, dict(x=False, y=False))
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     r = bdd.cofactor(u, dict(x=True, y=False))
-    assert r == bdd.True, r
+    assert r == bdd.true, r
     r = bdd.cofactor(u, dict(x=False, y=True))
-    assert r == bdd.True, r
+    assert r == bdd.true, r
     r = bdd.cofactor(u, dict(x=True, y=True))
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     # (z | !y) & x = (z & x) | (!y & x)
     u = bdd.apply('or', z, not_y)
     u = bdd.apply('and', u, x)
@@ -242,10 +242,10 @@ def test_quantify():
     x = bdd.var('x')
     # ? x. x = 1
     r = bdd.quantify(x, ['x'], forall=False)
-    assert r == bdd.True, r
+    assert r == bdd.true, r
     # ! x. x = 0
     r = bdd.quantify(x, ['x'], forall=True)
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     # ? y. x = x
     r = bdd.quantify(x, ['y'], forall=False)
     assert r == x, (r, x)
@@ -260,7 +260,7 @@ def test_quantify():
     assert r != x, (r, x)
     # ! x. x & y = 0
     r = bdd.quantify(u, ['x'], forall=True)
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     # ! x. !x | y = y
     not_x = bdd.apply('not', x)
     u = bdd.apply('or', not_x, y)
@@ -320,7 +320,7 @@ def test_add_expr():
     assert u == y, (str(u), str(y))
     # ! x. x | !x = 1
     u = bdd.add_expr('! x. !x | x')
-    assert u == bdd.True, u
+    assert u == bdd.true, u
     del x, y, z, u, u_
 
 
@@ -364,7 +364,7 @@ def test_and_exists():
     # ? x. x & !x = 0
     not_x = bdd.apply('not', x)
     r = cudd.and_exists(x, not_x, qvars, bdd)
-    assert r == bdd.False
+    assert r == bdd.false
     del x, not_x, y, r
 
 
@@ -377,7 +377,7 @@ def test_or_forall():
     not_y = bdd.add_expr('!y')
     qvars = ['x', 'y']
     r = cudd.or_forall(x, not_y, qvars, bdd)
-    assert r == bdd.False, r
+    assert r == bdd.false, r
     del x, not_y, r
 
 
@@ -468,7 +468,7 @@ def test_copy_bdd_same_indices():
     w = other.add_expr(s)
     assert w == u1, (w, u1)
     # different nodes
-    u3 = cudd.copy_bdd(other.True, other, bdd)
+    u3 = cudd.copy_bdd(other.true, other, bdd)
     assert u3 != u2, (u3, u2)
     # same bdd
     with assert_raises(AssertionError):
@@ -523,7 +523,7 @@ def test_copy_bdd_different_order():
     u1 = cudd.copy_bdd(u0, bdd, other)
     u2 = cudd.copy_bdd(u1, other, bdd)
     assert u0 == u2, (u0, u2)
-    u3 = cudd.copy_bdd(other.False, other, bdd)
+    u3 = cudd.copy_bdd(other.false, other, bdd)
     assert u3 != u2, (u3, u2)
     # verify
     w = other.add_expr(s)
@@ -538,16 +538,16 @@ def test_function():
     x = bdd.var('x')
     assert not x.negated
     low = x.low
-    assert low == bdd.False, low
+    assert low == bdd.false, low
     high = x.high
-    assert high == bdd.True, high
+    assert high == bdd.true, high
     # ! x
     not_x = ~x
     assert not_x.negated
     low = not_x.low
-    assert low == bdd.False, low
+    assert low == bdd.false, low
     high = not_x.high
-    assert high == bdd.True, high
+    assert high == bdd.true, high
     del x, not_x, low, high
 
 

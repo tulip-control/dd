@@ -61,6 +61,11 @@ if not 'iteritems' in dict.__dict__: # python3 compat
             return self.items()
     dict = _dict
 
+try: # python3 compat
+    xrange(1)
+except NameError:
+    xrange = range
+
 
 logger = logging.getLogger(__name__)
 

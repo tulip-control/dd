@@ -55,6 +55,12 @@ from dd import _parser
 # import networkx
 # import pydot
 
+if not 'iteritems' in dict.__dict__: # python3 compat
+    class _dict(dict):
+        def iteritems(self):
+            return self.items()
+    dict = _dict
+
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +99,7 @@ class BDD(object):
         self.ordering = dict()
         self.vars = self.ordering
         self._level_to_var = dict()
+        ordering = dict(ordering)
         if ordering is None:
             ordering = dict()
         _assert_valid_ordering(ordering)
@@ -1026,7 +1033,7 @@ class BDD(object):
         @type dvars: `dict`
         """
         r = 1
-        for var, val in dvars.iteritems():
+        for var, val in dict(dvars).iteritems():
             i = self.ordering.get(var, var)
             u = self.find_or_add(i, -1, 1)
             if not val:
@@ -1169,7 +1176,7 @@ def rename(u, bdd, dvars):
     k = next(iter(dvars))
     if k in ordering:
         dvars = {ordering[k]: ordering[v]
-                 for k, v in dvars.iteritems()}
+                 for k, v in dict(dvars).iteritems()}
     _assert_valid_rename(u, bdd, dvars)
     umap = dict()
     return _rename(u, bdd, dvars, umap)
@@ -1259,14 +1266,14 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     qvars = bdd._map_to_level(qvars)
     rename = {
         bdd.ordering.get(k, k): bdd.ordering.get(v, v)
-        for k, v in rename.iteritems()}
+        for k, v in dict(rename).iteritems()}
     # init
     cache = dict()
     rename_u = rename
     rename_v = None
     # no overlap and neighbors
     _assert_no_overlap(rename)
-    for v, vp in rename.iteritems():
+    for v, vp in dict(rename).iteritems():
         _assert_adjacent(v, vp, bdd)
     # unpriming maps to qvars or outside support of conjunction
     s = bdd.support(trans, as_levels=True)
@@ -1299,7 +1306,7 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     qvars = bdd._map_to_level(qvars)
     rename = {
         bdd.ordering.get(k, k): bdd.ordering.get(v, v)
-        for k, v in rename.iteritems()}
+        for k, v in dict(rename).iteritems()}
     # init
     cache = dict()
     rename_u = None
@@ -1474,7 +1481,7 @@ def reorder_to_pairs(bdd, pairs):
     """
     m = 0
     levels = bdd._levels()
-    for x, y in pairs.iteritems():
+    for x, y in dict(pairs).iteritems():
         jx = bdd.ordering[x]
         jy = bdd.ordering[y]
         k = abs(jx - jy)

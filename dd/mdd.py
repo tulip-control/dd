@@ -73,7 +73,7 @@ class MDD(object):
         self._level_to_var = None
         self._parser = None
         self._free = set()
-        self.max_nodes = sys.maxint
+        self.max_nodes = sys.maxsize
 
     def __len__(self):
         """Return number of BDD nodes."""

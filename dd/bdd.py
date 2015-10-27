@@ -38,7 +38,11 @@ Henrik R. Andersen
     The IT University of Copenhagen
 """
 from collections import Mapping
-from itertools import tee, izip
+from itertools import tee
+try:  # python3 compat
+    from itertools import izip
+except ImportError:
+    izip = zip
 import logging
 import pickle
 import sys

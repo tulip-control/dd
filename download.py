@@ -4,7 +4,11 @@ import os
 import subprocess
 import sys
 import tarfile
-import urllib2
+try:
+    import urllib2
+except ImportError:
+    import urllib.request, urllib.error, urllib.parse
+    urllib2 = urllib.request
 try:
     from Cython.Build import cythonize
     pyx = '.pyx'

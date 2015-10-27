@@ -62,7 +62,7 @@ class BDD(object):
       - `ordering`: `dict` mapping `variables` to `int` levels
       - `roots`: (optional) edges used by `to_nx`.
       - `max_nodes`: raise `Exception` if this limit is reached.
-        The default value is `sys.max_int`. Increase it if needed.
+        The default value is `sys.maxsize`. Increase it if needed.
 
     To ensure that the target node of a returned edge
     is not garbage collected during reordering,
@@ -91,7 +91,7 @@ class BDD(object):
         for var, level in items(ordering):
             self.add_var(var, level)
         self.roots = set()
-        self.max_nodes = sys.maxint
+        self.max_nodes = sys.maxsize
 
     def __copy__(self):
         bdd = BDD(self.ordering)

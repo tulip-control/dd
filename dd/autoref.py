@@ -145,12 +145,12 @@ class BDD(object):
 
     @property
     def False(self):
-        u = self._bdd.False
+        u = self._bdd.false
         return self._wrap(u)
 
     @property
     def True(self):
-        u = self._bdd.True
+        u = self._bdd.true
         return self._wrap(u)
 
 

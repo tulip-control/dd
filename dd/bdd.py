@@ -46,6 +46,10 @@ except ImportError:
 import logging
 import pickle
 import sys
+try:
+    sys.maxint
+except AttributeError:
+    sys.maxint = sys.maxsize
 from dd import _parser
 # inline:
 # import networkx

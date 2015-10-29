@@ -3,9 +3,12 @@ language: python
 python:
   - 2.7
 
+addons:
+  apt:
+    packages:
+    - graphviz
+
 install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y graphviz
   - pip install --upgrade pip setuptools
   - pip install -r requirements.txt
   - python setup.py install --fetch --cudd

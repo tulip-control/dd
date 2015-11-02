@@ -103,6 +103,8 @@ cdef extern from 'cudd.h':
     cdef void Cudd_SetMaxGrowth(DdManager *dd, double mg)
     cdef unsigned int Cudd_ReadMinHit(DdManager *dd)
     cdef void Cudd_SetMinHit(DdManager *dd, unsigned int hr)
+    cdef void Cudd_EnableGarbageCollection(DdManager *dd)
+    cdef void Cudd_DisableGarbageCollection(DdManager *dd)
     cdef unsigned int Cudd_ReadLooseUpTo(DdManager *dd)
     cdef void Cudd_SetLooseUpTo(DdManager *dd, unsigned int lut)
     # quantification
@@ -313,6 +315,13 @@ cdef class BDD(object):
             max_cache_hard=max_cache_hard,
             min_hit=min_hit,
             max_growth=max_growth)
+
+    cpdef garbage_collection(self, on):
+        """Enable or disable garbage collection."""
+        if on:
+            Cudd_EnableGarbageCollection(self.manager);
+        else:
+            Cudd_DisableGarbageCollection(self.manager);
 
     cdef incref(self, DdNode *u):
         Cudd_Ref(u)

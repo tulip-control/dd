@@ -93,11 +93,18 @@ cdef extern from 'cudd.h':
     cdef int Cudd_ReadPerm(DdManager *dd, int i)
     cdef int Cudd_ReadInvPerm(DdManager *dd, int i)
     # manager config
+    cdef unsigned long Cudd_ReadMaxMemory(DdManager *dd)
+    cdef void Cudd_SetMaxMemory(DdManager *dd, unsigned long maxMemory)
+    cdef unsigned int Cudd_ReadMaxCacheHard(DdManager *dd)
     cdef void Cudd_SetMaxCacheHard(DdManager *dd, unsigned int mc)
     cdef void Cudd_AutodynEnable(DdManager *unique,
                                  Cudd_ReorderingType method)
+    cdef double Cudd_ReadMaxGrowth(DdManager *dd)
     cdef void Cudd_SetMaxGrowth(DdManager *dd, double mg)
+    cdef unsigned int Cudd_ReadMinHit(DdManager *dd)
     cdef void Cudd_SetMinHit(DdManager *dd, unsigned int hr)
+    cdef unsigned int Cudd_ReadLooseUpTo(DdManager *dd)
+    cdef void Cudd_SetLooseUpTo(DdManager *dd, unsigned int lut)
     # quantification
     cdef DdNode *Cudd_bddExistAbstract(
         DdManager *manager, DdNode *f, DdNode *cube)
@@ -251,6 +258,61 @@ cdef class BDD(object):
             n_reorderings=n_reorderings,
             mem=mem)
         return d
+
+    def configure(BDD self, d=None):
+        """Apply and return parameter values.
+
+        Available keys:
+
+          - `'max_memory'`: in bytes
+          - `'loose_up_to'`: unique table fast growth upper bound
+          - `'max_cache_hard'`: cache entries upper bound
+          - `'min_hit'`: hit ratio for resizing cache
+          - `'max_growth'`: intermediate growth during sifting
+
+        For more details, see `cuddAPI.c`.
+        Example usage:
+
+        ```
+        d = dict(
+            max_memory=12 * 1024**3,
+            loose_up_to=5 * 10**6,
+            max_cache_hard=MAX_CACHE,
+            min_hit=20,
+            max_growth=1.5)
+        bdd.config(d)
+        ```
+        """
+        cdef DdManager *mgr
+        mgr = self.manager
+        if d is None:
+            d = dict()
+        # set
+        for k, v in d.items():
+            if k == 'max_memory':
+                Cudd_SetMaxMemory(mgr, v)
+            elif k == 'loose_up_to':
+                Cudd_SetLooseUpTo(mgr, v)
+            elif k == 'max_cache_hard':
+                Cudd_SetMaxCacheHard(mgr, v)
+            elif k == 'min_hit':
+                Cudd_SetMinHit(mgr, v)
+            elif k == 'max_growth':
+                Cudd_SetMaxGrowth(mgr, v)
+            else:
+                raise Exception('Unknown parameter "{k}"'.format(k=k))
+        # read
+        max_memory = Cudd_ReadMaxMemory(mgr)
+        loose_up_to = Cudd_ReadLooseUpTo(mgr)
+        max_cache_hard = Cudd_ReadMaxCacheHard(mgr)
+        min_hit = Cudd_ReadMinHit(mgr)
+        max_growth = Cudd_ReadMaxGrowth(mgr)
+        return dict(
+            max_memory=max_memory,
+            loose_up_to=loose_up_to,
+            max_cache_hard=max_cache_hard,
+            min_hit=min_hit,
+            max_growth=max_growth)
 
     cdef incref(self, DdNode *u):
         Cudd_Ref(u)

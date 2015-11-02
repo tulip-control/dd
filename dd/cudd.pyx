@@ -185,8 +185,6 @@ cdef class BDD(object):
         assert mgr != NULL, 'failed to init CUDD DdManager'
         Cudd_SetMaxCacheHard(mgr, MAX_CACHE)
         Cudd_AutodynEnable(mgr, CUDD_REORDER_GROUP_SIFT)
-        Cudd_SetMaxGrowth(mgr, 1.5)
-        Cudd_SetMinHit(mgr, 20)
         self.manager = mgr
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int

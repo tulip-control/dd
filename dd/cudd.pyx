@@ -120,7 +120,7 @@ cdef extern from 'cudd.h':
 cdef CUDD_UNIQUE_SLOTS = 256
 cdef CUDD_CACHE_SLOTS = 262144
 cdef CUDD_REORDER_GROUP_SIFT = 14
-cdef MAX_CACHE = <unsigned int> -1
+cdef MAX_CACHE = <unsigned int> - 1
 
 
 # TODO: replace DDDMP

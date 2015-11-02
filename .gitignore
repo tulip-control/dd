@@ -3,6 +3,8 @@ todo.txt
 dd/_version.py
 cython_debug/*
 cudd*/*
+.DS_Store
+._.DS_Store
 *.out
 *parsetab.py
 *.c

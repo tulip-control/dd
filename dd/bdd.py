@@ -1041,15 +1041,16 @@ class BDD(object):
         @type filename: `str`
         @type filetype: `"pdf"` or `"pickle"`
         """
+        pd_types = ('.pdf', '.svg', '.png')
         if filetype is None:
             name = filename.lower()
-            if name.endswith('.pdf'):
-                filetype = 'pdf'
+            if name.endswith(pd_types):
+                filetype = 'pydot'
             elif name.endswith('.p'):
                 filetype = 'pickle'
             else:
                 raise Exception('file type not supported')
-        if filetype == 'pdf':
+        if filetype == 'pydot':
             self._dump_pdf(filename, **kw)
         elif filetype == 'pickle':
             self._dump_pickle(filename, **kw)
@@ -1060,7 +1061,15 @@ class BDD(object):
     def _dump_pdf(self, filename, **kw):
         """Write `BDD` to `filename` as PDF."""
         g = to_pydot(self)
-        g.write_pdf(filename, **kw)
+        if filename.endswith('.pdf'):
+            g.write_pdf(filename, **kw)
+        elif filename.endswith('.png'):
+            g.write_png(filename, **kw)
+        elif filename.endswith('.svg'):
+            g.write_svg(filename, **kw)
+        else:
+            raise Exception(
+                'Unknown file type of "{f}"'.format(f=filename))
 
     def _dump_pickle(self, filename, **kw):
         """Write `BDD` to `filename` as pickle."""

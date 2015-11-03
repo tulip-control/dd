@@ -852,13 +852,13 @@ def test_function_wrapper():
     # decref and collect garbage
     bdd.collect_garbage()
     n = len(bdd)
-    assert n > 1, bdd._ref
+    assert n > 1, bdd._bdd._ref
     del p
     del q, q_
     del r, r_
     bdd.collect_garbage()
     m = len(bdd)
-    assert m > 1, bdd._ref
+    assert m > 1, bdd._bdd._ref
     assert m < n, (m, n)
     del u
     del v
@@ -867,11 +867,11 @@ def test_function_wrapper():
     del z
     bdd.collect_garbage()
     n = len(bdd)
-    assert n == 2, bdd._ref
+    assert n == 2, bdd._bdd._ref
     del p_
     bdd.collect_garbage()
     n = len(bdd)
-    assert n == 1, bdd._ref
+    assert n == 1, bdd._bdd._ref
     # properties
     bdd = autoref.BDD({'x': 0, 'y': 1, 'z': 2})
     u = autoref.Function.from_expr('x | !y', bdd)

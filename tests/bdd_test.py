@@ -822,7 +822,8 @@ def test_to_pydot():
 
 
 def test_function_wrapper():
-    bdd = autoref.BDD({'x': 0, 'y': 1, 'z': 2})
+    levels = dict(x=0, y=1, z=2)
+    bdd = autoref.BDD(levels)
     u = autoref.Function.from_expr('x & y', bdd)
     assert u.bdd is bdd._bdd, u.bdd
     assert abs(u.node) in bdd._bdd, (u.node, bdd._bdd._succ)
@@ -831,17 +832,17 @@ def test_function_wrapper():
     z = autoref.Function.from_expr('z', bdd)
     v = x.implies(z)
     w = u & ~v
-    w_node = bdd.add_expr('(x & y) & !((! x) | z)')
-    assert w_node == w.node, (w_node, w.node)
+    w_ = bdd.add_expr('(x & y) & !((! x) | z)')
+    assert w_ == w, (w_, w)
     r = (u | v) ^ w
-    r_node = bdd.add_expr(
+    r_ = bdd.add_expr(
         '( (x & y) | ((! x) | z) ) ^'
         '( (x & y) & !((! x) | z) )')
-    assert r_node == r.node, (r_node, r.node)
+    assert r_ == r, (r_, r)
     p = autoref.Function.from_expr('y', bdd)
     q = p.bimplies(x)
-    q_node = bdd.add_expr('x <-> y')
-    assert q_node == q.node, (q_node, q.node)
+    q_ = bdd.add_expr('x <-> y')
+    assert q_ == q, (q_, q)
     # to_expr
     s = q.to_expr()
     assert s == 'ite(x, y, (! y))', s
@@ -853,15 +854,15 @@ def test_function_wrapper():
     n = len(bdd)
     assert n > 1, bdd._ref
     del p
-    del q
-    del r
+    del q, q_
+    del r, r_
     bdd.collect_garbage()
     m = len(bdd)
     assert m > 1, bdd._ref
     assert m < n, (m, n)
     del u
     del v
-    del w
+    del w, w_
     del x
     del z
     bdd.collect_garbage()
@@ -877,7 +878,7 @@ def test_function_wrapper():
     assert u.level == 0, u.level
     assert u.var == 'x', u.var
     y = bdd.add_expr('!y')
-    assert u.low.node == y, (u.low.node, y)
+    assert u.low == y, (u.low.node, y.node)
     assert u.high.node == 1, u.high.node
     assert u.ref == 1, u.ref
 

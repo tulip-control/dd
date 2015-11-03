@@ -106,7 +106,8 @@ class BDD(object):
         return self._bdd.sat_iter(u.node, full, care_bits)
 
     def add_expr(self, e):
-        return self._bdd.add_expr(e)
+        r = self._bdd.add_expr(e)
+        return self._wrap(r)
 
     def to_expr(self, u):
         return self._bdd.to_expr(u.node)
@@ -225,7 +226,7 @@ class Function(object):
         @type bdd: `BDD`
         """
         u = bdd.add_expr(expr)
-        return cls(u, bdd._bdd)
+        return u
 
     def to_expr(self):
         """Return Boolean expression of function as `str`."""

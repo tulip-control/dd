@@ -30,6 +30,19 @@ extras_require = dict(
 tests_require = [
     'nose >= 1.3.4',
     'pydot >= 1.0.28']
+classifiers = [
+    'Development Status :: 2 - Pre-Alpha',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: BSD License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Cython',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Topic :: Scientific/Engineering',
+    'Topic :: Software Development']
 
 
 def run_setup(with_ext):
@@ -76,6 +89,7 @@ def run_setup(with_ext):
         packages=[name],
         package_dir={name: name},
         ext_modules=ext_modules,
+        classifiers=classifiers,
         keywords=[
             'bdd', 'binary decision diagram', 'decision diagram',
             'boolean', 'networkx', 'dot'])

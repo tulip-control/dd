@@ -5,7 +5,7 @@
 About
 =====
 
-A pure-Python package for manipulating:
+A pure-Python (2 and 3) package for manipulating:
 
 - [Binary decision diagrams](https://en.wikipedia.org/wiki/Binary_decision_diagram) (BDDs).
 - [Multi-valued decision diagrams](http://dx.doi.org/10.1109/ICCAD.1990.129849) (MDDs).

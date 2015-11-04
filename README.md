@@ -40,6 +40,12 @@ Contains:
 - Cython bindings to BuDDy
 
 
+Documentation
+=============
+
+In the [Markdown](https://en.wikipedia.org/wiki/Markdown) file [`doc.md`](https://github.com/johnyf/dd/blob/master/doc.md).
+
+
 Examples
 ========
 

@@ -959,10 +959,6 @@ class BDD(object):
         self._ref[1] = 0
         return _parser.add_expr(e, self)
 
-    def add_ast(self, t):
-        raise Exception(
-            '`dd.bdd.BDD.add_ast` moved to `dd._parser.add_ast`.')
-
     def to_expr(self, u):
         """Return a Boolean expression for node `u`."""
         assert u in self, u

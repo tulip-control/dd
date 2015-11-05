@@ -87,6 +87,8 @@ cdef extern from 'cudd.h':
     cdef int Cudd_ReadPeakLiveNodeCount(DdManager *dd)
     cdef unsigned long Cudd_ReadMemoryInUse(DdManager *dd)
     # reordering
+    cdef int Cudd_ReduceHeap(DdManager *table,
+                             Cudd_ReorderingType heuristic, int minsize)
     cdef int Cudd_ShuffleHeap(DdManager *table, int *permutation)
     cdef unsigned int Cudd_ReadReorderings(DdManager *dd)
     cdef long Cudd_ReadReorderingTime(DdManager *dd)
@@ -720,8 +722,15 @@ cpdef Function rename(Function u, bdd, dvars):
     return f
 
 
-cpdef reorder(BDD bdd, dict dvars):
-    """Reorder `bdd` to order in `dvars`."""
+cpdef reorder(BDD bdd, dvars=None):
+    """Reorder `bdd` to order in `dvars`.
+
+    If `dvars` is `None`, then invoke group sifting.
+    """
+    # invoke sifting ?
+    if dvars is None:
+        Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_GROUP_SIFT, 1)
+        return
     # partial reorderings not supported for now
     assert len(dvars) == len(bdd.vars)
     cdef int *p

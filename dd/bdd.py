@@ -1070,13 +1070,14 @@ class BDD(object):
 
     def _dump_pickle(self, filename, **kw):
         """Write `BDD` to `filename` as pickle."""
-        d = {
-            'ordering': self.ordering,
-            'max_nodes': self.max_nodes,
-            'roots': self.roots,
-            'pred': self._pred,
-            'succ': self._succ,
-            'ref': self._ref,
+        d = dict(
+            ordering=self.ordering,
+            max_nodes=self.max_nodes,
+            roots=self.roots,
+            pred=self._pred,
+            succ=self._succ,
+            ref=self._ref,
+            min_free=self._min_free)
         kw.setdefault('protocol', 2)
         with open(filename, 'wb') as f:
             pickle.dump(d, f, **kw)

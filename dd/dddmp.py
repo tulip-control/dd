@@ -58,8 +58,9 @@ class Lexer(object):
         'nroots': 'NROOTS',
         'rootids': 'ROOTIDS',
         'rootnames': 'ROOTNAMES',
-        'nodes': 'NODES',
-        'end': 'END'}
+        # 'nodes': 'NODES',
+        # 'end': 'END'
+        }
     reserved = {'.{k}'.format(k=k): v for k, v in items(reserved)}
     misc = ['MINUS', 'DOT', 'NAME', 'NUMBER']
     # token rules

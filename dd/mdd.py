@@ -360,9 +360,9 @@ def bdd_to_mdd(bdd, dvars):
         var = bdd.var_at_level(i)
         label = '{var}-{u}'.format(var=var, u=u)
         g.add_node(u, label=label)
-    pd = nx.to_pydot(g)
-    pd.write_pdf('bdd_colored.pdf')
-    bdd.dump('bdd.pdf')
+    # pd = nx.to_pydot(g)
+    # pd.write_pdf('bdd_colored.pdf')
+    # bdd.dump('bdd.pdf')
     umap = dict()
     umap[1] = 1
     for u, i, v, w in bdd.levels(skip_terminals=True):

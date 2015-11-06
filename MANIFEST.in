@@ -11,4 +11,3 @@ include dd/*.pyx
 include dd/*.pxd
 include dd/*.c
 exclude dd/_setup.py
-

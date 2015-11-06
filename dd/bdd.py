@@ -1149,7 +1149,7 @@ def _assert_valid_ordering(ordering):
     """
     # levels are contiguous integers ?
     n = len(ordering)
-    levels = set(ordering.values())
+    levels = set(_compat.values(ordering))
     levels_ = set(xrange(n))
     assert levels == levels_, (n, levels)
     # contiguous levels -> each level : single var

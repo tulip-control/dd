@@ -590,9 +590,13 @@ cdef class BDD(object):
         n = len(self._index_of_var)
         cdef FILE *f
         cdef char **names
+        cdef bytes py_bytes
         names = <char **> PyMem_Malloc(n * sizeof(char *))
+        str_mem = list()
         for index, var in self._var_with_index.iteritems():
-            names[index] = var
+            py_bytes = var.encode()
+            str_mem.append(py_bytes)  # prevent garbage collection
+            names[index] = py_bytes
         try:
             f = fopen(fname, 'w')
             i = Dddmp_cuddBddStore(
@@ -616,9 +620,13 @@ cdef class BDD(object):
         cdef DdNode *r
         cdef FILE *f
         cdef char **names
+        cdef bytes py_bytes
         names = <char **> PyMem_Malloc(n * sizeof(char *))
+        str_mem = list()
         for index, var in self._var_with_index.iteritems():
-            names[index] = var
+            py_bytes = var.encode()
+            str_mem.append(py_bytes)
+            names[index] = py_bytes
         try:
             f = fopen(fname, 'r')
             r = Dddmp_cuddBddLoad(

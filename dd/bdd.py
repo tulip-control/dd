@@ -1078,13 +1078,13 @@ class BDD(object):
             'succ': self._succ,
             'ref': self._ref,
             'min_free': self._min_free}
-        with open(filename, 'w') as f:
+        with open(filename, 'wb') as f:
             pickle.dump(d, f, **kw)
 
     @classmethod
     def load(cls, filename):
         """Load `BDD` from pickle file `filename`."""
-        with open(filename, 'r') as f:
+        with open(filename, 'rb') as f:
             d = pickle.load(f)
         bdd = cls(d['ordering'])
         bdd.max_nodes = d['max_nodes']

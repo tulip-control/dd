@@ -25,11 +25,15 @@ install_requires = [
     'astutils >= 0.0.1',
     'networkx >= 1.9.1',
     'ply >= 3.4']
+if sys.version_info.major < 3:
+    pydot_require = 'pydot >= 1.0.28'
+else:
+    pydot_require = 'pydot3k >= 1.0.17'
 extras_require = dict(
-    dot='pydot >= 1.0.28')
+    dot=pydot_require)
 tests_require = [
     'nose >= 1.3.4',
-    'pydot >= 1.0.28']
+    pydot_require]
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
     'Intended Audience :: Developers',

@@ -14,6 +14,7 @@ import logging
 import pprint
 import sys
 from dd import _parser
+from dd import _compat
 from libcpp cimport bool
 from libc.stdio cimport FILE, fdopen, fopen, fclose
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
@@ -425,7 +426,7 @@ cdef class BDD(object):
         if not supp:
             return set()
         # must be positive unate
-        assert set(supp.itervalues()) == {True}, supp
+        assert set(_compat.values(supp)) == {True}, supp
         return set(supp)
 
     cpdef Function cofactor(self, Function f, values):
@@ -696,7 +697,7 @@ cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
 
 cpdef Function rename(Function u, bdd, dvars):
     """Return node `u` after renaming variables in `dvars`."""
-    common = set(dvars).intersection(dvars.itervalues())
+    common = set(dvars).intersection(_compat.values(dvars))
     assert not common, common
     n = len(dvars)
     cdef DdNode **x = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))

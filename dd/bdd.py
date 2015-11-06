@@ -42,6 +42,7 @@ import logging
 import pickle
 import sys
 from dd import _parser
+from dd import _compat
 from dd._compat import items
 # inline:
 # import networkx
@@ -1211,12 +1212,12 @@ def _assert_valid_rename(u, bdd, dvars):
     # valid levels ?
     bdd.var_at_level(0)
     assert set(dvars).issubset(bdd._level_to_var), dvars
-    assert set(dvars.itervalues()).issubset(bdd._level_to_var), dvars
+    assert set(_compat.values(dvars)).issubset(bdd._level_to_var), dvars
     # pairwise disjoint ?
     _assert_no_overlap(dvars)
     # u independent of primed vars ?
     s = bdd.support(u, as_levels=True)
-    for i in dvars.itervalues():
+    for i in _compat.values(dvars):
         assert i not in s, (
             'renaming target var "{v}" at '
             'level {i} is essential, rename: {r}, support: {s}').format(
@@ -1240,7 +1241,7 @@ def _assert_adjacent(i, j, bdd):
 
 def _assert_no_overlap(d):
     """Raise `AssertionError` if keys and values overlap."""
-    assert not set(d).intersection(d.itervalues()), d
+    assert not set(d).intersection(_compat.values(d)), d
 
 
 def image(trans, source, rename, qvars, bdd, forall=False):
@@ -1274,7 +1275,7 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     s = bdd.support(trans, as_levels=True)
     s.update(bdd.support(source, as_levels=True))
     s.difference_update(qvars)
-    s.intersection_update(rename.itervalues())
+    s.intersection_update(_compat.values(rename))
     assert not s, s
     return _image(trans, source, rename_u, rename_v,
                   qvars, bdd, forall, cache)

@@ -598,7 +598,7 @@ cdef class BDD(object):
             str_mem.append(py_bytes)  # prevent garbage collection
             names[index] = py_bytes
         try:
-            f = fopen(fname, 'w')
+            f = fopen(fname.encode(), 'w')
             i = Dddmp_cuddBddStore(
                 self.manager,
                 NULL,
@@ -628,7 +628,7 @@ cdef class BDD(object):
             str_mem.append(py_bytes)
             names[index] = py_bytes
         try:
-            f = fopen(fname, 'r')
+            f = fopen(fname.encode(), 'r')
             r = Dddmp_cuddBddLoad(
                 self.manager,
                 DDDMP_VAR_MATCHNAMES,
@@ -639,9 +639,9 @@ cdef class BDD(object):
                 NULL,
                 f)
         except:
-            print(
+            raise Exception(
                 'A malformed DDDMP file can cause '
-                'segmentation faults to `dddmp`.')
+                'segmentation faults to `cudd/dddmp`.')
         finally:
             fclose(f)
             PyMem_Free(names)

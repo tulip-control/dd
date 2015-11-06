@@ -151,7 +151,7 @@ cdef extern from 'dddmp.h':
         int mode,
         char *fname,
         FILE *fp)
-cdef DDDMP_MODE_TEXT = <int>'A'
+cdef DDDMP_MODE_TEXT = 65  # <int>'A'
 cdef DDDMP_VARIDS = 0
 cdef DDDMP_VARNAMES = 3
 cdef DDDMP_VAR_MATCHNAMES = 3

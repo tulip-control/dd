@@ -69,7 +69,7 @@ class Lexer(object):
     t_ignore = ' \t'
 
     def __init__(self, debug=False):
-        self.tokens = self.misc + self.reserved.values()
+        self.tokens = self.misc + list(self.reserved.values())
         self.build(debug=debug)
 
     def t_KEYWORD(self, t):

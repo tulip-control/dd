@@ -1077,7 +1077,7 @@ class BDD(object):
             'pred': self._pred,
             'succ': self._succ,
             'ref': self._ref,
-            'min_free': self._min_free}
+        kw.setdefault('protocol', 2)
         with open(filename, 'wb') as f:
             pickle.dump(d, f, **kw)
 

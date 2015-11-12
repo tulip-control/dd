@@ -23,6 +23,8 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Free
 cdef extern from 'cuddInt.h':
     # manager
     cdef struct DdManager:
+        unsigned int keys
+        unsigned int dead
         double cachecollisions
         double cacheinserts
         double cachedeletions
@@ -295,7 +297,11 @@ cdef class BDD(object):
         cdef DdManager *mgr
         mgr = self.manager
         n_vars = Cudd_ReadSize(mgr)
-        n_nodes = Cudd_ReadNodeCount(mgr)
+        # nodes
+        if exact_node_count:
+            n_nodes = Cudd_ReadNodeCount(mgr)
+        else:
+            n_nodes = mgr.keys - mgr.dead
         peak_nodes = Cudd_ReadPeakNodeCount(mgr)
         peak_live_nodes = Cudd_ReadPeakLiveNodeCount(mgr)
         t = Cudd_ReadReorderingTime(mgr)

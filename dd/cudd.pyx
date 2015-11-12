@@ -317,13 +317,6 @@ cdef class BDD(object):
             min_hit=min_hit,
             max_growth=max_growth)
 
-    cpdef garbage_collection(self, on):
-        """Enable or disable garbage collection."""
-        if on:
-            Cudd_EnableGarbageCollection(self.manager);
-        else:
-            Cudd_DisableGarbageCollection(self.manager);
-
     cdef incref(self, DdNode *u):
         Cudd_Ref(u)
 

@@ -1,4 +1,4 @@
-cython==0.22.1
+cython==0.23.4
 pyparsing==2.0.3
 
 

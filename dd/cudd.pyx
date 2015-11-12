@@ -93,6 +93,9 @@ cdef extern from 'cudd.h':
     cdef long Cudd_ReadPeakNodeCount(DdManager *dd)
     cdef int Cudd_ReadPeakLiveNodeCount(DdManager *dd)
     cdef unsigned long Cudd_ReadMemoryInUse(DdManager *dd)
+    cdef unsigned int Cudd_ReadSlots(DdManager *dd)
+    cdef double Cudd_ReadUsedSlots(DdManager *dd)
+    cdef double Cudd_ExpectedUsedSlots(DdManager *dd)
     cdef unsigned int Cudd_ReadCacheSlots(DdManager *dd)
     cdef double Cudd_ReadCacheUsedSlots(DdManager *dd)
     cdef double Cudd_ReadCacheLookUps(DdManager *dd)
@@ -284,7 +287,11 @@ cdef class BDD(object):
 
           - `reordering_time`: sec spent reordering
           - `n_reorderings`: number of reorderings
+
           - `mem`: MB in use
+          - `unique_size`: total number of buckets in unique table
+          - `unique_used_fraction`: buckets that contain >= 1 node
+          - `expected_unique_used_fraction`: if properly working
 
           - `cache_size`: number of slots in cache
           - `cache_used_fraction`: slots with data
@@ -304,11 +311,17 @@ cdef class BDD(object):
             n_nodes = mgr.keys - mgr.dead
         peak_nodes = Cudd_ReadPeakNodeCount(mgr)
         peak_live_nodes = Cudd_ReadPeakLiveNodeCount(mgr)
+        # reordering
         t = Cudd_ReadReorderingTime(mgr)
         reordering_time = t / 1000.0
         n_reorderings = Cudd_ReadReorderings(mgr)
+        # memory
         m = Cudd_ReadMemoryInUse(mgr)
         mem = float(m) / 10**6
+        # unique table
+        unique_size = Cudd_ReadSlots(mgr)
+        unique_used_fraction = Cudd_ReadUsedSlots(mgr)
+        expected_unique_used_fraction = Cudd_ExpectedUsedSlots(mgr)
         # cache
         cache_size = Cudd_ReadCacheSlots(mgr)
         cache_used_fraction = Cudd_ReadCacheUsedSlots(mgr)
@@ -325,6 +338,9 @@ cdef class BDD(object):
             reordering_time=reordering_time,
             n_reorderings=n_reorderings,
             mem=mem,
+            unique_size=unique_size,
+            unique_used_fraction=unique_used_fraction,
+            expected_unique_used_fraction=expected_unique_used_fraction,
             cache_size=cache_size,
             cache_used_fraction=cache_used_fraction,
             cache_lookups=cache_lookups,

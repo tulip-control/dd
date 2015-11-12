@@ -190,14 +190,16 @@ cdef class BDD(object):
     cpdef public object _var_with_index
 
     def __cinit__(self,
-                  max_memory=None):
+                  max_memory=None,
+                  initial_cache_size=None):
         """Initialize BDD manager.
 
         @param memory: maximum allowed memory, in bytes.
         """
         if max_memory is None:
             max_memory = 2 * 1024**3
-        initial_cache_size = CUDD_CACHE_SLOTS
+        if initial_cache_size is None:
+            initial_cache_size = CUDD_CACHE_SLOTS
         initial_subtable_size = CUDD_UNIQUE_SLOTS
         initial_n_vars_bdd = 0
         initial_n_vars_zdd = 0

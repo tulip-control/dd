@@ -112,6 +112,7 @@ cdef extern from 'cudd.h':
     cdef unsigned long Cudd_ReadMaxMemory(DdManager *dd)
     cdef void Cudd_SetMaxMemory(DdManager *dd, unsigned long maxMemory)
     cdef unsigned int Cudd_ReadMaxCacheHard(DdManager *dd)
+    cdef unsigned int Cudd_ReadMaxCache(DdManager *dd)
     cdef void Cudd_SetMaxCacheHard(DdManager *dd, unsigned int mc)
     cdef double Cudd_ReadMaxGrowth(DdManager *dd)
     cdef void Cudd_SetMaxGrowth(DdManager *dd, double mg)
@@ -369,6 +370,8 @@ cdef class BDD(object):
                 Cudd_SetMinHit(mgr, v)
             elif k == 'max_growth':
                 Cudd_SetMaxGrowth(mgr, v)
+            elif k == 'max_cache_soft':
+                logger.warning('"max_cache_soft" not settable.')
             else:
                 raise Exception('Unknown parameter "{k}"'.format(k=k))
         reordering = Cudd_ReorderingStatus(
@@ -376,6 +379,7 @@ cdef class BDD(object):
         garbage_collection = Cudd_GarbageCollectionEnabled(mgr)
         max_memory = Cudd_ReadMaxMemory(mgr)
         loose_up_to = Cudd_ReadLooseUpTo(mgr)
+        max_cache_soft = Cudd_ReadMaxCache(mgr)
         max_cache_hard = Cudd_ReadMaxCacheHard(mgr)
         min_hit = Cudd_ReadMinHit(mgr)
         max_growth = Cudd_ReadMaxGrowth(mgr)
@@ -384,6 +388,7 @@ cdef class BDD(object):
             garbage_collection=True if garbage_collection == 1 else False,
             max_memory=max_memory,
             loose_up_to=loose_up_to,
+            max_cache_soft=max_cache_soft,
             max_cache_hard=max_cache_hard,
             min_hit=min_hit,
             max_growth=max_growth)

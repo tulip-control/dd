@@ -196,8 +196,16 @@ cdef class BDD(object):
         """
         if memory is None:
             memory = 2 * 1024**3
-        mgr = Cudd_Init(0, 0, CUDD_UNIQUE_SLOTS,
-                        CUDD_CACHE_SLOTS, memory)
+        initial_cache_size = CUDD_CACHE_SLOTS
+        initial_subtable_size = CUDD_UNIQUE_SLOTS
+        initial_n_vars_bdd = 0
+        initial_n_vars_zdd = 0
+        mgr = Cudd_Init(
+            initial_n_vars_bdd,
+            initial_n_vars_zdd,
+            initial_subtable_size,
+            initial_cache_size,
+            memory)
         assert mgr != NULL, 'failed to init CUDD DdManager'
         self.manager = mgr
         d = dict(reordering=True, max_cache_hard=MAX_CACHE)

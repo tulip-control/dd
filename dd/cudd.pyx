@@ -249,13 +249,15 @@ cdef class BDD(object):
 
     def statistics(self):
         """Return `dict` with CUDD node counts and times."""
-        n_vars = Cudd_ReadSize(self.manager)
-        n_nodes = Cudd_ReadNodeCount(self.manager)
-        peak_n_nodes = Cudd_ReadPeakLiveNodeCount(self.manager)
-        t = Cudd_ReadReorderingTime(self.manager)
+        cdef DdManager *mgr
+        mgr = self.manager
+        n_vars = Cudd_ReadSize(mgr)
+        n_nodes = Cudd_ReadNodeCount(mgr)
+        peak_n_nodes = Cudd_ReadPeakLiveNodeCount(mgr)
+        t = Cudd_ReadReorderingTime(mgr)
         reordering_time = t / 1000.0
-        n_reorderings = Cudd_ReadReorderings(self.manager)
-        m = Cudd_ReadMemoryInUse(self.manager)
+        n_reorderings = Cudd_ReadReorderings(mgr)
+        m = Cudd_ReadMemoryInUse(mgr)
         mem = float(m) / 10**6
         d = dict(
             n_vars=n_vars,

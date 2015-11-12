@@ -240,7 +240,7 @@ cdef class BDD(object):
             '\t {reorder_time:10.1f} sec spent reordering\n'
             '\t {n_reorderings} reorderings\n').format(
                 n=d['n_nodes'],
-                peak=d['peak_n_nodes'],
+                peak=d['peak_live_nodes'],
                 n_vars=d['n_vars'],
                 reorder_time=d['reordering_time'],
                 n_reorderings=d['n_reorderings'],
@@ -253,7 +253,8 @@ cdef class BDD(object):
         mgr = self.manager
         n_vars = Cudd_ReadSize(mgr)
         n_nodes = Cudd_ReadNodeCount(mgr)
-        peak_n_nodes = Cudd_ReadPeakLiveNodeCount(mgr)
+        peak_nodes = Cudd_ReadPeakNodeCount(mgr)
+        peak_live_nodes = Cudd_ReadPeakLiveNodeCount(mgr)
         t = Cudd_ReadReorderingTime(mgr)
         reordering_time = t / 1000.0
         n_reorderings = Cudd_ReadReorderings(mgr)
@@ -262,7 +263,8 @@ cdef class BDD(object):
         d = dict(
             n_vars=n_vars,
             n_nodes=n_nodes,
-            peak_n_nodes=peak_n_nodes,
+            peak_nodes=peak_nodes,
+            peak_live_nodes=peak_live_nodes,
             reordering_time=reordering_time,
             n_reorderings=n_reorderings,
             mem=mem)

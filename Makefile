@@ -16,7 +16,7 @@ cudd:
 clean_all: clean_cudd clean
 
 clean_cudd:
-	cd cudd-2.5.1; make clean
+	cd cudd-2.5.1; make distclean
 
 rm_cudd:
 	-rm -rf cudd*/ cudd*.tar.gz

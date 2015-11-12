@@ -192,7 +192,7 @@ cdef class BDD(object):
     def __cinit__(self, memory=None):
         """Initialize BDD manager.
 
-        @param memory: maximum allowed memory, in GB.
+        @param memory: maximum allowed memory, in bytes.
         """
         if memory is None:
             memory = 2 * 1024**3

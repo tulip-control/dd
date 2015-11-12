@@ -91,6 +91,11 @@ cdef extern from 'cudd.h':
     cdef int Cudd_ReduceHeap(DdManager *table,
                              Cudd_ReorderingType heuristic, int minsize)
     cdef int Cudd_ShuffleHeap(DdManager *table, int *permutation)
+    cdef void Cudd_AutodynEnable(DdManager *unique,
+                                 Cudd_ReorderingType method)
+    cdef void Cudd_AutodynDisable(DdManager *unique)
+    cdef int Cudd_ReorderingStatus(DdManager * unique,
+                                   Cudd_ReorderingType * method)
     cdef unsigned int Cudd_ReadReorderings(DdManager *dd)
     cdef long Cudd_ReadReorderingTime(DdManager *dd)
     cdef int Cudd_ReadPerm(DdManager *dd, int i)
@@ -100,14 +105,13 @@ cdef extern from 'cudd.h':
     cdef void Cudd_SetMaxMemory(DdManager *dd, unsigned long maxMemory)
     cdef unsigned int Cudd_ReadMaxCacheHard(DdManager *dd)
     cdef void Cudd_SetMaxCacheHard(DdManager *dd, unsigned int mc)
-    cdef void Cudd_AutodynEnable(DdManager *unique,
-                                 Cudd_ReorderingType method)
     cdef double Cudd_ReadMaxGrowth(DdManager *dd)
     cdef void Cudd_SetMaxGrowth(DdManager *dd, double mg)
     cdef unsigned int Cudd_ReadMinHit(DdManager *dd)
     cdef void Cudd_SetMinHit(DdManager *dd, unsigned int hr)
     cdef void Cudd_EnableGarbageCollection(DdManager *dd)
     cdef void Cudd_DisableGarbageCollection(DdManager *dd)
+    cdef int Cudd_GarbageCollectionEnabled(DdManager * dd)
     cdef unsigned int Cudd_ReadLooseUpTo(DdManager *dd)
     cdef void Cudd_SetLooseUpTo(DdManager *dd, unsigned int lut)
     # quantification
@@ -267,6 +271,8 @@ cdef class BDD(object):
 
         Available keys:
 
+          - `'reordering'`: if `True` then enable, else disable
+          - `'garbage_collection'`: if `True` then enable, else disable
           - `'max_memory'`: in bytes
           - `'loose_up_to'`: unique table fast growth upper bound
           - `'max_cache_hard'`: cache entries upper bound
@@ -286,13 +292,24 @@ cdef class BDD(object):
         bdd.config(d)
         ```
         """
+        cdef int method
         cdef DdManager *mgr
         mgr = self.manager
         if d is None:
             d = dict()
         # set
         for k, v in d.items():
-            if k == 'max_memory':
+            if k == 'reordering':
+                if v:
+                    Cudd_AutodynEnable(mgr, CUDD_REORDER_GROUP_SIFT)
+                else:
+                    Cudd_AutodynDisable(mgr)
+            elif k == 'garbage_collection':
+                if v:
+                    Cudd_EnableGarbageCollection(mgr)
+                else:
+                    Cudd_DisableGarbageCollection(mgr)
+            elif k == 'max_memory':
                 Cudd_SetMaxMemory(mgr, v)
             elif k == 'loose_up_to':
                 Cudd_SetLooseUpTo(mgr, v)
@@ -304,13 +321,17 @@ cdef class BDD(object):
                 Cudd_SetMaxGrowth(mgr, v)
             else:
                 raise Exception('Unknown parameter "{k}"'.format(k=k))
-        # read
+        reordering = Cudd_ReorderingStatus(
+            mgr, <Cudd_ReorderingType *>&method)
+        garbage_collection = Cudd_GarbageCollectionEnabled(mgr)
         max_memory = Cudd_ReadMaxMemory(mgr)
         loose_up_to = Cudd_ReadLooseUpTo(mgr)
         max_cache_hard = Cudd_ReadMaxCacheHard(mgr)
         min_hit = Cudd_ReadMinHit(mgr)
         max_growth = Cudd_ReadMaxGrowth(mgr)
         return dict(
+            # reordering=True if reordering == 1 else False,
+            garbage_collection=True if garbage_collection == 1 else False,
             max_memory=max_memory,
             loose_up_to=loose_up_to,
             max_cache_hard=max_cache_hard,

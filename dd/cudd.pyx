@@ -190,9 +190,9 @@ cdef class BDD(object):
         mgr = Cudd_Init(0, 0, CUDD_UNIQUE_SLOTS,
                         CUDD_CACHE_SLOTS, memory)
         assert mgr != NULL, 'failed to init CUDD DdManager'
-        Cudd_SetMaxCacheHard(mgr, MAX_CACHE)
-        Cudd_AutodynEnable(mgr, CUDD_REORDER_GROUP_SIFT)
         self.manager = mgr
+        d = dict(reordering=True, max_cache_hard=MAX_CACHE)
+        self.configure(d)
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int
         self._var_with_index = dict()

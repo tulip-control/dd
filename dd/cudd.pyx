@@ -20,6 +20,12 @@ from libc.stdio cimport FILE, fdopen, fopen, fclose
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 
+cdef extern from 'cuddInt.h':
+    # manager
+    cdef struct DdManager:
+        double cachecollisions
+        double cacheinserts
+        double cachedeletions
 cdef extern from 'cudd.h':
     # node
     ctypedef unsigned int DdHalfWord
@@ -27,9 +33,7 @@ cdef extern from 'cudd.h':
         DdHalfWord index
         DdHalfWord ref
     ctypedef DdNode DdNode
-    # manager
-    cdef struct DdManager:
-        pass
+
     ctypedef DdManager DdManager
     cdef DdManager *Cudd_Init(
         unsigned int numVars,
@@ -87,6 +91,10 @@ cdef extern from 'cudd.h':
     cdef long Cudd_ReadPeakNodeCount(DdManager *dd)
     cdef int Cudd_ReadPeakLiveNodeCount(DdManager *dd)
     cdef unsigned long Cudd_ReadMemoryInUse(DdManager *dd)
+    cdef unsigned int Cudd_ReadCacheSlots(DdManager *dd)
+    cdef double Cudd_ReadCacheUsedSlots(DdManager *dd)
+    cdef double Cudd_ReadCacheLookUps(DdManager *dd)
+    cdef double Cudd_ReadCacheHits(DdManager *dd)
     # reordering
     cdef int Cudd_ReduceHeap(DdManager *table,
                              Cudd_ReorderingType heuristic, int minsize)
@@ -247,8 +255,31 @@ cdef class BDD(object):
                 mem=d['mem'])
         return s
 
-    def statistics(self):
-        """Return `dict` with CUDD node counts and times."""
+    def statistics(BDD self, exact_node_count=False):
+        """Return `dict` with CUDD node counts and times.
+
+        If `exact_node_count` is `True`, then the
+        list of dead nodes is cleared.
+
+        Keys with meaning:
+
+          - `n_vars`: number of variables
+          - `n_nodes`: number of live nodes
+          - `peak_nodes`: max number of all nodes
+          - `peak_live_nodes`: max number of live nodes
+
+          - `reordering_time`: sec spent reordering
+          - `n_reorderings`: number of reorderings
+          - `mem`: MB in use
+
+          - `cache_size`: number of slots in cache
+          - `cache_used_fraction`: slots with data
+          - `cache_lookups`: total number of lookups
+          - `cache_hits`: total number of cache hits
+          - `cache_insertions`
+          - `cache_collisions`
+          - `cache_deletions`
+        """
         cdef DdManager *mgr
         mgr = self.manager
         n_vars = Cudd_ReadSize(mgr)
@@ -260,6 +291,14 @@ cdef class BDD(object):
         n_reorderings = Cudd_ReadReorderings(mgr)
         m = Cudd_ReadMemoryInUse(mgr)
         mem = float(m) / 10**6
+        # cache
+        cache_size = Cudd_ReadCacheSlots(mgr)
+        cache_used_fraction = Cudd_ReadCacheUsedSlots(mgr)
+        cache_lookups = Cudd_ReadCacheLookUps(mgr)
+        cache_hits = Cudd_ReadCacheHits(mgr)
+        cache_insertions = mgr.cacheinserts
+        cache_collisions = mgr.cachecollisions
+        cache_deletions = mgr.cachedeletions
         d = dict(
             n_vars=n_vars,
             n_nodes=n_nodes,
@@ -267,7 +306,14 @@ cdef class BDD(object):
             peak_live_nodes=peak_live_nodes,
             reordering_time=reordering_time,
             n_reorderings=n_reorderings,
-            mem=mem)
+            mem=mem,
+            cache_size=cache_size,
+            cache_used_fraction=cache_used_fraction,
+            cache_lookups=cache_lookups,
+            cache_hits=cache_hits,
+            cache_insertions=cache_insertions,
+            cache_collisions=cache_collisions,
+            cache_deletions=cache_deletions)
         return d
 
     def configure(BDD self, d=None):

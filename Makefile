@@ -1,4 +1,4 @@
-build: clean cudd develop
+build: clean cudd install test
 
 sdist_test:
 	python setup.py sdist --cudd --buddy; \

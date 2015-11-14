@@ -456,7 +456,7 @@ cdef class BDD(object):
         # var already exists ?
         j = self._index_of_var.get(var)
         if j is not None:
-            assert j == index, (j, index)
+            assert j == index or index is None, (j, index)
             return j
         # new var
         if index is None:

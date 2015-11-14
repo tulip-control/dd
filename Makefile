@@ -6,8 +6,14 @@ sdist_test:
 	pip install dd*.tar.gz; \
 	tar -zxf dd*.tar.gz;
 
+install:
+	python setup.py install --cudd
+
 develop:
 	python setup.py develop
+
+test:
+	rtests.py
 
 cudd:
 	cd cudd-2.5.1; \

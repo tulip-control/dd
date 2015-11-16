@@ -1,4 +1,5 @@
 """Retrieve and build dependencies of C extensions."""
+import ctypes
 import hashlib
 import os
 import subprocess
@@ -53,13 +54,16 @@ CUDD_CFLAGS = [
     '-mtune=native', '-pthread', '-fwrapv',
     '-fno-strict-aliasing',
     '-Wall', '-W', '-O2']
-is_64bits = (sys.maxsize > 2**32)
-if is_64bits:
-    CUDD_CFLAGS.extend(['-DSIZEOF_LONG=8', '-DSIZEOF_VOID_P=8'])
+sizeof_long = ctypes.sizeof(ctypes.c_long)
+sizeof_void_p = ctypes.sizeof(ctypes.c_void_p)
+CUDD_CFLAGS.extend([
+    '-DSIZEOF_LONG={long}'.format(long=sizeof_long),
+    '-DSIZEOF_VOID_P={void}'.format(void=sizeof_void_p)])
 # add -fPIC
 XCFLAGS = (
     'XCFLAGS=-fPIC -mtune=native -DHAVE_IEEE_754 -DBSD '
-    '-DSIZEOF_VOID_P=8 -DSIZEOF_LONG=8')
+    '-DSIZEOF_VOID_P={void} -DSIZEOF_LONG={long}'.format(
+        long=sizeof_long, void=sizeof_void_p))
 
 
 def extensions():

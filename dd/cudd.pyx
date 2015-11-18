@@ -11,8 +11,10 @@ Reference
     http://vlsi.colorado.edu/~fabio/
 """
 import logging
+import pickle
 import pprint
 import sys
+import time
 from dd import _parser
 from dd import _compat
 from libcpp cimport bool
@@ -911,6 +913,54 @@ cpdef count_nodes_per_level(BDD bdd):
         n = bdd.manager.subtables[level].keys
         d[var] = n
     return d
+
+
+def dump(u, file_name, BDD bdd):
+    """Pickle variable order and dump dddmp file."""
+    assert u in bdd, u
+    pickle_fname = '{s}.pickle'.format(s=file_name)
+    dddmp_fname = '{s}.dddmp'.format(s=file_name)
+    order = {var: bdd.level_of_var(var)
+             for var in bdd.vars}
+    d = dict(variable_order=order)
+    with open(pickle_fname, 'wb') as f:
+        pickle.dump(d, f, protocol=2)
+    bdd.dump(u, dddmp_fname)
+
+
+def load(file_name, BDD bdd, reordering=False):
+    """Unpickle variable order and load dddmp file.
+
+    Loads the variable order,
+    reorders `bdd` to match that order,
+    turns off reordering,
+    then loads the BDD,
+    restores reordering.
+    Assumes that:
+
+      - `file_name` has no extension
+      - pickle file name: `file_name.pickle`
+      - dddmp file name: `file_name.dddmp`
+
+    @param reordering: if `True`,
+        then enable reordering during DDDMP load.
+    """
+    t0 = time.time()
+    pickle_fname = '{s}.pickle'.format(s=file_name)
+    dddmp_fname = '{s}.dddmp'.format(s=file_name)
+    with open(pickle_fname, 'rb') as f:
+        d = pickle.load(f)
+    order = d['variable_order']
+    for var in order:
+        bdd.add_var(var)
+    reorder(bdd, order)
+    cfg = bdd.configure(reordering=False)
+    u = bdd.load(dddmp_fname)
+    bdd.configure(reordering=cfg['reordering'])
+    t1 = time.time()
+    dt = t1 - t0
+    logger.info('BDD load time from file: {dt}'.format(dt=dt))
+    return u
 
 
 cdef class Function(object):

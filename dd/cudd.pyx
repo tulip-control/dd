@@ -357,12 +357,14 @@ cdef class BDD(object):
         return d
 
     def configure(BDD self, **kw):
-        """Apply and return parameter values.
+        """Read and apply parameter values.
 
-        Available keys:
+        First read (returned), then apply `kw`.
+        Available keyword arguments:
 
           - `'reordering'`: if `True` then enable, else disable
-          - `'garbage_collection'`: if `True` then enable, else disable
+          - `'garbage_collection'`: if `True` then enable,
+              else disable
           - `'max_memory'`: in bytes
           - `'loose_up_to'`: unique table fast growth upper bound
           - `'max_cache_hard'`: cache entries upper bound
@@ -376,17 +378,43 @@ cdef class BDD(object):
         import dd.cudd
 
         bdd = dd.cudd.BDD()
-        bdd.configure(
+        # store old settings, and apply new settings
+        cfg = bdd.configure(
             max_memory=12 * 1024**3,
             loose_up_to=5 * 10**6,
             max_cache_hard=MAX_CACHE,
             min_hit=20,
             max_growth=1.5)
+        # something fancy
+        # ...
+        # restore old settings
+        bdd.configure(**cfg)
         ```
         """
         cdef int method
         cdef DdManager *mgr
         mgr = self.manager
+        # read
+        reordering = Cudd_ReorderingStatus(
+            mgr, <Cudd_ReorderingType *>&method)
+        garbage_collection = Cudd_GarbageCollectionEnabled(mgr)
+        max_memory = Cudd_ReadMaxMemory(mgr)
+        loose_up_to = Cudd_ReadLooseUpTo(mgr)
+        max_cache_soft = Cudd_ReadMaxCache(mgr)
+        max_cache_hard = Cudd_ReadMaxCacheHard(mgr)
+        min_hit = Cudd_ReadMinHit(mgr)
+        max_growth = Cudd_ReadMaxGrowth(mgr)
+        d = dict(
+            reordering=True if reordering == 1 else False,
+            garbage_collection=True
+                if garbage_collection == 1
+                else False,
+            max_memory=max_memory,
+            loose_up_to=loose_up_to,
+            max_cache_soft=max_cache_soft,
+            max_cache_hard=max_cache_hard,
+            min_hit=min_hit,
+            max_growth=max_growth)
         # set
         for k, v in kw.items():
             if k == 'reordering':
@@ -412,25 +440,9 @@ cdef class BDD(object):
             elif k == 'max_cache_soft':
                 logger.warning('"max_cache_soft" not settable.')
             else:
-                raise Exception('Unknown parameter "{k}"'.format(k=k))
-        reordering = Cudd_ReorderingStatus(
-            mgr, <Cudd_ReorderingType *>&method)
-        garbage_collection = Cudd_GarbageCollectionEnabled(mgr)
-        max_memory = Cudd_ReadMaxMemory(mgr)
-        loose_up_to = Cudd_ReadLooseUpTo(mgr)
-        max_cache_soft = Cudd_ReadMaxCache(mgr)
-        max_cache_hard = Cudd_ReadMaxCacheHard(mgr)
-        min_hit = Cudd_ReadMinHit(mgr)
-        max_growth = Cudd_ReadMaxGrowth(mgr)
-        return dict(
-            # reordering=True if reordering == 1 else False,
-            garbage_collection=True if garbage_collection == 1 else False,
-            max_memory=max_memory,
-            loose_up_to=loose_up_to,
-            max_cache_soft=max_cache_soft,
-            max_cache_hard=max_cache_hard,
-            min_hit=min_hit,
-            max_growth=max_growth)
+                raise Exception(
+                    'Unknown parameter "{k}"'.format(k=k))
+        return d
 
     cdef incref(self, DdNode *u):
         Cudd_Ref(u)

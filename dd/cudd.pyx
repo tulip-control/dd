@@ -891,6 +891,9 @@ def copy_vars(BDD source, BDD target):
 cpdef copy_bdd(Function u, BDD source, BDD target):
     """Transfer the node `u` to `bdd`.
 
+    Turns off reordering in `source`
+    when checking for missing vars in `target`.
+
     @type u: `Function` with `u in source`
     @type source, target: `BDD`
     """
@@ -898,7 +901,9 @@ cpdef copy_bdd(Function u, BDD source, BDD target):
     assert u.manager == source.manager
     assert u.manager != target.manager
     # target missing vars ?
+    cfg = source.configure(reordering=False)
     supp = source.support(u)
+    source.configure(reordering=cfg['reordering'])
     missing = {var for var in supp if var not in target.vars}
     assert not missing, (
         'target BDD is missing the variables:\n'

@@ -21,8 +21,13 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 
 cdef extern from 'cuddInt.h':
+    # subtable (for a level)
+    cdef struct DdSubtable:
+        unsigned int slots
+        unsigned int keys
     # manager
     cdef struct DdManager:
+        DdSubtable *subtables
         unsigned int keys
         unsigned int dead
         double cachecollisions
@@ -896,6 +901,16 @@ cpdef copy_bdd(Function u, BDD source, BDD target):
     f.init(target.manager, r)
     logger.debug('-- done transferring bdd')
     return f
+
+
+cpdef count_nodes_per_level(BDD bdd):
+    """Return `dict` that maps each var to a node count."""
+    d = dict()
+    for var in bdd.vars:
+        level = bdd.level_of_var(var)
+        n = bdd.manager.subtables[level].keys
+        d[var] = n
+    return d
 
 
 cdef class Function(object):

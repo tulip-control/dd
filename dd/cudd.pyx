@@ -216,8 +216,7 @@ cdef class BDD(object):
             max_memory)
         assert mgr != NULL, 'failed to init CUDD DdManager'
         self.manager = mgr
-        d = dict(reordering=True, max_cache_hard=MAX_CACHE)
-        self.configure(d)
+        self.configure(reordering=True, max_cache_hard=MAX_CACHE)
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int
         self._var_with_index = dict()
@@ -350,7 +349,7 @@ cdef class BDD(object):
             cache_deletions=cache_deletions)
         return d
 
-    def configure(BDD self, d=None):
+    def configure(BDD self, **kw):
         """Apply and return parameter values.
 
         Available keys:
@@ -367,22 +366,22 @@ cdef class BDD(object):
         Example usage:
 
         ```
-        d = dict(
+        import dd.cudd
+
+        bdd = dd.cudd.BDD()
+        bdd.configure(
             max_memory=12 * 1024**3,
             loose_up_to=5 * 10**6,
             max_cache_hard=MAX_CACHE,
             min_hit=20,
             max_growth=1.5)
-        bdd.config(d)
         ```
         """
         cdef int method
         cdef DdManager *mgr
         mgr = self.manager
-        if d is None:
-            d = dict()
         # set
-        for k, v in d.items():
+        for k, v in kw.items():
             if k == 'reordering':
                 if v:
                     Cudd_AutodynEnable(mgr, CUDD_REORDER_GROUP_SIFT)

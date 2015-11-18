@@ -109,7 +109,8 @@ cdef extern from 'cudd.h':
     cdef double Cudd_ReadCacheHits(DdManager *dd)
     # reordering
     cdef int Cudd_ReduceHeap(DdManager *table,
-                             Cudd_ReorderingType heuristic, int minsize)
+                             Cudd_ReorderingType heuristic,
+                             int minsize)
     cdef int Cudd_ShuffleHeap(DdManager *table, int *permutation)
     cdef void Cudd_AutodynEnable(DdManager *unique,
                                  Cudd_ReorderingType method)
@@ -122,7 +123,8 @@ cdef extern from 'cudd.h':
     cdef int Cudd_ReadInvPerm(DdManager *dd, int i)
     # manager config
     cdef unsigned long Cudd_ReadMaxMemory(DdManager *dd)
-    cdef void Cudd_SetMaxMemory(DdManager *dd, unsigned long maxMemory)
+    cdef void Cudd_SetMaxMemory(DdManager *dd,
+                                unsigned long maxMemory)
     cdef unsigned int Cudd_ReadMaxCacheHard(DdManager *dd)
     cdef unsigned int Cudd_ReadMaxCache(DdManager *dd)
     cdef void Cudd_SetMaxCacheHard(DdManager *dd, unsigned int mc)
@@ -327,7 +329,7 @@ cdef class BDD(object):
         # unique table
         unique_size = Cudd_ReadSlots(mgr)
         unique_used_fraction = Cudd_ReadUsedSlots(mgr)
-        expected_unique_used_fraction = Cudd_ExpectedUsedSlots(mgr)
+        expected_unique_fraction = Cudd_ExpectedUsedSlots(mgr)
         # cache
         cache_size = Cudd_ReadCacheSlots(mgr)
         cache_used_fraction = Cudd_ReadCacheUsedSlots(mgr)
@@ -346,7 +348,7 @@ cdef class BDD(object):
             mem=mem,
             unique_size=unique_size,
             unique_used_fraction=unique_used_fraction,
-            expected_unique_used_fraction=expected_unique_used_fraction,
+            expected_unique_used_fraction=expected_unique_fraction,
             cache_size=cache_size,
             cache_used_fraction=cache_used_fraction,
             cache_lookups=cache_lookups,

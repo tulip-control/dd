@@ -185,6 +185,7 @@ cdef DDDMP_VAR_MATCHNAMES = 3
 cdef DDDMP_SUCCESS = 1
 
 
+GB = 2**30
 logger = logging.getLogger(__name__)
 
 
@@ -204,14 +205,14 @@ cdef class BDD(object):
     cpdef public object _var_with_index
 
     def __cinit__(self,
-                  max_memory=None,
+                  memory_estimate=None,
                   initial_cache_size=None):
         """Initialize BDD manager.
 
         @param memory: maximum allowed memory, in bytes.
         """
-        if max_memory is None:
-            max_memory = 2 * 1024**3
+        if memory_estimate is None:
+            memory_estimate = 2 * GB
         if initial_cache_size is None:
             initial_cache_size = CUDD_CACHE_SLOTS
         initial_subtable_size = CUDD_UNIQUE_SLOTS
@@ -222,7 +223,7 @@ cdef class BDD(object):
             initial_n_vars_zdd,
             initial_subtable_size,
             initial_cache_size,
-            max_memory)
+            memory_estimate)
         assert mgr != NULL, 'failed to init CUDD DdManager'
         self.manager = mgr
         self.configure(reordering=True, max_cache_hard=MAX_CACHE)

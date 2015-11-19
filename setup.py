@@ -24,7 +24,8 @@ s = (
 install_requires = [
     'astutils >= 0.0.1',
     'networkx >= 1.9.1',
-    'ply >= 3.4']
+    'ply >= 3.4',
+    'psutil >= 3.2.2']
 if sys.version_info.major < 3:
     pydot_require = 'pydot >= 1.0.28'
 else:

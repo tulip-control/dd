@@ -13,6 +13,7 @@ Reference
 import logging
 import pickle
 import pprint
+import psutil
 import sys
 import time
 from dd import _parser
@@ -211,8 +212,18 @@ cdef class BDD(object):
 
         @param memory: maximum allowed memory, in bytes.
         """
+        total_memory = psutil.virtual_memory().total
+        default_memory = min(2 * GB, float(total_memory) / 5)
         if memory_estimate is None:
-            memory_estimate = 2 * GB
+            memory_estimate = default_memory
+        else:
+            if memory_estimate >= total_memory:
+                print((
+                    'total physical memory is {t} bytes, '
+                    'but requested {r} bytes').format(
+                        t=total_memory,
+                        r=memory_estimate))
+                raise AssertionError()
         if initial_cache_size is None:
             initial_cache_size = CUDD_CACHE_SLOTS
         initial_subtable_size = CUDD_UNIQUE_SLOTS

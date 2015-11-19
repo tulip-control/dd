@@ -226,6 +226,10 @@ cdef class BDD(object):
             memory_estimate)
         assert mgr != NULL, 'failed to init CUDD DdManager'
         self.manager = mgr
+
+    def __init__(self,
+                 memory_estimate=None,
+                 initial_cache_size=None):
         self.configure(reordering=True, max_cache_hard=MAX_CACHE)
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int

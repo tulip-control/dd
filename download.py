@@ -53,7 +53,7 @@ CUDD_CFLAGS = [
     '-DHAVE_IEEE_754',
     '-mtune=native', '-pthread', '-fwrapv',
     '-fno-strict-aliasing',
-    '-Wall', '-W', '-O2']
+    '-Wall', '-W', '-O3']
 sizeof_long = ctypes.sizeof(ctypes.c_long)
 sizeof_void_p = ctypes.sizeof(ctypes.c_void_p)
 CUDD_CFLAGS.extend([

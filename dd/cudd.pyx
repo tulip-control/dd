@@ -122,6 +122,10 @@ cdef extern from 'cudd.h':
     cdef long Cudd_ReadReorderingTime(DdManager *dd)
     cdef int Cudd_ReadPerm(DdManager *dd, int i)
     cdef int Cudd_ReadInvPerm(DdManager *dd, int i)
+    cdef void Cudd_SetSiftMaxSwap(DdManager *dd, int sms)
+    cdef int Cudd_ReadSiftMaxSwap(DdManager *dd)
+    cdef void Cudd_SetSiftMaxVar(DdManager *dd, int smv)
+    cdef int Cudd_ReadSiftMaxVar(DdManager *dd)
     # manager config
     cdef unsigned long Cudd_ReadMaxMemory(DdManager *dd)
     cdef void Cudd_SetMaxMemory(DdManager *dd,
@@ -388,6 +392,8 @@ cdef class BDD(object):
           - `'max_cache_hard'`: cache entries upper bound
           - `'min_hit'`: hit ratio for resizing cache
           - `'max_growth'`: intermediate growth during sifting
+          - `'max_swaps'`: no more level swaps in one sifting
+          - `'max_vars'`: no more variables moved in one sifting
 
         For more details, see `cuddAPI.c`.
         Example usage:
@@ -422,6 +428,8 @@ cdef class BDD(object):
         max_cache_hard = Cudd_ReadMaxCacheHard(mgr)
         min_hit = Cudd_ReadMinHit(mgr)
         max_growth = Cudd_ReadMaxGrowth(mgr)
+        max_swaps = Cudd_ReadSiftMaxSwap(mgr)
+        max_vars = Cudd_ReadSiftMaxVar(mgr)
         d = dict(
             reordering=True if reordering == 1 else False,
             garbage_collection=True
@@ -432,7 +440,9 @@ cdef class BDD(object):
             max_cache_soft=max_cache_soft,
             max_cache_hard=max_cache_hard,
             min_hit=min_hit,
-            max_growth=max_growth)
+            max_growth=max_growth,
+            max_swaps=max_swaps,
+            max_vars=max_vars)
         # set
         for k, v in kw.items():
             if k == 'reordering':
@@ -455,6 +465,10 @@ cdef class BDD(object):
                 Cudd_SetMinHit(mgr, v)
             elif k == 'max_growth':
                 Cudd_SetMaxGrowth(mgr, v)
+            elif k == 'max_swaps':
+                Cudd_SetSiftMaxSwap(mgr, v)
+            elif k == 'max_vars':
+                Cudd_SetSiftMaxVar(mgr, v)
             elif k == 'max_cache_soft':
                 logger.warning('"max_cache_soft" not settable.')
             else:

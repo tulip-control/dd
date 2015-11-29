@@ -4,6 +4,7 @@ from setuptools import setup
 import download
 # inline:
 # from dd import _parser, dddmp
+# import git
 
 
 name = 'dd'
@@ -16,11 +17,11 @@ VERSION_FILE = '{name}/_version.py'.format(name=name)
 MAJOR = 0
 MINOR = 2
 MICRO = 1
-version = '{major}.{minor}.{micro}'.format(
+VERSION = '{major}.{minor}.{micro}'.format(
     major=MAJOR, minor=MINOR, micro=MICRO)
-s = (
+VERSION_TEXT = (
     '# This file was generated from setup.py\n'
-    "version = '{version}'\n").format(version=version)
+    "version = '{version}'\n")
 install_requires = [
     'astutils >= 0.0.1',
     'networkx >= 1.9.1',
@@ -50,6 +51,33 @@ classifiers = [
     'Topic :: Software Development']
 
 
+def git_version(version):
+    try:
+        import git
+        repo = git.Repo('.git')
+    except ImportError:
+        print('gitpython not found: Assume release.')
+        return ''
+    try:
+        repo.git.status()
+    except git.GitCommandNotFound:
+        print('git not found: Assume release.')
+        return ''
+    sha = repo.head.commit.hexsha
+    if repo.is_dirty():
+        return '.dev0+{sha}.dirty'.format(sha=sha)
+    # commit is clean
+    # is it release of `version` ?
+    try:
+        tag = repo.git.describe(
+            match='v[0-9]*', exact_match=True,
+            tags=True, dirty=True)
+        assert tag[1:] == version, (tag, version)
+        return ''
+    except git.GitCommandError:
+        return '.dev0+{sha}'.format(sha=sha)
+
+
 def run_setup(with_ext):
     # install build deps ?
     if '--fetch' in sys.argv:
@@ -68,9 +96,12 @@ def run_setup(with_ext):
         e = list()
     extensions = download.extensions()
     ext_modules = list(extensions[k] for k in e)
-    # build parsers
+    # version
+    version = VERSION + git_version(VERSION)
+    s = VERSION_TEXT.format(version=version)
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
+    # build parsers
     try:
         from dd import _parser, dddmp
         logging.getLogger('astutils').setLevel('ERROR')

@@ -142,6 +142,11 @@ class Parser(object):
 
     def parse(self, filename, debuglog=None):
         """Parse DDDMP file containing BDD."""
+        ordering, roots = self._parse_header(filename, debuglog)
+        self._parse_body(filename)
+        return self.bdd, self.n_vars, ordering, roots
+
+    def _parse_header(self, filename, debuglog):
         self.reset()
         if debuglog is None:
             debuglog = logging.getLogger(PARSER_LOG)
@@ -184,6 +189,26 @@ class Parser(object):
         else:
             raise Exception('unknown `varinfo` case')
         self.info2permid['T'] = self.n_vars + 1
+        # ok ?
+        if r is None:
+            raise Exception('failed to parse')
+
+        # support_var_ord_ids = {
+        #     d['var_index'] for u, d in g.nodes_iter(data=True)}
+        # assert len(support_var_ord_ids) == self.n_support_vars
+        # prepare ordering
+        if self.ordered_vars is None:
+            permid2var = {
+                k: var for k, var in zip(self.permuted_var_ids,
+                                         self.support_vars)}
+            ordering = {
+                permid2var[k]: k for k in sorted(self.permuted_var_ids)}
+        else:
+            ordering = {var: k for k, var in enumerate(self.ordered_vars)}
+        roots = set(self.rootids)
+        return ordering, roots
+
+    def _parse_body(self, filename):
         # parse nodes (large but very uniform)
         with open(filename, 'r') as f:
             for line in f:
@@ -199,24 +224,7 @@ class Parser(object):
                     assert info == 'T', info
                     u, index, v, w = map(int, (u, index, v, w))
                 self._add_node(u, info, index, v, w)
-        roots = set(self.rootids)
-        # ok ?
-        if r is None:
-            raise Exception('failed to parse')
         assert len(self.bdd) == self.n_nodes
-        # support_var_ord_ids = {
-        #     d['var_index'] for u, d in g.nodes_iter(data=True)}
-        # assert len(support_var_ord_ids) == self.n_support_vars
-        # prepare ordering
-        if self.ordered_vars is None:
-            permid2var = {
-                k: var for k, var in zip(self.permuted_var_ids,
-                                         self.support_vars)}
-            ordering = {
-                permid2var[k]: k for k in sorted(self.permuted_var_ids)}
-        else:
-            ordering = {var: k for k, var in enumerate(self.ordered_vars)}
-        return self.bdd, self.n_vars, ordering, roots
 
     def _add_node(self, u, info, index, v, w):
         """Add new node to BDD.

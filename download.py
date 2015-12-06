@@ -13,6 +13,9 @@ except ImportError:
 try:
     from Cython.Build import cythonize
     pyx = '.pyx'
+    from Cython.Compiler.Options import directive_defaults
+    directive_defaults['linetrace'] = True
+    directive_defaults['binding'] = True
 except ImportError:
     pyx = '.c'
 from setuptools.extension import Extension
@@ -58,7 +61,8 @@ sizeof_long = ctypes.sizeof(ctypes.c_long)
 sizeof_void_p = ctypes.sizeof(ctypes.c_void_p)
 CUDD_CFLAGS.extend([
     '-DSIZEOF_LONG={long}'.format(long=sizeof_long),
-    '-DSIZEOF_VOID_P={void}'.format(void=sizeof_void_p)])
+    '-DSIZEOF_VOID_P={void}'.format(void=sizeof_void_p),
+    '-DCYTHON_TRACE'])
 # add -fPIC
 XCFLAGS = (
     'XCFLAGS=-fPIC -mtune=native -DHAVE_IEEE_754 -DBSD '

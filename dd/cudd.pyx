@@ -1,4 +1,3 @@
-# cython: profile=True
 """Cython interface to CUDD.
 
 

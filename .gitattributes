@@ -1,0 +1,9 @@
+*.py eol=lf
+*.pyx eol=lf
+*.pxd eol=lf
+*.c eol=lf
+
+*.txt eol=lf
+*.md eol=lf
+*.yml eol=lf
+

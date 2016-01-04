@@ -9,6 +9,10 @@ sdist_test:
 install:
 	python setup.py install --cudd
 
+reinstall:
+	-yes | pip uninstall dd
+	python setup.py install --cudd
+
 develop:
 	python setup.py develop
 

@@ -259,10 +259,13 @@ Some less frequently used `BDD` methods are `assert_consistent`, `evaluate`, `co
 
 In `autoref`, a few functions (not methods) are available for efficient operations that arise naturally in fixpoint algorithms when transition relations are involved:
 
-- `rename`: substitute some variables for some other variables
 - `image`, `preimage`: rename some variables, conjoin, existentially quantify, and rename some variables, all at once
 - `copy_vars`: copy the variables of one BDD manager to another manager
-- `copy_bdd`: copy a node from one BDD manager to another manager.
+
+and deprecated (use the methods `BDD.rename`, `BDD.copy`):
+
+- `rename`: substitute some variables for some other variables
+- `copy_bdd`: copy a node from one BDD manager to another manager (deprecated.
 
 For the curious, the attribute `dd.autoref.BDD._bdd` is the `dd.bdd.BDD` wrapped by `dd.autoref.BDD`.
 

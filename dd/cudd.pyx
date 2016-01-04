@@ -600,6 +600,10 @@ cdef class BDD(object):
         h.init(self.manager, r)
         return h
 
+    cpdef Function rename(self, u, dvars):
+        """Return node `u` after renaming variables in `dvars`."""
+        return rename(u, self, dvars)
+
     cpdef Function apply(self, op, Function u, Function v=None):
         """Return as `Function` the result of applying `op`."""
         # TODO: add ite, also to slugsin syntax

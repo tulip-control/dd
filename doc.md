@@ -230,6 +230,31 @@ v = bdd.add_expr('x & !y & z')
 assert u == v, (u, v)
 ```
 
+To substitute some variables for some other variables
+
+```python
+
+[bdd.add_var(var) for var in ['x', 'p', 'y', 'q', 'z']]
+u = bdd.add_expr('x | y & z')
+d = dict(x='p', y='q')
+v = bdd.rename(u, d)
+>>> bdd.support(v)
+{'p', 'q', 'z'}
+```
+
+In `autoref`, renaming is supported between adjacent variables.
+To copy a node from one BDD manager to another manager
+
+```python
+a = _bdd.BDD()
+[a.add_var(var) for var in ['x', 'y', 'z']]
+u = a('(x & y) | z')
+
+b = _bdd.BDD()
+_bdd.copy_vars(a, b)
+v = a.copy(u, b)
+```
+
 Some less frequently used `BDD` methods are `assert_consistent`, `evaluate`, `compose`, `cofactor`, and `collect_garbage`.
 
 In `autoref`, a few functions (not methods) are available for efficient operations that arise naturally in fixpoint algorithms when transition relations are involved:

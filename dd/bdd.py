@@ -425,6 +425,14 @@ class BDD(object):
         cache[(f, g)] = r
         return r
 
+    def rename(self, u, dvars):
+        """Efficient rename to non-essential neighbors.
+
+        @param dvars: `dict` from variabe levels to variable levels
+            or from variable names to variable names
+        """
+        return rename(u, self, dvars)
+
     def ite(self, g, u, v):
         """Return node for if-then-else of `g`, `u` and `v`.
 

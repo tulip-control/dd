@@ -84,6 +84,10 @@ class BDD(object):
         r = self._bdd(f.node, var, g.node)
         return self._wrap(r)
 
+    def rename(self, u, dvars):
+        r = self._bdd.rename(u.node, dvars)
+        return self._wrap(r)
+
     def ite(self, g, u, v):
         assert g in self, g
         assert u in self, u

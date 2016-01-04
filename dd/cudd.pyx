@@ -580,6 +580,14 @@ cdef class BDD(object):
         assert set(_compat.values(supp)) == {True}, supp
         return set(supp)
 
+    def copy(self, u, other):
+        """Transfer BDD with root `u` to `other`.
+
+        @type other: `BDD`
+        @rtype: node
+        """
+        return copy_bdd(u, self, other)
+
     cpdef Function cofactor(self, Function f, values):
         """Return the cofactor f|_g."""
         assert self.manager == f.manager

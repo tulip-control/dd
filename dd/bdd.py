@@ -222,6 +222,14 @@ class BDD(object):
     def _top_var(self, *nodes):
         return min(map(lambda x: self._succ[abs(x)][0], nodes))
 
+    def copy(self, u, other):
+        """Transfer BDD with root `u` to `other`.
+
+        @type other: `BDD`
+        @rtype: node
+        """
+        return copy_bdd(u, self, other)
+
     def descendants(self, u):
         """Return BDD nodes reachable from node `u`.
 

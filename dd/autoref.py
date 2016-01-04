@@ -66,6 +66,10 @@ class BDD(object):
     def level_of_var(self, var):
         return self._bdd.level_of_var(var)
 
+    def copy(self, u, other):
+        r = self._bdd.copy(u.node, other)
+        return self._wrap(r)
+
     def evaluate(self, u, values):
         assert u in self, u
         return self._bdd.evaluate(u.node, values)

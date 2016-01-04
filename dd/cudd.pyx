@@ -650,21 +650,7 @@ cdef class BDD(object):
         cdef DdNode *cube
         cdef int *x
         x = <int *> PyMem_Malloc(n * sizeof(int))
-        for var, j in self._index_of_var.iteritems():
-            if var not in dvars:
-                x[j] = 2
-                continue
-            # var in dvars
-            if isinstance(dvars, dict):
-                b = dvars[var]
-            else:
-                b = True
-            if b == False:
-                x[j] = 0
-            elif b == True:
-                x[j] = 1
-            else:
-                raise Exception('unknown value: {b}'.format(b=b))
+        _dict_to_cube_array(dvars, x, self._index_of_var)
         try:
             cube = Cudd_CubeArrayToBdd(self.manager, x)
         finally:
@@ -701,20 +687,7 @@ cdef class BDD(object):
         x = <int *> PyMem_Malloc(n * sizeof(DdNode *))
         try:
             Cudd_BddToCubeArray(self.manager, f.node, x)
-            d = dict()
-            for var, index in self._index_of_var.iteritems():
-                b = x[index]
-                if b == 2:
-                    continue
-                elif b == 1:
-                    d[var] = True
-                elif b == 0:
-                    d[var] = False
-                else:
-                    raise Exception(
-                        'unknown polarity: {b}, '
-                        'for variable "{var}"'.format(
-                            b=b, var=var))
+            d = _cube_array_to_dict(x, self._index_of_var)
         finally:
             PyMem_Free(x)
         return d
@@ -1023,6 +996,53 @@ def load(file_name, BDD bdd, reordering=False):
     return u
 
 
+cdef _dict_to_cube_array(d, int *x, dict index_of_var):
+    """Assign array of literals `x` from assignment `d`.
+
+    @param x: array of literals
+        0: negated, 1: positive, 2: don't care
+        see `Cudd_FirstCube`
+    """
+    for var, j in index_of_var.iteritems():
+        if var not in d:
+            x[j] = 2
+            continue
+        # var in `d`
+        if isinstance(d, dict):
+            b = d[var]
+        else:
+            b = True
+        if b is False:
+            x[j] = 0
+        elif b is True:
+            x[j] = 1
+        else:
+            raise ValueError(
+                'unknown value: {b}'.format(b=b))
+
+
+cdef dict _cube_array_to_dict(int *x, dict index_of_var):
+    """Return assignment from array of literals `x`.
+
+    @param x: see `_dict_to_cube_array`
+    """
+    d = dict()
+    for var, j in index_of_var.iteritems():
+        b = x[j]
+        if b == 2:
+            continue
+        elif b == 1:
+            d[var] = True
+        elif b == 0:
+            d[var] = False
+        else:
+            raise Exception(
+                'unknown polarity: {b}, '
+                'for variable "{var}"'.format(
+                    b=b, var=var))
+    return d
+
+
 cdef class Function(object):
     """Wrapper of `DdNode` from CUDD.
 
@@ -1189,3 +1209,30 @@ cpdef _test_decref():
     j = f.ref
     assert j == i - 1, (j, i)
     del f
+
+
+cpdef _test_dict_to_cube_array():
+    cdef int *x
+    n = 3
+    x = <int *> PyMem_Malloc(n * sizeof(int))
+    index_of_var = dict(x=0, y=1, z=2)
+    d = dict(y=True, z=False)
+    _dict_to_cube_array(d, x, index_of_var)
+    r = [j for j in x[:n]]
+    r_ = [2, 1, 0]
+    assert r == r_, (r, r_)
+    PyMem_Free(x)
+
+
+cpdef _test_cube_array_to_dict():
+    cdef int *x
+    n = 3
+    x = <int *> PyMem_Malloc(n * sizeof(int))
+    x[0] = 2
+    x[1] = 1
+    x[2] = 0
+    index_of_var = dict(x=0, y=1, z=2)
+    d = _cube_array_to_dict(x, index_of_var)
+    d_ = dict(y=True, z=False)
+    assert d == d_, (d, d_)
+    PyMem_Free(x)

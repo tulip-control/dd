@@ -291,6 +291,11 @@ def test_cube():
     del c, x, y, not_y, u
 
 
+def test_cube_array():
+    cudd._test_dict_to_cube_array()
+    cudd._test_cube_array_to_dict()
+
+
 def test_add_expr():
     bdd = cudd.BDD()
     for var in ['x', 'y']:

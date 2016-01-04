@@ -65,7 +65,7 @@ class BDD(object):
     Values returned by methods are edges, possibly complemented.
 
     Attributes:
-      - `ordering`: `dict` mapping `variables` to `int` levels
+      - `vars`: `dict` mapping `variables` to `int` levels
       - `roots`: (optional) edges used by `to_nx`.
       - `max_nodes`: raise `Exception` if this limit is reached.
         The default value is `sys.maxsize`. Increase it if needed.

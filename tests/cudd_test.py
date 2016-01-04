@@ -437,6 +437,12 @@ def test_rename():
     with assert_raises(AssertionError):
         cudd.rename(u, bdd, d)
     del x, y, not_y, z, w, not_w, u, f, f_
+    # as method
+    x = bdd.var('x')
+    y_ = bdd.var('y')
+    d = dict(x='y')
+    y = bdd.rename(x, d)
+    assert y == y_, (y, y_)
 
 
 def test_reorder():

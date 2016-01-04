@@ -1114,6 +1114,7 @@ def _enumerate_minterms(cube, bits):
     @rtype: generator of `dict(str: bool)`
     """
     assert cube is not None
+    assert bits is not None
     bits = set(bits).difference(cube)
     # fix order
     bits = list(bits)

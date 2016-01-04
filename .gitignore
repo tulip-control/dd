@@ -9,6 +9,7 @@ cudd*/*
 *parsetab.py
 *.c
 *.pyc
+*.whl
 *.pdf
 *.png
 *.svg

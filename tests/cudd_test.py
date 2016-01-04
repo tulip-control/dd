@@ -182,6 +182,57 @@ def test_cofactor():
     del x, not_x, y, not_y, u, r
 
 
+def test_sat_iter():
+    b = cudd.BDD()
+    b.add_var('x')
+    b.add_var('y')
+    # x & y
+    s = '!x & y'
+    u = b.add_expr(s)
+    g = b.sat_iter(u)
+    m = list(g)
+    m_ = [dict(x=False, y=True)]
+    assert m == m_, (m, m_)
+    u = b.add_expr(s)
+    g = b.sat_iter(u, full=True)
+    m = list(g)
+    assert m == m_, (m, m_)
+    # x
+    s = '! y'
+    u = b.add_expr(s)
+    # partial
+    g = b.sat_iter(u)
+    m = list(g)
+    m_ = [dict(y=False)]
+    equal_list_contents(m, m_)
+    # partial
+    g = b.sat_iter(u, full=True)
+    m = list(g)
+    m_ = [
+        dict(x=True, y=False),
+        dict(x=False, y=False)]
+    equal_list_contents(m, m_)
+    # care bits x, y
+    b.add_var('z')
+    s = 'x | y'
+    u = b.add_expr(s)
+    g = b.sat_iter(u, full=True, care_bits=['x', 'y'])
+    m = list(g)
+    m_ = [
+        dict(x=True, y=False),
+        dict(x=False, y=True),
+        dict(x=True, y=True)]
+    equal_list_contents(m, m_)
+    del u
+
+
+def equal_list_contents(x, y):
+    for u in x:
+        assert u in y, (u, x, y)
+    for u in y:
+        assert u in x, (u, x, y)
+
+
 def test_apply():
     bdd = cudd.BDD()
     for var in ['x', 'y', 'z']:
@@ -565,4 +616,4 @@ def test_function():
 
 
 if __name__ == '__main__':
-    test_load()
+    test_sat_iter()

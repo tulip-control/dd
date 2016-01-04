@@ -17,6 +17,7 @@ import sys
 import time
 from dd import _parser
 from dd import _compat
+from dd import bdd as _bdd
 from libcpp cimport bool
 from libc.stdio cimport FILE, fdopen, fopen, fclose
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
@@ -50,6 +51,7 @@ cdef extern from 'cudd.h':
         unsigned int numSlots,
         unsigned int cacheSize,
         unsigned long maxMemory)
+    cdef struct DdGen
     ctypedef enum Cudd_ReorderingType:
         pass
     # node elements
@@ -82,6 +84,12 @@ cdef extern from 'cudd.h':
                                  int *array)
     cdef int Cudd_PrintMinterm(DdManager *dd, DdNode *f)
     cdef DdNode *Cudd_Cofactor(DdManager *dd, DdNode *f, DdNode *g)
+    # cubes
+    cdef DdGen *Cudd_FirstCube(DdManager *dd, DdNode *f,
+                               int **cube, double *value)
+    cdef int Cudd_NextCube(DdGen *gen, int **cube, double *value)
+    cdef int Cudd_IsGenEmpty(DdGen *gen)
+    cdef int Cudd_GenFree(DdGen *gen)
     # refs
     cdef void Cudd_Ref(DdNode *n)
     cdef void Cudd_RecursiveDeref(DdManager *table,
@@ -603,6 +611,32 @@ cdef class BDD(object):
     cpdef Function rename(self, u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
         return rename(u, self, dvars)
+
+    def sat_iter(self, Function u,
+                 full=False, care_bits=None):
+        """Return generator over assignments."""
+        cdef DdGen *gen
+        cdef int *cube
+        cdef double value
+        if care_bits is None:
+            care_bits = set(self.vars)
+        self.configure(reordering=False)
+        gen = Cudd_FirstCube(self.manager, u.node, &cube, &value)
+        assert gen != NULL, 'first cube failed'
+        try:
+            r = 1
+            while Cudd_IsGenEmpty(gen) == 0:
+                assert r == 1, ('gen not empty but no next cube', r)
+                d = _cube_array_to_dict(cube, self._index_of_var)
+                if not full:
+                    yield d
+                else:
+                    for m in _bdd._enumerate_minterms(d, care_bits):
+                        yield m
+                r = Cudd_NextCube(gen, &cube, &value)
+        finally:
+            Cudd_GenFree(gen)
+        self.configure(reordering=True)
 
     cpdef Function apply(self, op, Function u, Function v=None):
         """Return as `Function` the result of applying `op`."""

@@ -12,7 +12,6 @@ Reference
 import logging
 import pickle
 import pprint
-import psutil
 import sys
 import time
 from dd import _parser
@@ -21,6 +20,7 @@ from dd import bdd as _bdd
 from libcpp cimport bool
 from libc.stdio cimport FILE, fdopen, fopen, fclose
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
+import psutil
 
 
 cdef extern from 'cuddInt.h':
@@ -224,17 +224,14 @@ cdef class BDD(object):
         @param memory: maximum allowed memory, in bytes.
         """
         total_memory = psutil.virtual_memory().total
-        default_memory = min(2 * GB, float(total_memory) / 5)
+        default_memory = 2 * GB
         if memory_estimate is None:
             memory_estimate = default_memory
-        else:
-            if memory_estimate >= total_memory:
-                print((
-                    'total physical memory is {t} bytes, '
-                    'but requested {r} bytes').format(
-                        t=total_memory,
-                        r=memory_estimate))
-                raise AssertionError()
+        assert memory_estimate < total_memory, (
+            'total physical memory is {t} bytes, '
+            'but requested {r} bytes').format(
+                t=total_memory,
+                r=memory_estimate)
         if initial_cache_size is None:
             initial_cache_size = CUDD_CACHE_SLOTS
         initial_subtable_size = CUDD_UNIQUE_SLOTS

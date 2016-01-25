@@ -21,7 +21,6 @@ import sys
 from dd import bdd as _bdd
 from dd.bdd import to_nx
 from dd._compat import items
-import networkx as nx
 # inline:
 # import pydot
 
@@ -360,8 +359,6 @@ def bdd_to_mdd(bdd, dvars):
         var = bdd.var_at_level(i)
         label = '{var}-{u}'.format(var=var, u=u)
         g.add_node(u, label=label)
-    # pd = nx.to_pydot(g)
-    # pd.write_pdf('bdd_colored.pdf')
     # bdd.dump('bdd.pdf')
     umap = dict()
     umap[1] = 1

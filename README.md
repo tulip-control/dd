@@ -170,9 +170,12 @@ pip install dd[dot]
 
 By default, the package will try to compile the Cython bindings to CUDD. If it fails, then it installs the Python modules only. You can select either or both extensions by the `setup.py` options `--cudd` and `--buddy`.
 
-Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD. For example:
+Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD.
+If building from the repository, then first install `cython`.
+For example:
 
 ```shell
+pip install cython  # not needed if building from PyPI distro
 python setup.py install --fetch
 ```
 

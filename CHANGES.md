@@ -1,6 +1,45 @@
 # dd changelog
 
 
+## 0.2.1
+
+- optionally import `gitpython` in `setup.py` to retrieve
+  version info from `git` repo.
+- version identifier when `git` available:
+  `X.Y.Z.dev0+SHA[.dirty]`
+- require `psutil >= 3.2.2`
+- require `setuptools >= 19.6` to avoid `cython` affecting `psutil` build
+- detect 64-bit system using `ctypes.sizeof` for CUDD flags
+
+API:
+
+- `dd.cudd.BDD.__cinit__`:
+  - rename arg `memory` -> `memory_estimate`
+  - assert memory estimate less than `psutil.virtual_memory().total`
+  - add arg `initial_cache_size`
+- `dd.cudd.BDD.statistics`:
+  - distinguish between peak and live nodes
+  - cache statistics
+  - unique table statistics
+  - read node count w/o removing dead nodes
+- `dd.cudd.BDD.configure`:
+  - accept keyword args, instead of `dict`
+  - first read config (returned `dict`), then set given values
+  - reordering
+  - garbage collection
+  - max cache soft
+  - max swaps
+  - max variables per reordering
+- `dd.bdd`, `dd.autoref`, `dd.cudd`:
+  - add method `BDD.copy` for copying nodes between managers
+  - add method `BDD.rename` for substituting variables
+  - deprecate functions `rename` and `copy_bdd`
+- add method `dd.cudd.BDD.sat_iter`
+- add function `dd.cudd.count_nodes_per_level`
+- add functions that track variable order when saving:
+  - `dd.cudd.dump`
+  - `dd.cudd.load`
+
 ## 0.2.0
 
 - add user documentation

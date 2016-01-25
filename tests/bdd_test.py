@@ -808,7 +808,7 @@ def test_to_pydot():
     g = x_and_y()
     g.roots.add(2)
     pd = _bdd.to_pydot(g)
-    r = nx.from_pydot(pd)
+    r = nx.drawing.nx_pydot.from_pydot(pd)
     for u in g:
         assert f(u) in r, u
     for u in g._succ:
@@ -984,12 +984,12 @@ def ref_x_or_y():
 
 def compare(u, bdd, h):
     g = _bdd.to_nx(bdd, [u])
-    # nx.to_pydot(g).write_pdf('g.pdf')
+    # nx.drawing.nx_pydot.to_pydot(g).write_pdf('g.pdf')
     post = nx.descendants(g, u)
     post.add(u)
     r = g.subgraph(post)
-    # nx.to_pydot(r).write_pdf('r.pdf')
-    # nx.to_pydot(h).write_pdf('h.pdf')
+    # nx.drawing.nx_pydot.to_pydot(r).write_pdf('r.pdf')
+    # nx.drawing.nx_pydot.to_pydot(h).write_pdf('h.pdf')
     gm = iso.GraphMatcher(r, h, node_match=_nm, edge_match=_em)
     assert gm.is_isomorphic()
     d = gm.mapping

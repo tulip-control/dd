@@ -44,7 +44,7 @@ def test_sample0():
     assert n_vars == 50, n_vars
     assert ordering == {'a': 1, 'b': 2, 'c': 3}, ordering
     assert roots == {-5}
-    # pd = nx.to_pydot(h)
+    # pd = nx.drawing.nx_pydot.to_pydot(h)
     # pd.write_pdf('bdd.pdf')
 
 

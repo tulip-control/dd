@@ -227,11 +227,15 @@ cdef class BDD(object):
         default_memory = 2 * GB
         if memory_estimate is None:
             memory_estimate = default_memory
+        if memory_estimate >= total_memory:
+            print(
+                'Exception in `dd.cudd`: '
+                'total physical memory is {t} bytes, '
+                'but requested {r} bytes').format(
+                    t=total_memory,
+                    r=memory_estimate)
         assert memory_estimate < total_memory, (
-            'total physical memory is {t} bytes, '
-            'but requested {r} bytes').format(
-                t=total_memory,
-                r=memory_estimate)
+            memory_estimate, total_memory)
         if initial_cache_size is None:
             initial_cache_size = CUDD_CACHE_SLOTS
         initial_subtable_size = CUDD_UNIQUE_SLOTS

@@ -79,7 +79,7 @@ def git_version(version):
         return '.dev0+{sha}'.format(sha=sha)
 
 
-def run_setup(with_ext):
+def run_setup():
     # install build deps ?
     if '--fetch' in sys.argv:
         sys.argv.remove('--fetch')
@@ -90,11 +90,6 @@ def run_setup(with_ext):
         if opt in sys.argv:
             e.append(opt[2:])
             sys.argv.remove(opt)
-    # default
-    if not e:
-        e.append('cudd')
-    if not with_ext:
-        e = list()
     extensions = download.extensions()
     ext_modules = list(extensions[k] for k in e)
     # version
@@ -133,12 +128,4 @@ def run_setup(with_ext):
 
 
 if __name__ == '__main__':
-    with_ext = False
-    for opt in ('--fetch', '--cudd', '--buddy'):
-        if opt in sys.argv:
-            with_ext = True
-    try:
-        run_setup(with_ext=True)
-    except:
-        print('WARNING: `dd` failed to compile C extensions.')
-        run_setup(with_ext=with_ext)
+    run_setup()

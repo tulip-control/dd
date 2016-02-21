@@ -198,6 +198,7 @@ cdef DDDMP_SUCCESS = 1
 
 
 GB = 2**30
+DEFAULT_MEMORY = 1 * GB
 logger = logging.getLogger(__name__)
 
 
@@ -224,7 +225,7 @@ cdef class BDD(object):
         @param memory: maximum allowed memory, in bytes.
         """
         total_memory = psutil.virtual_memory().total
-        default_memory = 2 * GB
+        default_memory = DEFAULT_MEMORY
         if memory_estimate is None:
             memory_estimate = default_memory
         if memory_estimate >= total_memory:

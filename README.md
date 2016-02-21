@@ -65,14 +65,14 @@ A `Function` object wraps a node and decrements its reference count when dispose
 from dd.autoref import BDD, Function
 
 bdd = BDD()
-for var in ['x', 'y']:
-    bdd.add_var(var)
+[bdd.add_var(var) for var in ['x', 'y']
+u = bdd.add_expr('x -> y')
+
+# alternative
 x = bdd.var('x')
 not_x = ~ x
 y = bdd.var('y')
-u = not_x | y
-
-v = Function.from_expr('x -> y', bdd)
+v = not_x | y
 assert u == v
 ```
 
@@ -85,8 +85,7 @@ The interface to CUDD in `dd.cudd` looks similar to `dd.autoref`, including auto
 from dd import cudd
 
 bdd = cudd.BDD()
-for var in ['x', 'y']:
-    bdd.add_var(var)
+[bdd.add_var(var) for var in ['x', y'']]
 xy = bdd.add_expr('x & y')
 u = bdd.quantify(xy, {'x', 'y'}, forall=False)
 assert u == bdd.true, u

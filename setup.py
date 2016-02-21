@@ -53,34 +53,24 @@ classifiers = [
 
 
 def git_version(version):
-    try:
-        import git
-    except ImportError:
-        print('gitpython not found: Assume release.')
-        return ''
-    try:
-        repo = git.Repo('.git')
-    except git.NoSuchPathError:
-        print('`.git` path not found: Assume release')
-        return ''
-    try:
-        repo.git.status()
-    except git.GitCommandNotFound:
-        print('git not found: Assume release.')
-        return ''
+    import git
+    repo = git.Repo('.git')
+    repo.git.status()
     sha = repo.head.commit.hexsha
     if repo.is_dirty():
-        return '.dev0+{sha}.dirty'.format(sha=sha)
+        return '{v}.dev0+{sha}.dirty'.format(
+            v=version, sha=sha)
     # commit is clean
     # is it release of `version` ?
     try:
         tag = repo.git.describe(
             match='v[0-9]*', exact_match=True,
             tags=True, dirty=True)
-        assert tag[1:] == version, (tag, version)
-        return ''
     except git.GitCommandError:
-        return '.dev0+{sha}'.format(sha=sha)
+        return '{v}.dev0+{sha}'.format(
+            v=version, sha=sha)
+    assert tag[1:] == version, (tag, version)
+    return version
 
 
 def run_setup():
@@ -97,7 +87,11 @@ def run_setup():
     extensions = download.extensions()
     ext_modules = list(extensions[k] for k in e)
     # version
-    version = VERSION + git_version(VERSION)
+    try:
+        version = git_version(VERSION)
+    except:
+        print('No git info: Assume release.')
+        version = VERSION
     s = VERSION_TEXT.format(version=version)
     with open(VERSION_FILE, 'w') as f:
         f.write(s)

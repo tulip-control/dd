@@ -11,8 +11,8 @@ def test_find_or_add():
                  y=dict(level=1, len=2))
     m = dd.mdd.MDD(dvars)
     u = m.find_or_add(0, 1, -1, 1, 1)
-    pd = dd.mdd.to_pydot(m)
-    pd.write_pdf('hehe.pdf')
+    # pd = dd.mdd.to_pydot(m)
+    # pd.write_pdf('hehe.pdf')
     print(m.to_expr(u))
 
 
@@ -28,9 +28,9 @@ def test_bdd_to_mdd():
         x=dict(level=1, len=2, bitnames=['x']),
         y=dict(level=0, len=2, bitnames=['y']))
     mdd, umap = dd.mdd.bdd_to_mdd(bdd, dvars)
-    pd = dd.mdd.to_pydot(mdd)
-    pd.write_pdf('mdd.pdf')
-    bdd.dump('bdd.pdf')
+    # pd = dd.mdd.to_pydot(mdd)
+    # pd.write_pdf('mdd.pdf')
+    # bdd.dump('bdd.pdf')
     v = umap[abs(u)]
     if u < 0:
         v = -v

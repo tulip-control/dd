@@ -623,7 +623,7 @@ def test_dump_load():
     assert h.assert_consistent()
     u_ = h.add_expr(e)
     assert u == u_, (u, u_)
-    h.dump(prefix + '.pdf')
+    # h.dump(prefix + '.pdf')
 
 
 def test_quantify():

@@ -55,9 +55,13 @@ classifiers = [
 def git_version(version):
     try:
         import git
-        repo = git.Repo('.git')
     except ImportError:
         print('gitpython not found: Assume release.')
+        return ''
+    try:
+        repo = git.Repo('.git')
+    except git.NoSuchPathError:
+        print('`.git` path not found: Assume release')
         return ''
     try:
         repo.git.status()

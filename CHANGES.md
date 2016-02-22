@@ -1,6 +1,12 @@
 # dd changelog
 
 
+## 0.2.2
+
+- install without extensions by default
+- try to read git information, but assume release if this fails for any reason
+
+
 ## 0.2.1
 
 - optionally import `gitpython` in `setup.py` to retrieve
@@ -39,6 +45,7 @@ API:
 - add functions that track variable order when saving:
   - `dd.cudd.dump`
   - `dd.cudd.load`
+
 
 ## 0.2.0
 

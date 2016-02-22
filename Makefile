@@ -6,6 +6,8 @@ sdist_test:
 	cd dist; \
 	pip install dd*.tar.gz; \
 	tar -zxf dd*.tar.gz;
+	pip install nose rednose
+	rtests.py --rednose
 
 install:
 	python setup.py install --cudd

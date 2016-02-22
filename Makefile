@@ -9,6 +9,18 @@ sdist_test:
 	pip install nose rednose
 	rtests.py --rednose
 
+sdist_test_cudd:
+	make clean
+	pip install cython ply
+	python setup.py sdist --cudd --buddy
+	yes | pip uninstall cython ply
+	cd dist; \
+	tar -zxf dd*.tar.gz; \
+	cd dd*; \
+	python setup.py install --fetch --cudd
+	pip install nose rednose
+	rtests.py --rednose
+
 install:
 	python setup.py install --cudd
 

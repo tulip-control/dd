@@ -1,7 +1,8 @@
 build: clean cudd install test
 
 sdist_test:
-	python setup.py sdist --cudd --buddy; \
+	make clean
+	python setup.py sdist --cudd --buddy
 	cd dist; \
 	pip install dd*.tar.gz; \
 	tar -zxf dd*.tar.gz;

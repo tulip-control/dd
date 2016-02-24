@@ -452,6 +452,7 @@ With time, most of these will appear.
 An interface to the BuDDy C libary also exists, as `dd.buddy`.
 However, experimentation suggests that BuDDy does not contain as successful heuristics for deciding *when* to invoke reordering.
 
+CUDD is initialized with a `memory_estimate` of 1 GB. If the machine has RAM, then `cudd.BDD` will raise an error. In this case, pass a smaller initial memory estimate, for example `cudd.BDD(memory_estimate=0.5 * 2**30)`.
 
 
 ### Functions

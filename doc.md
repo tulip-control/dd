@@ -451,9 +451,7 @@ With time, most of these will appear.
 
 An interface to the BuDDy C libary also exists, as `dd.buddy`.
 However, experimentation suggests that BuDDy does not contain as successful heuristics for deciding *when* to invoke reordering.
-Thus, it does not appear to compete with CUDD, and is not compiled by default during installation.
 
-Saying “by default” means that `dd` always tries to build `dd.cudd`, but will fail silently if CUDD is absent, and the command line argument `--cudd` is not given to `setup.py`.
 
 
 ### Functions

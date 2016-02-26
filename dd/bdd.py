@@ -82,6 +82,9 @@ class BDD(object):
     """
 
     def __init__(self, ordering=None):
+        if ordering is None:
+            ordering = dict()
+        _assert_valid_ordering(ordering)
         self._pred = dict()  # (i, low, high) -> u
         self._succ = dict()  # u -> (i, low, high)
         self._ref = dict()  # reference counters
@@ -91,9 +94,6 @@ class BDD(object):
         self.ordering = dict()
         self.vars = self.ordering
         self._level_to_var = dict()
-        if ordering is None:
-            ordering = dict()
-        _assert_valid_ordering(ordering)
         for var, level in items(ordering):
             self.add_var(var, level)
         self.roots = set()

@@ -679,12 +679,13 @@ def test_rename():
     # assertion violations
     # non-neighbors
     dvars = {'x': 'yp'}
-    with nt.assert_raises(AssertionError):
-        _bdd.rename(u, g, dvars)
+    r = _bdd.rename(u, g, dvars)
+    r_ = g.add_expr('yp && y && ! z')
+    assert r == r_, (r, r_)
     # u not in bdd
     dvars = {'x': 'xp'}
     with nt.assert_raises(AssertionError):
-        _bdd.rename(15, g, dvars)
+        _bdd.rename(1000, g, dvars)
     # y essential for u
     dvars = {'xp': 'y'}
     with nt.assert_raises(AssertionError):
@@ -703,10 +704,10 @@ def test_image_rename_map_checks():
     # non-adjacent
     rename = {0: 2, 3: 4}
     qvars = set()
-    with nt.assert_raises(AssertionError):
-        _bdd.image(1, 1, rename, qvars, bdd)
-    with nt.assert_raises(AssertionError):
-        _bdd.preimage(1, 1, rename, qvars, bdd)
+    r = _bdd.image(1, 1, rename, qvars, bdd)
+    assert r == 1, r
+    r = _bdd.preimage(1, 1, rename, qvars, bdd)
+    assert r == 1, r
     # overlapping keys and values
     rename = {0: 1, 1: 2}
     with nt.assert_raises(AssertionError):

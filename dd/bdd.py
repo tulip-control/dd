@@ -1176,7 +1176,7 @@ def _assert_valid_ordering(ordering):
 
 
 def rename(u, bdd, dvars):
-    """Efficient rename to non-essential neighbors.
+    """Rename variables of node `u`.
 
     @param dvars: `dict` from variabe levels to variable levels
         or from variable names to variable names
@@ -1192,12 +1192,14 @@ def rename(u, bdd, dvars):
         dvars = {ordering[k]: ordering[v]
                  for k, v in items(dvars)}
     _assert_valid_rename(u, bdd, dvars)
+    if not _all_adjacent(dvars, bdd):
+        logger.warning('BDD.rename: not all vars adjacent')
     umap = dict()
     return _rename(u, bdd, dvars, umap)
 
 
 def _rename(u, bdd, dvars, umap):
-    """Recursive renaming, assuming `dvars` is valid."""
+    """Recursive renaming."""
     # terminal ?
     if abs(u) == 1:
         return u
@@ -1212,8 +1214,9 @@ def _rename(u, bdd, dvars, umap):
     p = _rename(v, bdd, dvars, umap)
     q = _rename(w, bdd, dvars, umap)
     # to be renamed ?
-    z = dvars.get(i, i)
-    r = bdd.find_or_add(z, p, q)
+    j = dvars.get(i, i)
+    g = bdd.find_or_add(j, -1, 1)
+    r = bdd.ite(g, q, p)
     # memoize
     assert r > 0, r
     umap[abs(u)] = r
@@ -1295,8 +1298,8 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     rename_v = None
     # no overlap and neighbors
     _assert_no_overlap(rename)
-    for v, vp in items(rename):
-        _assert_adjacent(v, vp, bdd)
+    if not _all_adjacent(rename, bdd):
+        logger.warning('BDD.image: not all vars adjacent')
     # unpriming maps to qvars or outside support of conjunction
     s = bdd.support(trans, as_levels=True)
     s.update(bdd.support(source, as_levels=True))
@@ -1385,7 +1388,8 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
             m = z
         else:
             m = umap.get(z, z)
-        r = bdd.find_or_add(m, p, q)
+        g = bdd.find_or_add(m, -1, 1)
+        r = bdd.ite(g, q, p)
     cache[t] = r
     return r
 

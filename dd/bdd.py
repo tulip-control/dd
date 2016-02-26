@@ -1241,20 +1241,28 @@ def _assert_valid_rename(u, bdd, dvars):
             'level {i} is essential, rename: {r}, support: {s}').format(
                 v=bdd.var_at_level(i), i=i,
                 r=dvars, s=s)
-    # neighbors ?
+
+
+def _all_adjacent(dvars, bdd):
+    """Return `True` if all levels in `dvars` are adjacent."""
     for v, vp in items(dvars):
-        _assert_adjacent(v, vp, bdd)
+        if not _adjacent(v, vp, bdd):
+            return False
+    return True
 
 
-def _assert_adjacent(i, j, bdd):
+def _adjacent(i, j, bdd):
     """Raise `AssertionError` if level `i` not adjacent to `j`."""
-    assert abs(i - j) == 1, (
+    if abs(i - j) == 1:
+        return True
+    logger.warning((
         'level {i} ("{x}") not adjacent to '
         'level {j} ("{y}")').format(
             i=i,
             j=j,
             x=bdd.var_at_level(i),
-            y=bdd.var_at_level(j))
+            y=bdd.var_at_level(j)))
+    return False
 
 
 def _assert_no_overlap(d):

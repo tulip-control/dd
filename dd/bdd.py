@@ -94,6 +94,7 @@ class BDD(object):
         self.ordering = dict()
         self.vars = self.ordering
         self._level_to_var = dict()
+        self._init_terminal(len(self.ordering))  # handle no vars
         for var, level in items(ordering):
             self.add_var(var, level)
         self.roots = set()

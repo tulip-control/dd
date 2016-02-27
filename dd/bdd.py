@@ -1652,13 +1652,17 @@ def to_nx(bdd, roots):
     return g
 
 
-def to_pydot(bdd):
+def to_pydot(roots, bdd):
     """Convert `BDD` to pydot graph.
 
     Nodes are ordered by variable levels.
     Edges to low successors are dashed.
     Complemented edges are labeled with "-1".
 
+    Nodes not reachable from `roots`
+    are ignored, unless `roots is None`.
+
+    @type roots: container of BDD nodes
     @type bdd: `BDD`
     """
     import pydot
@@ -1682,8 +1686,10 @@ def to_pydot(bdd):
     # add nodes
     idx2var = {k: v for v, k in items(bdd.ordering)}
 
-    def f(x): return str(abs(x))
-    for u, (i, v, w) in items(bdd._succ):
+    def f(x):
+        return str(abs(x))
+    for u in bdd.descendants(roots):
+        i, v, w = bdd._succ[abs(u)]
         # terminal ?
         if v is None:
             var = str(bool(abs(u)))

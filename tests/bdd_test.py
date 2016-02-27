@@ -835,8 +835,7 @@ def test_to_pydot():
     def f(x):
         return str(abs(x))
     g = x_and_y()
-    g.roots.add(2)
-    pd = _bdd.to_pydot(g)
+    pd = _bdd.to_pydot([2], g)
     r = nx.drawing.nx_pydot.from_pydot(pd)
     for u in g:
         assert f(u) in r, u

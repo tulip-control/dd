@@ -196,16 +196,8 @@ def copy_bdd(u, source, target):
 class Function(object):
     """Convenience wrapper for edges returned by `BDD`.
 
-    A convenience is the constructor `from_expr`:
-
     ```
-    bdd = BDD({'x': 0, 'y': 1})
-    f = bdd.from_expr('x & y', bdd)
-    ```
-
-    A function can be created also directly from a goal:
-
-    ```
+    bdd = BDD(dict(x=0, y=1))
     u = bdd.add_expr('x & y')
     f = Function(u, bdd)
     ```
@@ -225,16 +217,6 @@ class Function(object):
         self.bdd = bdd
         bdd.incref(node)
         self.node = node
-
-    @classmethod
-    def from_expr(cls, expr, bdd):
-        """Return `Function` for `expr`, after adding it to `bdd`.
-
-        @type expr: `str`
-        @type bdd: `BDD`
-        """
-        u = bdd.add_expr(expr)
-        return u
 
     def to_expr(self):
         """Return Boolean expression of function as `str`."""

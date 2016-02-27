@@ -874,12 +874,12 @@ def test_to_pydot():
 def test_function_wrapper():
     levels = dict(x=0, y=1, z=2)
     bdd = autoref.BDD(levels)
-    u = autoref.Function.from_expr('x & y', bdd)
+    u = bdd.add_expr('x & y')
     assert u.bdd is bdd._bdd, u.bdd
     assert abs(u.node) in bdd._bdd, (u.node, bdd._bdd._succ)
     # operators
-    x = autoref.Function.from_expr('x', bdd)
-    z = autoref.Function.from_expr('z', bdd)
+    x = bdd.add_expr('x')
+    z = bdd.add_expr('z')
     v = x.implies(z)
     w = u & ~v
     w_ = bdd.add_expr('(x & y) & !((! x) | z)')
@@ -889,7 +889,7 @@ def test_function_wrapper():
         '( (x & y) | ((! x) | z) ) ^'
         '( (x & y) & !((! x) | z) )')
     assert r_ == r, (r_, r)
-    p = autoref.Function.from_expr('y', bdd)
+    p = bdd.add_expr('y')
     q = p.bimplies(x)
     q_ = bdd.add_expr('x <-> y')
     assert q_ == q, (q_, q)
@@ -897,7 +897,7 @@ def test_function_wrapper():
     s = q.to_expr()
     assert s == 'ite(x, y, (! y))', s
     # equality
-    p_ = autoref.Function.from_expr('y', bdd)
+    p_ = bdd.add_expr('y')
     assert p_ == p, p_
     # decref and collect garbage
     bdd.collect_garbage()
@@ -924,7 +924,7 @@ def test_function_wrapper():
     assert n == 1, bdd._bdd._ref
     # properties
     bdd = autoref.BDD({'x': 0, 'y': 1, 'z': 2})
-    u = autoref.Function.from_expr('x | !y', bdd)
+    u = bdd.add_expr('x | !y')
     assert u.level == 0, u.level
     assert u.var == 'x', u.var
     y = bdd.add_expr('!y')

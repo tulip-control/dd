@@ -42,6 +42,34 @@ def test_level_to_variable():
         g.var_at_level(10)
 
 
+def test_descendants():
+    ordering = dict(x=0, y=1)
+    b = BDD(ordering)
+    u = b.add_expr('x && y')
+    v = b.add_expr('x | y')
+    roots = [u, v]
+    nodes = b.descendants(roots)
+    nodes_u = b.descendants([u])
+    nodes_v = b.descendants([v])
+    assert u in nodes_u, nodes_u
+    assert v in nodes_v, nodes_v
+    assert u in nodes, nodes
+    assert v in nodes, nodes
+    assert 1 in nodes_u, nodes_u
+    assert 1 in nodes_v, nodes_v
+    assert 1 in nodes, nodes
+    assert len(nodes_u) == 3, nodes_u
+    assert len(nodes_v) == 3, nodes_v
+    assert nodes_u != nodes_v, (nodes_u, nodes_v)
+    assert len(nodes) == 4, nodes
+    assert nodes == nodes_u.union(nodes_v), (
+        nodes, b._succ)
+    # no roots
+    roots = []
+    nodes = b.descendants(roots)
+    assert len(nodes) == 0, nodes
+
+
 def test_evaluate():
     # x, y
     g = two_vars_xy()
@@ -618,7 +646,7 @@ def test_dump_load():
     u = g.add_expr(e)
     g.incref(u)
     fname = prefix + '.p'
-    g.dump(fname)
+    g.dump(fname, [u])
     h = BDD.load(fname)
     assert h.assert_consistent()
     u_ = h.add_expr(e)

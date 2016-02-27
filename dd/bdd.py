@@ -231,32 +231,33 @@ class BDD(object):
         """
         return copy_bdd(u, self, other)
 
-    def descendants(self, u):
-        """Return BDD nodes reachable from node `u`.
+    def descendants(self, roots):
+        """Return nodes reachable from `roots`.
 
-        Node `u` is included.
+        Nodes in `roots` are included.
         Nodes are represented as positive integers.
         """
-        assert u in self, u
+        for u in roots:
+            assert u in self, u
         nodes = set()
-        self._descendants(u, nodes)
-        assert nodes
+        q = [u for u in roots]
+        while q:
+            u = q.pop(0)
+            r = abs(u)
+            # visited ?
+            if r in nodes:
+                continue
+            nodes.add(r)
+            # terminal ?
+            if r == 1:
+                continue
+            # descendants
+            _, v, w = self._succ[r]
+            q.extend((v, w))
+        abs_roots = set(abs(u) for u in roots)
+        assert nodes.issuperset(abs_roots), (nodes, abs_roots)
+        assert not roots or 1 in nodes, nodes
         return nodes
-
-    def _descendants(self, u, nodes):
-        """Recurse to count number of BDD nodes."""
-        # visited ?
-        r = abs(u)
-        if r in nodes:
-            return
-        nodes.add(r)
-        # terminal ?
-        if r == 1:
-            return
-        # recurse
-        _, v, w = self._succ[r]
-        self._descendants(v, nodes)
-        self._descendants(w, nodes)
 
     def evaluate(self, u, values):
         """Return value of node `u` for evaluation `values`.

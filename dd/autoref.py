@@ -241,7 +241,7 @@ class Function(object):
         return self.bdd.to_expr(self.node)
 
     def __len__(self):
-        return len(self.bdd.descendants(self.node))
+        return len(self.bdd.descendants([self.node]))
 
     def __del__(self):
         """Decrement reference count of `self.node` in `self.bdd`."""

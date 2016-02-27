@@ -676,7 +676,7 @@ The method `BDD.levels` returns a generator of tuples `(u, i, v, w)`, over all n
 The iteration starts from the bottom (largest level), just above the terminal node for “true” and “false” (which is `-1` in `dd.bdd`).
 It scans each level, moving upwards, until it reaches the top level (indexed with 0).
 
-The nodes contained in the graph rooted at node `u` are `bdd.descendants(u)`.
+The nodes contained in the graph rooted at node `u` are `bdd.descendants([u])`.
 An efficient implementation of cofactor that works only for variables with level <= the level of any variable in the support of node `u` is `_top_cofactor(u, level)`.
 
 Finally, `BDD.reduction` is of only academic interest.
@@ -884,3 +884,4 @@ Note that the `MDD` node `v` is complemented (-3 < 0), so the predicate in the n
 ## Footnotes
 
 If you are interested in exploring other decision diagram packages, you can find [a list at `github.com/johnyf/tool_lists/`](https://github.com/johnyf/tool_lists/blob/master/bdd.md).
+

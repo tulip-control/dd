@@ -260,11 +260,14 @@ class BDD(object):
         return nodes
 
     def evaluate(self, u, values):
-        """Return value of node `u` for evaluation `values`.
+        """Return value of node `u` given `values`.
 
-        @param values: (partial) mapping from `variables` to values
-            keys can be variable names as `str` or levels as `int`.
-            Mapping should be complete with respect to `u`.
+        @param values: (partial) mapping from
+            `variables` to values
+            keys can be variable names as `str` or
+            levels as `int`.
+            Mapping should be complete
+            with respect to `u`.
         @type values: `dict`
         """
         assert abs(u) in self, u
@@ -1090,7 +1093,8 @@ class BDD(object):
             self._dump_bdd(roots, filename, **kw)
         else:
             raise Exception(
-                'unknown file type "{t}"'.format(t=filetype))
+                'unknown file type "{t}"'.format(
+                    t=filetype))
 
     def _dump_figure(self, roots, filename,
                      filetype, **kw):
@@ -1104,7 +1108,8 @@ class BDD(object):
             g.write_svg(filename, **kw)
         else:
             raise Exception(
-                'Unknown file type of "{f}"'.format(f=filename))
+                'Unknown file type of "{f}"'.format(
+                    f=filename))
 
     def _dump_bdd(self, roots, filename, **kw):
         """Write BDDs to `filename` as pickle."""

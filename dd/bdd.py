@@ -1046,7 +1046,8 @@ class BDD(object):
             r = self.apply('and', u, r)
         return r
 
-    def dump(self, filename, filetype=None, **kw):
+    def dump(self, filename, roots=None,
+             filetype=None, **kw):
         """Write BDDs to `filename`.
 
         The file type is inferred from the
@@ -1060,8 +1061,13 @@ class BDD(object):
           - PNG: `'.png'`
           - SVG: `'.svg'`
 
+        Dump nodes reachable from `roots`.
+        If `roots is None`,
+        then all nodes in the manager are dumped.
+
         @type filename: `str`
         @type filetype: `str`, e.g., `"pdf"`
+        @type roots: container of nodes
         """
         if filetype is None:
             name = filename.lower()
@@ -1081,7 +1087,7 @@ class BDD(object):
             self._dump_figure(roots, filename,
                               filetype, **kw)
         elif filetype == 'pickle':
-            self._dump_pickle(filename, **kw)
+            self._dump_bdd(roots, filename, **kw)
         else:
             raise Exception(
                 'unknown file type "{t}"'.format(t=filetype))
@@ -1099,6 +1105,79 @@ class BDD(object):
         else:
             raise Exception(
                 'Unknown file type of "{f}"'.format(f=filename))
+
+    def _dump_bdd(self, roots, filename, **kw):
+        """Write BDDs to `filename` as pickle."""
+        nodes = self.descendants(roots)
+        succ = ((k, v) for k, v in items(self._succ)
+                if k in nodes)
+        d = dict(
+            vars=self.ordering,
+            succ=dict(succ))
+        kw.setdefault('protocol', 2)
+        with open(filename, 'wb') as f:
+            pickle.dump(d, f, **kw)
+
+    def load(self, filename, levels=True):
+        """Load nodes from pickle file `filename`.
+
+        If `levels is True`,
+        then load variables at the same levels.
+        Otherwise, add missing variables.
+
+        @type filename: `str`
+        @return: map from dumped to loaded nodes
+        @rtype: `dict`
+        """
+        with open(filename, 'rb') as f:
+            d = pickle.load(f)
+        var2level = d['vars']
+        succ = d['succ']
+        n = len(var2level)
+        level_map = dict()
+        # level_map[n] = len(self.vars)
+        for var, i in items(var2level):
+            assert 0 <= i < n, (i, n)
+            if var not in self.vars:
+                logger.warning(
+                    'variable "{var}" added'.format(
+                        var=var))
+            if levels:
+                j = self.add_var(var, i)
+            else:
+                j = self.add_var(var)
+            level_map[i] = j
+        umap = dict()
+        for u in succ:
+            # already added ?
+            if u in umap:
+                continue
+            # add
+            self._load(u, succ, umap, level_map)
+        return umap
+
+    def _load(self, u, succ, umap, level_map):
+        """Recurse to load BDD `u` from `succ`."""
+        # terminal ?
+        if abs(u) == 1:
+            return u
+        # memoized ?
+        if u in umap:
+            r = umap[abs(u)]
+            assert r > 0, r
+            if u < 0:
+                r = -r
+            return r
+        i, v, w = succ[abs(u)]
+        j = level_map[i]
+        p = self._load(v, succ, umap, level_map)
+        q = self._load(w, succ, umap, level_map)
+        r = self.find_or_add(j, p, q)
+        assert r > 0, r
+        umap[abs(u)] = r
+        if u < 0:
+            r = -r
+        return r
 
     def _dump_manager(self, filename, **kw):
         """Write `BDD` to `filename` as pickle."""

@@ -641,14 +641,36 @@ def test_sifting():
 
 def test_dump_load():
     prefix = 'test_dump_load'
+    fname = prefix + '.p'
+    dvars = dict(x=0, y=1)
+    # dump
+    b = BDD(dvars)
+    e = 'x & !y'
+    u_dumped = b.add_expr(e)
+    b.dump(fname, [u_dumped])
+    # load
+    b = BDD(dvars)
+    b.add_expr('x | y')
+    u_new = b.add_expr(e)
+    umap = b.load(fname)
+    u_loaded = umap[abs(u_dumped)]
+    if u_dumped < 0:
+        u_loaded = -u_loaded
+    assert u_loaded == u_new, (
+        u_dumped, u_loaded, u_new, umap)
+    assert b.assert_consistent()
+
+
+def test_dump_load_manager():
+    prefix = 'test_dump_load_manager'
     g = BDD({'x': 0, 'y': 1})
     e = 'x & !y'
     u = g.add_expr(e)
     g.incref(u)
     fname = prefix + '.p'
-    g.dump(fname, [u])
-    h = BDD.load(fname)
-    assert h.assert_consistent()
+    g._dump_manager(fname)
+    h = g._load_manager(fname)
+    assert g.assert_consistent()
     u_ = h.add_expr(e)
     assert u == u_, (u, u_)
     # h.dump(prefix + '.pdf')

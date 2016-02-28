@@ -1047,40 +1047,54 @@ class BDD(object):
         return r
 
     def dump(self, filename, filetype=None, **kw):
-        """Write `BDD` to `filename` as pickle or PDF.
+        """Write BDDs to `filename`.
 
         The file type is inferred from the
-        extension ".p" or ".pdf" (case insensitive),
+        extension (case insensitive),
         unless a `filetype` is explicitly given.
 
+        File types:
+
+          - pickle: `'.p'`
+          - PDF: `'.pdf'`
+          - PNG: `'.png'`
+          - SVG: `'.svg'`
+
         @type filename: `str`
-        @type filetype: `"pdf"` or `"pickle"`
+        @type filetype: `str`, e.g., `"pdf"`
         """
-        pd_types = ('.pdf', '.svg', '.png')
         if filetype is None:
             name = filename.lower()
-            if name.endswith(pd_types):
-                filetype = 'pydot'
+            if name.endswith('.pdf'):
+                filetype = 'pdf'
+            elif name.endswith('.png'):
+                filetype = 'png'
+            elif name.endswith('.svg'):
+                filetype = 'svg'
             elif name.endswith('.p'):
                 filetype = 'pickle'
             else:
-                raise Exception('file type not supported')
-        if filetype == 'pydot':
-            self._dump_pdf(filename, **kw)
+                raise Exception(
+                    'cannot infer file type '
+                    'from extension')
+        if filetype in ('pdf', 'png', 'svg'):
+            self._dump_figure(roots, filename,
+                              filetype, **kw)
         elif filetype == 'pickle':
             self._dump_pickle(filename, **kw)
         else:
             raise Exception(
                 'unknown file type "{t}"'.format(t=filetype))
 
-    def _dump_pdf(self, filename, **kw):
-        """Write `BDD` to `filename` as PDF."""
-        g = to_pydot(self)
-        if filename.endswith('.pdf'):
+    def _dump_figure(self, roots, filename,
+                     filetype, **kw):
+        """Write BDDs to `filename` as figure."""
+        g = to_pydot(roots, self)
+        if filetype == 'pdf':
             g.write_pdf(filename, **kw)
-        elif filename.endswith('.png'):
+        elif filetype == 'png':
             g.write_png(filename, **kw)
-        elif filename.endswith('.svg'):
+        elif filetype == 'svg':
             g.write_svg(filename, **kw)
         else:
             raise Exception(

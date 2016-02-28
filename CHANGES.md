@@ -1,6 +1,28 @@
 # dd changelog
 
 
+## 0.3.0
+
+API:
+
+- `dd.bdd.BDD.rename`, `dd.bdd.image`, `dd.bdd.preimage`: allow non-adjacent variable levels
+- `dd.bdd.BDD.descendants`:
+  - arg `roots` instead of single node `u`
+  - iteration instead of recursion
+  - breadth-first instead of depth-first search
+- `dd.bdd.BDD.dump`:
+  - dump nodes reachable from given roots
+  - dump only variable levels and nodes to pickle file
+  - correct error that ignored explicit file type for PDF, PNG, SVG
+- `dd.bdd.BDD.load`:
+  - instance method to load nodes
+- `dd.bdd.to_pydot`:
+  - add arg `roots`
+- hide methods that dump and load entire manager
+  - `dd.bdd.BDD._dump_manager` and `_load_manager`
+- remove `dd.autoref.Function.from_expr`
+
+
 ## 0.2.2
 
 - install without extensions by default

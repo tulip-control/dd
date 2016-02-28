@@ -1100,7 +1100,7 @@ class BDD(object):
             raise Exception(
                 'Unknown file type of "{f}"'.format(f=filename))
 
-    def _dump_pickle(self, filename, **kw):
+    def _dump_manager(self, filename, **kw):
         """Write `BDD` to `filename` as pickle."""
         d = dict(
             ordering=self.ordering,

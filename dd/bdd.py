@@ -1115,7 +1115,7 @@ class BDD(object):
             pickle.dump(d, f, **kw)
 
     @classmethod
-    def load(cls, filename):
+    def _load_manager(cls, filename):
         """Load `BDD` from pickle file `filename`."""
         with open(filename, 'rb') as f:
             d = pickle.load(f)

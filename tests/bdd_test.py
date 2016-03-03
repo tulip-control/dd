@@ -648,6 +648,7 @@ def test_dump_load():
     e = 'x & !y'
     u_dumped = b.add_expr(e)
     b.dump(fname, [u_dumped])
+    b.dump(fname)  # no roots
     # load
     b = BDD(dvars)
     b.add_expr('x | y')
@@ -856,6 +857,7 @@ def test_assert_refined_ordering():
 def test_to_pydot():
     def f(x):
         return str(abs(x))
+    # with roots
     g = x_and_y()
     pd = _bdd.to_pydot([2], g)
     r = nx.drawing.nx_pydot.from_pydot(pd)
@@ -869,6 +871,10 @@ def test_to_pydot():
             continue
         assert r.has_edge(f(u), f(v)), (u, v)
         assert r.has_edge(f(u), f(w)), (u, w)
+    # no roots
+    pd = _bdd.to_pydot(None, g)
+    r = nx.drawing.nx_pydot.from_pydot(pd)
+    assert len(r) == 6, r.nodes()  # 3 hidden nodes for levels
 
 
 def test_function_wrapper():

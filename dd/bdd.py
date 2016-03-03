@@ -1113,9 +1113,11 @@ class BDD(object):
 
     def _dump_bdd(self, roots, filename, **kw):
         """Write BDDs to `filename` as pickle."""
-        nodes = self.descendants(roots)
-        succ = ((k, v) for k, v in items(self._succ)
-                if k in nodes)
+        if roots is None:
+            nodes = self._succ
+        else:
+            nodes = self.descendants(roots)
+        succ = ((k, self._succ[k]) for k in nodes)
         d = dict(
             vars=self.ordering,
             succ=dict(succ))
@@ -1764,6 +1766,11 @@ def to_pydot(roots, bdd):
     @type bdd: `BDD`
     """
     import pydot
+    # all nodes ?
+    if roots is None:
+        nodes = bdd._succ
+    else:
+        nodes = bdd.descendants(roots)
     g = pydot.Dot('bdd', graph_type='digraph')
     skeleton = list()
     subgraphs = dict()
@@ -1786,7 +1793,7 @@ def to_pydot(roots, bdd):
 
     def f(x):
         return str(abs(x))
-    for u in bdd.descendants(roots):
+    for u in nodes:
         i, v, w = bdd._succ[abs(u)]
         # terminal ?
         if v is None:

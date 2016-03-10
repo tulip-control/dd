@@ -138,16 +138,16 @@ class BDD(object):
             roots = [u.node for u in roots]
         self._bdd.collect_garbage(roots)
 
-    def dump(self, filename, filetype=None, **kw):
-        self._bdd.dump(filename, filetype, **kw)
+    def dump(self, filename, roots=None,
+             filetype=None, **kw):
+        roots = [u.node for u in roots]
+        self._bdd.dump(filename, roots=roots,
+                       filetype=filetype)
 
-    @classmethod
-    def load(cls, filename):
-        bdd = _bdd.BDD.load(filename)
-        wrapper = BDD()
-        wrapper.vars = bdd.vars
-        wrapper._bdd = bdd
-        return wrapper
+    def load(self, filename, levels=True):
+        umap = self._bdd.BDD.load(filename, levels=levels)
+        umap = {u: self._wrap(umap[u]) for u in umap}
+        return umap
 
     def assert_consistent(self):
         self._bdd.assert_consistent()

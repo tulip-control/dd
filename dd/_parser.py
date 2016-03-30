@@ -228,8 +228,8 @@ def add_ast(t, bdd):
     elif t.type == 'var':
         return bdd.var(t.value)
     elif t.type == 'num':
-        u = int(t.value)
-        assert u in bdd, u
+        i = int(t.value)
+        u = bdd._add_int(i)
         return u
     else:
         raise Exception(

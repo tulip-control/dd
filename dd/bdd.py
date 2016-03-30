@@ -1056,6 +1056,11 @@ class BDD(object):
             raise Exception(
                 'unknown operator "{op}"'.format(op=op))
 
+    def _add_int(self, i):
+        """Return node from integer `i`."""
+        assert i in self, i
+        return i
+
     def cube(self, dvars):
         """Return node for conjunction of literals in `dvars`.
 

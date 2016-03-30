@@ -135,6 +135,10 @@ class BDD(object):
             r = self._bdd.apply(op, u.node, v.node)
         return self._wrap(r)
 
+    def _add_int(self, i):
+        r = self._bdd._add_int(i)
+        return self._wrap(r)
+
     def cube(self, dvars):
         r = self._bdd.cube(dvars)
         return self._wrap(r)
@@ -227,6 +231,9 @@ class Function(object):
     def to_expr(self):
         """Return Boolean expression of function as `str`."""
         return self.bdd.to_expr(self.node)
+
+    def __int__(self):
+        return self.node
 
     def __len__(self):
         return len(self.bdd.descendants([self.node]))

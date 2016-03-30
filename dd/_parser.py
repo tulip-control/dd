@@ -15,7 +15,8 @@ class Lexer(astutils.Lexer):
         'True': 'TRUE'}
     delimiters = ['LPAREN', 'RPAREN', 'COMMA']
     operators = ['NOT', 'AND', 'OR', 'XOR', 'IMP', 'BIMP',
-                 'EQUALS', 'NEQUALS', 'COLON', 'QUESTION', 'MINUS']
+                 'EQUALS', 'NEQUALS', 'MINUS',
+                 'COLON', 'FORALL', 'EXISTS']
     misc = ['NAME', 'NUMBER']
 
     def t_NAME(self, t):
@@ -45,7 +46,8 @@ class Lexer(astutils.Lexer):
     t_BIMP = '\<->'
     t_COMMA = r','
     t_COLON = r'\:'
-    t_QUESTION = r'\?'
+    t_FORALL = r'\\A'
+    t_EXISTS = r'\\E'
     t_ignore = " \t"
 
     def t_comment(self, t):
@@ -116,8 +118,8 @@ class Parser(astutils.Parser):
         p[0] = self.nodes.Operator(p[1], p[3], p[5], p[7])
 
     def p_quantifier(self, p):
-        """expr : NOT names COLON expr
-                | QUESTION names COLON expr
+        """expr : EXISTS names COLON expr
+                | FORALL names COLON expr
         """
         p[0] = self.nodes.Operator(p[1], p[2], p[4])
 
@@ -183,12 +185,12 @@ def add_ast(t, bdd):
     # assert 1 in `self`, with index `len(self.ordering)`
     # operator ?
     if t.type == 'operator':
-        if t.operator in ('!', '?') and len(t.operands) == 2:
+        if t.operator in ('\A', '\E') and len(t.operands) == 2:
             qvars, expr = t.operands
             u = add_ast(expr, bdd)
             qvars = {x.value for x in qvars}
-            assert t.operator in ('!', '?'), t.operator
-            forall = (t.operator == '!')
+            assert t.operator in ('\A', '\E'), t.operator
+            forall = (t.operator == '\A')
             return bdd.quantify(u, qvars, forall=forall)
         else:
             operands = [add_ast(x, bdd) for x in t.operands]

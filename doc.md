@@ -280,12 +280,12 @@ bdd.add_var('y')
 bdd.add_var('z')
 
 # there exists x, such that (x and y)
-u = bdd.add_expr('? x: x & y')
+u = bdd.add_expr('\E x: x & y')
 y = bdd.var('y')
 assert u == y, (u, y)
 
 # forall x, there exists y, such that (y or x)
-u = bdd.add_expr('! x: ? y: y | z')
+u = bdd.add_expr('\A x: \E y: y | z')
 assert u == bdd.true, u
 ```
 
@@ -764,8 +764,8 @@ The method `BDD.add_expr` parses the following grammar.
 
 ```
        # first-order
-expr ::= '!' names ':' expr  # universal quantification (forall)
-         '?' names ':' expr  # existential quantification (exists)
+expr ::= '\A' names ':' expr  # universal quantification (forall)
+         '\E' names ':' expr  # existential quantification (exists)
 
        # propositional
        | '!' expr         # negation (not)

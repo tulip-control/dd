@@ -19,6 +19,7 @@ from dd import _compat
 from dd import bdd as _bdd
 from libcpp cimport bool
 from libc.stdio cimport FILE, fdopen, fopen, fclose
+from libc cimport stdint
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 import psutil
 
@@ -669,12 +670,28 @@ cdef class BDD(object):
         elif op in ('diff', '-'):
             r = Cudd_bddIte(mgr, u.node, Cudd_Not(v.node),
                             Cudd_ReadLogicZero(mgr))
+        elif op in ('forall', '\A'):
+            r = Cudd_bddUnivAbstract(mgr, v.node, u.node)
+        elif op in ('exists', '\E'):
+            r = Cudd_bddExistAbstract(mgr, v.node, u.node)
         if r == NULL:
             raise Exception(
                 'unknown operator: "{op}"'.format(op=op))
         f = Function()
         f.init(mgr, r)
         return f
+
+    cpdef _add_int(self, i):
+        """Return node from integer `i`."""
+        cdef DdNode *u
+        assert i not in (0, 1), i
+        # invert `Function.__int__`
+        if 2 <= i:
+            i -= 2
+        u = <DdNode *><stdint.uintptr_t>i
+        r = Function()
+        r.init(self.manager, u)
+        return r
 
     cpdef Function cube(self, dvars):
         """Return node for cube over `dvars`.
@@ -1182,15 +1199,25 @@ cdef class Function(object):
     def __dealloc__(self):
         Cudd_RecursiveDeref(self.manager, self.node)
 
+    def __int__(self):
+        assert sizeof(stdint.uintptr_t) == sizeof(DdNode *)
+        i = <stdint.uintptr_t>self.node
+        # 0, 1 are true and false in logic syntax
+        if 0 <= i:
+            i += 2
+        return i
+
     def __str__(self):
         cdef DdNode *u
         u = Cudd_Regular(self.node)
         return (
             'Function(DdNode with: '
             'var_index={idx}, '
-            'ref_count={ref})').format(
+            'ref_count={ref}, '
+            '__int__={i})').format(
                 idx=u.index,
-                ref=u.ref)
+                ref=u.ref,
+                i=int(self))
 
     def __len__(self):
         return Cudd_DagSize(self.node)

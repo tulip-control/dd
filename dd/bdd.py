@@ -1010,8 +1010,10 @@ class BDD(object):
         """Apply Boolean connective `op` between nodes `u` and `v`.
 
         @type op: `str` in:
-          - `'not', 'or', 'and', 'xor', 'implies', 'bimplies'`
-          - `'!', '|', '||', '&', '&&', '^', '->', '<->'`
+          - `'not', 'or', 'and', 'xor',
+             'implies', 'bimplies', 'forall', 'exists'`
+          - `'!', '|', '||', '&', '&&', '^',
+             '->', '<->', '\A', '\E'`
         @type u, v: nodes
         """
         assert abs(u) in self, u
@@ -1030,6 +1032,12 @@ class BDD(object):
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
             return self.ite(u, -v, -1)
+        elif op in ('forall', '\A'):
+            qvars = self.support(u)
+            return self.quantify(v, qvars, forall=True)
+        elif op in ('exists', '\E'):
+            qvars = self.support(u)
+            return self.quantify(v, qvars, forall=False)
         else:
             raise Exception(
                 'unknown operator "{op}"'.format(op=op))

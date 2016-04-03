@@ -589,6 +589,20 @@ class BDD(object):
         cache[u] = r
         return r
 
+    def forall(self, qvars, u):
+        """Quantify `qvars` in `u` universally.
+
+        Wraps method `quantify` to be more readable.
+        """
+        return self.quantify(u, qvars, forall=True)
+
+    def exist(self, qvars, u):
+        """Quantify `qvars` in `u` existentially.
+
+        Wraps method `quantify` to be more readable.
+        """
+        return self.quantify(u, qvars, forall=False)
+
     def find_or_add(self, i, v, w):
         """Return a node at level `i` with successors `v, w`.
 

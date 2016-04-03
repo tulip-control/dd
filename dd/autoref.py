@@ -105,6 +105,12 @@ class BDD(object):
         r = self._bdd.quantify(u.node, qvars, forall)
         return self._wrap(r)
 
+    def forall(self, qvars, u):
+        return self.quantify(u, qvars, forall=True)
+
+    def exist(self, qvars, u):
+        return self.quantify(u, qvars, forall=False)
+
     def sat_len(self, u):
         assert u in self, u
         return self._bdd.sat_len(u.node)

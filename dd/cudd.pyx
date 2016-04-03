@@ -744,6 +744,20 @@ cdef class BDD(object):
         f.init(mgr, r)
         return f
 
+    cpdef Function forall(self, qvars, Function u):
+        """Quantify `qvars` in `u` universally.
+
+        Wraps method `quantify` to be more readable.
+        """
+        return self.quantify(u, qvars, forall=True)
+
+    cpdef Function exist(self, qvars, Function u):
+        """Quantify `qvars` in `u` existentially.
+
+        Wraps method `quantify` to be more readable.
+        """
+        return self.quantify(u, qvars, forall=False)
+
     cpdef assert_consistent(self):
         """Raise `AssertionError` if not consistent."""
         assert Cudd_DebugCheck(self.manager) == 0

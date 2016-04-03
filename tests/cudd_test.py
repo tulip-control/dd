@@ -291,28 +291,28 @@ def test_quantify():
     for var in ['x', 'y']:
         bdd.add_var(var)
     x = bdd.var('x')
-    # ? x. x = 1
+    # \E x: x = 1
     r = bdd.quantify(x, ['x'], forall=False)
     assert r == bdd.true, r
-    # ! x. x = 0
+    # \A x: x = 0
     r = bdd.quantify(x, ['x'], forall=True)
     assert r == bdd.false, r
-    # ? y. x = x
+    # \E y: x = x
     r = bdd.quantify(x, ['y'], forall=False)
     assert r == x, (r, x)
-    # ! y. x = x
+    # \A y: x = x
     r = bdd.quantify(x, ['y'], forall=True)
     assert r == x, (r, x)
-    # ? x. x & y = y
+    # \E x: x & y = y
     y = bdd.var('y')
     u = bdd.apply('and', x, y)
     r = bdd.quantify(u, ['x'], forall=False)
     assert r == y, (r, y)
     assert r != x, (r, x)
-    # ! x. x & y = 0
+    # \A x: x & y = 0
     r = bdd.quantify(u, ['x'], forall=True)
     assert r == bdd.false, r
-    # ! x. !x | y = y
+    # \A x: !x | y = y
     not_x = bdd.apply('not', x)
     u = bdd.apply('or', not_x, y)
     r = bdd.quantify(u, ['x'], forall=True)
@@ -370,12 +370,12 @@ def test_add_expr():
     u = bdd.add_expr('x & !y & z')
     u_ = bdd.cube(dict(x=True, y=False, z=True))
     assert u == u_, (u, u_)
-    # ? x. x & y = y
+    # \E x: x & y = y
     y = bdd.var('y')
-    u = bdd.add_expr('? x. x & y')
+    u = bdd.add_expr('\E x: x & y')
     assert u == y, (str(u), str(y))
-    # ! x. x | !x = 1
-    u = bdd.add_expr('! x. !x | x')
+    # \A x: x | !x = 1
+    u = bdd.add_expr('\A x: !x | x')
     assert u == bdd.true, u
     del x, y, z, u, u_
 
@@ -411,13 +411,13 @@ def test_and_exists():
     bdd = cudd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
-    # ? x. x & y = y
+    # \E x: x & y = y
     x = bdd.add_expr('x')
     y = bdd.add_expr('y')
     qvars = ['x']
     r = cudd.and_exists(x, y, qvars, bdd)
     assert r == y, (r, y)
-    # ? x. x & !x = 0
+    # \E x: x & !x = 0
     not_x = bdd.apply('not', x)
     r = cudd.and_exists(x, not_x, qvars, bdd)
     assert r == bdd.false
@@ -428,7 +428,7 @@ def test_or_forall():
     bdd = cudd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
-    # ! x y. x | ! y = 0
+    # \A x y: x | ! y = 0
     x = bdd.var('x')
     not_y = bdd.add_expr('!y')
     qvars = ['x', 'y']

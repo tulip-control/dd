@@ -1173,6 +1173,8 @@ cdef class Function(object):
 
         def __get__(self):
             cdef DdNode *u
+            if Cudd_IsConstant(self.node):
+                return None
             u = Cudd_E(self.node)
             f = Function()
             f.init(self.manager, u)
@@ -1184,6 +1186,8 @@ cdef class Function(object):
 
         def __get__(self):
             cdef DdNode *u
+            if Cudd_IsConstant(self.node):
+                return None
             u = Cudd_T(self.node)
             f = Function()
             f.init(self.manager, u)

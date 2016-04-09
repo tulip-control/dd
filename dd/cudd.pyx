@@ -1207,7 +1207,7 @@ cdef class Function(object):
             i += 2
         return i
 
-    def __str__(self):
+    def __repr__(self):
         cdef DdNode *u
         u = Cudd_Regular(self.node)
         return (
@@ -1218,6 +1218,9 @@ cdef class Function(object):
                 idx=u.index,
                 ref=u.ref,
                 i=int(self))
+
+    def __str__(self):
+        return str(int(self))
 
     def __len__(self):
         return Cudd_DagSize(self.node)

@@ -15,8 +15,8 @@ class Lexer(astutils.Lexer):
         'True': 'TRUE'}
     delimiters = ['LPAREN', 'RPAREN', 'COMMA']
     operators = ['NOT', 'AND', 'OR', 'XOR', 'IMP', 'BIMP',
-                 'EQUALS', 'NEQUALS', 'MINUS',
-                 'COLON', 'FORALL', 'EXISTS']
+                 'EQUALS', 'NEQUALS', 'MINUS', 'DIV',
+                 'COLON', 'FORALL', 'EXISTS', 'RENAME']
     misc = ['NAME', 'NUMBER']
 
     def t_NAME(self, t):
@@ -48,6 +48,8 @@ class Lexer(astutils.Lexer):
     t_COLON = r'\:'
     t_FORALL = r'\\A'
     t_EXISTS = r'\\E'
+    t_RENAME = r'\\S'
+    t_DIV = r'/'
     t_ignore = " \t"
 
     def t_comment(self, t):
@@ -123,6 +125,26 @@ class Parser(astutils.Parser):
         """
         p[0] = self.nodes.Operator(p[1], p[2], p[4])
 
+    def p_rename(self, p):
+        """expr : RENAME subs COLON expr"""
+        p[0] = self.nodes.Operator(p[1], p[4], p[2])
+
+    def p_substitutions_iter(self, p):
+        """subs : subs COMMA sub"""
+        u = p[1]
+        u.update(p[3])
+        p[0] = u
+
+    def p_substitutions_end(self, p):
+        """subs : sub"""
+        p[0] = p[1]
+
+    def p_substitution(self, p):
+        """sub : name DIV name"""
+        new = p[1]
+        old = p[3]
+        p[0] = {old: new}
+
     def p_names_iter(self, p):
         """names : names COMMA name"""
         u = p[1]
@@ -192,6 +214,11 @@ def add_ast(t, bdd):
             assert t.operator in ('\A', '\E'), t.operator
             forall = (t.operator == '\A')
             return bdd.quantify(u, qvars, forall=forall)
+        elif t.operator == '\S':
+            expr, rename = t.operands
+            u = add_ast(expr, bdd)
+            rename = {k.value: v.value for k, v in rename.items()}
+            return bdd.rename(u, rename)
         else:
             operands = [add_ast(x, bdd) for x in t.operands]
             return bdd.apply(t.operator, *operands)

@@ -779,6 +779,32 @@ def test_rename():
         _bdd.rename(u, g, dvars)
 
 
+def test_rename_syntax():
+    b = BDD()
+    [b.add_var(var) for var in ['x', 'y', 'z', 'w']]
+    # single substitution
+    u = b.add_expr('\S y / x: True')
+    assert u == b.true, u
+    u = b.add_expr('\S y / x: False')
+    assert u == b.false, u
+    u = b.add_expr('\S y / x: x')
+    u_ = b.add_expr('y')
+    assert u == u_, (u, u_)
+    u = b.add_expr('\S y / x: z')
+    u_ = b.add_expr('z')
+    assert u == u_, (u, u_)
+    u = b.add_expr('\S y / x: x & z')
+    u_ = b.add_expr('y & z')
+    assert u == u_, (u, u_)
+    # multiple substitution
+    u = b.add_expr('\S y / x,  w / z: x & z')
+    u_ = b.add_expr('y & w')
+    assert u == u_, (u, u_)
+    u = b.add_expr('\S y / x,  w / z: z | ! x')
+    u_ = b.add_expr('w | ! y')
+    assert u == u_, (u, u_)
+
+
 def test_image_rename_map_checks():
     ordering = {'x': 0, 'xp': 1,
                 'y': 2, 'yp': 3,

@@ -766,6 +766,7 @@ The method `BDD.add_expr` parses the following grammar.
        # first-order
 expr ::= '\A' names ':' expr  # universal quantification (forall)
          '\E' names ':' expr  # existential quantification (exists)
+         '\S' pairs ':' expr  # renaming of variables (substitution)
 
        # propositional
        | '!' expr         # negation (not)
@@ -783,6 +784,9 @@ expr ::= '\A' names ':' expr  # universal quantification (forall)
        | INTEGER          # BDD node (only for `dd.bdd.BDD`)
        | 'False'          # Boolean constant
        | 'True'           # Boolean constant
+
+pairs ::= [pairs] ',' pair
+pair ::= NAME '/' NAME
 
 names ::= [names] ',' name
 name ::= NAME

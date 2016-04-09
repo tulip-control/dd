@@ -1158,6 +1158,14 @@ cdef class Function(object):
             u = Cudd_Regular(self.node)
             return u.index
 
+    property level:
+
+        """Level where this node currently is."""
+
+        def __get__(self):
+            i = self.index
+            return Cudd_ReadPerm(self.manager, i)
+
     property ref:
 
         """Sum of reference counts of node and its negation."""

@@ -130,6 +130,10 @@ class BDD(object):
         self._succ[1] = (i, None, None)
         self._ref.setdefault(1, 0)
 
+    def succ(self, u):
+        """Return `(level, low, high)` for `u`."""
+        return self._succ[abs(u)]
+
     def incref(self, u):
         """Increment reference count of node `u`."""
         self._ref[abs(u)] += 1

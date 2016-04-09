@@ -486,6 +486,13 @@ cdef class BDD(object):
                     'Unknown parameter "{k}"'.format(k=k))
         return d
 
+    cpdef succ(self, Function u):
+        """Return `(level, low, high)` for `u`."""
+        i = u.level
+        v = u.low
+        w = u.high
+        return i, v, w
+
     cdef incref(self, DdNode *u):
         Cudd_Ref(u)
 

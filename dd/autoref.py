@@ -53,6 +53,12 @@ class BDD(object):
         assert u in self._bdd
         return Function(u, self._bdd)
 
+    def succ(self, u):
+        i, v, w = self._bdd.succ(u)
+        v = self._wrap(v)
+        w = self._wrap(w)
+        return i, v, w
+
     def add_var(self, var, level=None):
         return self._bdd.add_var(var, level=level)
 

@@ -494,6 +494,7 @@ def test_rename():
     d = dict(x='y')
     y = bdd.rename(x, d)
     assert y == y_, (y, y_)
+    del x, y, y_
 
 
 def test_reorder():

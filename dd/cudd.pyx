@@ -1306,10 +1306,10 @@ cpdef _test_decref():
     cdef Function f
     f = bdd.true
     i = f.ref
-    assert i == 2, i
+    assert i == 3, i
     bdd.incref(f.node)
     i = f.ref
-    assert i == 3, i
+    assert i == 4, i
     bdd.decref(f.node)
     j = f.ref
     assert j == i - 1, (j, i)

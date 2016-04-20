@@ -868,19 +868,15 @@ cdef class BDD(object):
         Cudd_RecursiveDeref(self.manager, r)
         return h
 
-    property false:
-
+    @property
+    def false(self):
         """`Function` for Boolean value false."""
+        return self._false
 
-        def __get__(self):
-            return self._false
-
-    property true:
-
+    @property
+    def true(self):
         """`Function` for Boolean value true."""
-
-        def __get__(self):
-            return self._true
+        return self._true
 
     cdef Function _bool(self, v):
         """Return terminal node for Boolean `v`."""
@@ -1162,64 +1158,52 @@ cdef class Function(object):
         self.node = u
         Cudd_Ref(u)
 
-    property index:
-
+    @property
+    def index(self):
         """Index of `self.node`."""
+        cdef DdNode *u
+        u = Cudd_Regular(self.node)
+        return u.index
 
-        def __get__(self):
-            cdef DdNode *u
-            u = Cudd_Regular(self.node)
-            return u.index
-
-    property level:
-
+    @property
+    def level(self):
         """Level where this node currently is."""
+        i = self.index
+        return Cudd_ReadPerm(self.manager, i)
 
-        def __get__(self):
-            i = self.index
-            return Cudd_ReadPerm(self.manager, i)
-
-    property ref:
-
+    @property
+    def ref(self):
         """Sum of reference counts of node and its negation."""
+        cdef DdNode *u
+        u = Cudd_Regular(self.node)
+        return u.ref
 
-        def __get__(self):
-            cdef DdNode *u
-            u = Cudd_Regular(self.node)
-            return u.ref
-
-    property low:
-
+    @property
+    def low(self):
         """Return "else" node as `Function`."""
+        cdef DdNode *u
+        if Cudd_IsConstant(self.node):
+            return None
+        u = Cudd_E(self.node)
+        f = Function()
+        f.init(self.manager, u)
+        return f
 
-        def __get__(self):
-            cdef DdNode *u
-            if Cudd_IsConstant(self.node):
-                return None
-            u = Cudd_E(self.node)
-            f = Function()
-            f.init(self.manager, u)
-            return f
-
-    property high:
-
+    @property
+    def high(self):
         """Return "then" node as `Function`."""
+        cdef DdNode *u
+        if Cudd_IsConstant(self.node):
+            return None
+        u = Cudd_T(self.node)
+        f = Function()
+        f.init(self.manager, u)
+        return f
 
-        def __get__(self):
-            cdef DdNode *u
-            if Cudd_IsConstant(self.node):
-                return None
-            u = Cudd_T(self.node)
-            f = Function()
-            f.init(self.manager, u)
-            return f
-
-    property negated:
-
+    @property
+    def negated(self):
         """Return `True` if `self` is a complemented edge."""
-
-        def __get__(self):
-            return Cudd_IsComplement(self.node)
+        return Cudd_IsComplement(self.node)
 
     def __dealloc__(self):
         Cudd_RecursiveDeref(self.manager, self.node)

@@ -446,7 +446,13 @@ The methods `dump` and `load` store the BDD of a selected node in a DDDMP file.
 Pickling and PDF plotting are not available yet in `dd.cudd`.
 
 Some methods present in `autoref.BDD` are not (yet) implemented in the `cudd.BDD` interface.
-These are: `evaluate` (use `cofactor`), `compose`, `ite`, `sat_len`, `to_expr`, `collect_garbage`.
+These are:
+- `evaluate` (use `cofactor`)
+- `compose`
+- `ite`
+- `sat_len`
+- `to_expr`
+- `collect_garbage`.
 With time, most of these will appear.
 
 An interface to the BuDDy C libary also exists, as `dd.buddy`.

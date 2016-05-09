@@ -141,6 +141,41 @@ def test_levels():
     assert z == 'z', z
 
 
+def test_compose():
+    bdd = cudd.BDD()
+    for var in ['x', 'y', 'z']:
+        bdd.add_var(var)
+    u = bdd.add_expr('x & !y')
+    # x |-> y
+    sub = dict(x=bdd.var('y'))
+    v = bdd.compose(u, sub)
+    v_ = bdd.false
+    assert v == v_, v
+    # x |-> y, y |-> x
+    sub = dict(x=bdd.var('y'),
+               y=bdd.var('x'))
+    v = bdd.compose(u, sub)
+    v_ = bdd.add_expr('y & !x')
+    assert v == v_, v
+    # x |-> z
+    sub = dict(x=bdd.var('z'))
+    v = bdd.compose(u, sub)
+    v_ = bdd.add_expr('z & !y')
+    assert v == v_, v
+    # x |-> z, y |-> x
+    sub = dict(x=bdd.var('z'),
+               y=bdd.var('x'))
+    v = bdd.compose(u, sub)
+    v_ = bdd.add_expr('z & !x')
+    assert v == v_, v
+    # x |-> (y | z)
+    sub = dict(x=bdd.add_expr('y | z'))
+    v = bdd.compose(u, sub)
+    v_ = bdd.add_expr('(y | z) & !y')
+    assert v == v_, v
+    del u, v, v_, sub
+
+
 def test_cofactor():
     bdd = cudd.BDD()
     for var in ['x', 'y']:

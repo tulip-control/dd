@@ -85,6 +85,10 @@ cdef extern from 'cudd.h':
                                  int *array)
     cdef int Cudd_PrintMinterm(DdManager *dd, DdNode *f)
     cdef DdNode *Cudd_Cofactor(DdManager *dd, DdNode *f, DdNode *g)
+    cdef DdNode *Cudd_bddCompose(DdManager *dd,
+                                 DdNode *f, DdNode *g, int v)
+    cdef DdNode *Cudd_bddVectorCompose(DdManager *dd,
+                                       DdNode *f, DdNode **vector)
     # cubes
     cdef DdGen *Cudd_FirstCube(DdManager *dd, DdNode *f,
                                int **cube, double *value)
@@ -611,6 +615,60 @@ cdef class BDD(object):
         @rtype: node
         """
         return copy_bdd(u, self, other)
+
+    cpdef Function compose(self, Function f, var_sub):
+        """Return the composition f|_(var = g).
+
+        @param var_sub: `dict` from variable names to nodes.
+        """
+        n = len(var_sub)
+        if n == 0:
+            logger.warning('call without any effect')
+            return f
+        if n > 1:
+            return self._vector_compose(f, var_sub)
+        assert n == 1, n
+        for var, g in _compat.items(var_sub):
+            return self._compose(f, var, g)
+
+    cdef Function _compose(self, Function f, var, Function g):
+        """Return single composition."""
+        assert f.manager == self.manager
+        assert g.manager == self.manager
+        cdef DdNode *r
+        index = self._index_of_var[var]
+        r = Cudd_bddCompose(self.manager, f.node, g.node, index)
+        assert r != NULL, 'compose failed'
+        f = Function()
+        f.init(self.manager, r)
+        return f
+
+    cdef Function _vector_compose(self, Function f, var_sub):
+        """Return vector composition."""
+        assert f.manager == self.manager
+        cdef DdNode *r
+        cdef DdNode **x
+        cdef Function g
+        n = len(self.vars)
+        assert n > 0, n
+        x = <DdNode **> PyMem_Malloc(n *sizeof(DdNode *))
+        for var in self.vars:
+            j = self._index_of_var[var]
+            if var in var_sub:
+                # substitute
+                g = var_sub[var]
+                assert g.manager == self.manager
+                x[j] = g.node
+            else:
+                # leave var same
+                x[j] = Cudd_bddIthVar(self.manager, j)
+        try:
+            r = Cudd_bddVectorCompose(self.manager, f.node, x)
+        finally:
+            PyMem_Free(x)
+        f = Function()
+        f.init(self.manager, r)
+        return f
 
     cpdef Function cofactor(self, Function f, values):
         """Return the cofactor f|_g."""

@@ -450,7 +450,7 @@ These are:
 - `evaluate` (use `cofactor`)
 - `ite`
 - `sat_len`
-- `collect_garbage`.
+- `collect_garbage` (shouldn't need this if automated reordering enabled).
 With time, most of these will appear.
 
 An interface to the BuDDy C libary also exists, as `dd.buddy`.

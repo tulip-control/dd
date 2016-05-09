@@ -450,7 +450,6 @@ These are:
 - `evaluate` (use `cofactor`)
 - `ite`
 - `sat_len`
-- `to_expr`
 - `collect_garbage`.
 With time, most of these will appear.
 

@@ -859,6 +859,33 @@ cdef class BDD(object):
         """Return node for `str` expression `e`."""
         return _parser.add_expr(e, self)
 
+    cpdef str to_expr(self, Function u):
+        """Return a Boolean expression for node `u`."""
+        assert u.manager == self.manager
+        return self._to_expr(u.node)
+
+    cdef str _to_expr(self, DdNode *u):
+        if u == Cudd_ReadLogicZero(self.manager):
+            return 'False'
+        if u == Cudd_ReadOne(self.manager):
+            return 'True'
+        r = Cudd_Regular(u)
+        i = r.index
+        v = Cudd_E(u)
+        w = Cudd_T(u)
+        var = self.var_at_level(i)
+        p = self._to_expr(v)
+        q = self._to_expr(w)
+        # pure var ?
+        if p == 'False' and q == 'True':
+            s = var
+        else:
+            s = 'ite({var}, {q}, {p})'.format(var=var, p=p, q=q)
+        # complemented ?
+        if Cudd_IsComplement(u):
+            s = '(! {s})'.format(s=s)
+        return s
+
     cpdef dump(self, Function u, fname):
         """Dump BDD as DDDMP file `fname`."""
         n = len(self._index_of_var)

@@ -466,7 +466,7 @@ The functions `and_exists`, `or_forall`, and `rename` in `dd.cudd` offer the fun
 This functionality is implemented with `image`, `preimage` and `rename` in `dd.autoref`.
 Note that (pre)image contains substitution, unlike `and_exists`.
 
-Renaming in `autoref` is more efficient, but restricted to pairs of neighboring variables.
+Renaming in `autoref` is more efficient.
 The function `cudd.rename` handles renames to variables not in the support.
 The function `cudd.compose` handles arbitrary renames, with the associated complexity of vector composition within CUDD.
 

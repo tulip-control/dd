@@ -1002,18 +1002,17 @@ class BDD(object):
     def to_expr(self, u):
         """Return a Boolean expression for node `u`."""
         assert u in self, u
-        ind2var = {k: v for v, k in items(self.ordering)}
-        return self._to_expr(u, ind2var)
+        return self._to_expr(u)
 
-    def _to_expr(self, u, ind2var):
+    def _to_expr(self, u):
         if u == 1:
             return 'True'
         if u == -1:
             return 'False'
         i, v, w = self._succ[abs(u)]
-        var = ind2var[i]
-        p = self._to_expr(v, ind2var)
-        q = self._to_expr(w, ind2var)
+        var = self._level_to_var[i]
+        p = self._to_expr(v)
+        q = self._to_expr(w)
         # pure var ?
         if p == 'False' and q == 'True':
             s = var

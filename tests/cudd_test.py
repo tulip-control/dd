@@ -474,7 +474,7 @@ def test_rename():
     u = bdd.apply('or', x, not_y)
     supp = bdd.support(u)
     assert supp == set(['x', 'y']), supp
-    d = dict(x='z', w='y')
+    d = dict(x='z', y='w')
     f = cudd.rename(u, bdd, d)
     supp = bdd.support(f)
     assert supp == set(['z', 'w']), supp

@@ -469,7 +469,7 @@ Note that (pre)image contains substitution, unlike `and_exists`.
 
 Renaming in `autoref` is more efficient, but restricted to pairs of neighboring variables.
 For non-neighbors, iteratively calling `BDD.compose` yields the desired result, with complexity as good as it can get, so a special `rename` wouldn't enjoy better complexity in most calls.
-The function `cudd.rename` handles arbitrary renames.
+The function `cudd.rename` handles renames to variables not in the support.
 
 The function `cudd.reorder` is similar to `autoref.reorder`, but does not default to invoking automated reordering.
 Typical use of CUDD enables dynamic reordering.

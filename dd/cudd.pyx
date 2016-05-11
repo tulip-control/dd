@@ -67,6 +67,7 @@ cdef extern from 'cudd.h':
     cdef DdNode *Cudd_E(DdNode *u)
     cdef bool Cudd_IsComplement(DdNode *u)
     cdef int Cudd_DagSize(DdNode *node)
+    cdef int Cudd_SharingSize(DdNode **nodeArray, int n)
     # basic Boolean operators
     cdef DdNode *Cudd_Not(DdNode *dd)
     cdef DdNode *Cudd_bddIte(DdManager *dd, DdNode *f,
@@ -1104,6 +1105,27 @@ cpdef copy_bdd(Function u, BDD source, BDD target):
     f.init(target.manager, r)
     logger.debug('-- done transferring bdd')
     return f
+
+
+cpdef count_nodes(functions):
+    """Return total nodes used by `functions`.
+
+    Sharing is taken into account.
+
+    @type functions: `list` of `Function`
+    @rtype: int
+    """
+    cdef DdNode **x
+    cdef Function f
+    n = len(functions)
+    x = <DdNode **> PyMem_Malloc(n *sizeof(DdNode *))
+    for i, f in enumerate(functions):
+        x[i] = f.node
+    try:
+        k = Cudd_SharingSize(x, n)
+    finally:
+        PyMem_Free(x)
+    return k
 
 
 cpdef count_nodes_per_level(BDD bdd):

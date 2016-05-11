@@ -631,6 +631,21 @@ def test_copy_bdd_different_order():
     del u0, u1, u2, u3, w
 
 
+def test_count_nodes():
+    bdd = cudd.BDD()
+    [bdd.add_var(var) for var in ['x', 'y', 'z']]
+    u = bdd.add_expr('x & y')
+    v = bdd.add_expr('x & z')
+    assert len(u) == 3, len(u)
+    assert len(v) == 3, len(v)
+    cudd.reorder(bdd, dict(x=0, y=1, z=2))
+    n = cudd.count_nodes([u, v])
+    assert n == 5, n
+    cudd.reorder(bdd, dict(z=0, y=1, x=2))
+    n = cudd.count_nodes([u, v])
+    assert n == 4, n
+
+
 def test_function():
     bdd = cudd.BDD()
     bdd.add_var('x')

@@ -90,6 +90,7 @@ cdef extern from 'cudd.h':
                                  DdNode *f, DdNode *g, int v)
     cdef DdNode *Cudd_bddVectorCompose(DdManager *dd,
                                        DdNode *f, DdNode **vector)
+    cdef DdNode *Cudd_bddRestrict(DdManager *dd, DdNode *f, DdNode *c)
     # cubes
     cdef DdGen *Cudd_FirstCube(DdManager *dd, DdNode *f,
                                int **cube, double *value)
@@ -974,6 +975,16 @@ cdef class BDD(object):
         f = Function()
         f.init(self.manager, r)
         return f
+
+
+cpdef Function restrict(Function u, Function care_set):
+    """Restrict `u` to `care_set` (1990 Coudert ICCAD)."""
+    assert u.manager == care_set.manager
+    cdef DdNode *r
+    r = Cudd_bddRestrict(u.manager, u.node, care_set.node)
+    f = Function()
+    f.init(u.manager, r)
+    return f
 
 
 cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):

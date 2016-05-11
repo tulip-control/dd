@@ -316,3 +316,8 @@ class Function(object):
     def ref(self):
         """Return reference cound of `self.node` in `self.bdd`."""
         return self.bdd._ref[abs(self.node)]
+
+    @property
+    def negated(self):
+        """Return `True` if a complemented edge."""
+        return self.node < 0

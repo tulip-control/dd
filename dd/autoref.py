@@ -81,7 +81,7 @@ class BDD(object):
     def compose(self, f, var, g, cache=None):
         assert f in self, f
         assert g in self, g
-        r = self._bdd(f.node, var, g.node)
+        r = self._bdd.compose(f.node, var, g.node)
         return self._wrap(r)
 
     def rename(self, u, dvars):

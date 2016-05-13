@@ -280,12 +280,12 @@ bdd.add_var('y')
 bdd.add_var('z')
 
 # there exists x, such that (x and y)
-u = bdd.add_expr('? x. x & y')
+u = bdd.add_expr('? x: x & y')
 y = bdd.var('y')
 assert u == y, (u, y)
 
 # forall x, there exists y, such that (y or x)
-u = bdd.add_expr('! x. ? y. y | z')
+u = bdd.add_expr('! x: ? y: y | z')
 assert u == bdd.true, u
 ```
 
@@ -764,8 +764,8 @@ The method `BDD.add_expr` parses the following grammar.
 
 ```
        # first-order
-expr ::= '!' names '.' expr  # universal quantification (forall)
-         '?' names '.' expr  # existential quantification (exists)
+expr ::= '!' names ':' expr  # universal quantification (forall)
+         '?' names ':' expr  # existential quantification (exists)
 
        # propositional
        | '!' expr         # negation (not)
@@ -795,7 +795,7 @@ Trailing comments can be added using a hashmark, for example `# this is comment`
 
 The token precedence (lowest to highest) and associativity (r = right, l = left, n = none) is:
 
-- `.` (l)
+- `:` (l)
 - `<->` (l)
 - `->` (l)
 - `-` (l)

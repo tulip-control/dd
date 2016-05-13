@@ -15,7 +15,7 @@ class Lexer(astutils.Lexer):
         'True': 'TRUE'}
     delimiters = ['LPAREN', 'RPAREN', 'COMMA']
     operators = ['NOT', 'AND', 'OR', 'XOR', 'IMP', 'BIMP',
-                 'EQUALS', 'NEQUALS', 'DOT', 'QUESTION', 'MINUS']
+                 'EQUALS', 'NEQUALS', 'COLON', 'QUESTION', 'MINUS']
     misc = ['NAME', 'NUMBER']
 
     def t_NAME(self, t):
@@ -44,7 +44,7 @@ class Lexer(astutils.Lexer):
     t_IMP = '->'
     t_BIMP = '\<->'
     t_COMMA = r','
-    t_DOT = r'\.'
+    t_COLON = r'\:'
     t_QUESTION = r'\?'
     t_ignore = " \t"
 
@@ -64,7 +64,7 @@ class Parser(astutils.Parser):
     start = 'expr'
     # low to high
     precedence = (
-        ('left', 'DOT'),
+        ('left', 'COLON'),
         ('left', 'BIMP'),
         ('left', 'IMP'),
         ('left', 'MINUS'),
@@ -116,8 +116,8 @@ class Parser(astutils.Parser):
         p[0] = self.nodes.Operator(p[1], p[3], p[5], p[7])
 
     def p_quantifier(self, p):
-        """expr : NOT names DOT expr
-                | QUESTION names DOT expr
+        """expr : NOT names COLON expr
+                | QUESTION names COLON expr
         """
         p[0] = self.nodes.Operator(p[1], p[2], p[4])
 

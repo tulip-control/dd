@@ -132,13 +132,16 @@ class BDD(object):
     def to_expr(self, u):
         return self._bdd.to_expr(u.node)
 
-    def apply(self, op, u, v=None):
+    def apply(self, op, u, v=None, w=None):
         assert u in self, u
         if v is None:
             r = self._bdd.apply(op, u.node)
-        else:
+        elif w is None:
             assert v in self, v
             r = self._bdd.apply(op, u.node, v.node)
+        else:
+            assert w in self, w
+            r = self._bdd.apply(op, u.node, v.node, w.node)
         return self._wrap(r)
 
     def _add_int(self, i):

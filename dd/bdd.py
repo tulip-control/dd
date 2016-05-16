@@ -1023,7 +1023,7 @@ class BDD(object):
             s = '(! {s})'.format(s=s)
         return s
 
-    def apply(self, op, u, v=None):
+    def apply(self, op, u, v=None, w=None):
         """Apply Boolean connective `op` between nodes `u` and `v`.
 
         @type op: `str` in:
@@ -1035,6 +1035,7 @@ class BDD(object):
         """
         assert abs(u) in self, u
         assert v is None or abs(v) in self, v
+        assert w is None or abs(w) in self, w
         if op in ('not', '!'):
             return -u
         elif op in ('or', '|', '||'):
@@ -1055,6 +1056,8 @@ class BDD(object):
         elif op in ('exists', '\E'):
             qvars = self.support(u)
             return self.quantify(v, qvars, forall=False)
+        elif op == 'ite':
+            return self.ite(u, v, w)
         else:
             raise Exception(
                 'unknown operator "{op}"'.format(op=op))

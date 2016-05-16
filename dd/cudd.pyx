@@ -724,7 +724,12 @@ cdef class BDD(object):
             Cudd_GenFree(gen)
         self.configure(reordering=True)
 
-    cpdef Function apply(self, op, Function u, Function v=None):
+    cpdef Function apply(
+            self,
+            op,
+            Function u,
+            Function v=None,
+            Function w=None):
         """Return as `Function` the result of applying `op`."""
         # TODO: add ite, also to slugsin syntax
         assert self.manager == u.manager
@@ -757,6 +762,13 @@ cdef class BDD(object):
             r = Cudd_bddUnivAbstract(mgr, v.node, u.node)
         elif op in ('exists', '\E'):
             r = Cudd_bddExistAbstract(mgr, v.node, u.node)
+        # ternary
+        if op == 'ite':
+            assert w is not None
+            assert w.manager == v.manager
+            r = Cudd_bddIte(mgr, u.node, v.node, w.node)
+        else:
+            assert w is None
         if r == NULL:
             raise Exception(
                 'unknown operator: "{op}"'.format(op=op))

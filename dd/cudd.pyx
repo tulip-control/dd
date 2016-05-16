@@ -239,7 +239,7 @@ cdef class BDD(object):
             memory_estimate = default_memory
         if memory_estimate >= total_memory:
             print(
-                'Exception in `dd.cudd`: '
+                'Error in `dd.cudd`: '
                 'total physical memory is {t} bytes, '
                 'but requested {r} bytes').format(
                     t=total_memory,

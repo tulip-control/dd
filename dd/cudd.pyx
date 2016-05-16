@@ -743,7 +743,7 @@ cdef class BDD(object):
             r = Cudd_Not(u.node)
         else:
             assert v is not None
-            assert u.manager == v.manager
+            assert v.manager == u.manager
         # binary
         if op in ('and', '&', '&&'):
             r = Cudd_bddAnd(mgr, u.node, v.node)

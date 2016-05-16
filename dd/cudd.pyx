@@ -618,6 +618,16 @@ cdef class BDD(object):
         """
         return copy_bdd(u, self, other)
 
+    cpdef Function ite(self, Function g, Function u, Function v):
+        assert g.manager == self.manager
+        assert u.manager == self.manager
+        assert v.manager == self.manager
+        cdef DdNode *r
+        r = Cudd_bddIte(self.manager, g.node, u.node, v.node)
+        f = Function()
+        f.init(self.manager, r)
+        return f
+
     cpdef Function compose(self, Function f, var_sub):
         """Return the composition f|_(var = g).
 

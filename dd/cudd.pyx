@@ -1079,7 +1079,8 @@ cpdef reorder(BDD bdd, dvars=None):
         Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_GROUP_SIFT, 1)
         return
     # partial reorderings not supported for now
-    assert len(dvars) == len(bdd.vars)
+    assert len(dvars) == len(bdd.vars), (
+        'Missing variables from new variable order')
     cdef int *p
     n = len(dvars)
     p = <int *> PyMem_Malloc(n * sizeof(int *))

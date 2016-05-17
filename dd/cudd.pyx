@@ -63,6 +63,7 @@ cdef extern from 'cudd.h':
     cdef DdNode *Cudd_ReadOne(DdManager *dd)
     cdef DdNode *Cudd_Regular(DdNode *u)
     cdef bool Cudd_IsConstant(DdNode *u)
+    cdef unsigned int Cudd_NodeReadIndex(DdNode *u)
     cdef DdNode *Cudd_T(DdNode *u)
     cdef DdNode *Cudd_E(DdNode *u)
     cdef bool Cudd_IsComplement(DdNode *u)
@@ -1311,7 +1312,8 @@ cdef class Function(object):
         """Index of `self.node`."""
         cdef DdNode *u
         u = Cudd_Regular(self.node)
-        return u.index
+        index = Cudd_NodeReadIndex(self.node)
+        return index
 
     @property
     def level(self):

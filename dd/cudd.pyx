@@ -1035,7 +1035,7 @@ cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
     return f
 
 
-cpdef Function rename(Function u, bdd, dvars):
+cpdef Function rename(Function u, BDD bdd, dvars):
     """Return node `u` after renaming variables in `dvars`."""
     # assert old and new vars are disjoint sets
     target_vars = dvars.values()

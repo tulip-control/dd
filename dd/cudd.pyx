@@ -501,6 +501,7 @@ cdef class BDD(object):
 
     cpdef succ(self, Function u):
         """Return `(level, low, high)` for `u`."""
+        assert u.manager == self.manager
         i = u.level
         v = u.low
         w = u.high
@@ -702,6 +703,7 @@ cdef class BDD(object):
     def sat_iter(self, Function u,
                  full=False, care_bits=None):
         """Return generator over assignments."""
+        assert u.manager == self.manager
         cdef DdGen *gen
         cdef int *cube
         cdef double value
@@ -831,6 +833,7 @@ cdef class BDD(object):
 
     cpdef _cube_to_dict(self, Function f):
         """Recurse to collect indices of support variables."""
+        assert f.manager == self.manager
         n = len(self.vars)
         cdef int *x
         x = <int *> PyMem_Malloc(n * sizeof(DdNode *))
@@ -844,6 +847,7 @@ cdef class BDD(object):
     cpdef Function quantify(self, Function u,
                             qvars, forall=False):
         """Abstract variables `qvars` from node `u`."""
+        assert u.manager == self.manager
         cdef DdManager *mgr = u.manager
         c = set(qvars)
         cube = self.cube(c)
@@ -913,6 +917,7 @@ cdef class BDD(object):
 
     cpdef dump(self, Function u, fname):
         """Dump BDD as DDDMP file `fname`."""
+        assert u.manager == self.manager
         n = len(self._index_of_var)
         cdef FILE *f
         cdef char **names
@@ -1012,6 +1017,7 @@ cpdef Function restrict(Function u, Function care_set):
 
 cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
     """Return `? qvars. u & v`."""
+    assert u.manager == bdd.manager
     assert u.manager == v.manager
     mgr = u.manager
     cube = bdd.cube(qvars)
@@ -1023,6 +1029,7 @@ cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
 
 cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
     """Return `! qvars. u | v`."""
+    assert u.manager == bdd.manager
     assert u.manager == v.manager
     mgr = u.manager
     cube = bdd.cube(qvars)
@@ -1037,6 +1044,7 @@ cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
 
 cpdef Function rename(Function u, BDD bdd, dvars):
     """Return node `u` after renaming variables in `dvars`."""
+    assert u.manager == bdd.manager
     # assert old and new vars are disjoint sets
     target_vars = dvars.values()
     common = set(dvars).intersection(target_vars)

@@ -300,7 +300,7 @@ cdef class BDD(object):
     def __contains__(self, Function u):
         assert u.manager == self.manager, 'undefined containment'
         try:
-            self.apply('not', u)
+            Cudd_NodeReadIndex(u.node)
             return True
         except:
             return False

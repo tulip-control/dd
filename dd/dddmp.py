@@ -392,12 +392,6 @@ class Parser(object):
         """rootnames : ROOTNAMES varnames"""
         raise NotImplementedError
 
-    def p_opt_info(self, p):
-        """opt_info : number
-                    | name
-        """
-        p[0] = p[1]
-
     def p_algebraic_dd(self, p):
         """algdd : ADD"""
         self.algebraic_dd = True

@@ -644,6 +644,7 @@ def test_count_nodes():
     cudd.reorder(bdd, dict(z=0, y=1, x=2))
     n = cudd.count_nodes([u, v])
     assert n == 4, n
+    del u, v
 
 
 def test_function():

@@ -47,7 +47,7 @@ clean_cudd:
 	cd cudd-2.5.1; make distclean
 
 clean:
-	-rm -rf build/ dist/ dd.egg-info/ dd/*.so dd/*.c
+	-rm -rf build/ dist/ dd.egg-info/ dd/*.so dd/*.c dd/*.pyc
 
 rm_cudd:
 	-rm -rf cudd*/ cudd*.tar.gz

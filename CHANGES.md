@@ -1,6 +1,15 @@
 # dd changelog
 
 
+## 0.3.1
+
+BUG:
+
+- `dd.bdd.BDD.dump`: if argument `roots is None` (default),
+  then dump all nodes
+- `dd.autoref.BDD.compose`: call wrapped method correctly
+
+
 ## 0.3.0
 
 API:

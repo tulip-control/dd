@@ -22,4 +22,5 @@ dist/*
 build/*
 *.egg-info
 *.swp
+*.tags
 

@@ -1235,6 +1235,8 @@ cdef _dict_to_cube_array(d, int *x, dict index_of_var):
     @param x: array of literals
         0: negated, 1: positive, 2: don't care
         see `Cudd_FirstCube`
+    @param index_of_var: `dict` from variables to `bool`
+        or `set` of variable names.
     """
     for var, j in index_of_var.iteritems():
         if var not in d:

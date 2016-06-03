@@ -176,7 +176,7 @@ For example:
 
 ```shell
 pip install cython  # not needed if building from PyPI distro
-python setup.py install --fetch
+python setup.py install --fetch --cudd
 ```
 
 These options can be passed to `pip` too, using the [`--install-option`](https://pip.pypa.io/en/latest/reference/pip_install.html#per-requirement-overrides) in a requirements file, for example:

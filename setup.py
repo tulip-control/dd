@@ -1,3 +1,4 @@
+"""Installation script."""
 import logging
 import sys
 from setuptools import setup
@@ -47,6 +48,7 @@ classifiers = [
 
 
 def git_version(version):
+    """Return version with local version identifier."""
     import git
     repo = git.Repo('.git')
     repo.git.status()
@@ -68,6 +70,7 @@ def git_version(version):
 
 
 def run_setup():
+    """Build parser, get version from `git`, install."""
     # install build deps ?
     if '--fetch' in sys.argv:
         sys.argv.remove('--fetch')

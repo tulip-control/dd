@@ -157,13 +157,10 @@ Otherwise:
 python setup.py install
 ```
 
-If you use the latter, remember to install `ply` before `dd`. If `ply` is absent, then the parser tables will not be cached.
-
-Optional: For graph layout, [`pydot`](https://pypi.python.org/pypi/pydot) and [graphviz](http://graphviz.org/) are required. Using `pip`, these can be installed as [extra](https://pip.pypa.io/en/latest/reference/pip_install.html#examples) called `dot`:
-
-```shell
-pip install dd[dot]
-```
+If you use the latter, remember to install `ply` before `dd`.
+If `ply` is absent, then the parser tables will not be cached, affecting performance.
+For graph layout with `pydot`,
+[graphviz](http://graphviz.org/) needs to be installed.
 
 
 ## Cython bindings

@@ -1,11 +1,8 @@
 language: python
 
-matrix:
-  include:
-    - python: 2.7
-      env: PYDOT="http://pydot.googlecode.com/files/pydot-1.0.28.tar.gz"
-    - python: 3.5
-      env: PYDOT=pydot3k
+python:
+  - "2.7"
+  - "3.5"
 
 addons:
   apt:
@@ -15,7 +12,6 @@ addons:
 install:
   - pip install --upgrade pip setuptools
   - pip install -r requirements.txt
-  - pip install $PYDOT
   - python setup.py install --fetch --cudd
 
 script:
@@ -24,4 +20,3 @@ script:
 
 after_success:
   - coveralls
-

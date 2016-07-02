@@ -27,16 +27,10 @@ install_requires = [
     'networkx >= 1.9.1',
     'ply >= 3.4',
     'psutil >= 3.2.2',
+    'pydot >= 1.2.2',
     'setuptools >= 19.6']
-if sys.version_info.major < 3:
-    pydot_require = 'pydot >= 1.0.28'
-else:
-    pydot_require = 'pydot3k >= 1.0.17'
-extras_require = dict(
-    dot=pydot_require)
 tests_require = [
-    'nose >= 1.3.4',
-    pydot_require]
+    'nose >= 1.3.4']
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
     'Intended Audience :: Developers',
@@ -116,7 +110,6 @@ def run_setup():
         url=url,
         license='BSD',
         install_requires=install_requires,
-        extras_require=extras_require,
         tests_require=tests_require,
         packages=[name],
         package_dir={name: name},

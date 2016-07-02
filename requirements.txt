@@ -1,5 +1,4 @@
 cython==0.24
-pyparsing==2.0.3
 
 
 # dev

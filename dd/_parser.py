@@ -124,9 +124,9 @@ class Parser(astutils.Parser):
         p[0] = self.nodes.Operator(p[1], p[2], p[4])
 
     def p_names_iter(self, p):
-        """names : names name"""
+        """names : names COMMA name"""
         u = p[1]
-        u.append(p[2])
+        u.append(p[3])
         p[0] = u
 
     def p_names_end(self, p):

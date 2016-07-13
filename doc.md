@@ -784,7 +784,7 @@ expr ::= '\A' names ':' expr  # universal quantification (forall)
        | 'False'          # Boolean constant
        | 'True'           # Boolean constant
 
-names ::= [names] name
+names ::= [names] ',' name
 name ::= NAME
 
 NAME ::= [A-Za-z_][A-za-z0-9_.']*

@@ -86,8 +86,12 @@ from dd import cudd
 
 bdd = cudd.BDD()
 [bdd.add_var(var) for var in ['x', y'']]
+u = bdd.add_expr('\E x, y: x & y')
+assert u == bdd.true, u
+
+# longer alternative
 xy = bdd.add_expr('x & y')
-u = bdd.quantify(xy, {'x', 'y'}, forall=False)
+u = bdd.exist(['x', 'y'], xy)
 assert u == bdd.true, u
 ```
 

@@ -710,6 +710,38 @@ def test_quantify():
     assert r == x, r
 
 
+def test_quantifier_syntax():
+    b = BDD()
+    [b.add_var(var) for var in ['x', 'y']]
+    # constants
+    u = b.add_expr('\E x: True')
+    assert u == b.true, u
+    u = b.add_expr('\E x, y: True')
+    assert u == b.true, u
+    u = b.add_expr('\E x: False')
+    assert u == b.false, u
+    u = b.add_expr('\A x: True')
+    assert u == b.true, u
+    u = b.add_expr('\A x: False')
+    assert u == b.false, u
+    u = b.add_expr('\A x, y: False')
+    assert u == b.false, u
+    # variables
+    u = b.add_expr('\E x: x')
+    assert u == b.true, u
+    u = b.add_expr('\A x: x')
+    assert u == b.false, u
+    u = b.add_expr('\E x, y: x')
+    assert u == b.true, u
+    u = b.add_expr('\E x, y: y')
+    assert u == b.true, u
+    u = b.add_expr('\A x: y')
+    assert u == b.var('y'), u
+    u = b.add_expr('\A x: ! y')
+    u_ = b.apply('not', b.var('y'))
+    assert u == u_, (u, u_)
+
+
 def test_rename():
     ordering = {'x': 0, 'xp': 1}
     g = BDD(ordering)

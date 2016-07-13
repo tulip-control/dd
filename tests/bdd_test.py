@@ -494,11 +494,11 @@ def test_compose():
     ordering = {'x': 0, 'y': 1, 'z': 2, 'w': 3}
     g = BDD(ordering)
     a = g.add_expr('(x && y) || (!z || (w && y && x))')
-    b = g.add_expr('(y || z) && x')
+    b = g.add_expr('(y || !z) && x')
     c = g.compose(a, 'y', b)
     d = g.add_expr(
-        '(x && ((y || z) && x)) ||'
-        ' (!z || (w && ((y || z) && x) && x))')
+        '(x && ((y || !z) && x)) ||'
+        ' (!z || (w && ((y || !z) && x) && x))')
     assert c == d, (c, d)
     # complemented edges
     ordering = {'x': 0, 'y': 1}

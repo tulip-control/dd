@@ -270,8 +270,7 @@ class BDD(object):
             `variables` to values
             keys can be variable names as `str` or
             levels as `int`.
-            Mapping should be complete
-            with respect to `u`.
+            The keys should include the support of `u`.
         @type values: `dict`
         """
         assert abs(u) in self, u

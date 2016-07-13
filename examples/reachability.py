@@ -44,7 +44,8 @@ def least_fixpoint(transitions, bdd):
         next_q = _bdd.rename(q, bdd, prime)
         u = transitions & next_q
         # existential quantification over x0', x1'
-        pred = bdd.quantify(u, qvars, forall=False)
+        pred = bdd.exist(qvars, u)
+        # alternative: pred = bdd.quantify(u, qvars, forall=False)
         q = q | pred | target
     return q
 

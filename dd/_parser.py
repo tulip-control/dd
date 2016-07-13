@@ -132,18 +132,18 @@ class Parser(astutils.Parser):
     def p_substitutions_iter(self, p):
         """subs : subs COMMA sub"""
         u = p[1]
-        u.update(p[3])
+        u.append(p[3])
         p[0] = u
 
     def p_substitutions_end(self, p):
         """subs : sub"""
-        p[0] = p[1]
+        p[0] = [p[1]]
 
     def p_substitution(self, p):
         """sub : name DIV name"""
         new = p[1]
         old = p[3]
-        p[0] = {old: new}
+        p[0] = (old, new)
 
     def p_names_iter(self, p):
         """names : names COMMA name"""
@@ -217,7 +217,7 @@ def add_ast(t, bdd):
         elif t.operator == '\S':
             expr, rename = t.operands
             u = add_ast(expr, bdd)
-            rename = {k.value: v.value for k, v in rename.items()}
+            rename = {k.value: v.value for k, v in rename}
             return bdd.rename(u, rename)
         else:
             operands = [add_ast(x, bdd) for x in t.operands]

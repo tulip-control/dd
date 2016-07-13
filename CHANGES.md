@@ -1,6 +1,38 @@
 # dd changelog
 
 
+## 0.4.0
+
+- require `pydot >= 1.2.2`
+
+
+API:
+
+- change quantification syntax to `\E x, y: x`
+- add renaming syntax `\S x / y,  z / w: y & w`
+- class `BDD` in `dd.bdd`, `dd.autoref`, `dd.cudd`:
+  - add operators `'ite', '\E', '\A'` to method `apply`
+  - add methods `forall` and `exist` as wrappers of `quantify`
+  - add method `_add_int` for checking presence of
+    a BDD node represented as an integer
+  - add method `succ` to obtain `(level, low, high)`
+- class `cudd.BDD`:
+  - add method `compose`
+  - add method `ite`
+  - add method `to_expr`
+- class `cudd.Function`:
+  - add method `__int__` to represent CUDD nodes
+    uniquely as integers (by shifting the C pointer value to
+    avoid possible conflicts with reserved values)
+  - add method `__str__` to return integer repr as `str`
+  - add attribute `level`
+  - add attribute `negated`
+- module `cudd`:
+  - add function `restrict`
+  - add function `count_nodes`
+- remove "extra" named `dot`, because `pydot` is now required
+
+
 ## 0.3.1
 
 BUG:

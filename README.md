@@ -201,17 +201,26 @@ For graph layout with `pydot`,
 By default, the package installs only the Python modules.
 You can select to install either or both Cython extensions by
 the `setup.py` options `--cudd` and `--buddy`.
+Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD. For example:
 
-Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD.
+```shell
+pip download dd --no-deps
+tar xzf dd-*.tar.gz
+cd dd-*
+python setup.py install --fetch --cudd
+```
+
 If building from the repository, then first install `cython`.
 For example:
 
 ```shell
+git clone git@github.com:johnyf/dd
+cd dd
 pip install cython  # not needed if building from PyPI distro
 python setup.py install --fetch --cudd
 ```
 
-These options can be passed to `pip` too, using the
+The above options can be passed to `pip` too, using the
 [`--install-option`](https://pip.pypa.io/en/latest/reference/pip_install.html#per-requirement-overrides)
 in a requirements file, for example:
 

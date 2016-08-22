@@ -709,6 +709,11 @@ cdef class BDD(object):
         cdef double value
         if care_bits is None:
             care_bits = set(self.vars)
+        support = self.support(u)
+        missing = {v for v in support if v not in care_bits}
+        assert not missing, (
+            'support - care_bits = {missing}').format(
+                missing=missing)
         self.configure(reordering=False)
         gen = Cudd_FirstCube(self.manager, u.node, &cube, &value)
         assert gen != NULL, 'first cube failed'

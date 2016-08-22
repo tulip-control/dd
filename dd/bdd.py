@@ -924,6 +924,11 @@ class BDD(object):
         value = True
         if care_bits is None:
             care_bits = set(self.ordering)
+        support = self.support(u)
+        missing = {v for v in support if v not in care_bits}
+        assert not missing, (
+            'support - care_bits = {missing}').format(
+                missing=missing)
         for cube in self._sat_iter(u, cube, value):
             if not full:
                 yield cube

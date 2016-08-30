@@ -68,7 +68,8 @@ class BDD(object):
       - `vars`: `dict` mapping `variables` to `int` levels
       - `roots`: (optional) edges used by `to_nx`.
       - `max_nodes`: raise `Exception` if this limit is reached.
-        The default value is `sys.maxsize`. Increase it if needed.
+        The default value is `sys.maxsize` in Python 3 and
+        `sys.maxint` in Python 2. Increase it if needed.
 
     To ensure that the target node of a returned edge
     is not garbage collected during reordering,
@@ -98,7 +99,11 @@ class BDD(object):
         for var, level in items(ordering):
             self.add_var(var, level)
         self.roots = set()
-        self.max_nodes = sys.maxsize
+        try:
+            # Python 2, for xrange
+            self.max_nodes = sys.maxint
+        except AttributeError:
+            self.max_nodes = sys.maxsize
 
     def __copy__(self):
         bdd = BDD(self.ordering)

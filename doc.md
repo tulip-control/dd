@@ -767,24 +767,35 @@ More about building symbolic algorithms, together with infrastructure for arithm
 The method `BDD.add_expr` parses the following grammar.
 
 ```
-       # first-order
+       # predicate logic
 expr ::= '\A' names ':' expr  # universal quantification (forall)
          '\E' names ':' expr  # existential quantification (exists)
          '\S' pairs ':' expr  # renaming of variables (substitution)
 
        # propositional
-       | '!' expr         # negation (not)
-       | expr '&' expr    # conjunction (and)
-       | expr '|' expr    # disjunction (or)
+
+       # TLA+ syntax
+       | '~' expr         # negation (not)
+       | expr '/\' expr   # conjunction (and)
+       | expr '\/' expr   # disjunction (or)
+       | expr '=>' expr   # implication (implies)
+       | expr '<=>' expr  # equivalence (if and only if)
+
+       # Promela syntax
+       | '!' expr         # negation
+       | expr '&' expr    # conjunction
+       | expr '|' expr    # disjunction
+       | expr '->' expr   # implication
+       | expr '<->' expr  # equivalence
+
+       # other
        | expr '^' expr    # xor (exclusive disjunction)
-       | expr '->' expr   # implication (implies)
-       | expr '<->' expr  # equivalence (if and only if)
        | 'ite' '(' expr ',' expr ',' expr ')'
                           # ternary conditional (if-then-else)
        | expr '=' expr    #
        | '(' expr ')'     # parentheses
        | NAME             # identifier (bit variable)
-       | INTEGER          # BDD node (only for `dd.bdd.BDD`)
+       | INTEGER          # BDD node reference
        | 'False'          # Boolean constant
        | 'True'           # Boolean constant
 
@@ -795,7 +806,7 @@ names ::= [names] ',' name
 name ::= NAME
 
 NAME ::= [A-Za-z_][A-za-z0-9_.']*
-INTEGER ::= [0-9]*
+INTEGER ::= [-][0-9]*
 ```
 
 Trailing comments can be added using a hashmark, for example `# this is comment`.
@@ -803,14 +814,14 @@ Trailing comments can be added using a hashmark, for example `# this is comment`
 The token precedence (lowest to highest) and associativity (r = right, l = left, n = none) is:
 
 - `:` (l)
-- `<->` (l)
-- `->` (l)
+- `<=>, <->` (l)
+- `=>, ->` (l)
 - `-` (l)
 - `^` (l)
-- `|` (l)
-- `&` (l)
+- `\/, |` (l)
+- `/\, &` (l)
 - `=`, `!=` (l)
-- `!` (r)
+- `~, !` (r)
 - `-` (r) unary minus, as in `-5`
 
 Both and `setup.py`, and a developer may want to force a rebuild of the parser table.

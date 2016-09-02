@@ -25,24 +25,36 @@ class Lexer(astutils.Lexer):
         return t
 
     def t_AND(self, t):
-        r'\&\&|\&'
+        r'\&\&|\&|/\\'
         t.value = '&'
         return t
 
     def t_OR(self, t):
-        r'\|\||\|'
+        r'\|\||\||\\/'
         t.value = '|'
         return t
 
-    t_NOT = r'\!'
+    def t_NOT(self, t):
+        r'~|\!'
+        t.value = '!'
+        return t
+
+    def t_IMPLIES(self, t):
+        r'\=>|->'
+        t.value = '=>'
+        return t
+
+    def t_EQUIV(self, t):
+        r'\<\=>|\<->'
+        t.value = '<->'
+        return t
+
     t_XOR = r'\^'
     t_EQUALS = r'\='
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
     t_MINUS = r'-'
     t_NUMBER = r'\d+'
-    t_IMPLIES = '->'
-    t_EQUIV = '\<->'
     t_COMMA = r','
     t_COLON = r'\:'
     t_FORALL = r'\\A'

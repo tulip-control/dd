@@ -746,22 +746,22 @@ cdef class BDD(object):
         mgr = u.manager
         # unary
         r = NULL
-        if op in ('!', 'not'):
+        if op in ('~', 'not', '!'):
             assert v is None
             r = Cudd_Not(u.node)
         else:
             assert v is not None
             assert v.manager == u.manager
         # binary
-        if op in ('and', '&', '&&'):
+        if op in ('and', '/\\', '&', '&&'):
             r = Cudd_bddAnd(mgr, u.node, v.node)
-        elif op in ('or', '|', '||'):
+        elif op in ('or', r'\/', '|', '||'):
             r = Cudd_bddOr(mgr, u.node, v.node)
         elif op in ('xor', '^'):
             r = Cudd_bddXor(mgr, u.node, v.node)
-        elif op in ('implies', '->'):
+        elif op in ('=>', '->', 'implies'):
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_ReadOne(mgr))
-        elif op in ('<->'):
+        elif op in ('<=>', '<->', 'equiv'):
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_Not(v.node))
         elif op in ('diff', '-'):
             r = Cudd_bddIte(mgr, u.node, Cudd_Not(v.node),

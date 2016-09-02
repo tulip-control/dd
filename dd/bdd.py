@@ -1033,29 +1033,35 @@ class BDD(object):
         return s
 
     def apply(self, op, u, v=None, w=None):
-        """Apply Boolean connective `op` between nodes `u` and `v`.
+        r"""Apply Boolean connective `op` between nodes `u` and `v`.
 
         @type op: `str` in:
-          - `'not', 'or', 'and', 'xor',
-             'implies', 'forall', 'exists'`
-          - `'!', '|', '||', '&', '&&', '^',
-             '->', '<->', '\A', '\E'`
+          - `'not', '~', '!'`
+          - `'and', '/\', '&', '&&'`
+          - `'or', '\/', '|', '||'`
+          - `'xor', '#', '^'`
+          - `'=>', '->', 'implies'`
+          - `'<=>', '<->', 'equiv'`
+          - `'diff', '-'`
+          - `'\A', 'forall'`
+          - `'\E', 'exists'`
+          - `'ite'`
         @type u, v: nodes
         """
         assert abs(u) in self, u
         assert v is None or abs(v) in self, v
         assert w is None or abs(w) in self, w
-        if op in ('not', '!'):
+        if op in ('~', 'not', '!'):
             return -u
-        elif op in ('or', '|', '||'):
+        elif op in ('or', r'\/', '|', '||'):
             return self.ite(u, 1, v)
-        elif op in ('and', '&', '&&'):
+        elif op in ('and', '/\\', '&', '&&'):
             return self.ite(u, v, -1)
         elif op in ('xor', '^'):
             return self.ite(u, -v, v)
-        elif op in ('implies', '->'):
+        elif op in ('=>', '->', 'implies'):
             return self.ite(u, v, 1)
-        elif op in ('<->'):
+        elif op in ('<=>', '<->', 'equiv'):
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
             return self.ite(u, -v, -1)

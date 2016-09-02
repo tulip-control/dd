@@ -1037,7 +1037,7 @@ class BDD(object):
 
         @type op: `str` in:
           - `'not', 'or', 'and', 'xor',
-             'implies', 'bimplies', 'forall', 'exists'`
+             'implies', 'forall', 'exists'`
           - `'!', '|', '||', '&', '&&', '^',
              '->', '<->', '\A', '\E'`
         @type u, v: nodes
@@ -1055,7 +1055,7 @@ class BDD(object):
             return self.ite(u, -v, v)
         elif op in ('implies', '->'):
             return self.ite(u, v, 1)
-        elif op in ('bimplies', '<->'):
+        elif op in ('<->'):
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
             return self.ite(u, -v, -1)

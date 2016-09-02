@@ -761,7 +761,7 @@ cdef class BDD(object):
             r = Cudd_bddXor(mgr, u.node, v.node)
         elif op in ('implies', '->'):
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_ReadOne(mgr))
-        elif op in ('bimplies', '<->'):
+        elif op in ('<->'):
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_Not(v.node))
         elif op in ('diff', '-'):
             r = Cudd_bddIte(mgr, u.node, Cudd_Not(v.node),

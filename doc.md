@@ -293,7 +293,6 @@ assert u == bdd.true, u
 ```
 
 Besides variable identifiers, integers that are BDD nodes can be used too.
-Currently, reference to a BDD node as an integer is only availabel for `dd.bdd.BDD`, because of the internal representation there.
 
 ```python
 from dd.bdd import BDD

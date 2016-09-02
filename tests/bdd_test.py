@@ -954,7 +954,7 @@ def test_function_wrapper():
         '( (x & y) & !((! x) | z) )')
     assert r_ == r, (r_, r)
     p = bdd.add_expr('y')
-    q = p.bimplies(x)
+    q = p.equiv(x)
     q_ = bdd.add_expr('x <-> y')
     assert q_ == q, (q_, q)
     # to_expr

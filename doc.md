@@ -377,8 +377,8 @@ Unlike `dd.bdd`, the nodes in `autoref` and `cudd` are of class `Function`.
 This abstracts away the underlying node representation, so that you can run the same code in both pure Python (with `dd.bdd.BDD` underneath as manager), as well as C (with the `struct` named [`DdManager`](https://github.com/johnyf/cudd/blob/80c9396b7efcb24c33868aeffb89a557af0dc356/cudd/cudd/cudd.h#L281) in `cudd.h` underneath as manager).
 
 The [magic methods](https://github.com/RafeKettler/magicmethods) for `~`, `&`, `|`, `^` implemented by `Function` are its most frequently used aspect.
-Two methods called `implies` and `bimplies` are available.
-But it is more readable to use `bdd.apply` or `bdd.add_expr`, or just `v | ~ u` for `u.implies(v)` and `~ (u ^ v)` for `u.bimplies(v)`.
+Two methods called `implies` and `equiv` are available.
+But it is more readable to use `bdd.apply` or `bdd.add_expr`, or just `v | ~ u` for `u.implies(v)` and `~ (u ^ v)` for `u.equiv(v)`.
 
 
 #### BDD equality

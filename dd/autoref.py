@@ -278,8 +278,13 @@ class Function(object):
     def implies(self, other):
         return self._apply('implies', other)
 
-    def bimplies(self, other):
-        return self._apply('bimplies', other)
+    def equiv(self, other):
+        """Return equivalence.
+
+        Differs from `__eq__` in that it returns a BDD
+        as `Function`, instead of `bool`.
+        """
+        return self._apply('equiv', other)
 
     def _apply(self, op, other):
         """Return result of operation `op` with `other`."""

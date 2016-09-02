@@ -766,9 +766,9 @@ cdef class BDD(object):
         elif op in ('diff', '-'):
             r = Cudd_bddIte(mgr, u.node, Cudd_Not(v.node),
                             Cudd_ReadLogicZero(mgr))
-        elif op in ('forall', '\A'):
+        elif op in ('\A', 'forall'):
             r = Cudd_bddUnivAbstract(mgr, v.node, u.node)
-        elif op in ('exists', '\E'):
+        elif op in ('\E', 'exists'):
             r = Cudd_bddExistAbstract(mgr, v.node, u.node)
         # ternary
         if op == 'ite':

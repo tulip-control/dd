@@ -1065,10 +1065,10 @@ class BDD(object):
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
             return self.ite(u, -v, -1)
-        elif op in ('forall', '\A'):
+        elif op in ('\A', 'forall'):
             qvars = self.support(u)
             return self.quantify(v, qvars, forall=True)
-        elif op in ('exists', '\E'):
+        elif op in ('\E', 'exists'):
             qvars = self.support(u)
             return self.quantify(v, qvars, forall=False)
         elif op == 'ite':

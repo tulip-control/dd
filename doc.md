@@ -139,7 +139,9 @@ y = bdd.var('y')
 
 u = x & y
 u = bdd.apply('and', x, y)
-u = bdd.apply('&', x, y)
+u = bdd.apply('/\\', x, y)  # TLA+ syntax
+u = bdd.add_expr('x /\ y')
+u = bdd.apply('&', x, y)  # Promela syntax
 u = bdd.add_expr('x & y')
 ```
 
@@ -157,7 +159,8 @@ Lets create the BDD of a more colorful Boolean formula
 
 ```python
 bdd.add_var('z')
-s = '(x & y) <-> (! z | (y ^ x))'
+s = '(x /\ y) <=> (~ z \/ (y ^ x))'  # TLA+ syntax
+s = '(x & y) <-> (! z | (y ^ x))'  # Promela syntax
 v = bdd.add_expr(s)
 ```
 
@@ -174,22 +177,22 @@ Lets look closer at this with an example.
 ```python
 [bdd.add_var(var) for var in ['x', 'y', 'z']]
 
-u = bdd.add_expr('x | y')
+u = bdd.add_expr('x \/ y')
 support = bdd.support(u)
 >>> support
 {'x', 'y'}
 ```
 
-This tells us that membership in the set described by the expression `x | y` depends on the values of the variables `x` and `y`.
-The values of other variables, like `z`, are irrelevant to evaluating the expression `x | y`.
+This tells us that membership in the set described by the expression `x \/ y` depends on the values of the variables `x` and `y`.
+The values of other variables, like `z`, are irrelevant to evaluating the expression `x \/ y`.
 
 This brings up the matter of function domain, a common pitfall when implementing symbolic algorithms.
 To each set corresponds an “indicator function”, which maps each member of the set to true, and everything else to false.
-For the set described by the expression `x | y`, the indicator function is described by the same expression.
+For the set described by the expression `x \/ y`, the indicator function is described by the same expression.
 
 A function has a domain.
 Two functions can be described by the same expression, but have different domains.
-For example, the function `x & y` with domain (all the assignments to) the variables `{'x', 'y', 'z'}` is different from the function `x & y` with domain (all the assignments to) the variables `{'x', 'y'}`.
+For example, the function `x & y` with domain (all the assignments to) the variables `{'x', 'y', 'z'}` is different from the function `x /\ y` with domain (all the assignments to) the variables `{'x', 'y'}`.
 The first function contains the elements `dict(x=True, y=True, z=True)` and `dict(x=True, y=True, z=False)`, whereas the second function contains only the element `dict(x=True, y=True)`.
 
 The choice of domain does not frequently come up, but when it does, it can be difficult to explain the resulting bug.
@@ -226,7 +229,7 @@ A convenience method for creating a BDD from an assignment `dict` is
 ```python
 d = dict(x=True, y=False, z=True)
 u = bdd.cube(d)
-v = bdd.add_expr('x & !y & z')
+v = bdd.add_expr('x /\ ~y /\ z')
 assert u == v, (u, v)
 ```
 
@@ -235,7 +238,7 @@ To substitute some variables for some other variables
 ```python
 
 [bdd.add_var(var) for var in ['x', 'p', 'y', 'q', 'z']]
-u = bdd.add_expr('x | y & z')
+u = bdd.add_expr('x  \/  y /\ z')
 d = dict(x='p', y='q')
 v = bdd.rename(u, d)
 >>> bdd.support(v)
@@ -248,7 +251,7 @@ To copy a node from one BDD manager to another manager
 ```python
 a = _bdd.BDD()
 [a.add_var(var) for var in ['x', 'y', 'z']]
-u = a('(x & y) | z')
+u = a('(x /\ y) \/ z')
 
 b = _bdd.BDD()
 _bdd.copy_vars(a, b)
@@ -280,12 +283,12 @@ bdd.add_var('y')
 bdd.add_var('z')
 
 # there exists x, such that (x and y)
-u = bdd.add_expr('\E x: x & y')
+u = bdd.add_expr('\E x: x /\ y')
 y = bdd.var('y')
 assert u == y, (u, y)
 
 # forall x, there exists y, such that (y or x)
-u = bdd.add_expr('\A x: \E y: y | z')
+u = bdd.add_expr('\A x: \E y: y \/ z')
 assert u == bdd.true, u
 ```
 
@@ -300,9 +303,9 @@ u = bdd.add_var('x')
 x = bdd.var('x')
 y = bdd.var('y')
 
-s = 'x & {r}'.format(r=y)
+s = 'x /\ {r}'.format(r=y)
 u = bdd.add_expr(s)
-u_ = bdd.add_expr('x & y')
+u_ = bdd.add_expr('x /\ y')
 assert u == u_
 ```
 
@@ -322,7 +325,7 @@ bdd = _bdd.BDD()
 bits = ('x', 'y', 'z')
 for var in bits:
 	bdd.add_var(var)
-u = bdd.add_expr('(x & y) | !z')
+u = bdd.add_expr('(x /\ y) \/ ~ z')
 bdd.collect_garbage()
 bdd.dump('awesome.pdf')
 ```
@@ -518,7 +521,8 @@ bdd = _bdd.BDD()
 bits = ['x', 'y', 'z']
 for var in bits:
 	bdd.add_var(var)
-s = '(x & y) | !z'
+s = '(x /\ y) \/ ~ z'  # TLA+ syntax
+s = '(x & y) | ! z'  # Promela syntax
 u = bdd.add_expr(s)
 bdd.incref(u)
 bdd.dump('before_collections.pdf')
@@ -533,7 +537,8 @@ A formula may depend on a variable, or not.
 There are two ways to find out
 
 ```python
-u = bdd.add_expr('x & y')
+u = bdd.add_expr('x /\ y')  # TLA+ syntax
+u = bdd.add_expr('x & y')  # Promela syntax
 
 c = 'x' in bdd.support(u)  # more readable
 c_ = bdd.is_essential(u, 'x')  # slightly more efficient
@@ -570,7 +575,8 @@ for var in vars:
 >>> bdd.vars
 {'x0': 0, 'x1': 1, 'x2': 2, 'y0': 3, 'y1': 4, 'y2': 5}
 
-s = '(x0 & y0) | (x1 & y1) | (x2 & y2)'
+s = '(x0 /\ y0) \/ (x1 /\ y1) \/ (x2 /\ y2)'  # TLA+ syntax
+s = '(x0 & y0) | (x1 & y1) | (x2 & y2)'  # Promela syntax
 u = bdd.add_expr(s)
 bdd.incref(u)
 >>> len(bdd)
@@ -714,11 +720,12 @@ bdd = _bdd.BDD()
 dvars = ["x0", "x0'", "x1", "x1'"]
 for var in dvars:
     bdd.add_var(var)
+# TLA+ syntax
 s = (
-    "((!x0 & !x1) -> ( (!x0' & !x1') | (x0' & !x1') )) & "
-    "((x0 & !x1) -> ! (x0' & x1')) & "
-    "((!x0 & x1) -> ( (!x0' & !x1') | (x0' & x1') )) & "
-    "! (x0 & x1)")
+    "((~ x0 /\ ~ x1) => ( (~ x0' /\ ~ x1') \/ (x0' /\ ~ x1') )) /\ "
+    "((x0 /\ ~ x1) => ~ (x0' /\ x1')) /\ "
+    "((~ x0 /\ x1) => ( (~ x0' /\ ~ x1') \/ (x0' /\ x1') )) /\ "
+    " ~ (x0 /\ x1)")
 transitions = bdd.add_expr(s)
 ```
 
@@ -734,7 +741,7 @@ We continue this backward iteration, until reaching a [least fixpoint](https://e
 
 ```python
 # target is the set {2}
-target = bdd.add_expr('!x0 & x1')
+target = bdd.add_expr('~ x0 /\ x1')
 # start from empty set
 q = bdd.false
 qold = None
@@ -867,7 +874,7 @@ from dd import mdd as _mdd
 
 bits = dict(x=0, y0=1, y1=2)
 bdd = BDD(bits)
-u = bdd.add_expr('x | (!y0 & y1)')
+u = bdd.add_expr('x \/ (~ y0 /\ y1)')
 bdd.incref(u)
 
 # convert BDD to MDD

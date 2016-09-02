@@ -14,7 +14,7 @@ class Lexer(astutils.Lexer):
         'False': 'FALSE',
         'True': 'TRUE'}
     delimiters = ['LPAREN', 'RPAREN', 'COMMA']
-    operators = ['NOT', 'AND', 'OR', 'XOR', 'IMP', 'BIMP',
+    operators = ['NOT', 'AND', 'OR', 'XOR', 'IMPLIES', 'EQUIV',
                  'EQUALS', 'MINUS', 'DIV',
                  'COLON', 'FORALL', 'EXISTS', 'RENAME']
     misc = ['NAME', 'NUMBER']
@@ -41,8 +41,8 @@ class Lexer(astutils.Lexer):
     t_RPAREN = r'\)'
     t_MINUS = r'-'
     t_NUMBER = r'\d+'
-    t_IMP = '->'
-    t_BIMP = '\<->'
+    t_IMPLIES = '->'
+    t_EQUIV = '\<->'
     t_COMMA = r','
     t_COLON = r'\:'
     t_FORALL = r'\\A'
@@ -68,8 +68,8 @@ class Parser(astutils.Parser):
     # low to high
     precedence = (
         ('left', 'COLON'),
-        ('left', 'BIMP'),
-        ('left', 'IMP'),
+        ('left', 'EQUIV'),
+        ('left', 'IMPLIES'),
         ('left', 'MINUS'),
         ('left', 'XOR'),
         ('left', 'OR'),
@@ -106,8 +106,8 @@ class Parser(astutils.Parser):
         """expr : expr AND expr
                 | expr OR expr
                 | expr XOR expr
-                | expr IMP expr
-                | expr BIMP expr
+                | expr IMPLIES expr
+                | expr EQUIV expr
                 | expr EQUALS expr
                 | expr MINUS expr
         """

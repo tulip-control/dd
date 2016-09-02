@@ -71,6 +71,8 @@ Two interfaces are available:
   the user in/decrement the reference counters associated with nodes that
   are used outside of a `BDD`.
 
+Expressions in both [TLA+](https://en.wikipedia.org/wiki/TLA%2B) and [Promela](https://en.wikipedia.org/wiki/Promela) syntax are supported.
+
 
 ## Automated reference counting
 
@@ -83,7 +85,8 @@ from dd.autoref import BDD, Function
 
 bdd = BDD()
 [bdd.add_var(var) for var in ['x', 'y']
-u = bdd.add_expr('x -> y')
+u = bdd.add_expr('x => y')  # TLA+ syntax
+u = bdd.add_expr('x -> y')  # Promela syntax
 
 # alternative
 x = bdd.var('x')
@@ -104,11 +107,11 @@ from dd import cudd
 
 bdd = cudd.BDD()
 [bdd.add_var(var) for var in ['x', y'']]
-u = bdd.add_expr('\E x, y: x & y')
+u = bdd.add_expr('\E x, y:  x /\ y')
 assert u == bdd.true, u
 
 # longer alternative
-xy = bdd.add_expr('x & y')
+xy = bdd.add_expr('x /\ y')
 u = bdd.exist(['x', 'y'], xy)
 assert u == bdd.true, u
 ```
@@ -133,11 +136,19 @@ bdd.add_var('z')
 Boolean expressions can be added with the method `BDD.add_expr`:
 
 ```python
+# using TLA+ syntax
+u = bdd.add_expr('x \/ y')
+v = bdd.add_expr('~ x \/ z')
+w = bdd.apply('/\\', u, v)
+r = bdd.apply('=>', u, w)
+
+# using Promela syntax
 u = bdd.add_expr('x | y')
 v = bdd.add_expr('!x | z')
-w = bdd.apply('and', u, v)
 w = bdd.apply('&', u, v)
 r = bdd.apply('->', u, w)
+
+# w = bdd.apply('and', u, v)  # also available
 ```
 
 Garbage collection is triggered either explicitly by the user, or

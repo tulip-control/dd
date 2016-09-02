@@ -15,7 +15,7 @@ class Lexer(astutils.Lexer):
         'True': 'TRUE'}
     delimiters = ['LPAREN', 'RPAREN', 'COMMA']
     operators = ['NOT', 'AND', 'OR', 'XOR', 'IMP', 'BIMP',
-                 'EQUALS', 'NEQUALS', 'MINUS', 'DIV',
+                 'EQUALS', 'MINUS', 'DIV',
                  'COLON', 'FORALL', 'EXISTS', 'RENAME']
     misc = ['NAME', 'NUMBER']
 
@@ -37,7 +37,6 @@ class Lexer(astutils.Lexer):
     t_NOT = r'\!'
     t_XOR = r'\^'
     t_EQUALS = r'\='
-    t_NEQUALS = r'\!\='
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
     t_MINUS = r'-'
@@ -75,7 +74,7 @@ class Parser(astutils.Parser):
         ('left', 'XOR'),
         ('left', 'OR'),
         ('left', 'AND'),
-        ('left', 'EQUALS', 'NEQUALS'),
+        ('left', 'EQUALS'),
         ('right', 'NOT'),
         ('right', 'UMINUS'))
     Lexer = Lexer
@@ -110,7 +109,6 @@ class Parser(astutils.Parser):
                 | expr IMP expr
                 | expr BIMP expr
                 | expr EQUALS expr
-                | expr NEQUALS expr
                 | expr MINUS expr
         """
         p[0] = self.nodes.Operator(p[2], p[1], p[3])

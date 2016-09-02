@@ -782,7 +782,6 @@ expr ::= '\A' names ':' expr  # universal quantification (forall)
        | 'ite' '(' expr ',' expr ',' expr ')'
                           # ternary conditional (if-then-else)
        | expr '=' expr    #
-       | expr '!=' expr   #
        | '(' expr ')'     # parentheses
        | NAME             # identifier (bit variable)
        | INTEGER          # BDD node (only for `dd.bdd.BDD`)

@@ -368,7 +368,7 @@ As mentioned earlier, the main difference between the main `dd` modules is what 
 - `dd.autoref` and `dd.cudd` give her `Function` objects as nodes.
 
 Seldom should this make a difference to the user.
-However, for integers, the meaning of the Python operators `~`, `&`, `|`, `^` is unrelated to the BDD manager.
+However, for integers, the meaning of the Python operators `~`, `&`, `|`, `^` is *unrelated* to the BDD manager.
 So, if `u = -3` and `v = 25` are nodes in the `dd.bdd.BDD` manager `bdd`, you cannot write `w = u & v` to get the correct result.
 You have to use either:
 
@@ -763,7 +763,7 @@ At the end, we obtain
 '(! ite(x0, x1, False))'
 ```
 
-which is the set `{0, 1, 2}` (it does not contain 3, because that would evaluate to `! ite(True, True, False) = ! True = False`).
+which is the set `{0, 1, 2}` (it does not contain 3, because that would evaluate to `! ite(True, True, False)` which equals `! True`, so `False`).
 
 More about building symbolic algorithms, together with infrastructure for arithmetic and automata, and examples, can be found in the package [`omega`](https://github.com/johnyf/omega/blob/master/doc/doc.md).
 

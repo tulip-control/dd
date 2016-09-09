@@ -4,15 +4,30 @@ python:
   - "2.7"
   - "3.5"
 
+env:
+  - CC=gcc-4.7 CXX=g++-4.7
+
 addons:
   apt:
     packages:
-    - graphviz
+      - gcc-4.7
+      - g++-4.7
+    sources:
+      - ubuntu-toolchain-r-test
 
 install:
   - pip install --upgrade pip setuptools
   - pip install -r requirements.txt
-  - python setup.py install --fetch --cudd
+  # sylvan
+  - git clone --depth=1 https://github.com/utwente-fmt/sylvan.git
+  - cd sylvan
+  - autoreconf -fi
+  - ./configure
+  - make
+  - export LD_LIBRARY_PATH=`pwd`/src/.libs:$LD_LIBRARY_PATH
+  - cd ..
+  # dd
+  - python setup.py install --fetch --cudd --sylvan
 
 script:
   - cd tests/

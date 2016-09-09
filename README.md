@@ -13,6 +13,7 @@ A pure-Python (2 and 3) package for manipulating:
 as well as [Cython](http://cython.org/) bindings to the C libraries:
 
 - [CUDD](http://vlsi.colorado.edu/~fabio/CUDD/)
+- [Sylvan](https://github.com/utwente-fmt/sylvan) (multi-core parallelization)
 - [BuDDy](http://buddy.sourceforge.net)
 
 These bindings expose almost identical interfaces as the Python implementation.
@@ -210,8 +211,13 @@ For graph layout with `pydot`,
 ### `dd` fetching CUDD
 
 By default, the package installs only the Python modules.
-You can select to install either or both Cython extensions by
-the `setup.py` options `--cudd` and `--buddy`.
+You can select to install any Cython extensions using
+the `setup.py` options:
+
+- `--cudd`
+- `--sylvan`
+- `--buddy`
+
 Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD. For example:
 
 ```shell
@@ -248,14 +254,17 @@ pip install --install-option="--fetch" dd
 will propagate option `--fetch` to dependencies, and so raise an error.
 
 
-### User fetching build dependencies
+### User installing build dependencies
 
-If you build and install CUDD or BuDDy yourself, then ensure that:
+If you build and install CUDD, Sylvan, or BuDDy yourself, then ensure that:
 
-- the header files and libraries of either CUDD or BuDDy are present, and
+- the header files and libraries are present, and
 - suitable compiler, include, linking, and library flags are passed,
 either by setting [environment variables](https://en.wikipedia.org/wiki/Environment_variable)
 prior to calling `pip`, or by editing the file [`download.py`](https://github.com/johnyf/dd/blob/master/download.py).
+
+Currently, `download.py` expects to find Sylvan under `dd/sylvan` and built with [Autotools](https://en.wikipedia.org/wiki/GNU_Build_System) (for an example, see `.travis.yml`).
+If the path differs in your environment, remember to update it.
 
 
 Tests

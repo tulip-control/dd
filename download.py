@@ -21,6 +21,8 @@ except ImportError:
 from setuptools.extension import Extension
 
 
+EXTENSIONS = ['cudd', 'buddy', 'sylvan']
+# CUDD
 CUDD_VERSION = '2.5.1'
 CUDD_URL = (
     'ftp://vlsi.colorado.edu/'
@@ -69,6 +71,14 @@ XCFLAGS = (
     'XCFLAGS=-fPIC -mtune=native -DHAVE_IEEE_754 -DBSD '
     '-DSIZEOF_VOID_P={void} -DSIZEOF_LONG={long}'.format(
         long=sizeof_long, void=sizeof_void_p))
+# Sylvan
+SYLVAN_PATH = os.path.join(
+    FILE_PATH,
+    'sylvan')
+SYLVAN_INCLUDE = [
+    [SYLVAN_PATH, 'src'],
+    [FILE_PATH, 'dd']]
+SYLVAN_LINK = [[SYLVAN_PATH, 'src/.libs']]
 
 
 def extensions():
@@ -84,7 +94,13 @@ def extensions():
         buddy=Extension(
             'dd.buddy',
             sources=['dd/buddy' + pyx],
-            libraries=['bdd']))
+            libraries=['bdd']),
+        sylvan=Extension(
+            'dd.sylvan',
+            sources=['dd/sylvan' + pyx],
+            include_dirs=_join(SYLVAN_INCLUDE),
+            library_dirs=_join(SYLVAN_LINK),
+            libraries=['sylvan']))
     if pyx == '.pyx':
         for k, v in extensions.items():
             extensions[k] = cythonize(v)[0]

@@ -11,7 +11,7 @@ import download
 name = 'dd'
 description = (
     'Library of decision diagrams and algorithms on them, '
-    'in pure Python, as well as Cython bindings to CUDD and BuDDy.')
+    'in pure Python, as well as Cython bindings to CUDD, Sylvan, and BuDDy.')
 url = 'https://github.com/johnyf/{name}'.format(name=name)
 README = 'README.md'
 VERSION_FILE = '{name}/_version.py'.format(name=name)
@@ -45,6 +45,9 @@ classifiers = [
     'Programming Language :: Python :: 3',
     'Topic :: Scientific/Engineering',
     'Topic :: Software Development']
+options = [
+    '--{s}'.format(s=s)
+    for s in download.EXTENSIONS]
 
 
 def git_version(version):
@@ -77,7 +80,7 @@ def run_setup():
         download.fetch_cudd()
     # build extensions ?
     e = list()
-    for opt in ('--cudd', '--buddy'):
+    for opt in options:
         if opt in sys.argv:
             e.append(opt[2:])
             sys.argv.remove(opt)

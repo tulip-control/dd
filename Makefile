@@ -1,4 +1,10 @@
-build: clean cudd install test
+build_cudd: clean cudd install test
+
+build_sylvan:
+	make clean
+	-pip uninstall -y dd
+	python setup.py install --sylvan
+	rtests.py --rednose
 
 sdist_test:
 	make clean
@@ -25,7 +31,7 @@ install:
 	python setup.py install --cudd
 
 reinstall:
-	-yes | pip uninstall dd
+	-pip uninstall -y dd
 	python setup.py install --cudd
 
 develop:
@@ -51,4 +57,3 @@ clean:
 
 rm_cudd:
 	-rm -rf cudd*/ cudd*.tar.gz
-

@@ -3,6 +3,7 @@ todo.txt
 dd/_version.py
 cython_debug/*
 cudd*/*
+sylvan/
 .DS_Store
 ._.DS_Store
 *.out
@@ -23,4 +24,3 @@ build/*
 *.egg-info
 *.swp
 *.tags
-

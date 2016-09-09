@@ -1,6 +1,25 @@
 # dd changelog
 
 
+## 0.4.1
+
+- add Cython interface `dd.sylvan` to Sylvan
+- support TLA+ syntax
+
+BUG:
+
+- in Python 2 use `sys.maxint` for `bdd.BDD.max_nodes`
+
+API:
+
+- classes `bdd.BDD` and `cudd.BDD`:
+  - method `apply`: rm `"bimplies"` value
+  - raise `AssertionError` if `care_bits < support` in method `sat_iter`
+- rm unused operator `!=` from parser grammar
+- class `autoref.Function`:
+  - rename method `bimplies` to `equiv`
+
+
 ## 0.4.0
 
 - require `pydot >= 1.2.2`

@@ -18,8 +18,10 @@ addons:
 install:
   - pip install --upgrade pip setuptools
   - pip install -r requirements.txt
-  # sylvan
-  - git clone --depth=1 https://github.com/utwente-fmt/sylvan.git
+  - curl -L https://github.com/utwente-fmt/sylvan/tarball/v1.0.0 -o sylvan.tar.gz
+  - echo '9877fe07a8cfe9889152e29624a4c5b283cb34672ec524ccb3edb313b3057fbf8ef45622a49796fae17aa24e0baea5ccfa18f1bc5923e3c55245ab3e3c1927c8  sylvan.tar.gz' | shasum -a 512 -c -
+  - mkdir sylvan
+  - tar xzf sylvan.tar.gz -C sylvan --strip=1
   - cd sylvan
   - autoreconf -fi
   - ./configure

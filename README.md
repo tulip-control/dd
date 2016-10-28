@@ -47,6 +47,7 @@ Contains:
   [PLY](https://github.com/dabeaz/ply/)-based parser for the header, and
   a fast simple by-line parser for the main body of nodes.
 - Cython bindings to CUDD
+- Cython bindings to Sylvan
 - Cython bindings to BuDDy
 
 

@@ -1,6 +1,16 @@
 # dd changelog
 
 
+## 0.4.2
+
+API:
+
+- classes `bdd.BDD`, `autoref.BDD`:
+  - rm attribute `ordering`, use `vars`
+  - rename `__init__` argument `ordering` to `levels`
+- allow passing path to CUDD during installation via `--cudd`
+
+
 ## 0.4.1
 
 - add Cython interface `dd.sylvan` to Sylvan

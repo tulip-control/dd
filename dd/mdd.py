@@ -18,11 +18,12 @@ Michael Miller and Rolf Drechsler
 """
 import logging
 import sys
+
+import pydot
+
 from dd import bdd as _bdd
 from dd.bdd import to_nx
 from dd._compat import items
-# inline:
-# import pydot
 
 
 logger = logging.getLogger(__name__)
@@ -402,7 +403,6 @@ def _enumerate_integer(bits):
 
 
 def to_pydot(mdd):
-    import pydot
     g = pydot.Dot('mdd', graph_type='digraph')
     skeleton = list()
     subgraphs = dict()

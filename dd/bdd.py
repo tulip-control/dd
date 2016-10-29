@@ -1314,20 +1314,19 @@ def _assert_isomorphic_orders(old, new, support):
     assert old == new, (old, new)
 
 
-def _assert_valid_ordering(ordering):
-    """Check that `ordering` is well-formed.
+def _assert_valid_ordering(levels):
+    """Check that `levels` is well-formed.
 
     - bijection
     - contiguous levels
     """
+    # `levels` is a mapping -> each var : single level
+    assert isinstance(levels, Mapping), levels
     # levels are contiguous integers ?
-    n = len(ordering)
-    levels = set(_compat.values(ordering))
-    levels_ = set(xrange(n))
-    assert levels == levels_, (n, levels)
-    # contiguous levels -> each level : single var
-    # ordering is a mapping -> each var : single level
-    assert isinstance(ordering, Mapping), ordering
+    n = len(levels)
+    numbers = set(_compat.values(levels))
+    numbers_ = set(xrange(n))
+    assert numbers == numbers_, (n, numbers)
 
 
 def rename(u, bdd, dvars):

@@ -247,7 +247,7 @@ def test_reduce_combined():
     g._succ[6] = (2, -1, 1)
     h = g.reduction()
     assert 1 in h
-    assert ordering == h.ordering
+    assert ordering == h.vars
 
     r = nx.MultiDiGraph()
     r.add_node(1, level=3)
@@ -548,7 +548,7 @@ def test_swap():
     nold, n = g.swap('x', 'y')
     assert n == 3, n
     assert nold == n, nold
-    assert g.ordering == {'y': 0, 'x': 1}, g.ordering
+    assert g.vars == {'y': 0, 'x': 1}, g.vars
     assert g.assert_consistent()
     # functions remain invariant
     x_ = g.add_expr('x')
@@ -564,7 +564,7 @@ def test_swap():
     g.incref(u)
     nold, n = g.swap('x', 'y')
     assert nold == n, (nold, n)
-    assert g.ordering == {'y': 0, 'x': 1}, g.ordering
+    assert g.vars == {'y': 0, 'x': 1}, g.vars
     u_ = g.add_expr('x & y')
     assert u == u_, (u, u_)
     assert g.assert_consistent()
@@ -582,7 +582,7 @@ def test_swap():
     nold, n = g.swap('x', 'y')
     assert n == 3, n
     assert nold == n, nold
-    assert g.ordering == {'x': 1, 'y': 0}
+    assert g.vars == {'x': 1, 'y': 0}
     assert g.assert_consistent()
     u_ = g.add_expr(e)
     # function u must have remained unaffected
@@ -592,7 +592,7 @@ def test_swap():
     nold, n = g.swap('x', 'y')
     assert n == 3, n
     assert nold == n, nold
-    assert g.ordering == {'x': 0, 'y': 1}
+    assert g.vars == {'x': 0, 'y': 1}
     assert g.assert_consistent()
     u_ = g.add_expr(e)
     assert u_ == u, (u, u_, g._succ)
@@ -616,7 +616,7 @@ def test_swap():
     new_ordering = {
         'z1': 0, 'z2': 1, 'z3': 2,
         'y1': 3, 'y2': 4, 'y3': 5}
-    assert g.ordering == new_ordering, g.ordering
+    assert g.vars == new_ordering, g.vars
     u_ = g.add_expr('(z1 & y1) | (z2 & y2) | (z3 & y3)')
     assert u_ == u, (u, u_, g._succ)
     # g.dump('g.pdf')

@@ -62,7 +62,7 @@ def test_load_dddmp():
     fname = 'sample0.txt'
     bdd = load(fname)
     n = len(bdd)
-    n_vars = len(bdd.ordering)
+    n_vars = len(bdd.vars)
     assert n == 5, n
     assert n_vars == 3, n_vars
     assert bdd.roots == {-5}, bdd.roots
@@ -73,13 +73,13 @@ def test_load_dddmp():
     fname = 'sample1.txt'
     bdd = load(fname)
     n = len(bdd)
-    n_vars = len(bdd.ordering)
+    n_vars = len(bdd.vars)
     assert n == 16, n
     assert n_vars == 10, n_vars
     assert bdd.roots == {6, -13, -16}
     varnames = {'G0', 'G1', 'G2', 'G3', 'G5', 'G6',
                 'G7', 'TMP1', 'TMP2', 'TMP3'}
-    bddvars = set(bdd.ordering)
+    bddvars = set(bdd.vars)
     assert bddvars == varnames, bddvars
     assert bdd.assert_consistent()
 

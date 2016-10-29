@@ -108,7 +108,7 @@ class BDD(object):
             self.max_nodes = sys.maxsize
 
     def __copy__(self):
-        bdd = BDD(self.ordering)
+        bdd = BDD(self.vars)
         bdd._pred = dict(self._pred)
         bdd._succ = dict(self._succ)
         bdd._ref = dict(self._ref)
@@ -130,7 +130,7 @@ class BDD(object):
         return (
             'Binary decision diagram:\n'
             '------------------------\n'
-            'var ordering: {self.ordering}\n'
+            'var levels: {self.vars}\n'
             'roots: {self.roots}\n').format(self=self)
 
     def _init_terminal(self, i):
@@ -169,8 +169,8 @@ class BDD(object):
         @type level: `int`
         """
         # var already exists ?
-        if var in self.ordering:
-            k = self.ordering[var]
+        if var in self.vars:
+            k = self.vars[var]
             if level is not None:
                 assert level == k, (var, k, level)
             return k
@@ -183,19 +183,19 @@ class BDD(object):
             'level {level} occupied'.format(level=level))
         # create var
         if level is None:
-            level = len(self.ordering)
-        self.ordering[var] = level
+            level = len(self.vars)
+        self.vars[var] = level
         self._level_to_var[level] = var
-        self._init_terminal(len(self.ordering))
+        self._init_terminal(len(self.vars))
         return level
 
     def var(self, var):
         """Return node for variable named `var`."""
-        assert var in self.ordering, (
+        assert var in self.vars, (
             'undefined variable "{v}", '
             'known variables are:\n {d}').format(
-                v=var, d=self.ordering)
-        j = self.ordering[var]
+                v=var, d=self.vars)
+        j = self.vars[var]
         u = self.find_or_add(j, -1, 1)
         return u
 
@@ -208,27 +208,27 @@ class BDD(object):
 
     def level_of_var(self, var):
         """Return level of `var`, or `None`."""
-        return self.ordering.get(var)
+        return self.vars.get(var)
 
     def _map_to_level(self, d):
         """Map keys of `d` to variable levels.
 
         If `d` is an iterable but not a mapping,
         then an iterable is returned.
-        The mapping is `self.ordering`.
+        The mapping is `self.vars`.
         """
         if not d:
             return d
         # are keys variable names ?
         u = next(iter(d))
-        if u not in self.ordering:
+        if u not in self.vars:
             return d
         if isinstance(d, Mapping):
             r = {
-                self.ordering[var]: bool(val)
+                self.vars[var]: bool(val)
                 for var, val in items(d)}
         else:
-            r = {self.ordering[k] for k in d}
+            r = {self.vars[k] for k in d}
         return r
 
     def _top_var(self, *nodes):
@@ -301,10 +301,10 @@ class BDD(object):
     def is_essential(self, u, var):
         """Return `True` if `var` is essential for node `u`.
 
-        @param var: level in `ordering`
+        @param var: level in `vars`
         @type var: `int`
         """
-        i = self.ordering.get(var)
+        i = self.vars.get(var)
         if i is None:
             return False
         iu, v, w = self._succ[abs(u)]
@@ -337,7 +337,7 @@ class BDD(object):
     def _support(self, u, levels, nodes):
         """Recurse to collect variables in support."""
         # exhausted all vars ?
-        if len(levels) == len(self.ordering):
+        if len(levels) == len(self.vars):
             return
         # visited ?
         r = abs(u)
@@ -363,9 +363,9 @@ class BDD(object):
             terminal nodes.
         """
         if skip_terminals:
-            n = len(self.ordering) - 1
+            n = len(self.vars) - 1
         else:
-            n = len(self.ordering)
+            n = len(self.vars)
         for i in xrange(n, -1, -1):
             for u, (j, v, w) in items(self._succ):
                 if i != j:
@@ -374,8 +374,8 @@ class BDD(object):
 
     def _levels(self):
         """Return `dict` from levels to `set`s of nodes."""
-        n = len(self.ordering)
-        levels = {i: set() for var, i in items(self.ordering)}
+        n = len(self.vars)
+        levels = {i: set() for var, i in items(self.vars)}
         levels[n] = set()
         for u, (i, v, w) in items(self._succ):
             levels[i].add(u)
@@ -383,13 +383,13 @@ class BDD(object):
         return levels
 
     def reduction(self):
-        """Return copy reduced with respect to `self.ordering`.
+        """Return copy reduced with respect to `self.vars`.
 
         Not to be used for large BDDs.
         Instead, construct them directly reduced.
         """
         # terminals
-        bdd = BDD(self.ordering)
+        bdd = BDD(self.vars)
         umap = {-1: -1, 1: 1}
         # non-terminals
         for u, i, v, w in self.levels(skip_terminals=True):
@@ -622,7 +622,7 @@ class BDD(object):
         @param v: low edge
         @param w: high edge
         """
-        assert 0 <= i < len(self.ordering), i
+        assert 0 <= i < len(self.vars), i
         assert abs(v) in self, v
         assert abs(w) in self, w
         # ensure canonicity of complemented edges
@@ -727,10 +727,10 @@ class BDD(object):
             all_levels = self._levels()
         logger.debug(
             'swap variables "{x}" and "{y}"'.format(x=x, y=y))
-        x = self.ordering.get(x, x)
-        y = self.ordering.get(y, y)
-        assert 0 <= x < len(self.ordering), x
-        assert 0 <= y < len(self.ordering), y
+        x = self.vars.get(x, x)
+        y = self.vars.get(y, y)
+        assert 0 <= x < len(self.vars), x
+        assert 0 <= y < len(self.vars), y
         # ensure x < y
         if x > y:
             x, y = y, x
@@ -811,11 +811,11 @@ class BDD(object):
             self.incref(q)
             # garbage collection could be interleaved
             # but only if there is substantial loss of efficiency
-        # swap x and y in ordering
+        # swap x and y in `vars`
         vx = self.var_at_level(x)
-        self.ordering[vx] = y
+        self.vars[vx] = y
         vy = self.var_at_level(y)
-        self.ordering[vy] = x
+        self.vars[vy] = x
         # reset
         self._level_to_var[y] = vx
         self._level_to_var[x] = vy
@@ -886,7 +886,7 @@ class BDD(object):
             n = d[abs(u)]
             # complement ?
             if u < 0:
-                n = 2**(len(self.ordering) - i) - n
+                n = 2**(len(self.vars) - i) - n
             return n
         # terminal ?
         if u == 1:
@@ -905,7 +905,7 @@ class BDD(object):
         d[abs(u)] = n
         # complement ?
         if u < 0:
-            n = 2**(len(self.ordering) - i) - n
+            n = 2**(len(self.vars) - i) - n
         return n
 
     def sat_iter(self, u, full=False, care_bits=None):
@@ -930,7 +930,7 @@ class BDD(object):
         cube = dict()
         value = True
         if care_bits is None:
-            care_bits = set(self.ordering)
+            care_bits = set(self.vars)
         support = self.support(u)
         missing = {v for v in support if v not in care_bits}
         assert not missing, (
@@ -1005,7 +1005,7 @@ class BDD(object):
 
         @type expr: `str`
         """
-        i = len(self.ordering)
+        i = len(self.vars)
         self._succ[1] = (i, None, None)
         self._ref[1] = 0
         return _parser.add_expr(e, self)
@@ -1092,7 +1092,7 @@ class BDD(object):
         """
         r = 1
         for var, val in items(dvars):
-            i = self.ordering.get(var, var)
+            i = self.vars.get(var, var)
             u = self.find_or_add(i, -1, 1)
             if not val:
                 u = -u
@@ -1169,7 +1169,7 @@ class BDD(object):
             nodes = self.descendants(roots)
         succ = ((k, self._succ[k]) for k in nodes)
         d = dict(
-            vars=self.ordering,
+            vars=self.vars,
             succ=dict(succ))
         kw.setdefault('protocol', 2)
         with open(filename, 'wb') as f:
@@ -1239,7 +1239,7 @@ class BDD(object):
     def _dump_manager(self, filename, **kw):
         """Write `BDD` to `filename` as pickle."""
         d = dict(
-            ordering=self.ordering,
+            vars=self.vars,
             max_nodes=self.max_nodes,
             roots=self.roots,
             pred=self._pred,
@@ -1255,7 +1255,7 @@ class BDD(object):
         """Load `BDD` from pickle file `filename`."""
         with open(filename, 'rb') as f:
             d = pickle.load(f)
-        bdd = cls(d['ordering'])
+        bdd = cls(d['vars'])
         bdd.max_nodes = d['max_nodes']
         bdd.roots = d['roots']
         bdd._pred = d['pred']
@@ -1298,7 +1298,7 @@ def _enumerate_minterms(cube, bits):
 def _assert_isomorphic_orders(old, new, support):
     """Raise `AssertionError` if not isomorphic.
 
-    @param old, new: orderings
+    @param old, new: levels
     @param support: `old` and `new` compared after
         restriction to `support`.
     """
@@ -1338,10 +1338,10 @@ def rename(u, bdd, dvars):
     if not dvars:
         return u
     # map variable names to levels, if needed
-    ordering = bdd.ordering
+    levels = bdd.vars
     k = next(iter(dvars))
-    if k in ordering:
-        dvars = {ordering[k]: ordering[v]
+    if k in levels:
+        dvars = {levels[k]: levels[v]
                  for k, v in items(dvars)}
     _assert_valid_rename(u, bdd, dvars)
     if not _all_adjacent(dvars, bdd):
@@ -1442,7 +1442,7 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     # map to levels
     qvars = bdd._map_to_level(qvars)
     rename = {
-        bdd.ordering.get(k, k): bdd.ordering.get(v, v)
+        bdd.vars.get(k, k): bdd.vars.get(v, v)
         for k, v in items(rename)}
     # init
     cache = dict()
@@ -1482,7 +1482,7 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     # map to levels
     qvars = bdd._map_to_level(qvars)
     rename = {
-        bdd.ordering.get(k, k): bdd.ordering.get(v, v)
+        bdd.vars.get(k, k): bdd.vars.get(v, v)
         for k, v in items(rename)}
     # init
     cache = dict()
@@ -1568,7 +1568,7 @@ def _apply_sifting(bdd):
     n = len(bdd)
     # using `set` injects some randomness
     levels = bdd._levels()
-    names = set(bdd.ordering)
+    names = set(bdd.vars)
     for var in names:
         k = _reorder_var(bdd, var, levels)
         m = len(bdd)
@@ -1576,7 +1576,7 @@ def _apply_sifting(bdd):
             '{m} nodes for variable "{v}" at level {k}'.format(
                 m=m, v=var, k=k))
     assert m <= n, (m, n)
-    logger.info('final variable ordering:\b{v}'.format(v=bdd.ordering))
+    logger.info('final variable order:\b{v}'.format(v=bdd.vars))
 
 
 def _reorder_var(bdd, var, levels):
@@ -1585,9 +1585,9 @@ def _reorder_var(bdd, var, levels):
     @type bdd: `BDD`
     @type var: `str`
     """
-    assert var in bdd.ordering, (var, bdd.ordering)
+    assert var in bdd.vars, (var, bdd.vars)
     m = len(bdd)
-    n = len(bdd.ordering) - 1
+    n = len(bdd.vars) - 1
     assert n >= 0, n
     start = 0
     end = n
@@ -1609,9 +1609,9 @@ def _shift(bdd, start, end, levels):
     """Shift level `start` to become `end`, by swapping.
 
     @type bdd: `BDD`
-    @type start, end: `0 <= int < len(bdd.ordering)`
+    @type start, end: `0 <= int < len(bdd.vars)`
     """
-    m = len(bdd.ordering)
+    m = len(bdd.vars)
     assert 0 <= start < m, (start, m)
     assert 0 <= end < m, (end, m)
     sizes = dict()
@@ -1630,7 +1630,7 @@ def _sort_to_order(bdd, order):
     @type order: `dict`
     """
     # TODO: use min number of swaps
-    assert len(bdd.ordering) == len(order)
+    assert len(bdd.vars) == len(order)
     m = 0
     levels = bdd._levels()
     n = len(order)
@@ -1695,8 +1695,8 @@ def copy_bdd(u, from_bdd, to_bdd):
     # TODO: more efficient bottom-up implementation
     # first find all descendants of given roots
     # then map them, starting from the bottom layer
-    _assert_valid_ordering(from_bdd.ordering)
-    _assert_valid_ordering(to_bdd.ordering)
+    _assert_valid_ordering(from_bdd.vars)
+    _assert_valid_ordering(to_bdd.vars)
     support = from_bdd.support(u)
     level_map = _level_map(from_bdd, to_bdd, support)
     umap = dict()
@@ -1712,8 +1712,8 @@ def _level_map(from_bdd, to_bdd, support):
     @param support: restrict the map to these variables
     @type support: var names as `str`
     """
-    old = from_bdd.ordering
-    new = to_bdd.ordering
+    old = from_bdd.vars
+    new = to_bdd.vars
     _assert_isomorphic_orders(old, new, support)
     level_map = {old[x]: new[x] for x in support}
     return level_map
@@ -1823,7 +1823,7 @@ def to_pydot(roots, bdd):
     g = pydot.Dot('bdd', graph_type='digraph')
     skeleton = list()
     subgraphs = dict()
-    for i in xrange(len(bdd.ordering) + 1):
+    for i in xrange(len(bdd.vars) + 1):
         h = pydot.Subgraph('', rank='same')
         g.add_subgraph(h)
         subgraphs[i] = h
@@ -1838,7 +1838,7 @@ def to_pydot(roots, bdd):
         e = pydot.Edge(str(u), str(v), style='invis')
         g.add_edge(e)
     # add nodes
-    idx2var = {k: v for v, k in items(bdd.ordering)}
+    idx2var = {k: v for v, k in items(bdd.vars)}
 
     def f(x):
         return str(abs(x))

@@ -111,7 +111,7 @@ def extensions(directives):
     if pyx == '.pyx':
         for k, v in extensions.items():
             c = cythonize(
-                v, compiler_directives=directives)
+                [v], compiler_directives=directives)
             extensions[k] = c[0]
     return extensions
 

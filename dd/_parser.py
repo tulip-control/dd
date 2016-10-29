@@ -197,24 +197,21 @@ def add_expr(e, bdd):
 def add_ast(t, bdd):
     """Add abstract syntax tree `t` to `self`.
 
-    The variables must be keys in `self.ordering`.
-
-    Any AST nodes are acceptable provided they have
-    attributes:
+    Any AST nodes are acceptable,
+    provided they have attributes:
       - `"operator"` and `"operands"` for operator nodes
       - `"value"` equal to:
         - `"True"` or `"False"` for Boolean constants
-        - a key (var name) in `self.ordering` for variables
+        - a key (var name) passed to `bdd.var()` for variables
 
     @type t: `Terminal` or `Operator` of `astutils`
     @type bdd: object with:
       - `bdd.false`
       - `bdd.true`
-      - `bdd.var`
-      - `bdd.apply`
-      - `bdd.quantify`
+      - `bdd.var()`
+      - `bdd.apply()`
+      - `bdd.quantify()`
     """
-    # assert 1 in `self`, with index `len(self.ordering)`
     # operator ?
     if t.type == 'operator':
         if t.operator in ('\A', '\E') and len(t.operands) == 2:

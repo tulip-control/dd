@@ -93,11 +93,9 @@ class BDD(object):
         self._ref = dict()  # reference counters
         self._min_free = 2  # all smaller positive integers used
         self._ite_table = dict()  # (cond, high, low)
-        # TODO: deprecate `self.ordering`
-        self.ordering = dict()
-        self.vars = self.ordering
+        self.vars = dict()
         self._level_to_var = dict()
-        self._init_terminal(len(self.ordering))  # handle no vars
+        self._init_terminal(len(self.vars))  # handle no vars
         for var, level in items(ordering):
             self.add_var(var, level)
         self.roots = set()
@@ -132,6 +130,11 @@ class BDD(object):
             '------------------------\n'
             'var levels: {self.vars}\n'
             'roots: {self.roots}\n').format(self=self)
+
+    @property
+    def ordering(self):
+        raise DeprecationWarning(
+            'use `dd.BDD.vars` instead of `.ordering`')
 
     def _init_terminal(self, i):
         self._succ[1] = (i, None, None)

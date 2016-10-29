@@ -1,7 +1,10 @@
 """Installation script."""
 import logging
 import sys
+
 from setuptools import setup
+from pkg_resources import parse_version
+
 import download
 # inline:
 # from dd import _parser, dddmp
@@ -55,6 +58,11 @@ def git_version(version):
     import git
     repo = git.Repo('.git')
     repo.git.status()
+    # assert versions are increasing
+    latest_tag = repo.git.describe(
+        match='v[0-9]*', tags=True, abbrev=0)
+    assert parse_version(latest_tag) <= parse_version(version), (
+        latest_tag, version)
     sha = repo.head.commit.hexsha
     if repo.is_dirty():
         return '{v}.dev0+{sha}.dirty'.format(

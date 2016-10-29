@@ -84,10 +84,10 @@ class BDD(object):
     or call `update_predecessors` prior to calling `ite`.
     """
 
-    def __init__(self, ordering=None):
-        if ordering is None:
-            ordering = dict()
-        _assert_valid_ordering(ordering)
+    def __init__(self, levels=None):
+        if levels is None:
+            levels = dict()
+        _assert_valid_ordering(levels)
         self._pred = dict()  # (i, low, high) -> u
         self._succ = dict()  # u -> (i, low, high)
         self._ref = dict()  # reference counters
@@ -96,7 +96,7 @@ class BDD(object):
         self.vars = dict()
         self._level_to_var = dict()
         self._init_terminal(len(self.vars))  # handle no vars
-        for var, level in items(ordering):
+        for var, level in items(levels):
             self.add_var(var, level)
         self.roots = set()
         try:

@@ -21,8 +21,8 @@ class BDD(object):
     as arguments and returned types.
     """
 
-    def __init__(self, ordering=None):
-        bdd = _bdd.BDD(ordering)
+    def __init__(self, levels=None):
+        bdd = _bdd.BDD(levels)
         self.vars = bdd.vars
         self._bdd = bdd
 

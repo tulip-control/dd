@@ -298,15 +298,15 @@ def bdd_to_mdd(bdd, dvars):
         bits = d['bitnames']
         b = {bit: var for bit in bits}
         bit_to_var.update(b)
-    # find target bit ordering
-    ordering = list()  # target
+    # find target bit order
+    order = list()  # target
     levels = {d['level']: var for var, d in items(dvars)}
     m = len(levels)
     for j in xrange(m):
         var = levels[j]
         bits = dvars[var]['bitnames']
-        ordering.extend(bits)
-    bit_to_sort = {bit: k for k, bit in enumerate(ordering)}
+        order.extend(bits)
+    bit_to_sort = {bit: k for k, bit in enumerate(order)}
     # reorder
     bdd.collect_garbage()
     _bdd.reorder(bdd, order=bit_to_sort)

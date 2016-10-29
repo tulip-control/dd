@@ -84,7 +84,13 @@ def run_setup():
         if opt in sys.argv:
             e.append(opt[2:])
             sys.argv.remove(opt)
-    extensions = download.extensions()
+    directives = dict()
+    if '--linetrace' in sys.argv:
+        print('compile Cython extensions with line tracing')
+        sys.argv.remove('--linetrace')
+        directives['linetrace'] = True
+        # directives['binding'] = True
+    extensions = download.extensions(directives)
     ext_modules = list(extensions[k] for k in e)
     # version
     try:

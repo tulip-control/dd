@@ -13,9 +13,6 @@ except ImportError:
 try:
     from Cython.Build import cythonize
     pyx = '.pyx'
-    from Cython.Compiler.Options import directive_defaults
-    # directive_defaults['linetrace'] = True
-    # directive_defaults['binding'] = True
 except ImportError:
     pyx = '.c'
 from setuptools.extension import Extension
@@ -63,9 +60,7 @@ sizeof_long = ctypes.sizeof(ctypes.c_long)
 sizeof_void_p = ctypes.sizeof(ctypes.c_void_p)
 CUDD_CFLAGS.extend([
     '-DSIZEOF_LONG={long}'.format(long=sizeof_long),
-    '-DSIZEOF_VOID_P={void}'.format(void=sizeof_void_p),
-    # '-DCYTHON_TRACE'
-    ])
+    '-DSIZEOF_VOID_P={void}'.format(void=sizeof_void_p)])
 # add -fPIC
 XCFLAGS = (
     'XCFLAGS=-fPIC -mtune=native -DHAVE_IEEE_754 -DBSD '
@@ -81,7 +76,18 @@ SYLVAN_INCLUDE = [
 SYLVAN_LINK = [[SYLVAN_PATH, 'src/.libs']]
 
 
-def extensions():
+def extensions(directives):
+    """Return C extensions, cythonize as needed.
+
+    @param directives: passed as `compiler_directives`
+        to `cythonize`
+    """
+    cudd_cflags = list(CUDD_CFLAGS)
+    sylvan_cflags = list()
+    # tell gcc to compile line tracing
+    if 'linetrace' in directives:
+        cudd_cflags.append('-DCYTHON_TRACE=1')
+        sylvan_cflags.append('-DCYTHON_TRACE=1')
     os.environ['CC'] = CC
     extensions = dict(
         cudd=Extension(
@@ -90,7 +96,7 @@ def extensions():
             include_dirs=_join(CUDD_INCLUDE),
             library_dirs=_join(CUDD_LINK),
             libraries=CUDD_LIB,
-            extra_compile_args=CUDD_CFLAGS),
+            extra_compile_args=cudd_cflags),
         buddy=Extension(
             'dd.buddy',
             sources=['dd/buddy' + pyx],
@@ -100,10 +106,13 @@ def extensions():
             sources=['dd/sylvan' + pyx],
             include_dirs=_join(SYLVAN_INCLUDE),
             library_dirs=_join(SYLVAN_LINK),
-            libraries=['sylvan']))
+            libraries=['sylvan'],
+            extra_compile_args=sylvan_cflags))
     if pyx == '.pyx':
         for k, v in extensions.items():
-            extensions[k] = cythonize(v)[0]
+            c = cythonize(
+                v, compiler_directives=directives)
+            extensions[k] = c[0]
     return extensions
 
 

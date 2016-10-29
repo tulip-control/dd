@@ -2,4 +2,3 @@
 
 [run]
 plugins = Cython.Coverage
-

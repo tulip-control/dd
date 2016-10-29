@@ -1383,7 +1383,10 @@ def _rename(u, bdd, dvars, umap):
 
 
 def _assert_valid_rename(u, bdd, dvars):
-    """Raise `AssertionError` if rename of non-adjacent vars."""
+    """Raise `AssertionError` if rename of non-adjacent vars.
+
+    @param dvars: `dict` that maps var levels to var levels
+    """
     if not dvars:
         return
     # valid levels ?

@@ -1591,7 +1591,7 @@ def _reorder_var(bdd, var, levels):
     assert n >= 0, n
     start = 0
     end = n
-    level = bdd.ordering[var]
+    level = bdd.level_of_var(var)
     # closer to top ?
     if (2 * level) >= n:
         start, end = end, start
@@ -1660,8 +1660,8 @@ def reorder_to_pairs(bdd, pairs):
     m = 0
     levels = bdd._levels()
     for x, y in items(pairs):
-        jx = bdd.ordering[x]
-        jy = bdd.ordering[y]
+        jx = bdd.level_of_var(x)
+        jy = bdd.level_of_var(y)
         k = abs(jx - jy)
         assert k > 0, (jx, jy)
         # already adjacent ?

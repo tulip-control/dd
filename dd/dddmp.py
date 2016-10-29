@@ -142,9 +142,9 @@ class Parser(object):
 
     def parse(self, filename, debuglog=None):
         """Parse DDDMP file containing BDD."""
-        ordering, roots = self._parse_header(filename, debuglog)
+        levels, roots = self._parse_header(filename, debuglog)
         self._parse_body(filename)
-        return self.bdd, self.n_vars, ordering, roots
+        return self.bdd, self.n_vars, levels, roots
 
     def _parse_header(self, filename, debuglog):
         self.reset()
@@ -196,17 +196,17 @@ class Parser(object):
         # support_var_ord_ids = {
         #     d['var_index'] for u, d in g.nodes_iter(data=True)}
         # assert len(support_var_ord_ids) == self.n_support_vars
-        # prepare ordering
+        # prepare levels
         if self.ordered_vars is None:
             permid2var = {
                 k: var for k, var in zip(self.permuted_var_ids,
                                          self.support_vars)}
-            ordering = {
+            levels = {
                 permid2var[k]: k for k in sorted(self.permuted_var_ids)}
         else:
-            ordering = {var: k for k, var in enumerate(self.ordered_vars)}
+            levels = {var: k for k, var in enumerate(self.ordered_vars)}
         roots = set(self.rootids)
-        return ordering, roots
+        return levels, roots
 
     def _parse_body(self, filename):
         # parse nodes (large but very uniform)
@@ -424,16 +424,16 @@ def load(fname):
     DDDMP files are dumped by [CUDD](http://vlsi.colorado.edu/~fabio/CUDD/).
     """
     parser = Parser()
-    bdd_succ, n_vars, ordering, roots = parser.parse(fname)
+    bdd_succ, n_vars, levels, roots = parser.parse(fname)
     # reindex to ensure no blanks
-    perm = {k: var for var, k in items(ordering)}
+    perm = {k: var for var, k in items(levels)}
     perm = {i: perm[k] for i, k in enumerate(sorted(perm))}
-    new_ordering = {var: k for k, var in items(perm)}
-    old2new = {ordering[var]: new_ordering[var] for var in ordering}
+    new_levels = {var: k for k, var in items(perm)}
+    old2new = {levels[var]: new_levels[var] for var in levels}
     # convert
-    bdd = BDD(new_ordering)
+    bdd = BDD(new_levels)
     umap = {-1: -1, 1: 1}
-    for j in range(len(new_ordering) - 1, -1, -1):
+    for j in range(len(new_levels) - 1, -1, -1):
         for u, (k, v, w) in items(bdd_succ):
             # terminal ?
             if v is None:

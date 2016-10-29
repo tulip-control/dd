@@ -1093,9 +1093,11 @@ class BDD(object):
         @param dvars: assignment of values to some variables
         @type dvars: `dict`
         """
+        # `dvars` keys can be var names or levels
         r = 1
         for var, val in items(dvars):
             i = self.vars.get(var, var)
+            self.var_at_level(i)  # assert level exists
             u = self.find_or_add(i, -1, 1)
             if not val:
                 u = -u

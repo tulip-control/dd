@@ -14,6 +14,7 @@ try:
     from Cython.Build import cythonize
     pyx = '.pyx'
 except ImportError:
+    print('`import cython` failed')
     pyx = '.c'
 from setuptools.extension import Extension
 

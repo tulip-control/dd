@@ -101,6 +101,7 @@ cdef extern from 'cudd.h':
     cdef int Cudd_NextCube(DdGen *gen, int **cube, double *value)
     cdef int Cudd_IsGenEmpty(DdGen *gen)
     cdef int Cudd_GenFree(DdGen *gen)
+    cdef double Cudd_CountMinterm(DdManager *dd, DdNode *f, int nvars)
     # refs
     cdef void Cudd_Ref(DdNode *n)
     cdef void Cudd_RecursiveDeref(DdManager *table,
@@ -173,6 +174,7 @@ cdef extern from 'cudd.h':
 cdef CUDD_UNIQUE_SLOTS = 2**8
 cdef CUDD_CACHE_SLOTS = 2**18
 cdef CUDD_REORDER_GROUP_SIFT = 14
+cdef CUDD_OUT_OF_MEM = -1
 cdef MAX_CACHE = <unsigned int> - 1
 
 
@@ -702,6 +704,19 @@ cdef class BDD(object):
     cpdef Function rename(self, u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
         return rename(u, self, dvars)
+
+    def sat_len(self, Function u, int nvars):
+        """Return number of models of node `u`.
+
+        @param nvars: number of variables `u` depends on
+        """
+        assert u.manager == self.manager
+        n = len(self.support(u))
+        assert nvars >= n, (nvars, n)
+        r = Cudd_CountMinterm(self.manager, u.node, nvars)
+        assert r != CUDD_OUT_OF_MEM
+        assert r != float('inf'), 'overflow of integer  type double'
+        return r
 
     def sat_iter(self, Function u,
                  full=False, care_bits=None):

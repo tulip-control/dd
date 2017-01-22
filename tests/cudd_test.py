@@ -217,6 +217,33 @@ def test_cofactor():
     del x, not_x, y, not_y, u, r
 
 
+def test_sat_len():
+    b = cudd.BDD()
+    b.add_var('x')
+    u = b.add_expr('x')
+    with assert_raises(AssertionError):
+        b.sat_len(u, 0)
+    n = b.sat_len(u, 1)
+    assert n == 1, n
+    n = b.sat_len(u, 2)
+    assert n == 2, n
+    n = b.sat_len(u, 3)
+    assert n == 4, n
+    b.add_var('y')
+    u = b.add_expr('x & y')
+    with assert_raises(AssertionError):
+        b.sat_len(u, 0)
+    with assert_raises(AssertionError):
+        b.sat_len(u, 1)
+    n = b.sat_len(u, 2)
+    assert n == 1, n
+    n = b.sat_len(u, 3)
+    assert n == 2, n
+    n = b.sat_len(u, 5)
+    assert n == 8, n
+    del u
+
+
 def test_sat_iter():
     b = cudd.BDD()
     b.add_var('x')

@@ -451,7 +451,6 @@ Some methods present in `autoref.BDD` are not (yet) implemented in the `cudd.BDD
 These are:
 - `evaluate` (use `cofactor`)
 - `ite`
-- `sat_len`
 - `collect_garbage` (shouldn't need this if automated reordering enabled).
 With time, most of these will appear.
 

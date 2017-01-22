@@ -2,6 +2,9 @@
 
 For function docstrings, refer to `dd.bdd`.
 """
+# Copyright 2015 by California Institute of Technology
+# All rights reserved. Licensed under BSD-3.
+#
 from dd import bdd as _bdd
 
 

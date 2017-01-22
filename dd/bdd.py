@@ -37,6 +37,9 @@ Henrik R. Andersen
     Lecture notes for "Efficient Algorithms and Programs", 1999
     The IT University of Copenhagen
 """
+# Copyright 2014 by California Institute of Technology
+# All rights reserved. Licensed under BSD-3.
+#
 from collections import Mapping
 import logging
 import pickle

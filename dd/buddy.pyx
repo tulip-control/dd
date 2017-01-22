@@ -10,6 +10,9 @@ Reference
     v2.4, 2002
     http://buddy.sourceforge.net
 """
+# Copyright 2015 by California Institute of Technology
+# All rights reserved. Licensed under BSD-3.
+#
 import logging
 import pprint
 import sys

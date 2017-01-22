@@ -16,6 +16,9 @@ Michael Miller and Rolf Drechsler
     Multiple-Valued Logic (ISMVL), 1998
     pp.52--57
 """
+# Copyright 2015 by California Institute of Technology
+# All rights reserved. Licensed under BSD-3.
+#
 import logging
 import sys
 

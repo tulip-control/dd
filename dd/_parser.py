@@ -1,4 +1,7 @@
 """Construct BDD nodes from quantified Boolean formulae."""
+# Copyright 2015 by California Institute of Technology
+# All rights reserved. Licensed under BSD-3.
+#
 import logging
 import astutils
 

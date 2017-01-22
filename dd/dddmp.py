@@ -23,6 +23,9 @@ References
 [4] `src/BFAbstractionLibrary/BFCuddManager.cpp`
     method: `BFBddManager.writeBDDToFile`
 """
+# Copyright 2014 by California Institute of Technology
+# All rights reserved. Licensed under BSD-3.
+#
 import logging
 import ply.lex
 import ply.yacc

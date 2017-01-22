@@ -10,6 +10,9 @@ Reference
     doi:10.1016/j.entcs.2013.07.009
     https://github.com/utwente-fmt/sylvan
 """
+# Copyright 2016 by California Institute of Technology
+# All rights reserved. Licensed under BSD-3.
+#
 import logging
 import pickle
 # import pprint

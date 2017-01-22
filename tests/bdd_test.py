@@ -11,6 +11,62 @@ log = logging.getLogger('astutils')
 log.setLevel(logging.ERROR)
 
 
+def test_add_var():
+    b = BDD()
+    #
+    # automated level selection
+    # first var
+    j = b.add_var('x')
+    assert len(b.vars) == 1, b.vars
+    assert 'x' in b.vars, b.vars
+    assert b.vars['x'] == 0, b.vars
+    assert j == 0, j
+    # second var
+    j = b.add_var('y')
+    assert len(b.vars) == 2, b.vars
+    assert 'y' in b.vars, b.vars
+    assert b.vars['y'] == 1, b.vars
+    assert j == 1, j
+    # third var
+    j = b.add_var('z')
+    assert len(b.vars) == 3, b.vars
+    assert 'z' in b.vars, b.vars
+    assert b.vars['z'] == 2, b.vars
+    assert j == 2, j
+    #
+    # explicit level selection
+    b = BDD()
+    j = b.add_var('x', level=35)
+    assert len(b.vars) == 1, b.vars
+    assert 'x' in b.vars, b.vars
+    assert b.vars['x'] == 35, b.vars
+    assert j == 35, j
+    j = b.add_var('y', level=5)
+    assert len(b.vars) == 2, b.vars
+    assert 'y' in b.vars, b.vars
+    assert b.vars['y'] == 5, b.vars
+    assert j == 5, j
+    # attempt to add var at an existing level
+    with nt.assert_raises(AssertionError):
+        b.add_var('z', level=35)
+    with nt.assert_raises(AssertionError):
+        b.add_var('z', level=5)
+    #
+    # mixing automated and
+    # explicit level selection
+    b = BDD()
+    b.add_var('x', level=2)
+    b.add_var('y')
+    assert len(b.vars) == 2, b.vars
+    assert 'x' in b.vars, b.vars
+    assert 'y' in b.vars, b.vars
+    assert b.vars['x'] == 2, b.vars
+    assert b.vars['y'] == 1, b.vars
+    with nt.assert_raises(AssertionError):
+        b.add_var('z')
+    b.add_var('z', level=0)
+
+
 def test_assert_consistent():
     g = two_vars_xy()
     assert g.assert_consistent()

@@ -189,7 +189,9 @@ class BDD(object):
         except AssertionError:
             other = None
         assert other is None, (
-            'level {level} occupied'.format(level=level))
+            ('level {level} occupied by {var}, '
+             'choose another level').format(
+                level=level, var=other))
         self.vars[var] = level
         self._level_to_var[level] = var
         self._init_terminal(len(self.vars))

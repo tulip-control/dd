@@ -180,6 +180,9 @@ class BDD(object):
             if level is not None:
                 assert level == k, (var, k, level)
             return k
+        # assume next level is unoccupied
+        if level is None:
+            level = len(self.vars)
         # level occupied ?
         try:
             other = self.var_at_level(level)
@@ -187,9 +190,6 @@ class BDD(object):
             other = None
         assert other is None, (
             'level {level} occupied'.format(level=level))
-        # create var
-        if level is None:
-            level = len(self.vars)
         self.vars[var] = level
         self._level_to_var[level] = var
         self._init_terminal(len(self.vars))

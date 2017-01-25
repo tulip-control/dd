@@ -230,6 +230,8 @@ class BDD(object):
         # are keys variable names ?
         u = next(iter(d))
         if u not in self.vars:
+            for level in d:
+                assert level in self._level_to_var, level
             return d
         if isinstance(d, Mapping):
             r = {

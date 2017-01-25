@@ -1261,6 +1261,8 @@ cdef _dict_to_cube_array(d, int *x, dict index_of_var):
     @param index_of_var: `dict` from variables to `bool`
         or `set` of variable names.
     """
+    for var in d:
+        assert var in index_of_var, var
     for var, j in index_of_var.iteritems():
         if var not in d:
             x[j] = 2

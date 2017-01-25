@@ -138,6 +138,7 @@ def fetch(url, sha256, fname=None):
 
 
 def untar(fname):
+    """Extract contents of tar file `fname`."""
     print('++ unpack: {f}'.format(f=fname))
     with tarfile.open(fname) as tar:
         tar.extractall()
@@ -145,8 +146,8 @@ def untar(fname):
 
 
 def make_cudd():
+    """Compile CUDD."""
     print('++ make CUDD')
-
     cwd = CUDD_PATH
     patch = 'osx.patch'
     fname = os.path.join(cwd, patch)

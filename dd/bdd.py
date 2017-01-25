@@ -144,7 +144,7 @@ class BDD(object):
         self._ref.setdefault(1, 0)
 
     def succ(self, u):
-        """Return `(level, low, high)` for `u`."""
+        """Return `(level, low, high)` for `abs(u)`."""
         return self._succ[abs(u)]
 
     def incref(self, u):
@@ -219,11 +219,12 @@ class BDD(object):
         return self.vars.get(var)
 
     def _map_to_level(self, d):
-        """Map keys of `d` to variable levels.
+        """Map keys of `d` to variable levels using `self.vars`.
 
         If `d` is an iterable but not a mapping,
         then an iterable is returned.
-        The mapping is `self.vars`.
+
+        @type d: `dict` or `set`
         """
         if not d:
             return d

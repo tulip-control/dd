@@ -219,7 +219,7 @@ the `setup.py` options:
 - `--sylvan`
 - `--buddy`
 
-Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD. For example:
+Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD v3.0.0. For example:
 
 ```shell
 pip download dd --no-deps
@@ -228,11 +228,13 @@ cd dd-*
 python setup.py install --fetch --cudd
 ```
 
-The path to an existing CUDD installation can be passed as an argument:
+The path to an existing CUDD build directory can be passed as an argument:
 
 ```shell
 python setup.py install --cudd="/home/user/cudd"
 ```
+
+If you prefer defining installation directories, then follow [Cython's instructions](http://cython.readthedocs.io/en/latest/src/tutorial/clibraries.html#compiling-and-linking) to define `CFLAGS` and `LDFLAGS` before running `setup.py`. You need to have copied `CuddInt.h` to the installation's include location (CUDD omits it).
 
 If building from the repository, then first install `cython`.
 For example:

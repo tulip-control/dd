@@ -41,7 +41,7 @@ test:
 	rtests.py
 
 cudd:
-	cd cudd-2.5.1; \
+	cd cudd-*; \
 	make build XCFLAGS="-fPIC -mtune=native -DHAVE_IEEE_754 -DBSD -DSIZEOF_VOID_P=8 -DSIZEOF_LONG=8"
 
 
@@ -50,7 +50,7 @@ cudd:
 clean_all: clean_cudd clean
 
 clean_cudd:
-	cd cudd-2.5.1; make distclean
+	cd cudd-*; make clean
 
 clean:
 	-rm -rf build/ dist/ dd.egg-info/ dd/*.so dd/*.c dd/*.pyc

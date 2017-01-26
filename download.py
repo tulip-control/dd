@@ -21,13 +21,13 @@ from setuptools.extension import Extension
 
 EXTENSIONS = ['cudd', 'buddy', 'sylvan']
 # CUDD
-CUDD_VERSION = '2.5.1'
+CUDD_VERSION = '3.0.0'
 CUDD_URL = (
     'ftp://vlsi.colorado.edu/'
     'pub/cudd-{v}.tar.gz').format(v=CUDD_VERSION)
 CUDD_SHA256 = (
-    '4b19c34328d8738a839b994c6b9395f3'
-    '895ff981d2f3495ce62e7ba576ead88b')
+    'b8e966b4562c96a03e7fbea239729587'
+    'd7b395d53cadcc39a7203b49cf7eeb69')
 CUDD_PATCH = (
     'https://raw.githubusercontent.com/LTLMoP/slugs'
     '/master/tools/CuddOSXFixes.patch')
@@ -39,9 +39,10 @@ FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 CUDD_PATH = os.path.join(
     FILE_PATH,
     'cudd-{v}'.format(v=CUDD_VERSION))
-CUDD_INCLUDE = ['include']
-CUDD_LINK = ['cudd', 'dddmp', 'epd', 'mtr', 'st', 'util']
-CUDD_LIB = ['cudd', 'dddmp', 'epd', 'mtr', 'st', 'util']
+CUDD_DIRS = ['cudd', 'dddmp', 'epd', 'mtr', 'st', 'util']
+CUDD_INCLUDE = ['.'] + CUDD_DIRS
+CUDD_LINK = ['cudd/.libs', 'dddmp/.libs']
+CUDD_LIB = ['cudd', 'dddmp']
 CUDD_CFLAGS = [
     # '-arch x86_64',
     '-fPIC',
@@ -152,14 +153,14 @@ def untar(fname):
 
 def make_cudd():
     """Compile CUDD."""
-    print('++ make CUDD')
-    cwd = CUDD_PATH
+    path = CUDD_PATH
     patch = 'osx.patch'
     fname = os.path.join(cwd, patch)
     fetch(CUDD_PATCH, CUDD_PATCH_SHA256, fname=fname)
-    subprocess.call(['patch', '-p0', '-i', patch], cwd=cwd)
-    subprocess.call(['make', 'build', XCFLAGS], cwd=cwd)
-    print('-- done making CUDD.')
+    subprocess.call(['patch', '-p0', '-i', patch], cwd=path)
+    cmd = ["./configure", "CFLAGS=-fPIC"]
+    subprocess.call(cmd, cwd=path)
+    subprocess.call(['make', '-j4'], cwd=path)
 
 
 def fetch_cudd():

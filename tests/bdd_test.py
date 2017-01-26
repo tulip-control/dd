@@ -67,6 +67,19 @@ def test_add_var():
     b.add_var('z', level=0)
 
 
+def test_var():
+    b = BDD()
+    with nt.assert_raises(AssertionError):
+        b.var('x')
+    j = b.add_var('x')
+    u = b.var('x')
+    assert u > 0, u
+    level, low, high = b.succ(u)
+    assert level == j, (level, j)
+    assert low == b.false, low
+    assert high == b.true, high
+
+
 def test_assert_consistent():
     g = two_vars_xy()
     assert g.assert_consistent()

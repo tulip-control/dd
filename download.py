@@ -39,15 +39,8 @@ FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 CUDD_PATH = os.path.join(
     FILE_PATH,
     'cudd-{v}'.format(v=CUDD_VERSION))
-CUDD_INCLUDE = [
-    [CUDD_PATH, 'include']]
-CUDD_LINK = [
-    [CUDD_PATH, 'cudd'],
-    [CUDD_PATH, 'dddmp'],
-    [CUDD_PATH, 'epd'],
-    [CUDD_PATH, 'mtr'],
-    [CUDD_PATH, 'st'],
-    [CUDD_PATH, 'util']]
+CUDD_INCLUDE = ['include']
+CUDD_LINK = ['cudd', 'dddmp', 'epd', 'mtr', 'st', 'util']
 CUDD_LIB = ['cudd', 'dddmp', 'epd', 'mtr', 'st', 'util']
 CUDD_CFLAGS = [
     # '-arch x86_64',
@@ -77,25 +70,31 @@ SYLVAN_INCLUDE = [
 SYLVAN_LINK = [[SYLVAN_PATH, 'src/.libs']]
 
 
-def extensions(directives):
+def extensions(args):
     """Return C extensions, cythonize as needed.
 
-    @param directives: passed as `compiler_directives`
-        to `cythonize`
+    @param args: known args from `argparse.parse_known_args`
     """
+    directives = dict()
     cudd_cflags = list(CUDD_CFLAGS)
     sylvan_cflags = list()
     # tell gcc to compile line tracing
-    if 'linetrace' in directives:
+    if args.linetrace:
+        print('compile Cython extensions with line tracing')
+        directives['linetrace'] = True
         cudd_cflags.append('-DCYTHON_TRACE=1')
         sylvan_cflags.append('-DCYTHON_TRACE=1')
+        # directives['binding'] = True
     os.environ['CC'] = CC
+    path = args.cudd if args.cudd else CUDD_PATH
+    cudd_include = [(path, s) for s in CUDD_INCLUDE]
+    cudd_link = [(path, s) for s in CUDD_LINK]
     extensions = dict(
         cudd=Extension(
             'dd.cudd',
             sources=['dd/cudd' + pyx],
-            include_dirs=_join(CUDD_INCLUDE),
-            library_dirs=_join(CUDD_LINK),
+            include_dirs=_join(cudd_include),
+            library_dirs=_join(cudd_link),
             libraries=CUDD_LIB,
             extra_compile_args=cudd_cflags),
         buddy=Extension(
@@ -109,12 +108,18 @@ def extensions(directives):
             library_dirs=_join(SYLVAN_LINK),
             libraries=['sylvan'],
             extra_compile_args=sylvan_cflags))
+    for ext in EXTENSIONS:
+        if getattr(args, ext) is None:
+            extensions.pop(ext)
     if pyx == '.pyx':
+        ext_modules = list()
         for k, v in extensions.items():
             c = cythonize(
                 [v], compiler_directives=directives)
-            extensions[k] = c[0]
-    return extensions
+            ext_modules.append(c[0])
+    else:
+        ext_modules = list(extensions.values())
+    return ext_modules
 
 
 def _join(paths):

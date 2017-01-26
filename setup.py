@@ -1,4 +1,5 @@
 """Installation script."""
+import argparse
 import logging
 import sys
 
@@ -49,9 +50,6 @@ classifiers = [
     'Programming Language :: Python :: 3',
     'Topic :: Scientific/Engineering',
     'Topic :: Software Development']
-options = [
-    '--{s}'.format(s=s)
-    for s in download.EXTENSIONS]
 
 
 def git_version(version):
@@ -81,26 +79,33 @@ def git_version(version):
     return version
 
 
+def parse_args():
+    """Return `args` irrelevant to `setuptools`."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--fetch', action='store_true',
+        help='download cudd from its website')
+    parser.add_argument(
+        '--linetrace', action='store_true',
+        help='use line tracing for Cython extensions')
+    for opt in download.EXTENSIONS:
+        parser.add_argument(
+            '--{s}'.format(s=opt), default=None,
+            const='', type=str, nargs='?',
+            help='build Cython extension {s}'.format(s=opt))
+    args, unknown = parser.parse_known_args()
+    # avoid confusing `setuptools`
+    sys.argv = [sys.argv[0]] + unknown
+    return args
+
+
 def run_setup():
     """Build parser, get version from `git`, install."""
-    # install build deps ?
-    if '--fetch' in sys.argv:
-        sys.argv.remove('--fetch')
+    args = parse_args()
+    if args.fetch:
         download.fetch_cudd()
     # build extensions ?
-    e = list()
-    for opt in options:
-        if opt in sys.argv:
-            e.append(opt[2:])
-            sys.argv.remove(opt)
-    directives = dict()
-    if '--linetrace' in sys.argv:
-        print('compile Cython extensions with line tracing')
-        sys.argv.remove('--linetrace')
-        directives['linetrace'] = True
-        # directives['binding'] = True
-    extensions = download.extensions(directives)
-    ext_modules = list(extensions[k] for k in e)
+    ext_modules = download.extensions(args)
     # version
     try:
         version = git_version(VERSION)

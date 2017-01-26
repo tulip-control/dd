@@ -228,6 +228,12 @@ cd dd-*
 python setup.py install --fetch --cudd
 ```
 
+The path to an existing CUDD installation can be passed as an argument:
+
+```shell
+python setup.py install --cudd="/home/user/cudd"
+```
+
 If building from the repository, then first install `cython`.
 For example:
 

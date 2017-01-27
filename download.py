@@ -28,12 +28,6 @@ CUDD_URL = (
 CUDD_SHA256 = (
     'b8e966b4562c96a03e7fbea239729587'
     'd7b395d53cadcc39a7203b49cf7eeb69')
-CUDD_PATCH = (
-    'https://raw.githubusercontent.com/LTLMoP/slugs'
-    '/master/tools/CuddOSXFixes.patch')
-CUDD_PATCH_SHA256 = (
-    '8de3ceb2930efd2e16a5d90990be4586'
-    '42b43dede3a96b2aa6cab7cc3ceb6e5d')
 CC = 'gcc'
 FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 CUDD_PATH = os.path.join(
@@ -154,10 +148,6 @@ def untar(fname):
 def make_cudd():
     """Compile CUDD."""
     path = CUDD_PATH
-    patch = 'osx.patch'
-    fname = os.path.join(cwd, patch)
-    fetch(CUDD_PATCH, CUDD_PATCH_SHA256, fname=fname)
-    subprocess.call(['patch', '-p0', '-i', patch], cwd=path)
     cmd = ["./configure", "CFLAGS=-fPIC"]
     subprocess.call(cmd, cwd=path)
     subprocess.call(['make', '-j4'], cwd=path)

@@ -581,9 +581,7 @@ cdef class BDD(object):
                 v=var, d=self._index_of_var)
         j = self._index_of_var[var]
         r = Cudd_bddIthVar(self.manager, j)
-        f = Function()
-        f.init(self.manager, r)
-        return f
+        return wrap(self.manager, r)
 
     def var_at_level(self, level):
         """Return name of variable at `level`."""
@@ -612,8 +610,7 @@ cdef class BDD(object):
         assert self.manager == f.manager, f
         cdef DdNode *r
         r = Cudd_Support(self.manager, f.node)
-        f = Function()
-        f.init(self.manager, r)
+        f = wrap(self.manager, r)
         supp = self._cube_to_dict(f)
         # constant ?
         if not supp:
@@ -636,9 +633,7 @@ cdef class BDD(object):
         assert v.manager == self.manager
         cdef DdNode *r
         r = Cudd_bddIte(self.manager, g.node, u.node, v.node)
-        f = Function()
-        f.init(self.manager, r)
-        return f
+        return wrap(self.manager, r)
 
     cpdef Function compose(self, Function f, var_sub):
         """Return the composition f|_(var = g).
@@ -663,9 +658,7 @@ cdef class BDD(object):
         index = self._index_of_var[var]
         r = Cudd_bddCompose(self.manager, f.node, g.node, index)
         assert r != NULL, 'compose failed'
-        f = Function()
-        f.init(self.manager, r)
-        return f
+        return wrap(self.manager, r)
 
     cdef Function _vector_compose(self, Function f, var_sub):
         """Return vector composition."""
@@ -690,9 +683,7 @@ cdef class BDD(object):
             r = Cudd_bddVectorCompose(self.manager, f.node, x)
         finally:
             PyMem_Free(x)
-        f = Function()
-        f.init(self.manager, r)
-        return f
+        return wrap(self.manager, r)
 
     cpdef Function cofactor(self, Function f, values):
         """Return the cofactor f|_g."""
@@ -702,9 +693,7 @@ cdef class BDD(object):
         cube = self.cube(values)
         r = Cudd_Cofactor(self.manager, f.node, cube.node)
         assert r != NULL, 'cofactor failed'
-        h = Function()
-        h.init(self.manager, r)
-        return h
+        return wrap(self.manager, r)
 
     cpdef Function rename(self, u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
@@ -803,9 +792,7 @@ cdef class BDD(object):
         if r == NULL:
             raise Exception(
                 'unknown operator: "{op}"'.format(op=op))
-        f = Function()
-        f.init(mgr, r)
-        return f
+        return wrap(mgr, r)
 
     cpdef _add_int(self, i):
         """Return node from integer `i`."""
@@ -815,9 +802,7 @@ cdef class BDD(object):
         if 2 <= i:
             i -= 2
         u = <DdNode *><stdint.uintptr_t>i
-        r = Function()
-        r.init(self.manager, u)
-        return r
+        return wrap(self.manager, u)
 
     cpdef Function cube(self, dvars):
         """Return node for cube over `dvars`.
@@ -834,9 +819,7 @@ cdef class BDD(object):
             cube = Cudd_CubeArrayToBdd(self.manager, x)
         finally:
             PyMem_Free(x)
-        f = Function()
-        f.init(self.manager, cube)
-        return f
+        return wrap(self.manager, cube)
 
     cdef Function _cube_from_bdds(self, dvars):
         """Return node for cube over `dvars`.
@@ -855,9 +838,7 @@ cdef class BDD(object):
             cube = Cudd_bddComputeCube(self.manager, x, NULL, n)
         finally:
             PyMem_Free(x)
-        f = Function()
-        f.init(self.manager, cube)
-        return f
+        return wrap(self.manager, cube)
 
     cpdef _cube_to_dict(self, Function f):
         """Recurse to collect indices of support variables."""
@@ -884,10 +865,7 @@ cdef class BDD(object):
             r = Cudd_bddUnivAbstract(mgr, u.node, cube.node)
         else:
             r = Cudd_bddExistAbstract(mgr, u.node, cube.node)
-        # wrap
-        f = Function()
-        f.init(mgr, r)
-        return f
+        return wrap(mgr, r)
 
     cpdef Function forall(self, qvars, Function u):
         """Quantify `qvars` in `u` universally.
@@ -1005,8 +983,7 @@ cdef class BDD(object):
             fclose(f)
             PyMem_Free(names)
         assert r != NULL, 'failed to load DDDMP file.'
-        h = Function()
-        h.init(self.manager, r)
+        h = wrap(self.manager, r)
         # `Dddmp_cuddBddArrayLoad` references `r`
         Cudd_RecursiveDeref(self.manager, r)
         return h
@@ -1028,9 +1005,7 @@ cdef class BDD(object):
             r = Cudd_ReadOne(self.manager)
         else:
             r = Cudd_ReadLogicZero(self.manager)
-        f = Function()
-        f.init(self.manager, r)
-        return f
+        return wrap(self.manager, r)
 
 
 cpdef Function restrict(Function u, Function care_set):
@@ -1038,9 +1013,7 @@ cpdef Function restrict(Function u, Function care_set):
     assert u.manager == care_set.manager
     cdef DdNode *r
     r = Cudd_bddRestrict(u.manager, u.node, care_set.node)
-    f = Function()
-    f.init(u.manager, r)
-    return f
+    return wrap(u.manager, r)
 
 
 cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
@@ -1050,9 +1023,7 @@ cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
     mgr = u.manager
     cube = bdd.cube(qvars)
     r = Cudd_bddAndAbstract(u.manager, u.node, v.node, cube.node)
-    f = Function()
-    f.init(mgr, r)
-    return f
+    return wrap(mgr, r)
 
 
 cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
@@ -1065,9 +1036,7 @@ cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
     r = Cudd_bddAndAbstract(
         u.manager, Cudd_Not(u.node), Cudd_Not(v.node), cube.node)
     r = Cudd_Not(r)
-    f = Function()
-    f.init(mgr, r)
-    return f
+    return wrap(mgr, r)
 
 
 cpdef Function rename(Function u, BDD bdd, dvars):
@@ -1101,9 +1070,7 @@ cpdef Function rename(Function u, BDD bdd, dvars):
     finally:
         PyMem_Free(x)
         PyMem_Free(y)
-    f = Function()
-    f.init(mgr, r)
-    return f
+    return wrap(mgr, r)
 
 
 cpdef reorder(BDD bdd, dvars=None):
@@ -1172,10 +1139,8 @@ cpdef copy_bdd(Function u, BDD source, BDD target):
         j = target._index_of_var[var]
         assert i == j, (var, i, j)
     r = Cudd_bddTransfer(source.manager, target.manager, u.node)
-    f = Function()
-    f.init(target.manager, r)
     logger.debug('-- done transferring bdd')
-    return f
+    return wrap(target.manager, r)
 
 
 cpdef count_nodes(functions):
@@ -1308,6 +1273,14 @@ cdef dict _cube_array_to_dict(int *x, dict index_of_var):
     return d
 
 
+cdef wrap(BDD bdd, DdNode *node):
+    """Return a `Function` that wraps `node`."""
+    # because `@classmethod` unsupported
+    f = Function()
+    f.init(node, bdd)
+    return f
+
+
 cdef class Function(object):
     """Wrapper of `DdNode` from CUDD.
 
@@ -1375,9 +1348,7 @@ cdef class Function(object):
         if Cudd_IsConstant(self.node):
             return None
         u = Cudd_E(self.node)
-        f = Function()
-        f.init(self.manager, u)
-        return f
+        return wrap(self.manager, u)
 
     @property
     def high(self):
@@ -1386,9 +1357,7 @@ cdef class Function(object):
         if Cudd_IsConstant(self.node):
             return None
         u = Cudd_T(self.node)
-        f = Function()
-        f.init(self.manager, u)
-        return f
+        return wrap(self.manager, u)
 
     @property
     def negated(self):
@@ -1441,23 +1410,17 @@ cdef class Function(object):
     def __invert__(self):
         cdef DdNode *r
         r = Cudd_Not(self.node)
-        f = Function()
-        f.init(self.manager, r)
-        return f
+        return wrap(self.manager, r)
 
     def __and__(Function self, Function other):
         assert self.manager == other.manager
         r = Cudd_bddAnd(self.manager, self.node, other.node)
-        f = Function()
-        f.init(self.manager, r)
-        return f
+        return wrap(self.manager, r)
 
     def __or__(Function self, Function other):
         assert self.manager == other.manager
         r = Cudd_bddOr(self.manager, self.node, other.node)
-        f = Function()
-        f.init(self.manager, r)
-        return f
+        return wrap(self.manager, r)
 
 
 """Tests and test wrappers for C functions."""

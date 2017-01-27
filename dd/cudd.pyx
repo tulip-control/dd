@@ -1288,6 +1288,7 @@ cdef class Function(object):
     Attributes:
 
       - `index`
+      - `level`
       - `ref`
       - `low`
       - `high`

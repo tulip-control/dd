@@ -14,7 +14,6 @@ def test_true_false():
     assert false == ~true
     assert false == false & true
     assert true == true | false
-    del true, false
 
 
 def test_add_var():
@@ -33,7 +32,6 @@ def test_add_var():
     x = bdd.var('x')
     y = bdd.var('y')
     assert x != y, (x, y)
-    del x, y
 
 
 def test_var_cofactor():
@@ -46,7 +44,6 @@ def test_var_cofactor():
     values = dict(x=True)
     u = bdd.cofactor(x, values)
     assert u == bdd.true, u
-    del x, u
 
 
 def test_insert_var():
@@ -112,7 +109,6 @@ def test_contains():
     other_true = other_bdd.true
     with assert_raises(AssertionError):
         other_true in bdd
-    del x, true, other_true
 
 
 def test_str():
@@ -173,7 +169,6 @@ def test_compose():
     v = bdd.compose(u, sub)
     v_ = bdd.add_expr('(y | z) & !y')
     assert v == v_, v
-    del u, v, v_, sub
 
 
 def test_cofactor():
@@ -214,7 +209,6 @@ def test_cofactor():
     assert r == bdd.true, r
     r = bdd.cofactor(u, dict(x=True, y=True))
     assert r == bdd.true, r
-    del x, not_x, y, not_y, u, r
 
 
 def test_sat_len():
@@ -241,7 +235,6 @@ def test_sat_len():
     assert n == 2, n
     n = b.sat_len(u, 5)
     assert n == 8, n
-    del u
 
 
 def test_sat_iter():
@@ -285,7 +278,6 @@ def test_sat_iter():
         dict(x=False, y=True),
         dict(x=True, y=True)]
     equal_list_contents(m, m_)
-    del u
 
 
 def equal_list_contents(x, y):
@@ -345,7 +337,6 @@ def test_apply():
     u = bdd.apply('xor', x, y)
     v = bdd.apply('^', x, y)
     assert u == v, (u, v)
-    del x, not_x, y, not_y, z, u, v, w, r, true, false
 
 
 def test_quantify():
@@ -379,7 +370,6 @@ def test_quantify():
     u = bdd.apply('or', not_x, y)
     r = bdd.quantify(u, ['x'], forall=True)
     assert r == y, (r, y)
-    del x, not_x, y, r, u
 
 
 def test_cube():
@@ -401,7 +391,6 @@ def test_cube():
     d = dict(x=True, y=False)
     c = bdd.cube(d)
     assert u == c, (u, c)
-    del c, x, y, not_y, u
 
 
 def test_cube_array():
@@ -439,7 +428,6 @@ def test_add_expr():
     # \A x: x | !x = 1
     u = bdd.add_expr('\A x: !x | x')
     assert u == bdd.true, u
-    del x, y, z, u, u_
 
 
 def test_dump_load():
@@ -451,7 +439,6 @@ def test_dump_load():
     bdd.dump(u, fname)
     u_ = bdd.load(fname)
     assert u == u_
-    del u, u_
 
 
 def test_load_sample0():
@@ -466,7 +453,6 @@ def test_load_sample0():
     s = '! ( (a & (b |c)) | (!a & (b | !c)) )'
     u_ = bdd.add_expr(s)
     assert u == u_, (u, u_)
-    del u, u_
 
 
 def test_and_exists():
@@ -483,7 +469,6 @@ def test_and_exists():
     not_x = bdd.apply('not', x)
     r = cudd.and_exists(x, not_x, qvars, bdd)
     assert r == bdd.false
-    del x, not_x, y, r
 
 
 def test_or_forall():
@@ -496,7 +481,6 @@ def test_or_forall():
     qvars = ['x', 'y']
     r = cudd.or_forall(x, not_y, qvars, bdd)
     assert r == bdd.false, r
-    del x, not_y, r
 
 
 def test_support():
@@ -512,7 +496,6 @@ def test_support():
     x_and_y = bdd.apply('and', x, y)
     supp = bdd.support(x_and_y)
     assert supp == set(['x', 'y']), supp
-    del x, y, x_and_y
 
 
 def test_rename():
@@ -599,7 +582,6 @@ def test_copy_bdd_same_indices():
     # same bdd
     with assert_raises(AssertionError):
         cudd.copy_bdd(u0, bdd, bdd)
-    del u0, u1, u2, u3, w
 
 
 def test_copy_bdd_different_indices():
@@ -615,7 +597,6 @@ def test_copy_bdd_different_indices():
     u0 = bdd.add_expr('(x | !y) & !z')
     with assert_raises(AssertionError):
         cudd.copy_bdd(u0, bdd, other)
-    del u0
 
 
 def test_copy_bdd_different_order():
@@ -655,7 +636,6 @@ def test_copy_bdd_different_order():
     # verify
     w = other.add_expr(s)
     assert w == u1, (w, u1)
-    del u0, u1, u2, u3, w
 
 
 def test_count_nodes():
@@ -671,7 +651,6 @@ def test_count_nodes():
     cudd.reorder(bdd, dict(z=0, y=1, x=2))
     n = cudd.count_nodes([u, v])
     assert n == 4, n
-    del u, v
 
 
 def test_function():
@@ -691,7 +670,6 @@ def test_function():
     assert low == bdd.false, low
     high = not_x.high
     assert high == bdd.true, high
-    del x, not_x, low, high
 
 
 if __name__ == '__main__':

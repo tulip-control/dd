@@ -1,5 +1,7 @@
 """Cython interface to CUDD.
 
+Variable `__version__` equals CUDD's version string.
+
 
 Reference
 =========
@@ -28,6 +30,7 @@ import psutil
 
 
 cdef extern from 'cuddInt.h':
+    cdef char* CUDD_VERSION
     # subtable (for a level)
     cdef struct DdSubtable:
         unsigned int slots
@@ -176,6 +179,7 @@ cdef CUDD_CACHE_SLOTS = 2**18
 cdef CUDD_REORDER_GROUP_SIFT = 14
 cdef CUDD_OUT_OF_MEM = -1
 cdef MAX_CACHE = <unsigned int> - 1
+__version__ = CUDD_VERSION.decode('utf-8')
 
 
 # TODO: replace DDDMP
@@ -269,6 +273,7 @@ cdef class BDD(object):
     def __init__(self,
                  memory_estimate=None,
                  initial_cache_size=None):
+        logger.info('Using CUDD v{n}'.format(n=__version__))
         self.configure(reordering=True, max_cache_hard=MAX_CACHE)
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int

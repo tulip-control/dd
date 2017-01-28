@@ -150,7 +150,7 @@ def test_evaluate():
     assert g.evaluate(u, {'y': 0}) == -1
     # x & y
     g = x_and_y()
-    u = 2
+    u = 4
     # missing value for y
     with nt.assert_raises(KeyError):
         g.evaluate(u, {'x': 1})
@@ -181,8 +181,9 @@ def test_is_essential():
     assert not g.is_essential(3, 'x')
     g = x_and_y()
     assert g.is_essential(2, 'x')
-    assert g.is_essential(2, 'y')
     assert g.is_essential(3, 'y')
+    assert g.is_essential(4, 'x')
+    assert g.is_essential(4, 'y')
     assert not g.is_essential(3, 'x')
     assert not g.is_essential(-1, 'x')
     assert not g.is_essential(-1, 'y')
@@ -197,33 +198,33 @@ def test_support():
     assert g.support(2) == {'x'}
     assert g.support(3) == {'y'}
     g = x_and_y()
-    assert g.support(2) == {'x', 'y'}
+    assert g.support(4) == {'x', 'y'}
     assert g.support(3) == {'y'}
     g = x_or_y()
-    assert g.support(2) == {'x', 'y'}
+    assert g.support(4) == {'x', 'y'}
     assert g.support(3) == {'y'}
 
 
 def test_sat_len():
     g = x_and_y()
-    assert g.sat_len(2) == 1
+    assert g.sat_len(4) == 1
     g = x_or_y()
-    assert g.sat_len(2) == 3
-    assert g.sat_len(-2) == 1
+    assert g.sat_len(4) == 3
+    assert g.sat_len(-4) == 1
     with nt.assert_raises(Exception):
         g.sat_len()
-    assert g.sat_len(2) == 3
+    assert g.sat_len(4) == 3
 
 
 def test_sat_iter():
     # x & y
     g = x_and_y()
-    u = 2
+    u = 4
     s = [{'x': 1, 'y': 1}]
     compare_iter_to_list_of_sets(u, g, s)
     # x | y
     g = x_or_y()
-    u = 2
+    u = 4
     s = [{'x': 1}, {'x': 0, 'y': 1}]
     compare_iter_to_list_of_sets(u, g, s)
     # x & !y
@@ -986,7 +987,7 @@ def test_to_pydot():
         return str(abs(x))
     # with roots
     g = x_and_y()
-    pd = _bdd.to_pydot([2], g)
+    pd = _bdd.to_pydot([4, 2], g)
     r = nx.drawing.nx_pydot.from_pydot(pd)
     for u in g:
         assert f(u) in r, u
@@ -1001,7 +1002,7 @@ def test_to_pydot():
     # no roots
     pd = _bdd.to_pydot(None, g)
     r = nx.drawing.nx_pydot.from_pydot(pd)
-    assert len(r) == 6, r.nodes()  # 3 hidden nodes for levels
+    assert len(r) == 7, r.nodes()  # 3 hidden nodes for levels
 
 
 def test_function_wrapper():
@@ -1073,6 +1074,7 @@ def x_or_y():
     assert_valid_succ_pred(u, t, g)
     g._succ[u] = t
     g._pred[t] = u
+    g._ref[u] = 1
     g._min_free = u + 1
     g.assert_consistent()
     return g

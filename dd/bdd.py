@@ -140,8 +140,18 @@ class BDD(object):
             'use `dd.BDD.vars` instead of `.ordering`')
 
     def _init_terminal(self, i):
-        self._succ[1] = (i, None, None)
-        self._ref.setdefault(1, 0)
+        """Place constant node `1`.
+
+        Used for initialization and to shift node `1` to
+        lower levels, as fresh variables are being added.
+        """
+        u = 1
+        t = (i, None, None)
+        told = self._succ.setdefault(u, t)
+        self._pred.pop(told, None)
+        self._succ[u] = t
+        self._pred[t] = u
+        self._ref.setdefault(u, 0)
 
     def succ(self, u):
         """Return `(level, low, high)` for `abs(u)`."""

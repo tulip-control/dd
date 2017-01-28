@@ -355,7 +355,10 @@ def test_find_or_add():
     n_ = len(g)
     assert n == n_, (n, n_)
     assert u == v, (u, v)
-    assert not g._pred, g._pred
+    assert len(g._pred) == 1, g._pred
+    t = (2, None, None)
+    assert t in g._pred, g._pred
+    assert g._pred[t] == 1, g._pred
     # unchanged min_free
     v = 1
     m = g._min_free

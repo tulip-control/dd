@@ -1023,7 +1023,7 @@ def test_to_pydot():
     pd = _bdd.to_pydot([4, 2], g)
     r = nx.drawing.nx_pydot.from_pydot(pd)
     for u in g:
-        assert f(u) in r, u
+        assert f(u) in r, (u, r.nodes())
     for u in g._succ:
         i, v, w = g._succ[u]
         if v is None or w is None:

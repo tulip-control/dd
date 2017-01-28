@@ -934,6 +934,7 @@ class BDD(object):
 
         An assignment is a `dict` that
         maps each variable to a `bool`.
+        If `care_bits < support(u)` then log warning.
 
         @param care_bits: cases:
 
@@ -956,9 +957,11 @@ class BDD(object):
         if care_bits is None:
             care_bits = support
         missing = {v for v in support if v not in care_bits}
-        assert not missing, (
-            'support - care_bits = {missing}').format(
-                missing=missing)
+        if missing:
+            logger.warning((
+                'Missing bits:  '
+                'support - care_bits = {missing}').format(
+                    missing=missing))
         for cube in self._sat_iter(u, cube, value):
             for m in _enumerate_minterms(cube, care_bits):
                 yield m

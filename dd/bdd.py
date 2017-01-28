@@ -1314,7 +1314,8 @@ def _enumerate_minterms(cube, bits):
     """Generator of complete assignments in `cube`.
 
     @type cube: `dict`
-    @param bits: enumerate over these care bits
+    @param bits: enumerate over those absent from `cube`
+    @type bits: `set`
     @rtype: generator of `dict(str: bool)`
     """
     assert cube is not None
@@ -1328,6 +1329,7 @@ def _enumerate_minterms(cube, bits):
         model = {k: bool(int(v)) for k, v in zip(bits, values)}
         model.update(cube)
         assert len(model) >= len(bits), (model, bits)
+        assert len(model) >= len(cube), (model, cube)
         yield model
 
 

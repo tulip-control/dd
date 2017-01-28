@@ -294,6 +294,13 @@ def test_enumerate_minterms():
                 m = (('x', x), ('y', y), ('z', z))
                 q.add(m)
     assert p == q, (p, q)
+    # fewer bits than cube
+    cube = dict(x=False, y=True)
+    bits = set()
+    r = _bdd._enumerate_minterms(cube, bits)
+    p = set_from_generator_of_dict(r)
+    q = {(('x', False), ('y', True))}
+    assert p == q, (p, q)
 
 
 def set_from_generator_of_dict(gen):

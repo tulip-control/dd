@@ -124,9 +124,9 @@ class BDD(object):
         assert u in self, u
         return self._bdd.sat_len(u.node)
 
-    def sat_iter(self, u, full=False, care_bits=None):
+    def sat_iter(self, u, care_bits=None):
         assert u in self, u
-        return self._bdd.sat_iter(u.node, full, care_bits)
+        return self._bdd.sat_iter(u.node, care_bits)
 
     def add_expr(self, e):
         r = self._bdd.add_expr(e)

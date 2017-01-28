@@ -929,17 +929,12 @@ class BDD(object):
             n = 2**(len(self.vars) - i) - n
         return n
 
-    def sat_iter(self, u, full=False, care_bits=None):
+    def sat_iter(self, u, care_bits=None):
         """Return generator over assignments.
 
         An assignment is `dict` that
         maps each variable to a `bool`.
 
-        @param full: if `True`,
-            then return complete assignments (minterms),
-            otherwise (possibly) partial assignments (cubes).
-        @param care_bits: if `full`, then enumerate
-            only over these additional bits.
 
         @rtype: generator of `dict(str: bool)`
         """
@@ -958,10 +953,6 @@ class BDD(object):
             'support - care_bits = {missing}').format(
                 missing=missing)
         for cube in self._sat_iter(u, cube, value):
-            if not full:
-                yield cube
-                continue
-            # complete assignments
             for m in _enumerate_minterms(cube, care_bits):
                 yield m
 

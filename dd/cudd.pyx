@@ -713,8 +713,7 @@ cdef class BDD(object):
         assert r != float('inf'), 'overflow of integer  type double'
         return r
 
-    def sat_iter(self, Function u,
-                 full=False, care_bits=None):
+    def sat_iter(self, Function u, care_bits=None):
         """Return generator over assignments."""
         assert u.manager == self.manager
         cdef DdGen *gen
@@ -735,11 +734,8 @@ cdef class BDD(object):
             while Cudd_IsGenEmpty(gen) == 0:
                 assert r == 1, ('gen not empty but no next cube', r)
                 d = _cube_array_to_dict(cube, self._index_of_var)
-                if not full:
-                    yield d
-                else:
-                    for m in _bdd._enumerate_minterms(d, care_bits):
-                        yield m
+                for m in _bdd._enumerate_minterms(d, care_bits):
+                    yield m
                 r = Cudd_NextCube(gen, &cube, &value)
         finally:
             Cudd_GenFree(gen)

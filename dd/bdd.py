@@ -982,6 +982,19 @@ class BDD(object):
         """Raise `AssertionError` if not a valid BDD."""
         for root in self.roots:
             assert abs(root) in self._succ, root
+        # inverses
+        succ_keys = set(self._succ)
+        succ_values = set(self._succ.values())
+        pred_keys = set(self._pred)
+        pred_values = set(self._pred.values())
+        assert succ_keys == pred_values, (
+            succ_keys.symmetric_difference(pred_values))
+        assert pred_keys == succ_values, (
+            pred_keys.symmetric_difference(succ_values))
+        # uniqueness
+        n = len(succ_keys)
+        n_ = len(succ_values)
+        assert n == n_, (n - n_)
         for u, (i, v, w) in items(self._succ):
             assert isinstance(i, int), i
             # terminal ?
@@ -1000,7 +1013,7 @@ class BDD(object):
             for x in (v, w):
                 ix, _, _ = self._succ[abs(x)]
                 assert i < ix, (u, i)
-            # 1-1 mapping
+            # `_pred` contains inverse of `_succ`
             assert (i, v, w) in self._pred, (i, v, w)
             assert self._pred[(i, v, w)] == u, u
             # reference count

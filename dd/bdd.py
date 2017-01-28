@@ -932,9 +932,16 @@ class BDD(object):
     def sat_iter(self, u, care_bits=None):
         """Return generator over assignments.
 
-        An assignment is `dict` that
+        An assignment is a `dict` that
         maps each variable to a `bool`.
 
+        @param care_bits: cases:
+
+            1. `None`: return (uniform) assignments that
+               include exactly those variables in `support(u)`
+
+            2. `set`: return (possibly partial) assignments
+               that include at least all bits in `set`
 
         @rtype: generator of `dict(str: bool)`
         """
@@ -945,9 +952,9 @@ class BDD(object):
         assert abs(u) in self._succ, u
         cube = dict()
         value = True
-        if care_bits is None:
-            care_bits = set(self.vars)
         support = self.support(u)
+        if care_bits is None:
+            care_bits = support
         missing = {v for v in support if v not in care_bits}
         assert not missing, (
             'support - care_bits = {missing}').format(

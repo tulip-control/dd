@@ -220,18 +220,40 @@ def test_sat_iter():
     # x & y
     g = x_and_y()
     u = 4
+    bits = {'x', 'y'}
     s = [{'x': 1, 'y': 1}]
-    compare_iter_to_list_of_sets(u, g, s)
+    compare_iter_to_list_of_sets(u, g, s, bits)
+    # care_bits == support (default)
+    bits = None
+    compare_iter_to_list_of_sets(u, g, s, bits)
+    #
     # x | y
     g = x_or_y()
     u = 4
+    # support
+    bits = None
+    s = [{'x': 1, 'y': 0}, {'x': 1, 'y': 1},
+         {'x': 0, 'y': 1}]
+    compare_iter_to_list_of_sets(u, g, s, bits)
+    # only what appears along traversal
+    bits = set()
     s = [{'x': 1}, {'x': 0, 'y': 1}]
-    compare_iter_to_list_of_sets(u, g, s)
+    compare_iter_to_list_of_sets(u, g, s, bits)
+    # bits < support
+    bits = {'x'}
+    s = [{'x': 1}, {'x': 0, 'y': 1}]
+    compare_iter_to_list_of_sets(u, g, s, bits)
+    bits = {'y'}
+    s = [{'x': 1, 'y': 0},{'x': 1, 'y': 1},
+         {'x': 0, 'y': 1}]
+    compare_iter_to_list_of_sets(u, g, s, bits)
+    #
     # x & !y
     g = x_and_not_y()
     u = -2
+    bits = {'x', 'y'}
     s = [{'x': 1, 'y': 0}]
-    compare_iter_to_list_of_sets(u, g, s)
+    compare_iter_to_list_of_sets(u, g, s, bits)
     # gaps in order
     order = {'x': 0, 'y': 1, 'z': 2}
     bdd = BDD(order)
@@ -240,11 +262,12 @@ def test_sat_iter():
     assert m == {'x': 1, 'z': 1}, m
 
 
-def compare_iter_to_list_of_sets(u, g, s):
-    for d in g.sat_iter(u):
-        assert d in s
+def compare_iter_to_list_of_sets(u, g, s, care_bits):
+    s = list(s)
+    for d in g.sat_iter(u, care_bits):
+        assert d in s, d
         s.remove(d)
-    assert not s
+    assert not s, s
 
 
 def test_enumerate_minterms():

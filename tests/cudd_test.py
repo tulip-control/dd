@@ -244,12 +244,12 @@ def test_sat_iter():
     # x & y
     s = '!x & y'
     u = b.add_expr(s)
-    g = b.sat_iter(u)
+    g = b.sat_iter(u, care_bits=set())
     m = list(g)
     m_ = [dict(x=False, y=True)]
     assert m == m_, (m, m_)
     u = b.add_expr(s)
-    g = b.sat_iter(u, full=True)
+    g = b.sat_iter(u)
     m = list(g)
     assert m == m_, (m, m_)
     # x
@@ -261,7 +261,7 @@ def test_sat_iter():
     m_ = [dict(y=False)]
     equal_list_contents(m, m_)
     # partial
-    g = b.sat_iter(u, full=True)
+    g = b.sat_iter(u, care_bits=['x', 'y'])
     m = list(g)
     m_ = [
         dict(x=True, y=False),
@@ -271,7 +271,7 @@ def test_sat_iter():
     b.add_var('z')
     s = 'x | y'
     u = b.add_expr(s)
-    g = b.sat_iter(u, full=True, care_bits=['x', 'y'])
+    g = b.sat_iter(u, care_bits=['x', 'y'])
     m = list(g)
     m_ = [
         dict(x=True, y=False),

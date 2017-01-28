@@ -1070,9 +1070,11 @@ def x_or_y():
     g = two_vars_xy()
     u = 2
     t = (0, 3, 1)
+    assert_valid_succ_pred(u, t, g)
     g._succ[u] = t
     g._pred[t] = u
     g._min_free = u + 1
+    g.assert_consistent()
     return g
 
 
@@ -1080,6 +1082,7 @@ def x_and_y():
     g = two_vars_xy()
     u = 2
     t = (0, -1, 3)
+    assert_valid_succ_pred(u, t, g)
     g._succ[u] = t
     g._pred[t] = u
     g._ref[u] = 1
@@ -1092,11 +1095,13 @@ def two_vars_xy():
     g = BDD(ordering)
     u = 2
     t = (0, -1, 1)
+    assert_valid_succ_pred(u, t, g)
     g._succ[u] = t
     g._pred[t] = u
     g._ref[u] = 1
     u = 3
     t = (1, -1, 1)
+    assert_valid_succ_pred(u, t, g)
     g._succ[u] = t
     g._pred[t] = u
     g._ref[u] = 1
@@ -1114,6 +1119,7 @@ def x_and_not_y():
     v = -1
     w = 1
     t = (1, v, w)
+    assert_valid_succ_pred(u, t, g)
     g._succ[u] = t
     g._pred[t] = u
     g._ref[abs(v)] += 1
@@ -1123,6 +1129,7 @@ def x_and_not_y():
     v = 1
     w = 3
     t = (0, v, w)
+    assert_valid_succ_pred(u, t, g)
     g._succ[u] = t
     g._pred[t] = u
     g._ref[abs(v)] += 1
@@ -1130,6 +1137,15 @@ def x_and_not_y():
     g._ref[abs(u)] = 0
     g._min_free = 4
     return g
+
+
+def assert_valid_succ_pred(u, t, g):
+    assert u > 1, u
+    assert isinstance(t, tuple), t
+    assert len(t) == 3, t
+    assert t[0] >= 0, t
+    assert u not in g._succ, g._succ
+    assert t not in g._pred, g._pred
 
 
 def ref_var(i):

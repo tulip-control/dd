@@ -1301,7 +1301,6 @@ class BDD(object):
         bdd._min_free = d['min_free']
         return bdd
 
-    # !!! DO NOT MOVE up, because arg defaults affected
     @property
     def false(self):
         return -1

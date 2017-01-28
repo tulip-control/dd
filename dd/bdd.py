@@ -1867,7 +1867,7 @@ def to_pydot(roots, bdd):
         g.add_subgraph(h)
         subgraphs[i] = h
         # add phantom node
-        u = '-{i}'.format(i=i)
+        u = 'L{i}'.format(i=i)
         skeleton.append(u)
         nd = pydot.Node(name=u, label=str(i), shape='none')
         h.add_node(nd)

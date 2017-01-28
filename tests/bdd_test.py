@@ -1068,7 +1068,7 @@ def test_function_wrapper():
 
 def x_or_y():
     g = two_vars_xy()
-    u = 2
+    u = 4
     t = (0, 3, 1)
     assert_valid_succ_pred(u, t, g)
     g._succ[u] = t
@@ -1080,7 +1080,7 @@ def x_or_y():
 
 def x_and_y():
     g = two_vars_xy()
-    u = 2
+    u = 4
     t = (0, -1, 3)
     assert_valid_succ_pred(u, t, g)
     g._succ[u] = t

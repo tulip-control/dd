@@ -38,7 +38,7 @@ develop:
 	python setup.py develop
 
 test:
-	rtests.py
+	rtests.py --rednose
 
 cudd:
 	cd cudd-*; \

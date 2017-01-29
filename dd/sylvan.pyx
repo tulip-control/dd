@@ -50,8 +50,6 @@ cdef class BDD(object):
     cpdef public object vars
     cpdef public object _index_of_var
     cpdef public object _var_with_index
-    cpdef public object _false
-    cpdef public object _true
 
     def __cinit__(self):
         """Initialize BDD manager.
@@ -79,8 +77,6 @@ cdef class BDD(object):
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int
         self._var_with_index = dict()
-        self._false = self._bool(False)
-        self._true = self._bool(True)
 
     def __dealloc__(self):
         # n = len(self)
@@ -388,12 +384,12 @@ cdef class BDD(object):
     @property
     def false(self):
         """`Function` for Boolean value false."""
-        return self._false
+        return self._bool(False)
 
     @property
     def true(self):
         """`Function` for Boolean value true."""
-        return self._true
+        return self._bool(True)
 
     cdef Function _bool(self, v):
         """Return terminal node for Boolean `v`."""

@@ -499,6 +499,11 @@ cdef class Function(object):
         return sy.sylvan_var(self.node)
 
     @property
+    def var(self):
+        """Variable at level where this node is."""
+        return self.bdd._var_with_index[self._index]
+
+    @property
     def ref(self):
         """Sum of reference counts of node and its negation."""
         # u = Cudd_Regular(self.node)

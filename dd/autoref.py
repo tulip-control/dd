@@ -224,6 +224,11 @@ class Function(object):
     f = Function(u, bdd)
     ```
 
+    Attributes:
+
+    - `node`: `int` that describes edge (signed node)
+    - `bdd`: `dd.bdd.BDD` instance that node belongs to
+
     Operations are valid only between functions with
     the same `BDD` in `Function.bdd`.
 

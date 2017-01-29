@@ -25,9 +25,9 @@ class BDD(object):
     """
 
     def __init__(self, levels=None):
-        bdd = _bdd.BDD(levels)
-        self._bdd = bdd
-        self.vars = bdd.vars
+        manager = _bdd.BDD(levels)
+        self._bdd = manager
+        self.vars = manager.vars
 
     def __eq__(self, other):
         return (self._bdd is other._bdd)

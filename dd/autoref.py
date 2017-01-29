@@ -26,8 +26,8 @@ class BDD(object):
 
     def __init__(self, levels=None):
         bdd = _bdd.BDD(levels)
-        self.vars = bdd.vars
         self._bdd = bdd
+        self.vars = bdd.vars
 
     def __eq__(self, other):
         return (self._bdd is other._bdd)

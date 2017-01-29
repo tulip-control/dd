@@ -511,6 +511,11 @@ cdef class Function(object):
         return self.bdd._var_with_index[self._index]
 
     @property
+    def level(self):
+        """Level where this node is."""
+        raise NotImplementedError
+
+    @property
     def ref(self):
         """Sum of reference counts of node and its negation."""
         # u = Cudd_Regular(self.node)

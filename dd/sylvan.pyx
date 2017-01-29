@@ -494,7 +494,7 @@ cdef class Function(object):
         sy.sylvan_ref(u)
 
     @property
-    def index(self):
+    def _index(self):
         """Index of `self.node`."""
         return sy.sylvan_var(self.node)
 
@@ -542,7 +542,7 @@ cdef class Function(object):
             'var_index={idx}, '
             'ref_count={ref})').format(
                 node=self.node,
-                idx=self.index,
+                idx=self._index,
                 ref=None)
 
     def __len__(self):

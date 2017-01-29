@@ -485,11 +485,13 @@ cdef class Function(object):
     """
 
     cdef object __weakref__
+    cdef public BDD bdd
     cpdef sy.BDD node
 
-    cdef init(self, sy.BDD u):
+    cdef init(self, sy.BDD u, BDD bdd):
         assert u != sy.sylvan_invalid, (
             '`sy.BDD u` is `NULL` pointer.')
+        self.bdd = bdd
         self.node = u
         sy.sylvan_ref(u)
 

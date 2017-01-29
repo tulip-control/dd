@@ -1,3 +1,6 @@
+# The script `rtests.py` below is an adaptation of:
+# https://github.com/tulip-control/tulip-control/blob/master/run_tests.py
+
 build_cudd: clean cudd install test
 
 build_sylvan:

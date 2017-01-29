@@ -73,11 +73,11 @@ def test_richcmp():
 
 def test_len():
     bdd = cudd.BDD()
-    assert len(bdd) == 1, len(bdd)
+    assert len(bdd) == 0, len(bdd)
     u = bdd.true
     assert len(bdd) == 1, len(bdd)
     del u
-    assert len(bdd) == 1, len(bdd)
+    assert len(bdd) == 0, len(bdd)
     u = bdd.true
     v = bdd.false
     assert len(bdd) == 1, len(bdd)
@@ -94,7 +94,7 @@ def test_len():
     del not_x
     assert len(bdd) == 1, len(bdd)
     del u, v
-    assert len(bdd) == 1, len(bdd)
+    assert len(bdd) == 0, len(bdd)
 
 
 def test_contains():

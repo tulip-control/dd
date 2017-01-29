@@ -234,8 +234,6 @@ cdef class BDD(object):
     cpdef public object vars
     cpdef public object _index_of_var
     cpdef public object _var_with_index
-    cpdef public object _false
-    cpdef public object _true
 
     def __cinit__(self,
                   memory_estimate=None,
@@ -279,12 +277,8 @@ cdef class BDD(object):
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int
         self._var_with_index = dict()
-        self._false = self._bool(False)
-        self._true = self._bool(True)
 
     def __dealloc__(self):
-        del self._false
-        del self._true
         n = len(self)
         assert n == 0, (
             'Still {n} nodes '
@@ -990,12 +984,12 @@ cdef class BDD(object):
     @property
     def false(self):
         """`Function` for Boolean value false."""
-        return self._false
+        return self._bool(False)
 
     @property
     def true(self):
         """`Function` for Boolean value true."""
-        return self._true
+        return self._bool(True)
 
     cdef Function _bool(self, v):
         """Return terminal node for Boolean `v`."""
@@ -1450,10 +1444,10 @@ cpdef _test_decref():
     cdef Function f
     f = bdd.true
     i = f.ref
-    assert i == 3, i
+    assert i == 2, i
     bdd.incref(f.node)
     i = f.ref
-    assert i == 4, i
+    assert i == 3, i
     bdd.decref(f.node)
     j = f.ref
     assert j == i - 1, (j, i)

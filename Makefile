@@ -37,6 +37,9 @@ reinstall:
 	-pip uninstall -y dd
 	python setup.py install --cudd
 
+uninstall:
+	-pip uninstall -y dd
+
 develop:
 	python setup.py develop
 

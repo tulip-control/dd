@@ -1331,6 +1331,11 @@ cdef class Function(object):
         return index
 
     @property
+    def var(self):
+        """Variable at level where this node is."""
+        return self.bdd._var_with_index[self.index]
+
+    @property
     def level(self):
         """Level where this node currently is."""
         i = self.index

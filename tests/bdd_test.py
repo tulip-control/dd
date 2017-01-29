@@ -1042,7 +1042,7 @@ def test_function_wrapper():
     levels = dict(x=0, y=1, z=2)
     bdd = autoref.BDD(levels)
     u = bdd.add_expr('x & y')
-    assert u.bdd is bdd._bdd, u.bdd
+    assert u.bdd is bdd, (repr(u.bdd), repr(bdd))
     assert abs(u.node) in bdd._bdd, (u.node, bdd._bdd._succ)
     # operators
     x = bdd.add_expr('x')

@@ -36,7 +36,7 @@ class BDD(object):
         return len(self._bdd)
 
     def __contains__(self, u):
-        assert u.bdd is self._bdd
+        assert self is u.bdd
         return u.node in self._bdd
 
     def __str__(self):
@@ -54,7 +54,7 @@ class BDD(object):
         @type u: `int`
         """
         assert u in self._bdd
-        return Function(u, self._bdd)
+        return Function(u, self)
 
     def succ(self, u):
         i, v, w = self._bdd.succ(u)
@@ -191,16 +191,16 @@ def rename(u, bdd, dvars):
 
 
 def image(trans, source, rename, qvars, bdd, forall=False):
-    assert trans.bdd == source.bdd
-    assert trans.bdd == bdd._bdd
+    assert trans.bdd is source.bdd
+    assert trans.bdd is bdd
     u = _bdd.image(trans.node, source.node, rename,
                    qvars, trans.bdd, forall)
     return bdd._wrap(u)
 
 
 def preimage(trans, target, rename, qvars, bdd, forall=False):
-    assert trans.bdd == target.bdd
-    assert trans.bdd == bdd._bdd
+    assert trans.bdd is target.bdd
+    assert trans.bdd is bdd
     u = _bdd.preimage(trans.node, target.node, rename,
                       qvars, trans.bdd, forall)
     return bdd._wrap(u)
@@ -227,6 +227,7 @@ class Function(object):
     Attributes:
 
     - `node`: `int` that describes edge (signed node)
+    - `bdd`: `dd.autoref.BDD` instance that node belongs to
     - `manager`: `dd.bdd.BDD` instance that node belongs to
 
     Operations are valid only between functions with
@@ -241,6 +242,7 @@ class Function(object):
 
     def __init__(self, node, bdd):
         assert node in bdd._bdd, node
+        self.bdd = bdd
         self.manager = bdd._bdd
         self.node = node
         self.manager.incref(node)
@@ -269,6 +271,7 @@ class Function(object):
         return self.node == other.node
 
     def __ne__(self, other):
+        assert self.bdd is other.bdd, (self.bdd, other.bdd)
         return not (self == other)
 
     def __invert__(self):

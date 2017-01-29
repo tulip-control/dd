@@ -1323,7 +1323,7 @@ cdef class Function(object):
         Cudd_Ref(node)
 
     @property
-    def index(self):
+    def _index(self):
         """Index of `self.node`."""
         cdef DdNode *u
         u = Cudd_Regular(self.node)
@@ -1333,12 +1333,12 @@ cdef class Function(object):
     @property
     def var(self):
         """Variable at level where this node is."""
-        return self.bdd._var_with_index[self.index]
+        return self.bdd._var_with_index[self._index]
 
     @property
     def level(self):
         """Level where this node currently is."""
-        i = self.index
+        i = self._index
         return Cudd_ReadPerm(self.manager, i)
 
     @property

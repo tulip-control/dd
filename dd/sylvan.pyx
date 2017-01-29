@@ -196,9 +196,7 @@ cdef class BDD(object):
         sy.LACE_ME
         j = self._index_of_var[var]
         r = sy.sylvan_ithvar(j)
-        f = Function()
-        f.init(r)
-        return f
+        return wrap(self, r)
 
     def var_at_level(self, level):
         """Return name of variable at `level`."""
@@ -246,9 +244,7 @@ cdef class BDD(object):
             j = self._index_of_var[var]
             map = sy.sylvan_map_add(map, j, g.node)
         r = sy.sylvan_compose(u.node, map)
-        f = Function()
-        f.init(r)
-        return f
+        return wrap(self, r)
 
     cpdef Function cofactor(self, Function u, values):
         """Return the cofactor f|_g."""
@@ -273,9 +269,7 @@ cdef class BDD(object):
         sy.LACE_ME
         cdef sy.BDD r
         r = sy.sylvan_ite(g.node, u.node, v.node)
-        f = Function()
-        f.init(r)
-        return f
+        return wrap(self, r)
 
     cpdef Function apply(self, op, Function u, Function v=None):
         """Return as `Function` the result of applying `op`."""
@@ -307,9 +301,7 @@ cdef class BDD(object):
         if r == sy.sylvan_invalid:
             raise Exception(
                 'unknown operator: "{op}"'.format(op=op))
-        f = Function()
-        f.init(r)
-        return f
+        return wrap(self, r)
 
     cpdef Function cube(self, dvars):
         """Return node for cube over `dvars`.
@@ -341,10 +333,7 @@ cdef class BDD(object):
             r = sy.sylvan_forall(u.node, cube.node)
         else:
             r = sy.sylvan_exists(u.node, cube.node)
-        # wrap
-        f = Function()
-        f.init(r)
-        return f
+        return wrap(self, r)
 
     cpdef Function forall(self, qvars, Function u):
         """Quantify `qvars` in `u` universally.
@@ -401,18 +390,14 @@ cdef class BDD(object):
             r = sy.sylvan_true
         else:
             r = sy.sylvan_false
-        f = Function()
-        f.init(r)
-        return f
+        return wrap(self, r)
 
 
 cpdef Function restrict(Function u, Function care_set):
     sy.LACE_ME
     cdef sy.BDD r
     r = sy.sylvan_restrict(u.node, care_set.node)
-    f = Function()
-    f.init(r)
-    return f
+    return wrap(u.bdd, r)
 
 
 cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
@@ -420,9 +405,7 @@ cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
     sy.LACE_ME
     cube = bdd.cube(qvars)
     r = sy.sylvan_and_exists(u.node, v.node, cube.node)
-    f = Function()
-    f.init(r)
-    return f
+    return wrap(u.bdd, r)
 
 
 cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
@@ -434,9 +417,7 @@ cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
         sy.sylvan_not(v.node),
         cube.node)
     r = sy.sylvan_not(r)
-    f = Function()
-    f.init(r)
-    return f
+    return wrap(u.bdd, r)
 
 
 cpdef reorder(BDD bdd, dvars=None):
@@ -454,6 +435,13 @@ def copy_vars(BDD source, BDD target):
     """
     for var, index in source._index_of_var.iteritems():
         target.add_var(var, index=index)
+
+
+cdef wrap(BDD bdd, sy.BDD node):
+    """Return a `Function` that wraps `node`."""
+    f = Function()
+    f.init(node, bdd)
+    return f
 
 
 cdef class Function(object):
@@ -516,17 +504,13 @@ cdef class Function(object):
     def low(self):
         """Return "else" node as `Function`."""
         u = sy.sylvan_low(self.node)
-        f = Function()
-        f.init(u)
-        return f
+        return wrap(self.bdd, u)
 
     @property
     def high(self):
         """Return "then" node as `Function`."""
         u = sy.sylvan_high(self.node)
-        f = Function()
-        f.init(u)
-        return f
+        return wrap(self.bdd, u)
 
     @property
     def negated(self):
@@ -566,20 +550,14 @@ cdef class Function(object):
 
     def __invert__(Function self):
         r = sy.sylvan_not(self.node)
-        f = Function()
-        f.init(r)
-        return f
+        return wrap(self.bdd, r)
 
     def __and__(Function self, Function other):
         sy.LACE_ME
         r = sy.sylvan_and(self.node, other.node)
-        f = Function()
-        f.init(r)
-        return f
+        return wrap(self.bdd, r)
 
     def __or__(Function self, Function other):
         sy.LACE_ME
         r = sy.sylvan_or(self.node, other.node)
-        f = Function()
-        f.init(r)
-        return f
+        return wrap(self.bdd, r)

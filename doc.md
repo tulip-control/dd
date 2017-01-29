@@ -214,12 +214,33 @@ models = list(bdd.sat_iter(u))
 Notice that `sat_len` says that there are two models, but the generator returned by `sat_iter` produces only one, `dict(x=True)`.
 Where did the other model go?
 
-As the docstring of `sat_iter` explains, by default, it returns partially enumerated models.
-In other words, it enumerates only variables in the support of `u`, here `x`, because the expression `x` does not depend on variable `y`.
-We can request a full enumeration (over all bits, or only `care_bits` more):
+By default, `sat_iter` returns assignments to all variables in the support
+of the BDD node `u` given as input.
+In this example, the support of `u` contains one variable: `x`
+(because the value of the expression `'x'` is independent of variable `y`).
+
+We can use the argument `care_bits` to specify the variables that we want
+the assignment to include. The assignments returned will include all variables
+in `care_bits`, plus the variables that appear along each path traversed in
+the BDD. Variables in `care_bits` that are unassigned along each path will
+be exhaustively enumerated (i.e., all combinations of `True` and `False`).
+
+For example, if `care_bits == set()`, then the assignments
+will contain only those variables that appear along the recursive traversal
+of the BDD. If `care_bits == support(u)`, then the result equals the default
+result. For `care_bits > support(u)` we will see more variables in each
+assignment than the variables in the support.
+
+An example:
 
 ```python
-models = list(bdd.sat_iter(u, full=True))
+# default: variables in support(u)
+models = list(bdd.sat_iter(u))
+>>> models
+[{'x': True}]
+
+# variables in `care_bits`
+models = list(bdd.sat_iter(u, care_bits=['x', 'y']))
 >>> models
 [{'x': True, 'y': False}, {'x': True, 'y': True}]
 ```

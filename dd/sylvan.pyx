@@ -109,6 +109,7 @@ cdef class BDD(object):
         return sy.sylvan_count_refs()
 
     def __contains__(self, Function u):
+        assert self is u.bdd
         try:
             self.apply('not', u)
             return True
@@ -217,6 +218,7 @@ cdef class BDD(object):
 
     cpdef set support(self, Function f):
         """Return the variables that node `f` depends on."""
+        assert self is f.bdd
         sy.LACE_ME
         cdef sy.BDD cube
         cube = sy.sylvan_support(f.node)
@@ -234,6 +236,7 @@ cdef class BDD(object):
         return support
 
     cpdef Function compose(self, Function u, var_sub):
+        assert self is u.bdd
         sy.LACE_ME
         cdef sy.BDDMAP map
         cdef sy.BDDVAR j
@@ -255,6 +258,7 @@ cdef class BDD(object):
 
     cpdef Function rename(self, u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
+        assert self is u.bdd
         var_sub = {
             var: self.var(sub) for var, sub in dvars.iteritems()}
         r = self.compose(u, var_sub)
@@ -266,6 +270,9 @@ cdef class BDD(object):
         raise NotImplementedError
 
     cpdef Function ite(self, Function g, Function u, Function v):
+        assert self is g.bdd
+        assert self is u.bdd
+        assert self is v.bdd
         sy.LACE_ME
         cdef sy.BDD r
         r = sy.sylvan_ite(g.node, u.node, v.node)
@@ -273,6 +280,7 @@ cdef class BDD(object):
 
     cpdef Function apply(self, op, Function u, Function v=None):
         """Return as `Function` the result of applying `op`."""
+        assert self is u.bdd
         cdef sy.BDD r
         sy.LACE_ME
         # unary
@@ -281,6 +289,7 @@ cdef class BDD(object):
             r = sy.sylvan_not(u.node)
         else:
             assert v is not None
+            assert v.bdd is self
         # binary
         if op in ('and', '/\\', '&', '&&'):
             r = sy.sylvan_and(u.node, v.node)
@@ -325,6 +334,7 @@ cdef class BDD(object):
     cpdef Function quantify(self, Function u,
                             qvars, forall=False):
         """Abstract variables `qvars` from node `u`."""
+        assert self is u.bdd
         sy.LACE_ME
         c = set(qvars)
         cube = self.cube(c)
@@ -363,10 +373,12 @@ cdef class BDD(object):
         return _parser.add_expr(e, self)
 
     def to_expr(self, u):
+        assert self is u.bdd
         raise NotImplementedError
 
     cpdef dump(self, Function u, fname):
         """Dump BDD as DDDMP file `fname`."""
+        assert self is u.bdd
         raise NotImplementedError
 
     cpdef load(self, fname):
@@ -394,6 +406,7 @@ cdef class BDD(object):
 
 
 cpdef Function restrict(Function u, Function care_set):
+    assert u.bdd is care_set.bdd
     sy.LACE_ME
     cdef sy.BDD r
     r = sy.sylvan_restrict(u.node, care_set.node)
@@ -402,6 +415,8 @@ cpdef Function restrict(Function u, Function care_set):
 
 cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
     """Return `\E qvars:  u /\ v`."""
+    assert u.bdd is bdd
+    assert v.bdd is bdd
     sy.LACE_ME
     cube = bdd.cube(qvars)
     r = sy.sylvan_and_exists(u.node, v.node, cube.node)
@@ -410,6 +425,8 @@ cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
 
 cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
     """Return `\A qvars:  u \/ v`."""
+    assert u.bdd is bdd
+    assert v.bdd is bdd
     sy.LACE_ME
     cube = bdd.cube(qvars)
     r = sy.sylvan_and_exists(
@@ -535,6 +552,7 @@ cdef class Function(object):
         return sy.sylvan_nodecount(self.node)
 
     def __richcmp__(Function self, Function other, op):
+        assert self.bdd is other.bdd, self.bdd
         if other is None:
             eq = False
         else:
@@ -553,11 +571,13 @@ cdef class Function(object):
         return wrap(self.bdd, r)
 
     def __and__(Function self, Function other):
+        assert self.bdd is other.bdd
         sy.LACE_ME
         r = sy.sylvan_and(self.node, other.node)
         return wrap(self.bdd, r)
 
     def __or__(Function self, Function other):
+        assert self.bdd is other.bdd
         sy.LACE_ME
         r = sy.sylvan_or(self.node, other.node)
         return wrap(self.bdd, r)

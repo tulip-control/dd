@@ -227,7 +227,7 @@ class Function(object):
     Attributes:
 
     - `node`: `int` that describes edge (signed node)
-    - `bdd`: `dd.bdd.BDD` instance that node belongs to
+    - `manager`: `dd.bdd.BDD` instance that node belongs to
 
     Operations are valid only between functions with
     the same `BDD` in `Function.bdd`.
@@ -240,14 +240,14 @@ class Function(object):
     """
 
     def __init__(self, node, bdd):
-        assert node in bdd, node
-        self.bdd = bdd
-        bdd.incref(node)
+        assert node in bdd._bdd, node
+        self.manager = bdd._bdd
         self.node = node
+        self.manager.incref(node)
 
     def to_expr(self):
         """Return Boolean expression of function as `str`."""
-        return self.bdd.to_expr(self.node)
+        return self.manager.to_expr(self.node)
 
     def __int__(self):
         return self.node
@@ -256,16 +256,16 @@ class Function(object):
         return str(int(self))
 
     def __len__(self):
-        return len(self.bdd.descendants([self.node]))
+        return len(self.manager.descendants([self.node]))
 
     def __del__(self):
         """Decrement reference count of `self.node` in `self.bdd`."""
-        self.bdd.decref(self.node)
+        self.manager.decref(self.node)
 
     def __eq__(self, other):
         if other is None:
             return False
-        assert self.bdd is other.bdd
+        assert self.bdd is other.bdd, (self.bdd, other.bdd)
         return self.node == other.node
 
     def __ne__(self, other):
@@ -298,40 +298,40 @@ class Function(object):
         """Return result of operation `op` with `other`."""
         # unary op ?
         if other is None:
-            u = self.bdd.apply(op, self.node)
+            u = self.manager.apply(op, self.node)
         else:
             assert self.bdd is other.bdd, (self.bdd, other.bdd)
-            u = self.bdd.apply(op, self.node, other.node)
+            u = self.manager.apply(op, self.node, other.node)
         return Function(u, self.bdd)
 
     @property
     def level(self):
         """Return level that function belongs to."""
-        i, _, _ = self.bdd._succ[abs(self.node)]
+        i, _, _ = self.manager._succ[abs(self.node)]
         return i
 
     @property
     def var(self):
         """Return name of variable annotating function node."""
-        i, _, _ = self.bdd._succ[abs(self.node)]
-        return self.bdd.var_at_level(i)
+        i, _, _ = self.manager._succ[abs(self.node)]
+        return self.manager.var_at_level(i)
 
     @property
     def low(self):
         """Return "else" node as `Function`."""
-        _, v, _ = self.bdd._succ[abs(self.node)]
+        _, v, _ = self.manager._succ[abs(self.node)]
         return Function(v, self.bdd)
 
     @property
     def high(self):
         """Return "then" node as `Function`."""
-        _, _, w = self.bdd._succ[abs(self.node)]
+        _, _, w = self.manager._succ[abs(self.node)]
         return Function(w, self.bdd)
 
     @property
     def ref(self):
-        """Return reference cound of `self.node` in `self.bdd`."""
-        return self.bdd._ref[abs(self.node)]
+        """Return reference cound of `self.node` in `self.manager`."""
+        return self.manager._ref[abs(self.node)]
 
     @property
     def negated(self):

@@ -256,7 +256,7 @@ cdef class BDD(object):
             for var, value in values.iteritems()}
         return self.compose(u, var_sub)
 
-    cpdef Function rename(self, u, dvars):
+    cpdef Function rename(self, Function u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
         assert self is u.bdd
         var_sub = {
@@ -372,7 +372,7 @@ cdef class BDD(object):
         """Return node for `str` expression `e`."""
         return _parser.add_expr(e, self)
 
-    def to_expr(self, u):
+    def to_expr(self, Function u):
         assert self is u.bdd
         raise NotImplementedError
 

@@ -1781,12 +1781,12 @@ def _copy_bdd(u, umap, level_map, old_bdd, bdd):
         return r
     # recurse
     jold, v, w = old_bdd._succ[abs(u)]
-    jnew = level_map[jold]
     p = _copy_bdd(v, umap, level_map, old_bdd, bdd)
     q = _copy_bdd(w, umap, level_map, old_bdd, bdd)
     assert p * v > 0, (p, v)
     assert q > 0, q
     # add node
+    jnew = level_map[jold]  # TODO: replace with more generic map
     r = bdd.find_or_add(jnew, p, q)
     assert r > 0
     # memoize

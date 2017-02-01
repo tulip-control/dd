@@ -179,7 +179,7 @@ cdef CUDD_UNIQUE_SLOTS = 2**8
 cdef CUDD_CACHE_SLOTS = 2**18
 cdef CUDD_REORDER_GROUP_SIFT = 14
 cdef CUDD_OUT_OF_MEM = -1
-cdef MAX_CACHE = <unsigned int> - 1
+cdef MAX_CACHE = <unsigned int> - 1  # entries
 __version__ = CUDD_VERSION.decode('utf-8')
 
 

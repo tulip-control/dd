@@ -746,45 +746,62 @@ cdef class BDD(object):
         """Return as `Function` the result of applying `op`."""
         # TODO: add ite, also to slugsin syntax
         assert self.manager == u.manager
+        if v is not None:
+            assert self.manager == v.manager
+        if w is not None:
+            assert self.manager == w.manager
         cdef DdNode *r
         cdef DdManager *mgr
         mgr = u.manager
         # unary
         r = NULL
         if op in ('~', 'not', '!'):
-            assert v is None
+            assert v is None, v
+            assert w is None, w
             r = Cudd_Not(u.node)
-        else:
-            assert v is not None
-            assert v.manager == u.manager
         # binary
-        if op in ('and', '/\\', '&', '&&'):
+        elif op in ('and', '/\\', '&', '&&'):
+            assert w is None, w
             r = Cudd_bddAnd(mgr, u.node, v.node)
         elif op in ('or', r'\/', '|', '||'):
+            assert w is None, w
             r = Cudd_bddOr(mgr, u.node, v.node)
         elif op in ('xor', '^'):
+            assert w is None, w
             r = Cudd_bddXor(mgr, u.node, v.node)
         elif op in ('=>', '->', 'implies'):
+            assert w is None, w
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_ReadOne(mgr))
         elif op in ('<=>', '<->', 'equiv'):
+            assert w is None, w
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_Not(v.node))
         elif op in ('diff', '-'):
+            assert w is None, w
             r = Cudd_bddIte(mgr, u.node, Cudd_Not(v.node),
                             Cudd_ReadLogicZero(mgr))
         elif op in ('\A', 'forall'):
+            assert w is None, w
             r = Cudd_bddUnivAbstract(mgr, v.node, u.node)
         elif op in ('\E', 'exists'):
+            assert w is None, w
             r = Cudd_bddExistAbstract(mgr, v.node, u.node)
         # ternary
-        if op == 'ite':
+        elif op == 'ite':
+            assert v is not None
             assert w is not None
-            assert w.manager == v.manager
             r = Cudd_bddIte(mgr, u.node, v.node, w.node)
         else:
-            assert w is None
-        if r == NULL:
             raise Exception(
                 'unknown operator: "{op}"'.format(op=op))
+        if r == NULL:
+            config = self.configure()
+            raise Exception((
+                'CUDD appears to have run out of memory.\n'
+                'Current settings for upper bounds:\n'
+                '    max memory = {max_memory} GB\n'
+                '    max cache = {max_cache} entries').format(
+                    max_memory=config['max_memory'] / GB,
+                    max_cache=config['max_cache_hard']))
         return wrap(self, r)
 
     cpdef _add_int(self, i):

@@ -1076,7 +1076,7 @@ cpdef Function rename(Function u, BDD bdd, dvars):
     try:
         r = Cudd_bddSwapVariables(
             mgr, u.node, x, y, n)
-        assert r != NULL
+        assert r != NULL, 'variable swap failed'
     finally:
         PyMem_Free(x)
         PyMem_Free(y)

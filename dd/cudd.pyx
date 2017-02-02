@@ -1323,8 +1323,8 @@ cdef class Function(object):
 
     cdef object __weakref__
     cdef public BDD bdd
-    cpdef DdManager *manager
-    cpdef DdNode *node
+    cdef DdManager *manager
+    cdef DdNode *node
 
     cdef init(self, DdNode *node, BDD bdd):
         assert node != NULL, '`DdNode *node` is `NULL` pointer.'

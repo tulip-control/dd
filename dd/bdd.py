@@ -1850,7 +1850,7 @@ def to_nx(bdd, roots):
 def to_pydot(roots, bdd):
     """Convert `BDD` to pydot graph.
 
-    Nodes are ordered by variable levels.
+    Nodes are ordered by variable levels in support.
     Edges to low successors are dashed.
     Complemented edges are labeled with "-1".
 
@@ -1865,10 +1865,13 @@ def to_pydot(roots, bdd):
         nodes = bdd._succ
     else:
         nodes = bdd.descendants(roots)
+    # show only levels in aggregate support
+    levels = {bdd._succ[abs(u)][0] for u in nodes}
+    assert bdd._succ[1][0] in levels
     g = pydot.Dot('bdd', graph_type='digraph')
     skeleton = list()
     subgraphs = dict()
-    for i in xrange(len(bdd.vars) + 1):
+    for i in sorted(levels):
         h = pydot.Subgraph('', rank='same')
         g.add_subgraph(h)
         subgraphs[i] = h

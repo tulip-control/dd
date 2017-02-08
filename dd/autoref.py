@@ -120,9 +120,9 @@ class BDD(object):
     def exist(self, qvars, u):
         return self.quantify(u, qvars, forall=False)
 
-    def sat_len(self, u):
+    def sat_len(self, u, n=None):
         assert u in self, u
-        return self._bdd.sat_len(u.node)
+        return self._bdd.sat_len(u.node, n=n)
 
     def sat_iter(self, u, care_bits=None):
         assert u in self, u

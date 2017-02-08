@@ -892,14 +892,37 @@ class BDD(object):
             # restore index of y node that moved up
             return (y, v, w)
 
-    def sat_len(self, u):
-        """Return number of models of node `u`."""
+    def sat_len(self, u, n=None):
+        """Return number of models of node `u`.
+
+        @param n: number of variables to assume.
+
+            If omitted, then assume those in `support(u)`.
+            The levels of variables outside support
+            are ignored in counting, and `n` used to
+            increase the result at the end of recursion.
+        """
         assert abs(u) in self, u
-        r = self._sat_len(u, d=dict())
+        # index those levels in support separately
+        levels = {
+            self.level_of_var(var)
+            for var in self.support(u)}
+        k = len(levels)
+        if n is None:
+            n = k
+        slack = n - k
+        map_level = dict()
+        for new, old in enumerate(sorted(levels)):
+            map_level[old] = new + slack
+        old, _, _ = self._succ[1]
+        map_level[old] = n
+        map_level['all'] = n
+        r = self._sat_len(u, map_level, d=dict())
         i, _, _ = self._succ[abs(u)]
+        i = map_level[i]
         return r * 2**i
 
-    def _sat_len(self, u, d):
+    def _sat_len(self, u, map_level, d):
         """Recurse to compute the number of models."""
         # terminal ?
         if u == 1:
@@ -907,25 +930,28 @@ class BDD(object):
         if u == -1:
             return 0
         i, v, w = self._succ[abs(u)]
+        i = map_level[i]
         # memoized ?
         if abs(u) in d:
             n = d[abs(u)]
             # complement ?
             if u < 0:
-                n = 2**(len(self.vars) - i) - n
+                n = 2**(map_level['all'] - i) - n
             return n
         # non-terminal
-        nu = self._sat_len(v, d)
-        nw = self._sat_len(w, d)
+        nu = self._sat_len(v, map_level, d)
+        nw = self._sat_len(w, map_level, d)
         iv, _, _ = self._succ[abs(v)]
         iw, _, _ = self._succ[w]
+        iv = map_level[iv]
+        iw = map_level[iw]
         # sum
         n = (nu * 2**(iv - i - 1) +
              nw * 2**(iw - i - 1))
         d[abs(u)] = n
         # complement ?
         if u < 0:
-            n = 2**(len(self.vars) - i) - n
+            n = 2**(map_level['all'] - i) - n
         return n
 
     def sat_iter(self, u, care_bits=None):

@@ -276,6 +276,8 @@ class Function(object):
         return self.node == other.node
 
     def __ne__(self, other):
+        if other is None:
+            return True
         assert self.bdd is other.bdd, (self.bdd, other.bdd)
         return not (self == other)
 

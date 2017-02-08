@@ -1126,7 +1126,7 @@ class BDD(object):
         @type dvars: `dict`
         """
         # `dvars` keys can be var names or levels
-        r = 1
+        r = self.true
         for var, val in items(dvars):
             u = self.var(var)
             u = u if val else -u

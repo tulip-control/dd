@@ -901,6 +901,11 @@ class BDD(object):
 
     def _sat_len(self, u, d):
         """Recurse to compute the number of models."""
+        # terminal ?
+        if u == 1:
+            return 1
+        if u == -1:
+            return 0
         i, _, _ = self._succ[abs(u)]
         # memoized ?
         if abs(u) in d:
@@ -909,11 +914,6 @@ class BDD(object):
             if u < 0:
                 n = 2**(len(self.vars) - i) - n
             return n
-        # terminal ?
-        if u == 1:
-            return 1
-        if u == -1:
-            return 0
         # non-terminal
         i, v, w = self._succ[abs(u)]
         nu = self._sat_len(v, d)

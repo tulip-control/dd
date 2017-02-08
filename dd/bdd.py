@@ -906,7 +906,7 @@ class BDD(object):
             return 1
         if u == -1:
             return 0
-        i, _, _ = self._succ[abs(u)]
+        i, v, w = self._succ[abs(u)]
         # memoized ?
         if abs(u) in d:
             n = d[abs(u)]
@@ -915,7 +915,6 @@ class BDD(object):
                 n = 2**(len(self.vars) - i) - n
             return n
         # non-terminal
-        i, v, w = self._succ[abs(u)]
         nu = self._sat_len(v, d)
         nw = self._sat_len(w, d)
         iv, _, _ = self._succ[abs(v)]

@@ -206,6 +206,11 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     return trans.bdd._wrap(u)
 
 
+def reorder(bdd, order=None):
+    """Apply Rudell's sifting algorithm to `bdd`."""
+    _bdd.reorder(bdd._bdd, order=order)
+
+
 def copy_vars(source, target):
     _bdd.copy_vars(source._bdd, target._bdd)
 

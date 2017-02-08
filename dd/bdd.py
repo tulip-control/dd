@@ -1131,8 +1131,7 @@ class BDD(object):
             i = self.vars.get(var, var)
             self.var_at_level(i)  # assert level exists
             u = self.find_or_add(i, -1, 1)
-            if not val:
-                u = -u
+            u = u if val else -u
             r = self.apply('and', u, r)
         return r
 

@@ -1128,9 +1128,7 @@ class BDD(object):
         # `dvars` keys can be var names or levels
         r = 1
         for var, val in items(dvars):
-            i = self.vars.get(var, var)
-            self.var_at_level(i)  # assert level exists
-            u = self.find_or_add(i, -1, 1)
+            u = self.var(var)
             u = u if val else -u
             r = self.apply('and', u, r)
         return r

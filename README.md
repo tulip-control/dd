@@ -33,8 +33,7 @@ Contains:
 
 - All the standard functions defined, e.g.,
   by [Bryant](https://www.cs.cmu.edu/~bryant/pubdir/ieeetc86.pdf).
-- [Rudell's sifting algorithm](http://www.eecg.toronto.edu/~ece1767/project/rud.pdf)
-  for variable reordering.
+- Dynamic variable reordering using [Rudell's sifting algorithm](http://www.eecg.toronto.edu/~ece1767/project/rud.pdf).
 - Reordering to obtain a given order.
 - Quantified Boolean expression parser that creates BDD nodes.
 - Pre/Image computation (relational product).

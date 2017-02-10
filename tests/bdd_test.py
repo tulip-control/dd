@@ -761,6 +761,125 @@ def test_sifting():
     assert u == u_, (u, u_)
 
 
+def test_request_reordering():
+    ctx = Dummy()
+    # reordering off
+    n = ctx._last_len
+    assert n is None, n
+    _bdd._request_reordering(ctx)
+    # reordering on
+    ctx._last_len = 1
+    ctx.length = 3  # >= 2 = 2 * _last_len
+    # large growth
+    with nt.assert_raises(_bdd._NeedsReordering):
+        _bdd._request_reordering(ctx)
+    ctx._last_len = 2
+    ctx.length = 3  # < 4 = 2 * _last_len
+    # small growth
+    _bdd._request_reordering(ctx)
+
+
+def test_reordering_context():
+    ctx = Dummy()
+    # top context
+    ctx.assert_(False)
+    with _bdd._ReorderingContext(ctx):
+        ctx.assert_(True)
+        raise _bdd._NeedsReordering()
+    ctx.assert_(False)
+    # nested context
+    ctx._reordering_context = True
+    with nt.assert_raises(_bdd._NeedsReordering):
+        with _bdd._ReorderingContext(ctx):
+            ctx.assert_(True)
+            raise _bdd._NeedsReordering()
+    ctx.assert_(True)
+    # other exception
+    ctx._reordering_context = False
+    with nt.assert_raises(AssertionError):
+        with _bdd._ReorderingContext(ctx):
+            ctx.assert_(True)
+            raise AssertionError()
+    ctx.assert_(False)
+    ctx._reordering_context = True
+    with nt.assert_raises(Exception):
+        with _bdd._ReorderingContext(ctx):
+            raise Exception()
+    ctx.assert_(True)
+
+
+class Dummy(object):
+    """To test state machine for nesting context."""
+
+    def __init__(self):
+        self._reordering_context = False
+        self._last_len = None
+        self.length = 1
+
+    def __len__(self):
+        return self.length
+
+    def assert_(self, value):
+        c = self._reordering_context
+        assert c is value, c
+
+
+def test_dynamic_reordering():
+    b = TrackReorderings()
+    [b.add_var(var) for var in ['x', 'y', 'z', 'a', 'b', 'c', 'e']]
+    # add expr with reordering off
+    assert not b.reordering_is_on()
+    assert b.n_swaps == 0, b.n_swaps
+    u = b.add_expr('x /\ y /\ z')
+    assert b.n_swaps == 0, b.n_swaps
+    b.incref(u)
+    n = len(b)
+    assert n == 7, n
+    # add expr with reordering on
+    b._last_len = 6
+    assert b.reordering_is_on()
+    v = b.add_expr('a /\ b')
+    assert b.reordering_is_on()
+    assert b.n_swaps == 0, b.n_swaps
+    b.incref(v)
+    n = len(b)
+    assert n == 10, n
+    # add an expr that triggers reordering
+    assert b.reordering_is_on()
+    w = b.add_expr('z \/ (~a /\ x /\ ~y)')
+    assert b.reordering_is_on()
+    n_swaps = b.n_swaps
+    assert n_swaps > 0, n_swaps
+    b.incref(w)
+    assert u in b, (w, b._succ)
+    assert v in b, (v, b._succ)
+    assert w in b, (w, b._succ)
+    # add another expr that triggers reordering
+    old_n_swaps = n_swaps
+    assert b.reordering_is_on()
+    r = b.add_expr('(~ z \/ (c /\ b)) /\ e /\ (a /\ (~x \/ y))')
+    n_swaps = b.n_swaps
+    assert n_swaps > old_n_swaps, (n_swaps, old_n_swaps)
+    assert b.reordering_is_on()
+
+
+class TrackReorderings(_bdd.BDD):
+    """To record invocations of reordering."""
+
+    def __init__(self, *arg, **kw):
+        self.n_swaps = 0
+        super(TrackReorderings, self).__init__(*arg, **kw)
+
+    def swap(self, *arg, **kw):
+        self.n_swaps += 1
+        return super(TrackReorderings, self).swap(*arg, **kw)
+
+    def reordering_is_on(self):
+        d = self.configure()
+        r = d['reordering']
+        return r is True
+
+
 def test_dump_load():
     prefix = 'test_dump_load'
     fname = prefix + '.p'

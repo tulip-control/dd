@@ -511,7 +511,7 @@ In `autoref`, the reference counts are maintained by the constructor and destruc
 These methods are invoked when the `Function` object is not referenced any more by variables, so [Python decides](https://docs.python.org/2/glossary.html#term-garbage-collection) to delete it.
 
 In `dd.bdd`, you have to perform the reference counting, by suitably adding to and subtracting from the counter associated to the node you reference.
-Also, garbage collection has to be explicitly invoked (or as a side-effect of explicitly invoking reordering).
+Also, garbage collection has to be explicitly invoked (or as a side-effect of invoking reordering).
 So, if you don't need to collect garbage, then you can skip the reference counting.
 
 
@@ -575,13 +575,25 @@ Given a BDD, the size of its graph representation depends on the variable order.
 Reordering changes the variable order.
 Reordering *optimization* searches for a variable order better than the current one.
 *Dynamic* reordering is the automated invocation of reordering optimization.
-The time of invocation is decided with heuristics, because it is [NP-hard](https://en.wikipedia.org/wiki/NP-hardness) to find the variable order that minimizes a given BDD.
+BDD managers use heuristics to decide when to invoke reordering,
+because it is [NP-hard](https://en.wikipedia.org/wiki/NP-hardness) to find a variable order that minimizes a given BDD.
 
-[Rudell's sifting algorithm](http://www.eecg.toronto.edu/~ece1767/project/rud.pdf) is implemented in the function `dd.bdd.reorder`.
-This is the most commonly used reordering heuristic, also in CUDD.
-For now, if you want to reorder, then you have to explicitly call the function `reorder`.
-It will not be invoked automatically.
-For example
+The function `dd.bdd.reorder` implements [Rudell's sifting algorithm](http://www.eecg.toronto.edu/~ece1767/project/rud.pdf).
+This reordering heuristic is the most commonly used, also in CUDD.
+Dynamic variable reordering can be enabled by calling:
+
+```python
+from dd import bdd as _bdd
+
+bdd = _bdd.BDD()
+bdd.configure(reordering=True)
+```
+
+By default, dynamic reordering in `dd.bdd.BDD` is disabled.
+This default is unlike `dd.cudd` and will change in the future to enabled.
+
+You can also invoke reordering explicitly when desired, besides dynamic
+invocation. For example:
 
 ```python
 from dd import bdd as _bdd
@@ -616,9 +628,7 @@ _bdd.reorder(bdd)
 bdd.dump('after_reordering.pdf')
 ```
 
-In the future, a heuristic for automated invocation will be added, which requires minor modifications to make computation re-entrant.
-
-Instead, if you want to obtain a particular order, then give it as a `dict` to the function `reorder`.
+If you want to obtain a particular variable order, then give the desired variable order as a `dict` to the function `reorder`.
 
 ```python
 my_favorite_order = dict(

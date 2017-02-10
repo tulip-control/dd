@@ -56,6 +56,9 @@ class BDD(object):
         assert u in self._bdd
         return Function(u, self)
 
+    def configure(self, **kw):
+        return self._bdd.configure(**kw)
+
     def succ(self, u):
         i, v, w = self._bdd.succ(u)
         v = self._wrap(v)

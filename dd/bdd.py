@@ -477,6 +477,11 @@ class BDD(object):
         @type g, u, v: `int`
         @rtype: `int`
         """
+        # wrap so reordering can delete unreferenced nodes
+        return self._ite(g, u, v)
+
+    def _ite(self, g, u, v):
+        """Recurse to compute ternary conditional."""
         # is g terminal ?
         if g == 1:
             return u
@@ -494,8 +499,8 @@ class BDD(object):
         g0, g1 = self._top_cofactor(g, z)
         u0, u1 = self._top_cofactor(u, z)
         v0, v1 = self._top_cofactor(v, z)
-        p = self.ite(g0, u0, v0)
-        q = self.ite(g1, u1, v1)
+        p = self._ite(g0, u0, v0)
+        q = self._ite(g1, u1, v1)
         w = self.find_or_add(z, p, q)
         # cache
         self._ite_table[r] = w

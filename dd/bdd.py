@@ -1065,9 +1065,6 @@ class BDD(object):
 
         @type expr: `str`
         """
-        i = len(self.vars)
-        self._succ[1] = (i, None, None)
-        self._ref[1] = 0
         return _parser.add_expr(e, self)
 
     def to_expr(self, u):

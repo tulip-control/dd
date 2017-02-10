@@ -151,7 +151,7 @@ class BDD(object):
         self._pred.pop(told, None)
         self._succ[u] = t
         self._pred[t] = u
-        self._ref.setdefault(u, 0)
+        self._ref.setdefault(u, 1)
 
     def succ(self, u):
         """Return `(level, low, high)` for `abs(u)`."""

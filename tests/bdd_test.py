@@ -429,7 +429,8 @@ def test_find_or_add():
     assert (i, v, w) in g._pred
     assert abs(u) in g._ref
     assert g._ref[abs(u)] == 0
-    assert g._ref[abs(v)] == 2, g._ref
+    # terminal node `v`: 2 refs + 1 ref by manager
+    assert g._ref[abs(v)] == 3, g._ref
     # independent increase of reference counters
     v = u
     w = w
@@ -520,7 +521,8 @@ def test_collect_garbage():
     _, v, w = g._succ[abs(u)]
     vref = g._ref[abs(v)]
     wref = g._ref[w]
-    assert vref == 5, vref
+    # terminal node `v`: 6 refs + 1 ref by manager
+    assert vref == 6, vref
     assert wref == 1, wref
     g.collect_garbage()
     n = len(g)

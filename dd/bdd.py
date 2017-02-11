@@ -118,6 +118,7 @@ class BDD(object):
     """Shared ordered binary decision diagram.
 
     The terminal node is 1.
+    Nodes are positive integers, edges signed integers.
     Complemented edges are represented as negative integers.
     Values returned by methods are edges, possibly complemented.
 

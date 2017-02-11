@@ -5,7 +5,7 @@
 About
 =====
 
-A pure-Python (2 and 3) package for manipulating:
+A pure-Python (3 and 2) package for manipulating:
 
 - [Binary decision diagrams](https://en.wikipedia.org/wiki/Binary_decision_diagram) (BDDs).
 - [Multi-valued decision diagrams](http://dx.doi.org/10.1109/ICCAD.1990.129849) (MDDs).
@@ -24,10 +24,6 @@ The intended workflow is:
 
 Your code remains the same.
 
-An ordered BDD is represented using dictionaries for the successors,
-unique table, and reference counts. Nodes are positive integers, and
-edges signed integers. A complemented edge is represented as a negative integer.
-Garbage collection uses reference counting.
 
 Contains:
 
@@ -35,19 +31,23 @@ Contains:
   by [Bryant](https://www.cs.cmu.edu/~bryant/pubdir/ieeetc86.pdf).
 - Dynamic variable reordering using [Rudell's sifting algorithm](http://www.eecg.toronto.edu/~ece1767/project/rud.pdf).
 - Reordering to obtain a given order.
-- Quantified Boolean expression parser that creates BDD nodes.
+- Parser of quantified Boolean expressions in either
+  [TLA+](https://en.wikipedia.org/wiki/TLA%2B) or
+  [Promela](https://en.wikipedia.org/wiki/Promela) syntax.
 - Pre/Image computation (relational product).
-- Renaming variables to their neighbors.
+- Renaming variables.
 - Conversion from BDDs to MDDs.
 - Conversion functions to [`networkx`](https://networkx.github.io/) and
   [`pydot`](https://pypi.python.org/pypi/pydot) graphs.
-- BDDs have methods to `dump` and `load` them as nested `dict`s using `pickle`.
-- BDDs dumped by CUDD can be loaded using a
-  [PLY](https://github.com/dabeaz/ply/)-based parser for the header, and
-  a fast simple by-line parser for the main body of nodes.
-- Cython bindings to CUDD
-- Cython bindings to Sylvan
-- Cython bindings to BuDDy
+- BDDs have methods to `dump` and `load` them using `pickle`.
+- BDDs dumped by CUDD's DDDMP can be loaded using fast iterative parser.
+- Garbage collection using reference counting
+
+
+If you prefer to work with integer variables instead of Booleans, and have
+BDD computations occur underneath, then use the module
+[`omega.symbolic.fol`](https://github.com/johnyf/omega/blob/master/omega/symbolic/fol.py)
+from the [`omega` package](https://github.com/johnyf/omega/blob/master/doc/doc.md).
 
 
 Documentation
@@ -64,15 +64,13 @@ Two interfaces are available:
 
 - convenience: the module
   [`dd.autoref`](https://github.com/johnyf/dd/blob/master/dd/autoref.py) wraps
-  `dd.bdd` and takes care of reference counting,
+  `dd.bdd` and takes care of reference counting
   using [`__del__`](https://docs.python.org/2/reference/datamodel.html#object.__del__).
 
 - "low level": the module
   [`dd.bdd`](https://github.com/johnyf/dd/blob/master/dd/bdd.py) requires that
   the user in/decrement the reference counters associated with nodes that
   are used outside of a `BDD`.
-
-Expressions in both [TLA+](https://en.wikipedia.org/wiki/TLA%2B) and [Promela](https://en.wikipedia.org/wiki/Promela) syntax are supported.
 
 
 ## Automated reference counting
@@ -85,7 +83,7 @@ disposed by Python's garbage collector:
 from dd.autoref import BDD, Function
 
 bdd = BDD()
-[bdd.add_var(var) for var in ['x', 'y']
+[bdd.add_var(var) for var in ['x', 'y']]
 u = bdd.add_expr('x => y')  # TLA+ syntax
 u = bdd.add_expr('x -> y')  # Promela syntax
 
@@ -175,9 +173,6 @@ The more useful functions in `dd.bdd` are:
 Use the method `BDD.dump` to write a `BDD` to a `pickle` file, and
 `BDD.load` to load it back. A CUDD dddmp file can be loaded using
 the function `dd.dddmp.load`.
-
-Examples of how `dd` can be used to implement symbolic algorithms can be
-found in the [`omega` package](https://github.com/johnyf/omega/blob/master/doc/doc.md).
 
 
 Installation

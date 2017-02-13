@@ -1,6 +1,14 @@
 # dd changelog
 
 
+## 0.4.3
+
+API:
+
+- build `dd.cudd` using CUDD v3.0.0
+  (an older CUDD via an older `download.py` should work too)
+
+
 ## 0.4.2
 
 API:

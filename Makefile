@@ -53,7 +53,10 @@ clean_cudd:
 	cd cudd-*; make clean
 
 clean:
-	-rm -rf build/ dist/ dd.egg-info/ dd/*.so dd/*.c dd/*.pyc
+	-rm -rf build/ dist/ dd.egg-info/
+	-rm dd/*.so dd/*.c
+	-rm *.pyc */*.pyc
+	-rm -rf __pycache__ */__pycache__
 
 rm_cudd:
 	-rm -rf cudd*/ cudd*.tar.gz

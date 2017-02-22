@@ -565,7 +565,7 @@ cdef class Function(object):
         elif op == 3:
             return not eq
         else:
-            raise Exception('Only `__eq__` and `__ne__` defined.')
+            raise TypeError('Only `__eq__` and `__ne__` defined.')
 
     def __invert__(Function self):
         r = sy.sylvan_not(self.node)

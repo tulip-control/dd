@@ -1425,7 +1425,7 @@ cdef class Function(object):
         elif op == 3:
             return not eq
         else:
-            raise Exception('Only `__eq__` and `__ne__` defined.')
+            raise TypeError('Only `__eq__` and `__ne__` defined.')
 
     def __invert__(self):
         cdef DdNode *r

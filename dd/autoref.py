@@ -255,6 +255,9 @@ class Function(object):
         self.node = node
         self.manager.incref(node)
 
+    def __hash__(self):
+        return self.node
+
     def to_expr(self):
         """Return Boolean expression of function as `str`."""
         return self.manager.to_expr(self.node)

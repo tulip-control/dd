@@ -496,6 +496,9 @@ cdef class Function(object):
         self.node = u
         sy.sylvan_ref(u)
 
+    def __hash__(self):
+        return int(self)
+
     @property
     def _index(self):
         """Index of `self.node`."""

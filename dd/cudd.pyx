@@ -1333,6 +1333,9 @@ cdef class Function(object):
         self.node = node
         Cudd_Ref(node)
 
+    def __hash__(self):
+        return int(self)
+
     @property
     def _index(self):
         """Index of `self.node`."""

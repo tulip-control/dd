@@ -90,7 +90,7 @@ class BDD(object):
         assert u in self, u
         return self._bdd.support(u.node, as_levels)
 
-    def compose(self, f, var, g, cache=None):
+    def compose(self, f, var, g):
         assert f in self, f
         assert g in self, g
         r = self._bdd.compose(f.node, var, g.node)

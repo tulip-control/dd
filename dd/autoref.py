@@ -165,7 +165,8 @@ class BDD(object):
 
     def dump(self, filename, roots=None,
              filetype=None, **kw):
-        roots = [u.node for u in roots]
+        if roots is not None:
+            roots = [u.node for u in roots]
         self._bdd.dump(filename, roots=roots,
                        filetype=filetype)
 

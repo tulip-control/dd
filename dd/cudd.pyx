@@ -1385,6 +1385,11 @@ cdef class Function(object):
         """Return `True` if `self` is a complemented edge."""
         return Cudd_IsComplement(self.node)
 
+    @property
+    def support(BDD self):
+        """Return `set` of variables in support."""
+        return self.bdd.support(self)
+
     def __dealloc__(self):
         Cudd_RecursiveDeref(self.manager, self.node)
 

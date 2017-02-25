@@ -354,3 +354,8 @@ class Function(object):
     def negated(self):
         """Return `True` if a complemented edge."""
         return self.node < 0
+
+    @property
+    def support(self):
+        """Return `set` of variables in support."""
+        return self.manager.support(self.node)

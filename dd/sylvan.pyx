@@ -539,6 +539,11 @@ cdef class Function(object):
         # see `BDD_HASMARK` in `sylvan_bdd`
         return ((self.node & sy.sylvan_complement) == 1)
 
+    @property
+    def support(self):
+        """Return `set` of variables in support."""
+        return self.bdd.support(self)
+
     def __dealloc__(self):
         sy.sylvan_deref(self.node)
 

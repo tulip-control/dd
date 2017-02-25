@@ -672,5 +672,17 @@ def test_function():
     assert high == bdd.true, high
 
 
+def test_function_support():
+    bdd = cudd.BDD()
+    bdd.add_var('x')
+    u = bdd.var('x')
+    r = u.support
+    assert r == {'x'}, r
+    bdd.add_var('y')
+    u = bdd.add_expr('y /\ x')
+    r = u.support
+    assert r == {'x', 'y'}, r
+
+
 if __name__ == '__main__':
     test_sat_iter()

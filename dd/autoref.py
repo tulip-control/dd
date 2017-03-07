@@ -60,7 +60,7 @@ class BDD(object):
         return self._bdd.configure(**kw)
 
     def succ(self, u):
-        i, v, w = self._bdd.succ(u)
+        i, v, w = self._bdd.succ(u.node)
         v = self._wrap(v)
         w = self._wrap(w)
         return i, v, w

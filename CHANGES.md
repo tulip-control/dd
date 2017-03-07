@@ -1,6 +1,31 @@
 # dd changelog
 
 
+## 0.5.0
+
+API:
+
+- dynamic variable reordering in `dd.bdd.BDD` (by default disabled)
+- method `bdd.BDD.sat_len`: count only levels in support (similar to CUDD)
+- class `autoref.Function`:
+  - rename attribute `bdd` to `manager`
+- classes `cudd.Function`, `autoref.Function`, `sylvan.Function`:
+  - add attributes `var, support, bdd`
+  - add method `__hash__`
+- classes `cudd.Function` and `sylvan.Function`:
+  - hide attribute `index` as `_index`
+- classes `cudd.BDD` and `sylvan.BDD`:
+  - do not memoize attributes `false` and `true`
+- classes `cudd.BDD` and `autoref.BDD`:
+  - add method `find_or_add`
+- method `BDD.sat_iter`:
+  - rm arg `full`
+  - `care_bits = support` as default
+  - `care_bits < support` allowed
+- function `bdd.to_pydot`: plot only levels in support of given node
+- add function `autoref.reorder`
+
+
 ## 0.4.3
 
 API:

@@ -7,10 +7,6 @@ import networkx as nx
 import networkx.algorithms.isomorphism as iso
 
 
-log = logging.getLogger('astutils')
-log.setLevel(logging.ERROR)
-
-
 def test_add_var():
     b = BDD()
     #
@@ -1378,4 +1374,9 @@ def _em(x, y):
         bool(x[0]['complement']) == bool(y[0]['complement']))
 
 if __name__ == '__main__':
-    test_sifting()
+    log = logging.getLogger('astutils')
+    log.setLevel(logging.ERROR)
+    log = logging.getLogger('dd.bdd')
+    log.setLevel(logging.INFO)
+    log.addHandler(logging.StreamHandler())
+    test_dynamic_reordering()

@@ -1,4 +1,5 @@
 .coverage
+.cache
 todo.txt
 dd/_version.py
 cython_debug/*

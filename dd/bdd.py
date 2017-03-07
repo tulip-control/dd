@@ -1620,10 +1620,16 @@ def reorder(bdd, order=None):
     @type order: `dict(str: int)` from each var to a level
     @type bdd: `BDD`
     """
+    len_before = len(bdd)
     if order is None:
         _apply_sifting(bdd)
     else:
         _sort_to_order(bdd, order)
+    len_after = len(bdd)
+    logger.info(
+        'Reordering changed `BDD` manager size '
+        'from {a} to {b} nodes.'.format(
+            a=len_before, b=len_after))
 
 
 def _apply_sifting(bdd):

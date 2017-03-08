@@ -123,6 +123,12 @@ class BDD(object):
         r = self._bdd.ite(g.node, u.node, v.node)
         return self._wrap(r)
 
+    def find_or_add(self, var, low, high):
+        """Return node `IF var THEN high ELSE low`."""
+        level = self.level_of_var(var)
+        r = self._bdd.find_or_add(level, low.node, high.node)
+        return self._wrap(r)
+
     def sat_len(self, u, n=None):
         assert u in self, u
         return self._bdd.sat_len(u.node, n=n)

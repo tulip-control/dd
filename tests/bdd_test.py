@@ -854,6 +854,7 @@ def test_dynamic_reordering():
     old_n_swaps = n_swaps
     assert b.reordering_is_on()
     r = b.add_expr('(~ z \/ (c /\ b)) /\ e /\ (a /\ (~x \/ y))')
+    b.add_expr('(e \/ ~ a) /\ x /\ (b \/ ~ y)')
     n_swaps = b.n_swaps
     assert n_swaps > old_n_swaps, (n_swaps, old_n_swaps)
     assert b.reordering_is_on()

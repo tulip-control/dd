@@ -542,6 +542,21 @@ def test_rename():
     del x, y, y_
 
 
+def test_ite():
+    b = cudd.BDD()
+    for var in ['x', 'y', 'z']:
+        b.add_var(var)
+    x = b.var('x')
+    u = b.ite(x, b.true, b.false)
+    assert u == x, (u, x)
+    u = b.ite(x, b.false, b.true)
+    assert u == ~ x, (u, x)
+    y = b.var('y')
+    u = b.ite(x, y, b.false)
+    u_ = b.add_expr('x /\ y')
+    assert u == u_, (u, u_)
+
+
 def test_reorder():
     bdd = cudd.BDD()
     dvars = ['x', 'y', 'z']

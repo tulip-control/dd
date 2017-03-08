@@ -622,14 +622,6 @@ cdef class BDD(object):
         """
         return copy_bdd(u, self, other)
 
-    cpdef Function ite(self, Function g, Function u, Function v):
-        assert g.manager == self.manager
-        assert u.manager == self.manager
-        assert v.manager == self.manager
-        cdef DdNode *r
-        r = Cudd_bddIte(self.manager, g.node, u.node, v.node)
-        return wrap(self, r)
-
     cpdef Function compose(self, Function f, var_sub):
         """Return the composition f|_(var = g).
 
@@ -693,6 +685,14 @@ cdef class BDD(object):
     cpdef Function rename(self, u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
         return rename(u, self, dvars)
+
+    cpdef Function ite(self, Function g, Function u, Function v):
+        assert g.manager == self.manager
+        assert u.manager == self.manager
+        assert v.manager == self.manager
+        cdef DdNode *r
+        r = Cudd_bddIte(self.manager, g.node, u.node, v.node)
+        return wrap(self, r)
 
     def sat_len(self, Function u, int nvars):
         """Return number of models of node `u`.

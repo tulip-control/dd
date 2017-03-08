@@ -82,13 +82,13 @@ class BDD(object):
         r = self._bdd.copy(u.node, other)
         return self._wrap(r)
 
-    def evaluate(self, u, values):
-        assert u in self, u
-        return self._bdd.evaluate(u.node, values)
-
     def support(self, u, as_levels=False):
         assert u in self, u
         return self._bdd.support(u.node, as_levels)
+
+    def evaluate(self, u, values):
+        assert u in self, u
+        return self._bdd.evaluate(u.node, values)
 
     def compose(self, f, var, g):
         assert f in self, f
@@ -98,13 +98,6 @@ class BDD(object):
 
     def rename(self, u, dvars):
         r = self._bdd.rename(u.node, dvars)
-        return self._wrap(r)
-
-    def ite(self, g, u, v):
-        assert g in self, g
-        assert u in self, u
-        assert v in self, v
-        r = self._bdd.ite(g.node, u.node, v.node)
         return self._wrap(r)
 
     def cofactor(self, u, values):
@@ -122,6 +115,13 @@ class BDD(object):
 
     def exist(self, qvars, u):
         return self.quantify(u, qvars, forall=False)
+
+    def ite(self, g, u, v):
+        assert g in self, g
+        assert u in self, u
+        assert v in self, v
+        r = self._bdd.ite(g.node, u.node, v.node)
+        return self._wrap(r)
 
     def sat_len(self, u, n=None):
         assert u in self, u

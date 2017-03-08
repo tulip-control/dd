@@ -369,34 +369,6 @@ class BDD(object):
         assert not roots or 1 in nodes, nodes
         return nodes
 
-    def evaluate(self, u, values):
-        """Return value of node `u` given `values`.
-
-        @param values: (partial) mapping from
-            `variables` to values
-            keys can be variable names as `str` or
-            levels as `int`.
-            The keys should include the support of `u`.
-        @type values: `dict`
-        """
-        assert abs(u) in self, u
-        values = self._map_to_level(values)
-        return self._evaluate(u, values)
-
-    def _evaluate(self, u, values):
-        """Recurse to compute value."""
-        if abs(u) == 1:
-            return u
-        i, v, w = self._succ[abs(u)]
-        if values[i]:
-            r = self._evaluate(w, values)
-        else:
-            r = self._evaluate(v, values)
-        if u < 0:
-            return -r
-        else:
-            return r
-
     def is_essential(self, u, var):
         """Return `True` if `var` is essential for node `u`.
 
@@ -500,6 +472,34 @@ class BDD(object):
                 bdd.roots.add(r)
         return bdd
 
+    def evaluate(self, u, values):
+        """Return value of node `u` given `values`.
+
+        @param values: (partial) mapping from
+            `variables` to values
+            keys can be variable names as `str` or
+            levels as `int`.
+            The keys should include the support of `u`.
+        @type values: `dict`
+        """
+        assert abs(u) in self, u
+        values = self._map_to_level(values)
+        return self._evaluate(u, values)
+
+    def _evaluate(self, u, values):
+        """Recurse to compute value."""
+        if abs(u) == 1:
+            return u
+        i, v, w = self._succ[abs(u)]
+        if values[i]:
+            r = self._evaluate(w, values)
+        else:
+            r = self._evaluate(v, values)
+        if u < 0:
+            return -r
+        else:
+            return r
+
     @_try_to_reorder
     def compose(self, f, var, g):
         """Return f(x_var=g).
@@ -549,44 +549,6 @@ class BDD(object):
             or from variable names to variable names
         """
         return rename(u, self, dvars)
-
-    @_try_to_reorder
-    def ite(self, g, u, v):
-        """Return node for if-then-else of `g`, `u` and `v`.
-
-        @param u: high
-        @param v: low
-        @type g, u, v: `int`
-        @rtype: `int`
-        """
-        # wrap so reordering can delete unreferenced nodes
-        return self._ite(g, u, v)
-
-    def _ite(self, g, u, v):
-        """Recurse to compute ternary conditional."""
-        # is g terminal ?
-        if g == 1:
-            return u
-        elif g == -1:
-            return v
-        # g is non-terminal
-        # already computed ?
-        r = (g, u, v)
-        w = self._ite_table.get(r)
-        if w is not None:
-            return w
-        z = min(self._succ[abs(g)][0],
-                self._succ[abs(u)][0],
-                self._succ[abs(v)][0])
-        g0, g1 = self._top_cofactor(g, z)
-        u0, u1 = self._top_cofactor(u, z)
-        v0, v1 = self._top_cofactor(v, z)
-        p = self._ite(g0, u0, v0)
-        q = self._ite(g1, u1, v1)
-        w = self.find_or_add(z, p, q)
-        # cache
-        self._ite_table[r] = w
-        return w
 
     def _top_cofactor(self, u, i):
         """Return restriction for assignment to single variable.
@@ -722,6 +684,44 @@ class BDD(object):
         Wraps method `quantify` to be more readable.
         """
         return self.quantify(u, qvars, forall=False)
+
+    @_try_to_reorder
+    def ite(self, g, u, v):
+        """Return node for if-then-else of `g`, `u` and `v`.
+
+        @param u: high
+        @param v: low
+        @type g, u, v: `int`
+        @rtype: `int`
+        """
+        # wrap so reordering can delete unreferenced nodes
+        return self._ite(g, u, v)
+
+    def _ite(self, g, u, v):
+        """Recurse to compute ternary conditional."""
+        # is g terminal ?
+        if g == 1:
+            return u
+        elif g == -1:
+            return v
+        # g is non-terminal
+        # already computed ?
+        r = (g, u, v)
+        w = self._ite_table.get(r)
+        if w is not None:
+            return w
+        z = min(self._succ[abs(g)][0],
+                self._succ[abs(u)][0],
+                self._succ[abs(v)][0])
+        g0, g1 = self._top_cofactor(g, z)
+        u0, u1 = self._top_cofactor(u, z)
+        v0, v1 = self._top_cofactor(v, z)
+        p = self._ite(g0, u0, v0)
+        q = self._ite(g1, u1, v1)
+        w = self.find_or_add(z, p, q)
+        # cache
+        self._ite_table[r] = w
+        return w
 
     def find_or_add(self, i, v, w):
         """Return a node at level `i` with successors `v, w`.

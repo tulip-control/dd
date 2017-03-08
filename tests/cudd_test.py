@@ -557,6 +557,26 @@ def test_ite():
     assert u == u_, (u, u_)
 
 
+def test_find_or_add():
+    b = cudd.BDD()
+    for var in ['x', 'y', 'z']:
+        b.add_var(var)
+    u = b.find_or_add('x', b.false, b.true)
+    u_ = b.var('x')
+    assert u == u_, b.to_expr(u)
+    u = b.find_or_add('y', b.false, b.true)
+    u_ = b.var('y')
+    assert u == u_, b.to_expr(u)
+    v = b.var('x')
+    w = b.var('y')
+    u = b.find_or_add('z', v, w)
+    u_ = b.add_expr('(~ z /\ x)  \/  (z /\ y)')
+    assert b.apply('<=>', u, u_)
+    # as a reminder of the syntactic nature of BDDs
+    # and that ZF is untyped, the below assertion is false.
+    # assert u == u_, (b.to_expr(u), b.to_expr(u_))
+
+
 def test_reorder():
     bdd = cudd.BDD()
     dvars = ['x', 'y', 'z']

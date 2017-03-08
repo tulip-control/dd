@@ -44,6 +44,8 @@ cdef extern from 'cuddInt.h':
         double cachecollisions
         double cacheinserts
         double cachedeletions
+    cdef DdNode *cuddUniqueInter(
+        DdManager *unique, int index, DdNode *T, DdNode *E)
 cdef extern from 'cudd.h':
     # node
     ctypedef unsigned int DdHalfWord
@@ -692,6 +694,17 @@ cdef class BDD(object):
         assert v.manager == self.manager
         cdef DdNode *r
         r = Cudd_bddIte(self.manager, g.node, u.node, v.node)
+        return wrap(self, r)
+
+    cpdef Function find_or_add(
+            self, str var, Function low, Function high):
+        """Return node `IF var THEN high ELSE low`."""
+        assert low.manager == self.manager
+        assert high.manager == self.manager
+        assert var in self.vars, (var, self.vars)
+        cdef DdNode *r
+        index = self._index_of_var[var]
+        r = cuddUniqueInter(self.manager, index, high.node, low.node)
         return wrap(self, r)
 
     def sat_len(self, Function u, int nvars):

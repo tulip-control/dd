@@ -695,18 +695,16 @@ cdef class BDD(object):
         assert r != NULL, 'cofactor failed'
         return wrap(self, r)
 
-    cpdef Function pick_one_minterm(self, Function u):
+    cpdef Function pick_one_minterm(self, Function f):
         n = len(self.vars)
-        assert self.manager == u.manager
-        cdef DdNode *result
+        assert self.manager == f.manager
+        cdef DdNode *r
         cdef DdNode **vars
         vars = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
         for var, j in self._index_of_var.iteritems():
             vars[j] = Cudd_bddIthVar(self.manager, j)
-        result = Cudd_bddPickOneMinterm(
-            self.manager, u.node , vars, n
-        )
-        return wrap(self, result)
+        r = Cudd_bddPickOneMinterm(self.manager, f.node , vars, n)
+        return wrap(self, r)
 
     cpdef Function rename(self, u, dvars):
         """Return node `u` after renaming variables in `dvars`."""

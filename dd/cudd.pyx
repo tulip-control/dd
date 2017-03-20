@@ -177,6 +177,10 @@ cdef extern from 'cudd.h':
     cdef DdNode *Cudd_bddSwapVariables(
         DdManager *dd,
         DdNode *f, DdNode **x, DdNode **y, int n)
+    # added for EdiSyn
+    cdef DdNode *Cudd_bddPickOneMinterm(DdManager *dd, DdNode *f,
+                                        DdNode **vars, int n)
+
 cdef CUDD_UNIQUE_SLOTS = 2**8
 cdef CUDD_CACHE_SLOTS = 2**18
 cdef CUDD_REORDER_GROUP_SIFT = 14
@@ -1029,6 +1033,29 @@ cdef class BDD(object):
         else:
             r = Cudd_ReadLogicZero(self.manager)
         return wrap(self, r)
+
+    ## Methods added for EdiSyn
+
+    cpdef Function cofactor_function(self, Function f, Function g):
+        """Return the cofactor f|_g, where g is a function."""
+        assert self.manager == f.manager
+        cdef DdNode *r
+        r = Cudd_Cofactor(self.manager, f.node, g.node)
+        assert r != NULL, 'cofactor failed'
+        return wrap(self, r)
+
+    cpdef Function pick_one_minterm(self, Function u):
+        n = len(self.vars)
+        assert self.manager == u.manager
+        cdef DdNode *result
+        cdef DdNode **vars
+        vars = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
+        for var, j in self._index_of_var.iteritems():
+            vars[j] = Cudd_bddIthVar(self.manager, j)
+        result = Cudd_bddPickOneMinterm(
+            self.manager, u.node , vars, n
+        )
+        return wrap(self, result)
 
 
 cpdef Function restrict(Function u, Function care_set):

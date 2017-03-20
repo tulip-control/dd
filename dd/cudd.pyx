@@ -688,7 +688,7 @@ cdef class BDD(object):
         return wrap(self, r)
 
     cpdef Function cofactor_function(self, Function f, Function g):
-        """Return the cofactor f|_g, where g is a function."""
+        """Return the cofactor f|_g, where `g` is a `Function`."""
         assert self.manager == f.manager
         cdef DdNode *r
         r = Cudd_Cofactor(self.manager, f.node, g.node)

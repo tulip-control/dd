@@ -79,7 +79,7 @@ class BDD(object):
         return self._bdd.level_of_var(var)
 
     def copy(self, u, other):
-        r = self._bdd.copy(u.node, other)
+        r = self._bdd.copy(u.node, other._bdd)
         return self._wrap(r)
 
     def support(self, u, as_levels=False):

@@ -1441,12 +1441,21 @@ cdef class Function(object):
             # guard against mixing managers
             assert self.manager == other.manager
             eq = (self.node == other.node)
-        if op == 2:
+        if op == 2:  # ==
             return eq
-        elif op == 3:
+        elif op == 3:  # !=
             return not eq
+        elif op == 0:  # <
+            return (other | ~ self) == self.bdd.true and not eq
+        elif op == 1:  # <=
+            return (other | ~ self) == self.bdd.true
+        elif op == 4:  # >
+            return (self | ~ other) == self.bdd.true and not eq
+        elif op == 5:  # >=
+            return (self | ~ other) == self.bdd.true
         else:
-            raise TypeError('Only `__eq__` and `__ne__` defined.')
+            raise ValueError(
+                'unexpected `op` value: {op}'.format(op=op))
 
     def __invert__(self):
         cdef DdNode *r

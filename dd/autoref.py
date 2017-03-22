@@ -294,6 +294,12 @@ class Function(object):
         assert self.bdd is other.bdd, (self.bdd, other.bdd)
         return not (self == other)
 
+    def __le__(self, other):
+        return (other | ~ self) == self.bdd.true
+
+    def __lt__(self, other):
+        return self <= other and self != other
+
     def __invert__(self):
         return self._apply('not', other=None)
 

@@ -720,6 +720,32 @@ cdef class BDD(object):
         assert r != float('inf'), 'overflow of integer  type double'
         return r
 
+    def pick(self, Function u, care_bits=None):
+        """Return a single assignment as `dict`.
+
+        Return `None` if `u == self.false`.
+        By default, `care_bits = support(u)`.
+        Warn if `care_bits` not a subset of `support(u)`.
+        Examples:
+
+        u = bdd.add_expr('x')
+        >>> bdd.pick(u)
+        {'x': True}
+
+        u = bdd.add_expr('y')
+        >>> bdd.pick(u)
+        {'y': True}
+
+        u = bdd.add_expr('y')
+        >>> bdd.pick(u, care_bits=['x', 'y'])
+        {'x': False, 'y': True}
+
+        u = bdd.add_expr('x \/ y')
+        >>> bdd.pick(u)
+        {'x': False, 'y': True}
+        """
+        return next(self.sat_iter(u, care_bits), None)
+
     def sat_iter(self, Function u, care_bits=None):
         """Return generator over assignments."""
         assert u.manager == self.manager

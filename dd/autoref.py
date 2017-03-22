@@ -133,6 +133,10 @@ class BDD(object):
         assert u in self, u
         return self._bdd.sat_len(u.node, n=n)
 
+    def pick(self, u, care_bits=None):
+        assert u in self, u
+        return self._bdd.pick(u.node, care_bits)
+
     def sat_iter(self, u, care_bits=None):
         assert u in self, u
         return self._bdd.sat_iter(u.node, care_bits)

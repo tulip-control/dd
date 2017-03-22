@@ -1044,6 +1044,13 @@ class BDD(object):
             n = 2**(map_level['all'] - i) - n
         return n
 
+    def pick(self, u, care_bits=None):
+        """Return a single assignment as `dict`.
+
+        Thin wrapper around `sat_iter`.
+        """
+        return next(self.sat_iter(u, care_bits), None)
+
     def sat_iter(self, u, care_bits=None):
         """Return generator over assignments.
 

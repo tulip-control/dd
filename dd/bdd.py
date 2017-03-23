@@ -983,6 +983,13 @@ class BDD(object):
             return (y, v, w)
 
     def sat_len(self, u, n=None):
+        """Deprecated. Call method `count` instead."""
+        warnings.warn(
+            'call method `count` instead',
+            DeprecationWarning)
+        return self.count(u, n)
+
+    def count(self, u, n=None):
         """Return number of models of node `u`.
 
         @param n: number of variables to assume.

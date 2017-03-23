@@ -130,8 +130,14 @@ class BDD(object):
         return self._wrap(r)
 
     def sat_len(self, u, n=None):
+        warnings.warn(
+            'call method `count` instead',
+            DeprecationWarning)
+        return self.count(u, n)
+
+    def count(self, u, n=None):
         assert u in self, u
-        return self._bdd.sat_len(u.node, n=n)
+        return self._bdd.count(u.node, n=n)
 
     def pick(self, u, care_bits=None):
         assert u in self, u

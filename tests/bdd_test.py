@@ -201,31 +201,31 @@ def test_support():
     assert g.support(3) == {'y'}
 
 
-def test_sat_len():
+def test_count():
     g = x_and_y()
-    assert g.sat_len(4) == 1
+    assert g.count(4) == 1
     g = x_or_y()
-    r = g.sat_len(4)
+    r = g.count(4)
     assert r == 3, r
-    r = g.sat_len(4, n=2)
+    r = g.count(4, n=2)
     assert r == 3, r
-    r = g.sat_len(-4)
+    r = g.count(-4)
     assert r == 1, r
-    r = g.sat_len(-4, n=2)
+    r = g.count(-4, n=2)
     assert r == 1, r
-    r = g.sat_len(4, 3)
+    r = g.count(4, 3)
     assert r == 6, r
-    r = g.sat_len(-4, 3)
+    r = g.count(-4, 3)
     assert r == 2, r
     with nt.assert_raises(Exception):
-        g.sat_len()
-    r = g.sat_len(4)
+        g.count()
+    r = g.count(4)
     assert r == 3, r
     g = _bdd.BDD()
     g.add_var('x')
     g.add_var('y')
     u = g.add_expr('x & y ')
-    r = g.sat_len(u)
+    r = g.count(u)
     assert r == 1, r
 
 

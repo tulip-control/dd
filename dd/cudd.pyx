@@ -708,6 +708,12 @@ cdef class BDD(object):
         return wrap(self, r)
 
     def sat_len(self, Function u, int nvars):
+        warnings.warn(
+            'call method `count` instead',
+            DeprecationWarning)
+        return self.count(u, nvars)
+
+    def count(self, Function u, int nvars):
         """Return number of models of node `u`.
 
         @param nvars: number of variables `u` depends on

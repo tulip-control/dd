@@ -211,29 +211,29 @@ def test_cofactor():
     assert r == bdd.true, r
 
 
-def test_sat_len():
+def test_count():
     b = cudd.BDD()
     b.add_var('x')
     u = b.add_expr('x')
     with assert_raises(AssertionError):
-        b.sat_len(u, 0)
-    n = b.sat_len(u, 1)
+        b.count(u, 0)
+    n = b.count(u, 1)
     assert n == 1, n
-    n = b.sat_len(u, 2)
+    n = b.count(u, 2)
     assert n == 2, n
-    n = b.sat_len(u, 3)
+    n = b.count(u, 3)
     assert n == 4, n
     b.add_var('y')
     u = b.add_expr('x & y')
     with assert_raises(AssertionError):
-        b.sat_len(u, 0)
+        b.count(u, 0)
     with assert_raises(AssertionError):
-        b.sat_len(u, 1)
-    n = b.sat_len(u, 2)
+        b.count(u, 1)
+    n = b.count(u, 2)
     assert n == 1, n
-    n = b.sat_len(u, 3)
+    n = b.count(u, 3)
     assert n == 2, n
-    n = b.sat_len(u, 5)
+    n = b.count(u, 5)
     assert n == 8, n
 
 

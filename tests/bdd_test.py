@@ -229,7 +229,7 @@ def test_count():
     assert r == 1, r
 
 
-def test_sat_iter():
+def test_pick_iter():
     # x & y
     g = x_and_y()
     u = 4
@@ -271,13 +271,13 @@ def test_sat_iter():
     order = {'x': 0, 'y': 1, 'z': 2}
     bdd = BDD(order)
     u = bdd.add_expr('x & z')
-    (m,) = bdd.sat_iter(u)
+    (m,) = bdd.pick_iter(u)
     assert m == {'x': 1, 'z': 1}, m
 
 
 def compare_iter_to_list_of_sets(u, g, s, care_bits):
     s = list(s)
-    for d in g.sat_iter(u, care_bits):
+    for d in g.pick_iter(u, care_bits):
         assert d in s, d
         s.remove(d)
     assert not s, s

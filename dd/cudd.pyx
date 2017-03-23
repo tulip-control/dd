@@ -750,9 +750,9 @@ cdef class BDD(object):
         >>> bdd.pick(u)
         {'x': False, 'y': True}
         """
-        return next(self.sat_iter(u, care_bits), None)
+        return next(self.pick_iter(u, care_bits), None)
 
-    def sat_iter(self, Function u, care_bits=None):
+    def pick_iter(self, Function u, care_bits=None):
         """Return generator over assignments."""
         assert u.manager == self.manager
         cdef DdGen *gen
@@ -781,6 +781,13 @@ cdef class BDD(object):
         finally:
             Cudd_GenFree(gen)
         self.configure(reordering=True)
+
+    def sat_iter(self, Function u, care_bits=None):
+        """Deprecated. Call method `pick_iter` instead."""
+        warnings.warn(
+            'call method `pick_iter` instead',
+            DeprecationWarning)
+        return self.pick_iter(u, care_bits)
 
     cpdef Function apply(
             self,

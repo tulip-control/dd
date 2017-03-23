@@ -237,31 +237,31 @@ def test_count():
     assert n == 8, n
 
 
-def test_sat_iter():
+def test_pick_iter():
     b = cudd.BDD()
     b.add_var('x')
     b.add_var('y')
     # x & y
     s = '!x & y'
     u = b.add_expr(s)
-    g = b.sat_iter(u, care_bits=set())
+    g = b.pick_iter(u, care_bits=set())
     m = list(g)
     m_ = [dict(x=False, y=True)]
     assert m == m_, (m, m_)
     u = b.add_expr(s)
-    g = b.sat_iter(u)
+    g = b.pick_iter(u)
     m = list(g)
     assert m == m_, (m, m_)
     # x
     s = '! y'
     u = b.add_expr(s)
     # partial
-    g = b.sat_iter(u)
+    g = b.pick_iter(u)
     m = list(g)
     m_ = [dict(y=False)]
     equal_list_contents(m, m_)
     # partial
-    g = b.sat_iter(u, care_bits=['x', 'y'])
+    g = b.pick_iter(u, care_bits=['x', 'y'])
     m = list(g)
     m_ = [
         dict(x=True, y=False),
@@ -271,7 +271,7 @@ def test_sat_iter():
     b.add_var('z')
     s = 'x | y'
     u = b.add_expr(s)
-    g = b.sat_iter(u, care_bits=['x', 'y'])
+    g = b.pick_iter(u, care_bits=['x', 'y'])
     m = list(g)
     m_ = [
         dict(x=True, y=False),
@@ -720,4 +720,4 @@ def test_function_support():
 
 
 if __name__ == '__main__':
-    test_sat_iter()
+    test_pick_iter()

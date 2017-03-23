@@ -260,7 +260,7 @@ cdef class BDD(object):
         r = self.compose(u, var_sub)
         return r
 
-    def sat_iter(self, Function u,
+    def pick_iter(self, Function u,
                  full=False, care_bits=None):
         """Return generator over assignments."""
         raise NotImplementedError

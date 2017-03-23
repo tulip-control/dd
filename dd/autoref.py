@@ -143,9 +143,15 @@ class BDD(object):
         assert u in self, u
         return self._bdd.pick(u.node, care_bits)
 
-    def sat_iter(self, u, care_bits=None):
+    def pick_iter(self, u, care_bits=None):
         assert u in self, u
         return self._bdd.sat_iter(u.node, care_bits)
+
+    def sat_iter(self, u, care_bits=None):
+        warnings.warn(
+            'call method `pick_iter` instead',
+            DeprecationWarning)
+        return self.pick_iter(u, care_bits)
 
     def add_expr(self, e):
         r = self._bdd.add_expr(e)

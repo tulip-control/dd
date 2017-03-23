@@ -1056,9 +1056,9 @@ class BDD(object):
 
         Thin wrapper around `sat_iter`.
         """
-        return next(self.sat_iter(u, care_bits), None)
+        return next(self.pick_iter(u, care_bits), None)
 
-    def sat_iter(self, u, care_bits=None):
+    def pick_iter(self, u, care_bits=None):
         """Return generator over assignments.
 
         An assignment is a `dict` that
@@ -1094,6 +1094,13 @@ class BDD(object):
         for cube in self._sat_iter(u, cube, value):
             for m in _enumerate_minterms(cube, care_bits):
                 yield m
+
+    def sat_iter(self, u, care_bits=None):
+        """Deprecated. Call method `pick_iter` instead."""
+        warnings.warn(
+            'call method `pick_iter` instead',
+            DeprecationWarning)
+        return self.pick_iter(u, care_bits)
 
     def _sat_iter(self, u, cube, value):
         """Recurse to enumerate models."""

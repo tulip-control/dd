@@ -86,6 +86,18 @@ class BDD(object):
         assert u in self, u
         return self._bdd.support(u.node, as_levels)
 
+    def let(self, definitions, u):
+        assert u in self, u
+        d = definitions
+        var = next(iter(d))
+        value = d[var]
+        if isinstance(value, Function):
+            d = {
+                var: value.node
+                for var, value in d.items()}
+        r = self._bdd.let(d, u.node)
+        return self._wrap(r)
+
     def evaluate(self, u, values):
         assert u in self, u
         return self._bdd.evaluate(u.node, values)

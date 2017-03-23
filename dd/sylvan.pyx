@@ -20,6 +20,7 @@ import pickle
 import signal
 import time
 
+from cpython cimport bool as python_bool
 from libcpp cimport bool
 # from libc.stdio cimport FILE, fdopen, fopen, fclose
 # from cpython.mem cimport PyMem_Malloc, PyMem_Free
@@ -230,6 +231,30 @@ cdef class BDD(object):
             cube = v
         support = {self._var_with_index[j] for j in ids}
         return support
+
+    cpdef Function let(self, definitions, Function u):
+        """Replace variables with `definitions` in `u`."""
+        d = definitions
+        if not d:
+            logger.warning(
+                'Call to `BDD.let` with no effect: '
+                '`defs` is empty.')
+            return u
+        var = next(iter(d))
+        value = d[var]
+        if isinstance(value, python_bool):
+            return self.cofactor(u, d)
+        elif isinstance(value, Function):
+            return self.compose(u, d)
+        try:
+            value + 's'
+        except TypeError:
+            raise ValueError(
+                'Key must be variable name as `str`, '
+                'or Boolean value as `bool`, '
+                'or BDD node as `int`. Got: {value}'.format(
+                    value=value))
+        return self.rename(u, d)
 
     cpdef Function compose(self, Function u, var_sub):
         assert self is u.bdd

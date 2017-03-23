@@ -120,7 +120,7 @@ def test_compose():
     x = bdd.var('x')
     y = bdd.var('y')
     var_sub = dict(x=y)
-    y_ = bdd.compose(x, var_sub)
+    y_ = bdd.let(var_sub, x)
     assert y == y_, bdd.to_expr(y_)
     del x, y, y_, var_sub
 
@@ -129,14 +129,14 @@ def test_cofactor():
     bdd = sylvan.BDD()
     bdd.add_var('x')
     x = bdd.var('x')
-    # u = bdd.cofactor(x, dict(x=True))
+    # u = bdd.let(dict(x=True), x)
     # assert u == bdd.true, u
-    # u = bdd.cofactor(x, dict(x=False))
+    # u = bdd.let(dict(x=False), x)
     # u = bdd.true
     # u_ = bdd.false
     # assert u == ~u_
     assert x == bdd.add_expr('x')
-    u = bdd.compose(x, dict(x=bdd.false))
+    u = bdd.let(dict(x=bdd.false), x)
     u_ = bdd.false
     assert u == u_, (u, u_)
     del x, u, u_
@@ -150,7 +150,7 @@ def test_rename():
     x = bdd.var('x')
     y = bdd.var('y')
     rename = dict(x='y')
-    y_ = bdd.rename(x, rename)
+    y_ = bdd.let(rename, x)
     assert y == y_, bdd.to_expr(y_)
     # multiple variables
     bdd.add_var('z')
@@ -158,7 +158,7 @@ def test_rename():
     s = '(x & !y) | w'
     u = bdd.add_expr(s)
     rename = dict(x='w', y='z', w='y')
-    v = bdd.rename(u, rename)
+    v = bdd.let(rename, u)
     s = '(w & !z) | y'
     v_ = bdd.add_expr(s)
     assert v == v_, bdd.to_expr(v)

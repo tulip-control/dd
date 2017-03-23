@@ -598,7 +598,7 @@ def test_compose():
     # x & (x | z)
     a = g.add_expr('x && y')
     b = g.add_expr('x || z')
-    c = g.compose(a, 'y', b)
+    c = g.let({'y': b}, a)
     d = g.add_expr('x && (x || z)')
     assert c == d, (c, d)
     # (y | z) & x
@@ -606,14 +606,14 @@ def test_compose():
     g = BDD(ordering)
     a = g.add_expr('(x && y) || z')
     b = g.add_expr('(y || z) && x')
-    c = g.compose(a, 'z', b)
+    c = g.let({'z': b}, a)
     assert c == b, (c, b)
     # long expr
     ordering = {'x': 0, 'y': 1, 'z': 2, 'w': 3}
     g = BDD(ordering)
     a = g.add_expr('(x && y) || (!z || (w && y && x))')
     b = g.add_expr('(y || !z) && x')
-    c = g.compose(a, 'y', b)
+    c = g.let({'y': b}, a)
     d = g.add_expr(
         '(x && ((y || !z) && x)) ||'
         ' (!z || (w && ((y || !z) && x) && x))')
@@ -625,7 +625,7 @@ def test_compose():
     var = 'y'
     new_level = 0
     var_node = g.find_or_add(new_level, -1, 1)
-    u = g.compose(f, var, var_node)
+    u = g.let({var: var_node}, f)
     assert u == 1, g.to_expr(u)
 
 
@@ -634,24 +634,24 @@ def test_cofactor():
     g = BDD(ordering)
     # u not in g
     with nt.assert_raises(AssertionError):
-        g.cofactor(5, {'x': 0, 'y': 1, 'z': 0})
+        g.let({'x': False, 'y': True, 'z': False}, 5)
     # x & y
     e = g.add_expr('x && y')
     x = g.add_expr('x')
-    assert g.cofactor(x, {'x': 0}) == -1
-    assert g.cofactor(x, {'x': 1}) == 1
-    assert g.cofactor(-x, {'x': 0}) == 1
-    assert g.cofactor(-x, {'x': 1}) == -1
+    assert g.let({'x': False}, x) == -1
+    assert g.let({'x': True}, x) == 1
+    assert g.let({'x': False}, -x) == 1
+    assert g.let({'x': True}, -x) == -1
     y = g.add_expr('y')
-    assert g.cofactor(e, {'x': 1}) == y
-    assert g.cofactor(e, {'x': 0}) == -1
-    assert g.cofactor(e, {'y': 1}) == x
-    assert g.cofactor(e, {'y': 0}) == -1
+    assert g.let({'x': True}, e) == y
+    assert g.let({'x': False}, e) == -1
+    assert g.let({'y': True}, e) == x
+    assert g.let({'y': False}, e) == -1
 
-    assert g.cofactor(-e, {'x': 0}) == 1
-    assert g.cofactor(-e, {'x': 1}) == -y
-    assert g.cofactor(-e, {'y': 0}) == 1
-    assert g.cofactor(-e, {'y': 1}) == -x
+    assert g.let({'x': False}, -e) == 1
+    assert g.let({'x': True}, -e) == -y
+    assert g.let({'y': False}, -e) == 1
+    assert g.let({'y': True}, -e) == -x
 
 
 def test_swap():
@@ -986,7 +986,7 @@ def test_rename():
     x = g.add_expr('x')
     xp = g.add_expr('xp')
     dvars = {'x': 'xp'}
-    xrenamed = _bdd.rename(x, g, dvars)
+    xrenamed = g.let(dvars, x)
     assert xrenamed == xp, xrenamed
     ordering = {'x': 0, 'xp': 1,
                 'y': 2, 'yp': 3,
@@ -994,27 +994,27 @@ def test_rename():
     g = BDD(ordering)
     u = g.add_expr('x && y && ! z')
     dvars = {'x': 'xp', 'y': 'yp', 'z': 'zp'}
-    urenamed = _bdd.rename(u, g, dvars)
+    urenamed = g.let(dvars, u)
     up = g.add_expr('xp && yp && ! zp')
     assert urenamed == up, urenamed
     # assertion violations
     # non-neighbors
     dvars = {'x': 'yp'}
-    r = _bdd.rename(u, g, dvars)
+    r = g.let(dvars, u)
     r_ = g.add_expr('yp && y && ! z')
     assert r == r_, (r, r_)
     # u not in bdd
     dvars = {'x': 'xp'}
     with nt.assert_raises(AssertionError):
-        _bdd.rename(1000, g, dvars)
+        g.let(dvars, 1000)
     # y essential for u
     dvars = {'xp': 'y'}
     with nt.assert_raises(AssertionError):
-        _bdd.rename(u, g, dvars)
+        g.let(dvars, u)
     # old and new vars intersect
     dvars = {'x': 'x'}
     with nt.assert_raises(AssertionError):
-        _bdd.rename(u, g, dvars)
+        g.let(dvars, u)
 
 
 def test_rename_syntax():

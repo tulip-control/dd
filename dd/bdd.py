@@ -472,6 +472,37 @@ class BDD(object):
                 bdd.roots.add(r)
         return bdd
 
+    def let(self, definitions, u):
+        """Replace variables with `definitions` in `u`.
+
+        @param definitions: `dict` that maps some variable
+            names to Boolean values, or other variable names,
+            or BDD nodes. All values should be of same type.
+        """
+        d = definitions
+        if not d:
+            logger.warning(
+                'Call to `BDD.let` with no effect: '
+                '`defs` is empty.')
+            return u
+        var = next(iter(definitions))
+        value = d[var]
+        if isinstance(value, bool):
+            return self.cofactor(u, d)
+        elif isinstance(value, int):
+            # `compose` will support multiple substitutions
+            # in the future
+            assert len(d) == 1, d
+            return self.compose(u, var, value)
+        try:
+            value + 's'
+        except TypeError:
+            raise ValueError(
+                'Key must be var name as `str`, '
+                'or Boolean value as `bool`, '
+                'or BDD node as `int`.')
+        return self.rename(u, d)
+
     def evaluate(self, u, values):
         """Return value of node `u` given `values`.
 
@@ -574,10 +605,10 @@ class BDD(object):
 
     @_try_to_reorder
     def cofactor(self, u, values):
-        """Return restriction of `u` to valuation `values`.
+        """Substitute Boolean `values` for variables in `u`.
 
         @param u: node
-        @param values: `dict` that maps var levels to values
+        @param values: `dict` that maps var names to `bool`
         """
         values = self._map_to_level(values)
         cache = dict()

@@ -39,10 +39,10 @@ def test_var_cofactor():
     bdd.add_var('x')
     x = bdd.var('x')
     values = dict(x=False)
-    u = bdd.cofactor(x, values)
+    u = bdd.let(values, x)
     assert u == bdd.false, u
     values = dict(x=True)
-    u = bdd.cofactor(x, values)
+    u = bdd.let(values, x)
     assert u == bdd.true, u
 
 
@@ -144,29 +144,29 @@ def test_compose():
     u = bdd.add_expr('x & !y')
     # x |-> y
     sub = dict(x=bdd.var('y'))
-    v = bdd.compose(u, sub)
+    v = bdd.let(sub, u)
     v_ = bdd.false
     assert v == v_, v
     # x |-> y, y |-> x
     sub = dict(x=bdd.var('y'),
                y=bdd.var('x'))
-    v = bdd.compose(u, sub)
+    v = bdd.let(sub, u)
     v_ = bdd.add_expr('y & !x')
     assert v == v_, v
     # x |-> z
     sub = dict(x=bdd.var('z'))
-    v = bdd.compose(u, sub)
+    v = bdd.let(sub, u)
     v_ = bdd.add_expr('z & !y')
     assert v == v_, v
     # x |-> z, y |-> x
     sub = dict(x=bdd.var('z'),
                y=bdd.var('x'))
-    v = bdd.compose(u, sub)
+    v = bdd.let(sub, u)
     v_ = bdd.add_expr('z & !x')
     assert v == v_, v
     # x |-> (y | z)
     sub = dict(x=bdd.add_expr('y | z'))
-    v = bdd.compose(u, sub)
+    v = bdd.let(sub, u)
     v_ = bdd.add_expr('(y | z) & !y')
     assert v == v_, v
 
@@ -179,35 +179,35 @@ def test_cofactor():
     y = bdd.var('y')
     # x & y
     u = bdd.apply('and', x, y)
-    r = bdd.cofactor(u, dict(x=False, y=False))
+    r = bdd.let(dict(x=False, y=False), u)
     assert r == bdd.false, r
-    r = bdd.cofactor(u, dict(x=True, y=False))
+    r = bdd.let(dict(x=True, y=False), u)
     assert r == bdd.false, r
-    r = bdd.cofactor(u, dict(x=False, y=True))
+    r = bdd.let(dict(x=False, y=True), u)
     assert r == bdd.false, r
-    r = bdd.cofactor(u, dict(x=True, y=True))
+    r = bdd.let(dict(x=True, y=True), u)
     assert r == bdd.true, r
     # x & !y
     not_y = bdd.apply('not', y)
     u = bdd.apply('and', x, not_y)
-    r = bdd.cofactor(u, dict(x=False, y=False))
+    r = bdd.let(dict(x=False, y=False), u)
     assert r == bdd.false, r
-    r = bdd.cofactor(u, dict(x=True, y=False))
+    r = bdd.let(dict(x=True, y=False), u)
     assert r == bdd.true, r
-    r = bdd.cofactor(u, dict(x=False, y=True))
+    r = bdd.let(dict(x=False, y=True), u)
     assert r == bdd.false, r
-    r = bdd.cofactor(u, dict(x=True, y=True))
+    r = bdd.let(dict(x=True, y=True), u)
     assert r == bdd.false, r
     # !x | y
     not_x = bdd.apply('not', x)
     u = bdd.apply('or', not_x, y)
-    r = bdd.cofactor(u, dict(x=False, y=False))
+    r = bdd.let(dict(x=False, y=False), u)
     assert r == bdd.true, r
-    r = bdd.cofactor(u, dict(x=True, y=False))
+    r = bdd.let(dict(x=True, y=False), u)
     assert r == bdd.false, r
-    r = bdd.cofactor(u, dict(x=False, y=True))
+    r = bdd.let(dict(x=False, y=True), u)
     assert r == bdd.true, r
-    r = bdd.cofactor(u, dict(x=True, y=True))
+    r = bdd.let(dict(x=True, y=True), u)
     assert r == bdd.true, r
 
 
@@ -309,13 +309,13 @@ def test_apply():
     assert u == v, (u, v)
     # xor
     u = bdd.apply('xor', x, y)
-    r = bdd.cofactor(u, dict(x=False, y=False))
+    r = bdd.let(dict(x=False, y=False), u)
     assert r == bdd.false, r
-    r = bdd.cofactor(u, dict(x=True, y=False))
+    r = bdd.let(dict(x=True, y=False), u)
     assert r == bdd.true, r
-    r = bdd.cofactor(u, dict(x=False, y=True))
+    r = bdd.let(dict(x=False, y=True), u)
     assert r == bdd.true, r
-    r = bdd.cofactor(u, dict(x=True, y=True))
+    r = bdd.let(dict(x=True, y=True), u)
     assert r == bdd.false, r
     # (z | !y) & x = (z & x) | (!y & x)
     u = bdd.apply('or', z, not_y)
@@ -507,7 +507,7 @@ def test_rename():
     supp = bdd.support(x)
     assert supp == set(['x']), supp
     d = dict(x='y')
-    f = cudd.rename(x, bdd, d)
+    f = bdd.let(d, x)
     supp = bdd.support(f)
     assert supp == set(['y']), supp
     y = bdd.var('y')
@@ -520,7 +520,7 @@ def test_rename():
     supp = bdd.support(u)
     assert supp == set(['x', 'y']), supp
     d = dict(x='z', y='w')
-    f = cudd.rename(u, bdd, d)
+    f = bdd.let(d, u)
     supp = bdd.support(f)
     assert supp == set(['z', 'w']), supp
     z = bdd.var('z')
@@ -531,13 +531,13 @@ def test_rename():
     # x -> x
     d = dict(x='y', y='x')
     with assert_raises(AssertionError):
-        cudd.rename(u, bdd, d)
+        bdd.let(d, u)
     del x, y, not_y, z, w, not_w, u, f, f_
     # as method
     x = bdd.var('x')
     y_ = bdd.var('y')
     d = dict(x='y')
-    y = bdd.rename(x, d)
+    y = bdd.let(d, x)
     assert y == y_, (y, y_)
     del x, y, y_
 

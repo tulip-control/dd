@@ -19,6 +19,7 @@ import pickle
 import pprint
 import sys
 import time
+import warnings
 
 from dd import _parser
 from dd import _compat
@@ -26,6 +27,7 @@ from dd import bdd as _bdd
 from libcpp cimport bool
 from libc.stdio cimport FILE, fdopen, fopen, fclose
 from libc cimport stdint
+from cpython cimport bool as python_bool
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 import psutil
 
@@ -623,6 +625,30 @@ cdef class BDD(object):
         @rtype: node
         """
         return copy_bdd(u, self, other)
+
+    cpdef Function let(self, definitions, Function u):
+        """Replace variables with `definitions` in `u`."""
+        d = definitions
+        if not d:
+            logger.warning(
+                'Call to `BDD.let` with no effect: '
+                '`defs` is empty.')
+            return u
+        var = next(iter(d))
+        value = d[var]
+        if isinstance(value, python_bool):
+            return self.cofactor(u, d)
+        elif isinstance(value, Function):
+            return self.compose(u, d)
+        try:
+            value + 's'
+        except TypeError:
+            raise ValueError(
+                'Key must be variable name as `str`, '
+                'or Boolean value as `bool`, '
+                'or BDD node as `int`. Got: {value}'.format(
+                    value=value))
+        return self.rename(u, d)
 
     cpdef Function compose(self, Function f, var_sub):
         """Return the composition f|_(var = g).

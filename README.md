@@ -168,7 +168,7 @@ bdd.decref(w)
 ```
 
 The more useful functions in `dd.bdd` are:
-`rename`, `image`, `preimage`, `reorder`, `to_nx`, `to_pydot`.
+`image`, `preimage`, `reorder`, `to_nx`, `to_pydot`.
 
 Use the method `BDD.dump` to write a `BDD` to a `pickle` file, and
 `BDD.load` to load it back. A CUDD dddmp file can be loaded using

@@ -261,7 +261,7 @@ To substitute some variables for some other variables
 [bdd.add_var(var) for var in ['x', 'p', 'y', 'q', 'z']]
 u = bdd.add_expr('x  \/  y /\ z')
 d = dict(x='p', y='q')
-v = bdd.rename(u, d)
+v = bdd.let(d, u)
 >>> bdd.support(v)
 {'p', 'q', 'z'}
 ```
@@ -279,17 +279,12 @@ _bdd.copy_vars(a, b)
 v = a.copy(u, b)
 ```
 
-Some less frequently used `BDD` methods are `assert_consistent`, `evaluate`, `compose`, `cofactor`, and `collect_garbage`.
+Some other `BDD` methods are `let`, `assert_consistent`, and `collect_garbage`.
 
 In `autoref`, a few functions (not methods) are available for efficient operations that arise naturally in fixpoint algorithms when transition relations are involved:
 
 - `image`, `preimage`: rename some variables, conjoin, existentially quantify, and rename some variables, all at once
 - `copy_vars`: copy the variables of one BDD manager to another manager
-
-and deprecated (use the methods `BDD.rename`, `BDD.copy`):
-
-- `rename`: substitute some variables for some other variables
-- `copy_bdd`: copy a node from one BDD manager to another manager (deprecated.
 
 For the curious, the attribute `dd.autoref.BDD._bdd` is the `dd.bdd.BDD` wrapped by `dd.autoref.BDD`.
 
@@ -470,7 +465,6 @@ Pickling and PDF plotting are not available yet in `dd.cudd`.
 
 Some methods present in `autoref.BDD` are not (yet) implemented in the `cudd.BDD` interface.
 These are:
-- `evaluate` (use `cofactor`)
 - `ite`
 - `collect_garbage` (shouldn't need this if automated reordering enabled).
 With time, most of these will appear.
@@ -483,14 +477,11 @@ CUDD is initialized with a `memory_estimate` of 1 GB. If the machine has RAM, th
 
 ### Functions
 
-The functions `and_exists`, `or_forall`, and `rename` in `dd.cudd` offer the functionality of relational products (meaning neighboring variable substitution, conjunction, and quantification, all at one pass over BDDs).
-This functionality is implemented with `image`, `preimage` and `rename` in `dd.autoref`.
+The functions `and_exists`, `or_forall` in `dd.cudd` offer the functionality of relational products (meaning neighboring variable substitution, conjunction, and quantification, all at one pass over BDDs).
+This functionality is implemented with `image`, `preimage` in `dd.autoref`.
 Note that (pre)image contains substitution, unlike `and_exists`.
 
-Renaming in `autoref` is more efficient.
-The function `cudd.rename` handles renames to variables not in the support.
-The function `cudd.compose` handles arbitrary renames, with the associated complexity of vector composition within CUDD.
-
+The function `cudd.let` handles renames of variables.
 The function `cudd.reorder` is similar to `autoref.reorder`, but does not default to invoking automated reordering.
 Typical use of CUDD enables dynamic reordering.
 
@@ -716,7 +707,7 @@ The iteration starts from the bottom (largest level), just above the terminal no
 It scans each level, moving upwards, until it reaches the top level (indexed with 0).
 
 The nodes contained in the graph rooted at node `u` are `bdd.descendants([u])`.
-An efficient implementation of cofactor that works only for variables with level <= the level of any variable in the support of node `u` is `_top_cofactor(u, level)`.
+An efficient implementation of `let` that works only for variables with level <= the level of any variable in the support of node `u` is `_top_cofactor(u, level)`.
 
 Finally, `BDD.reduction` is of only academic interest.
 It takes a binary decision diagram that contains redundancy in its graph representation, and *reduces* it to the non-redundant, canonical form that corresponds to the chosen variable order.
@@ -779,7 +770,7 @@ qvars = {"x0'", "x1'"}
 # fixpoint reached ?
 while q != qold:
     qold = q
-    next_q = _bdd.rename(q, bdd, prime)
+    next_q = bdd.let(prime, q)
     u = transitions & next_q
     # existential quantification over x0', x1'
     pred = bdd.quantify(u, qvars, forall=False)

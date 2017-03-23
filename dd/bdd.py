@@ -44,6 +44,7 @@ from collections import Mapping
 import logging
 import pickle
 import sys
+import warnings
 
 import pydot
 

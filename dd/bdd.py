@@ -1901,6 +1901,9 @@ def copy_bdd(u, from_bdd, to_bdd):
     @param u: node in `from_bdd`
     @type from_bdd, to_bdd: `BDD`
     """
+    if from_bdd is to_bdd:
+        logger.warning('copying node to same manager')
+        return u
     # TODO: more efficient bottom-up implementation
     # first find all descendants of given roots
     # then map them, starting from the bottom layer

@@ -1208,7 +1208,9 @@ cpdef copy_bdd(Function u, BDD source, BDD target):
     """
     logger.debug('++ transfer bdd')
     assert u.manager == source.manager
-    assert u.manager != target.manager
+    if u.manager == target.manager:
+        logger.warning('copying node to same manager')
+        return u
     # target missing vars ?
     cfg = source.configure(reordering=False)
     supp = source.support(u)

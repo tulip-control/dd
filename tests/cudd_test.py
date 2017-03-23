@@ -614,9 +614,6 @@ def test_copy_bdd_same_indices():
     # different nodes
     u3 = cudd.copy_bdd(other.true, other, bdd)
     assert u3 != u2, (u3, u2)
-    # same bdd
-    with assert_raises(AssertionError):
-        cudd.copy_bdd(u0, bdd, bdd)
 
 
 def test_copy_bdd_different_indices():

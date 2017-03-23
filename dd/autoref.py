@@ -5,9 +5,13 @@ For function docstrings, refer to `dd.bdd`.
 # Copyright 2015 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
+import logging
 import warnings
 
 from dd import bdd as _bdd
+
+
+log = logging.getLogger(__name__)
 
 
 class BDD(object):
@@ -81,6 +85,10 @@ class BDD(object):
         return self._bdd.level_of_var(var)
 
     def copy(self, u, other):
+        assert u in self, u
+        if self is other:
+            log.warning('copying node to same manager')
+            return u
         r = self._bdd.copy(u.node, other._bdd)
         return other._wrap(r)
 

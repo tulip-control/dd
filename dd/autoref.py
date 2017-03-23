@@ -82,7 +82,7 @@ class BDD(object):
 
     def copy(self, u, other):
         r = self._bdd.copy(u.node, other._bdd)
-        return self._wrap(r)
+        return other._wrap(r)
 
     def support(self, u, as_levels=False):
         assert u in self, u

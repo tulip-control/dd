@@ -103,6 +103,8 @@ cdef extern from 'cudd.h':
     cdef DdNode *Cudd_bddVectorCompose(DdManager *dd,
                                        DdNode *f, DdNode **vector)
     cdef DdNode *Cudd_bddRestrict(DdManager *dd, DdNode *f, DdNode *c)
+    cdef DdNode *Cudd_bddPickOneMinterm(DdManager *dd, DdNode *f,
+                                        DdNode **vars, int n)
     # cubes
     cdef DdGen *Cudd_FirstCube(DdManager *dd, DdNode *f,
                                int **cube, double *value)
@@ -708,6 +710,25 @@ cdef class BDD(object):
         cube = self.cube(values)
         r = Cudd_Cofactor(self.manager, f.node, cube.node)
         assert r != NULL, 'cofactor failed'
+        return wrap(self, r)
+
+    cpdef Function cofactor_function(self, Function f, Function g):
+        """Return the cofactor f|_g, where `g` is a `Function`."""
+        assert self.manager == f.manager
+        cdef DdNode *r
+        r = Cudd_Cofactor(self.manager, f.node, g.node)
+        assert r != NULL, 'cofactor failed'
+        return wrap(self, r)
+
+    cpdef Function pick_one_minterm(self, Function f):
+        n = len(self.vars)
+        assert self.manager == f.manager
+        cdef DdNode *r
+        cdef DdNode **vars
+        vars = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
+        for var, j in self._index_of_var.iteritems():
+            vars[j] = Cudd_bddIthVar(self.manager, j)
+        r = Cudd_bddPickOneMinterm(self.manager, f.node , vars, n)
         return wrap(self, r)
 
     cpdef Function rename(self, u, dvars):

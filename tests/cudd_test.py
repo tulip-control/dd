@@ -415,7 +415,7 @@ def test_add_expr():
     bdd.add_var('z')
     z = bdd.var('z')
     u = bdd.add_expr('x & y & z')
-    u_ = bdd.cube({'x', 'y', 'z'})
+    u_ = bdd.cube(dict(x=True, y=True, z=True))
     assert u == u_, (u, u_)
     # x & !y & z
     u = bdd.add_expr('x & !y & z')

@@ -465,7 +465,6 @@ Pickling and PDF plotting are not available yet in `dd.cudd`.
 
 Some methods present in `autoref.BDD` are not (yet) implemented in the `cudd.BDD` interface.
 These are:
-- `ite`
 - `collect_garbage` (shouldn't need this if automated reordering enabled).
 With time, most of these will appear.
 

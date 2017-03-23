@@ -1289,8 +1289,7 @@ class BDD(object):
     def cube(self, dvars):
         """Return node for conjunction of literals in `dvars`.
 
-        @param dvars: assignment of values to some variables
-        @type dvars: `dict`
+        @param dvars: `dict` that maps each variable to a `bool`
         """
         # `dvars` keys can be var names or levels
         r = self.true

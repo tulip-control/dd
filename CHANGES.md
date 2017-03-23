@@ -1,6 +1,22 @@
 # dd changelog
 
 
+## 0.5.1
+
+API:
+
+- classes `cudd.BDD`, `autoref.BDD`, `bdd.BDD`:
+  - add method `let`, which will replace `compose`, `cofactor`, `rename`
+  - add method `pick`
+  - add method `pick_iter`, deprecate `sat_iter`
+  - add method `count`, deprecate `sat_len`
+  - allow copying node to same manager, but log warning
+- class `sylvan.BDD`:
+  - add method `let`
+- classes `cudd.Function`, `autoref.Function`:
+  - implement all comparison methods (`__le__`, `__lt__`)
+
+
 ## 0.5.0
 
 API:

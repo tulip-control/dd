@@ -3,7 +3,7 @@
 
 ## Design principles
 
-The interface is in Python. The representation depends on what you want and have installed. For solving small to medium size problems, say for teaching, or develop algorithms using BDDs, you will likely want to use pure Python. For working with larger problems, you need to install [CUDD](https://vlsi.colorado.edu/~fabio/), which is written in C. Lets call these “backends”.
+The interface is in Python. The representation depends on what you want and have installed. For solving small to medium size problems, say for teaching, or develop algorithms using BDDs, you will likely want to use pure Python. For working with larger problems, you need to install [CUDD](http://vlsi.colorado.edu/~fabio/), which is written in C. Lets call these “backends”.
 
 The same user code can run with both the Python and C backends.
 You only need to modify an `import dd.autoref as _bdd` to `import.cudd as _bdd`, or import conditionally, e.g.,

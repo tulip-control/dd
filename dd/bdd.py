@@ -1005,8 +1005,8 @@ class BDD(_abc.BDD):
             DeprecationWarning)
         return self.count(u, n)
 
-    def count(self, u, n=None):
-
+    def count(self, u, nvars=None):
+        n = nvars
         assert abs(u) in self, u
         # index those levels in support separately
         levels = {

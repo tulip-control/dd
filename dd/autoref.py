@@ -158,9 +158,9 @@ class BDD(_abc.BDD):
             DeprecationWarning)
         return self.count(u, n)
 
-    def count(self, u, n=None):
+    def count(self, u, nvars=None):
         assert u in self, u
-        return self._bdd.count(u.node, n=n)
+        return self._bdd.count(u.node, nvars)
 
     def pick_iter(self, u, care_vars=None):
         assert u in self, u

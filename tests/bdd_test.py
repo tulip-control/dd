@@ -207,11 +207,11 @@ def test_count():
     g = x_or_y()
     r = g.count(4)
     assert r == 3, r
-    r = g.count(4, n=2)
+    r = g.count(4, nvars=2)
     assert r == 3, r
     r = g.count(-4)
     assert r == 1, r
-    r = g.count(-4, n=2)
+    r = g.count(-4, nvars=2)
     assert r == 1, r
     r = g.count(4, 3)
     assert r == 6, r

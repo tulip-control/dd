@@ -1059,12 +1059,6 @@ class BDD(_abc.BDD):
             n = 2**(map_level['all'] - i) - n
         return n
 
-    def pick(self, u, care_bits=None):
-        """Return a single assignment as `dict`.
-
-        Thin wrapper around `sat_iter`.
-        """
-        return next(self.pick_iter(u, care_bits), None)
     def pick_iter(self, u, care_bits=None):
         # empty ?
         if not self._succ:

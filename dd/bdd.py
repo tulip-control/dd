@@ -298,14 +298,12 @@ class BDD(_abc.BDD):
         return u
 
     def var_at_level(self, level):
-        """Return variable with `level`."""
         if level not in self._level_to_var:
             raise AssertionError(
                 'level {j} does not exist'.format(j=level))
         return self._level_to_var[level]
 
     def level_of_var(self, var):
-        """Return level of `var`, or `None`."""
         return self.vars.get(var)
 
     def _map_to_level(self, d):
@@ -339,7 +337,6 @@ class BDD(_abc.BDD):
         """Transfer BDD with root `u` to `other`.
 
         @type other: `BDD`
-        @rtype: node
         """
         return copy_bdd(u, self, other)
 
@@ -475,12 +472,6 @@ class BDD(_abc.BDD):
         return bdd
 
     def let(self, definitions, u):
-        """Replace variables with `definitions` in `u`.
-
-        @param definitions: `dict` that maps some variable
-            names to Boolean values, or other variable names,
-            or BDD nodes. All values should be of same type.
-        """
         d = definitions
         if not d:
             logger.warning(
@@ -705,17 +696,9 @@ class BDD(_abc.BDD):
         return r
 
     def forall(self, qvars, u):
-        """Quantify `qvars` in `u` universally.
-
-        Wraps method `quantify` to be more readable.
-        """
         return self.quantify(u, qvars, forall=True)
 
     def exist(self, qvars, u):
-        """Quantify `qvars` in `u` existentially.
-
-        Wraps method `quantify` to be more readable.
-        """
         return self.quantify(u, qvars, forall=False)
 
     @_try_to_reorder
@@ -1023,15 +1006,7 @@ class BDD(_abc.BDD):
         return self.count(u, n)
 
     def count(self, u, n=None):
-        """Return number of models of node `u`.
 
-        @param n: number of variables to assume.
-
-            If omitted, then assume those in `support(u)`.
-            The levels of variables outside support
-            are ignored in counting, and `n` used to
-            increase the result at the end of recursion.
-        """
         assert abs(u) in self, u
         # index those levels in support separately
         levels = {
@@ -1090,24 +1065,7 @@ class BDD(_abc.BDD):
         Thin wrapper around `sat_iter`.
         """
         return next(self.pick_iter(u, care_bits), None)
-
     def pick_iter(self, u, care_bits=None):
-        """Return generator over assignments.
-
-        An assignment is a `dict` that
-        maps each variable to a `bool`.
-        If `care_bits < support(u)` then log warning.
-
-        @param care_bits: cases:
-
-            1. `None`: return (uniform) assignments that
-               include exactly those variables in `support(u)`
-
-            2. `set`: return (possibly partial) assignments
-               that include at least all bits in `set`
-
-        @rtype: generator of `dict(str: bool)`
-        """
         # empty ?
         if not self._succ:
             return
@@ -1213,7 +1171,6 @@ class BDD(_abc.BDD):
         return _parser.add_expr(e, self)
 
     def to_expr(self, u):
-        """Return a Boolean expression for node `u`."""
         assert u in self, u
         return self._to_expr(u)
 
@@ -1237,21 +1194,6 @@ class BDD(_abc.BDD):
         return s
 
     def apply(self, op, u, v=None, w=None):
-        r"""Apply Boolean connective `op` between nodes `u` and `v`.
-
-        @type op: `str` in:
-          - `'not', '~', '!'`
-          - `'and', '/\', '&', '&&'`
-          - `'or', '\/', '|', '||'`
-          - `'xor', '#', '^'`
-          - `'=>', '->', 'implies'`
-          - `'<=>', '<->', 'equiv'`
-          - `'diff', '-'`
-          - `'\A', 'forall'`
-          - `'\E', 'exists'`
-          - `'ite'`
-        @type u, v: nodes
-        """
         assert abs(u) in self, u
         assert v is None or abs(v) in self, v
         assert w is None or abs(w) in self, w

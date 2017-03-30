@@ -374,39 +374,33 @@ class Function(_abc.Operator):
 
     @property
     def level(self):
-        """Return level that function belongs to."""
         i, _, _ = self.manager._succ[abs(self.node)]
         return i
 
     @property
     def var(self):
-        """Return name of variable annotating function node."""
         i, _, _ = self.manager._succ[abs(self.node)]
         return self.manager.var_at_level(i)
 
     @property
     def low(self):
-        """Return "else" node as `Function`."""
         _, v, _ = self.manager._succ[abs(self.node)]
         return Function(v, self.bdd)
 
     @property
     def high(self):
-        """Return "then" node as `Function`."""
         _, _, w = self.manager._succ[abs(self.node)]
         return Function(w, self.bdd)
 
     @property
     def ref(self):
-        """Return reference cound of `self.node` in `self.manager`."""
         return self.manager._ref[abs(self.node)]
 
     @property
     def negated(self):
-        """Return `True` if a complemented edge."""
+
         return self.node < 0
 
     @property
     def support(self):
-        """Return `set` of variables in support."""
         return self.manager.support(self.node)

@@ -742,7 +742,8 @@ cdef class BDD(object):
     def count(self, Function u, int nvars):
         """Return number of models of node `u`.
 
-        @param nvars: number of variables `u` depends on
+        @param nvars: regard `u` as an operator that
+            depends on `nvars` many variables.
         """
         assert u.manager == self.manager
         n = len(self.support(u))
@@ -753,29 +754,7 @@ cdef class BDD(object):
         return r
 
     def pick(self, Function u, care_bits=None):
-        """Return a single assignment as `dict`.
-
-        Return `None` if `u == self.false`.
-        By default, `care_bits = support(u)`.
-        Warn if `care_bits` not a subset of `support(u)`.
-        Examples:
-
-        u = bdd.add_expr('x')
-        >>> bdd.pick(u)
-        {'x': True}
-
-        u = bdd.add_expr('y')
-        >>> bdd.pick(u)
-        {'y': True}
-
-        u = bdd.add_expr('y')
-        >>> bdd.pick(u, care_bits=['x', 'y'])
-        {'x': False, 'y': True}
-
-        u = bdd.add_expr('x \/ y')
-        >>> bdd.pick(u)
-        {'x': False, 'y': True}
-        """
+        """Return a single assignment as `dict`."""
         return next(self.pick_iter(u, care_bits), None)
 
     def pick_iter(self, Function u, care_bits=None):

@@ -8,13 +8,14 @@ For function docstrings, refer to `dd.bdd`.
 import logging
 import warnings
 
+from dd import _abc
 from dd import bdd as _bdd
 
 
 log = logging.getLogger(__name__)
 
 
-class BDD(object):
+class BDD(_abc.BDD):
     """Shared ordered binary decision diagram.
 
     It takes and returns `Function` instances,
@@ -268,7 +269,7 @@ def copy_bdd(u, source, target):
     return target._wrap(r)
 
 
-class Function(object):
+class Function(_abc.Operator):
     """Convenience wrapper for edges returned by `BDD`.
 
     ```

@@ -48,6 +48,7 @@ import warnings
 
 import pydot
 
+from dd import _abc
 from dd import _parser
 from dd import _compat
 from dd._compat import items
@@ -115,7 +116,7 @@ class _NeedsReordering(Exception):
     pass
 
 
-class BDD(object):
+class BDD(_abc.BDD):
     """Shared ordered binary decision diagram.
 
     The terminal node is 1.

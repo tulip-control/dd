@@ -928,3 +928,7 @@ Note that the `MDD` node `v` is complemented (-3 < 0), so the predicate in the n
 ## Footnotes
 
 If you are interested in exploring other decision diagram packages, you can find [a list at `github.com/johnyf/tool_lists/`](https://github.com/johnyf/tool_lists/blob/master/bdd.md).
+
+
+This document is copyright 2015 by California Institute of Technology.
+All rights reserved. Licensed under BSD-3.

@@ -402,7 +402,7 @@ that is pointed to.
 Negated edges and BDD theory won't be discussed here, please refer to
 a reference from those listed in the `dd.bdd` module's docstring, like
 [this document](
-    https://www.ecs.umass.edu/ece/labs/vlsicad/ece667/reading/somenzi99bdd.pdf)
+    http://www.ecs.umass.edu/ece/labs/vlsicad/ece667/reading/somenzi99bdd.pdf)
 by Fabio Somenzi (CUDD's author).
 
 ![example_bdd](https://rawgithub.com/johnyf/binaries/master/dd/awesome.png)
@@ -531,7 +531,7 @@ problem demands it due to its size), then use:
 
 - `BDD.statistics` to obtain the information described in
   [CUDD Programmer's manual / Gathering and interpreting statistics](
-  https://vlsi.colorado.edu/~fabio/CUDD/node4.html#SECTION00048000000000000000).
+      http://www.cs.rice.edu/~lm30/RSynth/CUDD/cudd/doc/node4.html#SECTION00048000000000000000).
 - `BDD.configure` to read and set the parameters “max memory”, “loose up to”,
   “max cache hard”, “min hit”, and “max growth”.
 
@@ -759,7 +759,7 @@ then collecting those (mark-and-sweep).
 
 The function `dd.bdd.to_nx(bdd, roots)` converts the subgraph of `bdd` rooted
 at `roots` to a [`networkx.MultiDiGraph`](
-    http://networkx.github.io/documentation/latest/tutorial/tutorial.html#multigraphs).
+    http://networkx.readthedocs.io/en/stable/tutorial/tutorial.html#multigraphs).
 
 The function `to_pydot(bdd)` converts the manager `bdd` to a [`pydot`](https://github.com/erocarrera/pydot)
 graph. Currently, `pydot` is registered, but not uploaded to PyPI,

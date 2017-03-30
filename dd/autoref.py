@@ -164,7 +164,7 @@ class BDD(_abc.BDD):
 
     def pick_iter(self, u, care_bits=None):
         assert u in self, u
-        return self._bdd.sat_iter(u.node, care_bits)
+        return self._bdd.pick_iter(u.node, care_bits)
 
     def sat_iter(self, u, care_bits=None):
         warnings.warn(

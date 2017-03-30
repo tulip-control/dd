@@ -525,6 +525,11 @@ cdef class BDD(object):
         else:
             Cudd_Deref(u)
 
+    def declare(self, *variables):
+        """Add names in `variables` to `self.vars`."""
+        for var in variables:
+            self.add_var(var)
+
     cpdef add_var(self, var, index=None):
         """Return index of variable named `var`.
 

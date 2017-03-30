@@ -140,6 +140,11 @@ cdef class BDD(object):
     cdef decref(self, sy.BDD u):
         sy.sylvan_deref(u)
 
+    def declare(self, *variables):
+        """Add names in `variables` to `self.vars`."""
+        for var in variables:
+            self.add_var(var)
+
     cpdef add_var(self, var, index=None):
         """Return index of variable named `var`.
 

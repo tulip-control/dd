@@ -30,8 +30,8 @@
 The interface is in Python. The representation depends on what you want and
 have installed. For solving small to medium size problems, say for teaching,
 or develop algorithms using BDDs, you will likely want to use pure Python.
-For working with larger problems, you need to install
-[CUDD](http://vlsi.colorado.edu/~fabio/), which is written in C.
+For working with larger problems, you need to install the C library
+[CUDD](http://vlsi.colorado.edu/~fabio/).
 Lets call these “backends”.
 
 The same user code can run with both the Python and C backends.
@@ -48,7 +48,7 @@ except ImportError:
 The following sections describe how to use the high level interface
 (almost identical in `autoref` and `cudd`). The lower level interface to
 the pure-Python implementation in `dd.bdd` is also described,
-for those interested in refined control of the diagrams.
+for those interested in more details.
 
 
 ## Create and plot a binary decision diagram
@@ -74,7 +74,7 @@ Each manager is a `BDD` class, residing in a different module:
 - `dd.autoref.BDD`: high-level interface to pure Python implementation
 - `dd.cudd.BDD`: same high-level interface to C implementation
 - `dd.bdd.BDD`: low-level interface to pure Python implementation
-  (wrapped by `dd.autoref.BDD`.
+  (wrapped by `dd.autoref.BDD`).
 
 Besides the class `BDD`, each module contains also related functions that
 are compatible with the interface implemented there.
@@ -104,11 +104,11 @@ see the docstring. The BDD node for variable `x` is
 u = bdd.var('x')
 ```
 
-This does not invoke the parser, so it is more efficient
-(inside intensive loops). An alternative that invokes the parser is
+This is more efficient inside loops, because it does not invoke the parser.
+An alternative that invokes the parser is
 
 ```python
-u = bdd.var('x')
+u = bdd.add_expr('x')
 ```
 
 What type `u` has depends on the module used:
@@ -785,9 +785,8 @@ The function `dd.bdd.to_nx(bdd, roots)` converts the subgraph of `bdd` rooted
 at `roots` to a [`networkx.MultiDiGraph`](
     http://networkx.readthedocs.io/en/stable/tutorial/tutorial.html#multigraphs).
 
-The function `to_pydot(bdd)` converts the manager `bdd` to a [`pydot`](https://github.com/erocarrera/pydot)
-graph. Currently, `pydot` is registered, but not uploaded to PyPI,
-so it has to be fetched from its development site.
+The function `to_pydot(bdd)` converts the manager `bdd` to a [`pydot`](
+    https://github.com/erocarrera/pydot) graph.
 
 
 ### Other methods

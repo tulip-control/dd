@@ -1,6 +1,30 @@
 # `dd` documentation
 
 
+# Table of Contents
+
+- [Design principles](#design-principles)
+- [Create and plot a binary decision diagram](#create-and-plot-a-binary-decision-diagram)
+    - [Initialize a `BDD` manager](#initialize-a-bdd-manager)
+    - [Working with BDDs](#working-with-bdds)
+    - [Quantified formulae](#quantified-formulae)
+    - [Plotting](#plotting)
+    - [Pickle](#pickle)
+    - [Nodes as `Function` objects](#nodes-as-function-objects)
+        - [BDD equality](#bdd-equality)
+        - [Other methods](#other-methods)
+- [CUDD interface: `dd.cudd`](#cudd-interface-ddcudd)
+    - [Functions](#functions)
+- [Lower level: `dd.bdd`](#lower-level-ddbdd)
+    - [Reference counting](#reference-counting)
+    - [Reordering](#reordering)
+    - [Other methods](#other-methods)
+- [Example: Reachability analysis](#example-reachability-analysis)
+- [Syntax for quantified Boolean formulae](#syntax-for-quantified-boolean-formulae)
+- [Multi-valued decision diagrams (MDD)](#multi-valued-decision-diagrams-mdd)
+- [Footnotes](#footnotes)
+
+
 ## Design principles
 
 The interface is in Python. The representation depends on what you want and

@@ -286,7 +286,7 @@ cdef class BDD(object):
         return r
 
     def pick_iter(self, Function u,
-                 full=False, care_bits=None):
+                 full=False, care_vars=None):
         """Return generator over assignments."""
         raise NotImplementedError
 

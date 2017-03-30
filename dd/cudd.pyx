@@ -753,24 +753,24 @@ cdef class BDD(object):
         assert r != float('inf'), 'overflow of integer  type double'
         return r
 
-    def pick(self, Function u, care_bits=None):
+    def pick(self, Function u, care_vars=None):
         """Return a single assignment as `dict`."""
-        return next(self.pick_iter(u, care_bits), None)
+        return next(self.pick_iter(u, care_vars), None)
 
-    def pick_iter(self, Function u, care_bits=None):
+    def pick_iter(self, Function u, care_vars=None):
         """Return generator over assignments."""
         assert u.manager == self.manager
         cdef DdGen *gen
         cdef int *cube
         cdef double value
         support = self.support(u)
-        if care_bits is None:
-            care_bits = support
-        missing = {v for v in support if v not in care_bits}
+        if care_vars is None:
+            care_vars = support
+        missing = {v for v in support if v not in care_vars}
         if missing:
             logger.warning((
                 'Missing bits:  '
-                'support - care_bits = {missing}').format(
+                'support - care_vars = {missing}').format(
                     missing=missing))
         self.configure(reordering=False)
         gen = Cudd_FirstCube(self.manager, u.node, &cube, &value)
@@ -780,7 +780,7 @@ cdef class BDD(object):
             while Cudd_IsGenEmpty(gen) == 0:
                 assert r == 1, ('gen not empty but no next cube', r)
                 d = _cube_array_to_dict(cube, self._index_of_var)
-                for m in _bdd._enumerate_minterms(d, care_bits):
+                for m in _bdd._enumerate_minterms(d, care_vars):
                     yield m
                 r = Cudd_NextCube(gen, &cube, &value)
         finally:

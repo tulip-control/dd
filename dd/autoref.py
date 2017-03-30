@@ -162,9 +162,9 @@ class BDD(_abc.BDD):
         assert u in self, u
         return self._bdd.count(u.node, n=n)
 
-    def pick_iter(self, u, care_bits=None):
+    def pick_iter(self, u, care_vars=None):
         assert u in self, u
-        return self._bdd.pick_iter(u.node, care_bits)
+        return self._bdd.pick_iter(u.node, care_vars)
 
     def sat_iter(self, u, care_bits=None):
         warnings.warn(

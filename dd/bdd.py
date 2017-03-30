@@ -1059,7 +1059,7 @@ class BDD(_abc.BDD):
             n = 2**(map_level['all'] - i) - n
         return n
 
-    def pick_iter(self, u, care_bits=None):
+    def pick_iter(self, u, care_vars=None):
         # empty ?
         if not self._succ:
             return
@@ -1068,16 +1068,16 @@ class BDD(_abc.BDD):
         cube = dict()
         value = True
         support = self.support(u)
-        if care_bits is None:
-            care_bits = support
-        missing = {v for v in support if v not in care_bits}
+        if care_vars is None:
+            care_vars = support
+        missing = {v for v in support if v not in care_vars}
         if missing:
             logger.warning((
                 'Missing bits:  '
-                'support - care_bits = {missing}').format(
+                'support - care_vars = {missing}').format(
                     missing=missing))
         for cube in self._sat_iter(u, cube, value):
-            for m in _enumerate_minterms(cube, care_bits):
+            for m in _enumerate_minterms(cube, care_vars):
                 yield m
 
     def sat_iter(self, u, care_bits=None):

@@ -177,6 +177,7 @@ class BDD(_abc.BDD):
         return self._wrap(r)
 
     def to_expr(self, u):
+        assert u in self, u
         return self._bdd.to_expr(u.node)
 
     def apply(self, op, u, v=None, w=None):

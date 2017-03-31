@@ -1523,6 +1523,21 @@ cdef class Function(object):
         r = Cudd_bddOr(self.manager, self.node, other.node)
         return wrap(self.bdd, r)
 
+    def let(Function self, **definitions):
+        return self.bdd.let(definitions, self)
+
+    def exist(Function self, *variables):
+        return self.bdd.exist(variables, self)
+
+    def forall(Function self, *variables):
+        return self.bdd.forall(variables, self)
+
+    def pick(Function self, care_vars=None):
+        return self.bdd.pick(self, care_vars)
+
+    def count(Function self, nvars=None):
+        return self.bdd.count(self, nvars)
+
 
 """Tests and test wrappers for C functions."""
 

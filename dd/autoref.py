@@ -231,11 +231,6 @@ class BDD(_abc.BDD):
         return self._wrap(u)
 
 
-def rename(u, bdd, dvars):
-    r = _bdd.rename(u.node, u.bdd, dvars)
-    return u.bdd._wrap(r)
-
-
 def image(trans, source, rename, qvars, bdd, forall=False):
     assert trans.bdd is source.bdd
     assert trans.bdd is bdd

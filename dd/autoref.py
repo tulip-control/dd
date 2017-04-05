@@ -254,8 +254,8 @@ def copy_vars(source, target):
     _bdd.copy_vars(source._bdd, target._bdd)
 
 
-def copy_bdd(u, source, target):
-    r = _bdd.copy_bdd(u.node, source._bdd, target._bdd)
+def copy_bdd(u, target):
+    r = _bdd.copy_bdd(u.node, u.manager, target._bdd)
     return target._wrap(r)
 
 

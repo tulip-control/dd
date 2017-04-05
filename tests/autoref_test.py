@@ -192,5 +192,60 @@ def test_support():
     assert supp == set(['x', 'y']), supp
 
 
+def test_image():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y', 'z')
+    action = bdd.add_expr('x => y')
+    source = bdd.add_expr('x')
+    qvars = {'x'}
+    rename = dict(y='x')
+    u = _bdd.image(action, source, rename, qvars)
+    u_ = bdd.add_expr('x')
+    assert u == u_
+
+
+def test_preimage():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y', 'z')
+    action = bdd.add_expr('x <=> y')
+    target = bdd.add_expr('x')
+    qvars = {'y'}
+    rename = dict(x='y')
+    u = _bdd.preimage(action, target, rename, qvars)
+    u_ = bdd.add_expr('x')
+    assert u == u_
+
+
+def test_reorder():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y', 'z')
+    u = bdd.add_expr('(x /\ y) \/ z')
+    _bdd.reorder(bdd)
+    assert u in bdd
+
+
+def test_copy_vars():
+    bdd = _bdd.BDD()
+    other = _bdd.BDD()
+    vrs = {'x', 'y', 'z'}
+    bdd.declare(*vrs)
+    _bdd.copy_vars(bdd, other)
+    assert vrs.issubset(other.vars)
+
+
+def test_copy_bdd():
+    bdd = _bdd.BDD()
+    other = _bdd.BDD()
+    bdd.declare('x')
+    other.declare('x')
+    u = bdd.var('x')
+    v = _bdd.copy_bdd(u, other)
+    v_ = other.var('x')
+    assert v == v_, other.to_expr(v)
+    # involution
+    u_ = _bdd.copy_bdd(v, bdd)
+    assert u == u_, bdd.to_expr(u_)
+
+
 if __name__ == '__main__':
     test_support()

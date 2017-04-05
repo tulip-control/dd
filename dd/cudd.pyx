@@ -1116,27 +1116,25 @@ cpdef Function restrict(Function u, Function care_set):
     return wrap(u.bdd, r)
 
 
-cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
+cpdef Function and_exists(Function u, Function v, qvars):
     """Return `? qvars. u & v`."""
-    assert u.manager == bdd.manager
     assert u.manager == v.manager
     mgr = u.manager
-    cube = bdd.cube(qvars)
+    cube = u.bdd.cube(qvars)
     r = Cudd_bddAndAbstract(u.manager, u.node, v.node, cube.node)
-    return wrap(bdd, r)
+    return wrap(u.bdd, r)
 
 
-cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
+cpdef Function or_forall(Function u, Function v, qvars):
     """Return `! qvars. u | v`."""
-    assert u.manager == bdd.manager
     assert u.manager == v.manager
+    cube = u.bdd.cube(qvars)
     mgr = u.manager
-    cube = bdd.cube(qvars)
     cdef DdNode *r
     r = Cudd_bddAndAbstract(
         u.manager, Cudd_Not(u.node), Cudd_Not(v.node), cube.node)
     r = Cudd_Not(r)
-    return wrap(bdd, r)
+    return wrap(u.bdd, r)
 
 
 cpdef reorder(BDD bdd, dvars=None):

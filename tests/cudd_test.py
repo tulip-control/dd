@@ -463,11 +463,11 @@ def test_and_exists():
     x = bdd.add_expr('x')
     y = bdd.add_expr('y')
     qvars = ['x']
-    r = cudd.and_exists(x, y, qvars, bdd)
+    r = cudd.and_exists(x, y, qvars)
     assert r == y, (r, y)
     # \E x: x & !x = 0
     not_x = bdd.apply('not', x)
-    r = cudd.and_exists(x, not_x, qvars, bdd)
+    r = cudd.and_exists(x, not_x, qvars)
     assert r == bdd.false
 
 
@@ -479,7 +479,7 @@ def test_or_forall():
     x = bdd.var('x')
     not_y = bdd.add_expr('!y')
     qvars = ['x', 'y']
-    r = cudd.or_forall(x, not_y, qvars, bdd)
+    r = cudd.or_forall(x, not_y, qvars)
     assert r == bdd.false, r
 
 

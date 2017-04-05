@@ -235,7 +235,7 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     assert trans.bdd is source.bdd
     assert trans.bdd is bdd
     u = _bdd.image(trans.node, source.node, rename,
-                   qvars, trans.bdd, forall)
+                   qvars, trans.manager, forall)
     return trans.bdd._wrap(u)
 
 
@@ -243,7 +243,7 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     assert trans.bdd is target.bdd
     assert trans.bdd is bdd
     u = _bdd.preimage(trans.node, target.node, rename,
-                      qvars, trans.bdd, forall)
+                      qvars, trans.manager, forall)
     return trans.bdd._wrap(u)
 
 

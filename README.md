@@ -46,8 +46,10 @@ Contains:
 
 If you prefer to work with integer variables instead of Booleans, and have
 BDD computations occur underneath, then use the module
-[`omega.symbolic.fol`](https://github.com/johnyf/omega/blob/master/omega/symbolic/fol.py)
-from the [`omega` package](https://github.com/johnyf/omega/blob/master/doc/doc.md).
+[`omega.symbolic.fol`](
+    https://github.com/johnyf/omega/blob/master/omega/symbolic/fol.py)
+from the [`omega` package](
+    https://github.com/johnyf/omega/blob/master/doc/doc.md).
 
 
 Documentation
@@ -213,7 +215,8 @@ the `setup.py` options:
 - `--sylvan`
 - `--buddy`
 
-Pass `--fetch` to `setup.py` to tell it to download, unpack, and `make` CUDD v3.0.0. For example:
+Pass `--fetch` to `setup.py` to tell it to download, unpack, and
+`make` CUDD v3.0.0. For example:
 
 ```shell
 pip download dd --no-deps
@@ -228,10 +231,13 @@ The path to an existing CUDD build directory can be passed as an argument:
 python setup.py install --cudd="/home/user/cudd"
 ```
 
-If you prefer defining installation directories, then follow [Cython's instructions](http://cython.readthedocs.io/en/latest/src/tutorial/clibraries.html#compiling-and-linking) to define `CFLAGS` and `LDFLAGS` before running `setup.py`. You need to have copied `CuddInt.h` to the installation's include location (CUDD omits it).
+If you prefer defining installation directories, then follow [Cython's instructions](
+    http://cython.readthedocs.io/en/latest/src/tutorial/clibraries.html#compiling-and-linking)
+to define `CFLAGS` and `LDFLAGS` before running `setup.py`.
+You need to have copied `CuddInt.h` to the installation's include location
+(CUDD omits it).
 
-If building from the repository, then first install `cython`.
-For example:
+If building from the repository, then first install `cython`. For example:
 
 ```shell
 git clone git@github.com:johnyf/dd
@@ -240,15 +246,16 @@ pip install cython  # not needed if building from PyPI distro
 python setup.py install --fetch --cudd
 ```
 
-The above options can be passed to `pip` too, using the
-[`--install-option`](https://pip.pypa.io/en/latest/reference/pip_install.html#per-requirement-overrides)
+The above options can be passed to `pip` too, using the [`--install-option`](
+    https://pip.pypa.io/en/latest/reference/pip_install.html#per-requirement-overrides)
 in a requirements file, for example:
 
 ```
 dd >= 0.1.1 --install-option="--fetch" --install-option="--cudd"
 ```
 
-The command line behavior of `pip` [is currently different](https://github.com/pypa/pip/issues/1883), so
+The command line behavior of `pip` [is currently different](
+    https://github.com/pypa/pip/issues/1883), so
 
 ```shell
 pip install --install-option="--fetch" dd
@@ -263,10 +270,12 @@ If you build and install CUDD, Sylvan, or BuDDy yourself, then ensure that:
 
 - the header files and libraries are present, and
 - suitable compiler, include, linking, and library flags are passed,
-either by setting [environment variables](https://en.wikipedia.org/wiki/Environment_variable)
+either by setting [environment variables](
+    https://en.wikipedia.org/wiki/Environment_variable)
 prior to calling `pip`, or by editing the file [`download.py`](https://github.com/johnyf/dd/blob/master/download.py).
 
-Currently, `download.py` expects to find Sylvan under `dd/sylvan` and built with [Autotools](https://en.wikipedia.org/wiki/GNU_Build_System) (for an example, see `.travis.yml`).
+Currently, `download.py` expects to find Sylvan under `dd/sylvan` and built with [Autotools](https://en.wikipedia.org/wiki/GNU_Build_System)
+(for an example, see `.travis.yml`).
 If the path differs in your environment, remember to update it.
 
 

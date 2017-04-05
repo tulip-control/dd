@@ -1240,9 +1240,9 @@ cpdef count_nodes_per_level(BDD bdd):
     return d
 
 
-def dump(u, file_name, BDD bdd):
+def dump(u, file_name):
     """Pickle variable order and dump dddmp file."""
-    assert u in bdd, u
+    bdd = u.bdd
     pickle_fname = '{s}.pickle'.format(s=file_name)
     dddmp_fname = '{s}.dddmp'.format(s=file_name)
     order = {var: bdd.level_of_var(var)

@@ -715,9 +715,37 @@ cdef class BDD(object):
         assert r != NULL, 'cofactor failed'
         return wrap(self, r)
 
-    cpdef Function rename(self, u, dvars):
+    cpdef Function rename(self, Function u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
-        return rename(u, self, dvars)
+        # assert old and new vars are disjoint sets
+        target_vars = dvars.values()
+        common = set(dvars).intersection(target_vars)
+        assert not common, common
+        # assert new vars not in support
+        support = self.support(u)
+        common = support.intersection(target_vars)
+        assert not common, common
+        # rename
+        n = len(dvars)
+        cdef DdNode **x = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
+        cdef DdNode **y = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
+        cdef DdNode *r
+        cdef DdManager *mgr = u.manager
+        cdef Function f
+        for i, xvar in enumerate(dvars):
+            yvar = dvars[xvar]
+            f = self.var(xvar)
+            x[i] = f.node
+            f = self.var(yvar)
+            y[i] = f.node
+        try:
+            r = Cudd_bddSwapVariables(
+                mgr, u.node, x, y, n)
+            assert r != NULL, 'variable swap failed'
+        finally:
+            PyMem_Free(x)
+            PyMem_Free(y)
+        return wrap(self, r)
 
     cpdef Function ite(self, Function g, Function u, Function v):
         assert g.manager == self.manager
@@ -1108,40 +1136,6 @@ cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
     r = Cudd_bddAndAbstract(
         u.manager, Cudd_Not(u.node), Cudd_Not(v.node), cube.node)
     r = Cudd_Not(r)
-    return wrap(bdd, r)
-
-
-cpdef Function rename(Function u, BDD bdd, dvars):
-    """Return node `u` after renaming variables in `dvars`."""
-    assert u.manager == bdd.manager
-    # assert old and new vars are disjoint sets
-    target_vars = dvars.values()
-    common = set(dvars).intersection(target_vars)
-    assert not common, common
-    # assert new vars not in support
-    support = bdd.support(u)
-    common = support.intersection(target_vars)
-    assert not common, common
-    # rename
-    n = len(dvars)
-    cdef DdNode **x = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
-    cdef DdNode **y = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
-    cdef DdNode *r
-    cdef DdManager *mgr = u.manager
-    cdef Function f
-    for i, xvar in enumerate(dvars):
-        yvar = dvars[xvar]
-        f = bdd.var(xvar)
-        x[i] = f.node
-        f = bdd.var(yvar)
-        y[i] = f.node
-    try:
-        r = Cudd_bddSwapVariables(
-            mgr, u.node, x, y, n)
-        assert r != NULL, 'variable swap failed'
-    finally:
-        PyMem_Free(x)
-        PyMem_Free(y)
     return wrap(bdd, r)
 
 

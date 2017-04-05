@@ -62,119 +62,64 @@ In the [Markdown](https://en.wikipedia.org/wiki/Markdown) file
 Examples
 ========
 
-Two interfaces are available:
 
-- convenience: the module
-  [`dd.autoref`](https://github.com/johnyf/dd/blob/master/dd/autoref.py) wraps
-  `dd.bdd` and takes care of reference counting
-  using [`__del__`](https://docs.python.org/2/reference/datamodel.html#object.__del__).
+The module `dd.autoref` wraps the pure-Python BDD implementation `dd.bdd`.
+The API of `dd.cudd` is almost identical to `dd.autoref`.
+You can skip details about `dd.bdd`, unless you want to implement recursive
+BDD operations at a low level.
 
-- "low level": the module
-  [`dd.bdd`](https://github.com/johnyf/dd/blob/master/dd/bdd.py) requires that
-  the user in/decrement the reference counters associated with nodes that
-  are used outside of a `BDD`.
-
-
-## Automated reference counting
-
-The module `dd.autoref` wraps the pure-Python BDD implementation in `dd.bdd`.
-A `Function` object wraps a node and decrements its reference count when
-disposed by Python's garbage collector:
 
 ```python
-from dd.autoref import BDD, Function
+from dd.autoref import BDD
 
 bdd = BDD()
-[bdd.add_var(var) for var in ['x', 'y']]
-u = bdd.add_expr('x => y')  # TLA+ syntax
-u = bdd.add_expr('x -> y')  # Promela syntax
+bdd.declare('x', 'y', 'z', 'w')
 
-# alternative
-x = bdd.var('x')
-not_x = ~ x
-y = bdd.var('y')
-v = not_x | y
-assert u == v
-```
-
-
-## CUDD
-
-The interface to CUDD in `dd.cudd` looks similar to `dd.autoref`,
-including automated reference counting:
-
-```python
-from dd import cudd
-
-bdd = cudd.BDD()
-[bdd.add_var(var) for var in ['x', y'']]
-u = bdd.add_expr('\E x, y:  x /\ y')
+# conjunction (in TLA+ syntax)
+u = bdd.add_expr('x /\ y')  # operators `&, |` are supported too
+print(u.support)
+# substitute variables for variables (rename)
+rename = dict(x='z', y='w')
+v = bdd.let(rename, u)
+# substitute constants for variables (cofactor)
+values = dict(x=True, y=False)
+v = bdd.let(values, u)
+# substitute BDDs for variables (compose)
+d = dict(x=bdd.add_expr('z \/ w'))
+v = bdd.let(d, u)
+# infix operators
+v = bdd.var('z') & bdd.var('w')
+v = ~ v
+# quantify
+u = bdd.add_expr('\E x, y:  x \/ y')
+# less readable but faster alternative
+u = bdd.var('x') | bdd.var('y')
+u = bdd.exist(['x', 'y'], u)
 assert u == bdd.true, u
-
-# longer alternative
-xy = bdd.add_expr('x /\ y')
-u = bdd.exist(['x', 'y'], xy)
-assert u == bdd.true, u
+# inline BDD references
+u = bdd.add_expr('x /\ @{v}'.format(v=v))
+# satisfying assignments (models)
+d = bdd.pick(u, care_vars=['x', 'y'])
+for d in bdd.pick_iter(u):
+    print(d)
+n = bdd.count(u)
 ```
 
-
-## Reference counting by the user
-
-The pure-Python module `dd.bdd` can be used directly,
-which allows access more extensive than `dd.autoref`.
-The `n` variables in a `dd.bdd.BDD` are ordered
-from `0` (top level) to `n-1` (bottom level).
-The terminal node `1` is at level `n`.
+To run the same code with CUDD installed, change the first line to:
 
 ```python
-from dd.bdd import BDD
-
-ordering = dict(x=0, y=1)
-bdd = BDD(ordering)
-bdd.add_var('z')
+from dd.cudd import BDD
 ```
 
-Boolean expressions can be added with the method `BDD.add_expr`:
-
-```python
-# using TLA+ syntax
-u = bdd.add_expr('x \/ y')
-v = bdd.add_expr('~ x \/ z')
-w = bdd.apply('/\\', u, v)
-r = bdd.apply('=>', u, w)
-
-# using Promela syntax
-u = bdd.add_expr('x | y')
-v = bdd.add_expr('!x | z')
-w = bdd.apply('&', u, v)
-r = bdd.apply('->', u, w)
-
-# w = bdd.apply('and', u, v)  # also available
-```
-
-Garbage collection is triggered either explicitly by the user, or
-when invoking the reordering algorithm.
-If we invoked garbage collection next,
-then the nodes `u`, `v`, `w` would be deleted.
-To prevent this from happening, their reference counts should be incremented.
-For example, if we want to prevent `w` from being collected as garbage, then
-
-```python
-bdd.incref(w)
-```
-
-To decrement the reference count:
-
-```python
-bdd.decref(w)
-```
-
-The more useful functions in `dd.bdd` are:
-`image`, `preimage`, `reorder`, `to_nx`, `to_pydot`.
-
+Most useful functionality is available via method of the class `BDD`.
+A few of the functions can prove handy too, mainly `to_nx`, `to_pydot`.
 Use the method `BDD.dump` to write a `BDD` to a `pickle` file, and
 `BDD.load` to load it back. A CUDD dddmp file can be loaded using
 the function `dd.dddmp.load`.
+
+A `Function` object wraps each BDD node and decrements its reference count
+when disposed by Python's garbage collector. Lower-level details are
+discussed in the documentation.
 
 
 Installation
@@ -183,23 +128,19 @@ Installation
 
 ## pure-Python
 
-Recommended to use `pip`, because the latest version will install
-dependencies before `dd`:
+From PyPI:
 
 ```shell
 pip install dd
 ```
 
-Otherwise:
+Locally:
 
 ```shell
-python setup.py install
+pip install .
 ```
 
-If you use the latter, remember to install `ply` before `dd`.
-If `ply` is absent, then the parser tables will not be cached, affecting performance.
-For graph layout with `pydot`,
-[graphviz](http://graphviz.org/) needs to be installed.
+For graph layout with `pydot`, install also [graphviz](http://graphviz.org/).
 
 
 ## Cython bindings
@@ -282,15 +223,14 @@ If the path differs in your environment, remember to update it.
 Tests
 =====
 
-Require [`nose`](https://pypi.python.org/pypi/nose) and the extras. Run with:
+Require [`nose`](https://pypi.python.org/pypi/nose). Run with:
 
 ```shell
 cd tests/
 nosetests
 ```
 
-If the extension module `dd.cudd` has not been compiled and installed,
-then the CUDD tests will fail.
+Tests of Cython modules that were not installed will fail.
 
 
 License

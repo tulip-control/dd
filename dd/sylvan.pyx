@@ -439,20 +439,20 @@ cpdef Function restrict(Function u, Function care_set):
     return wrap(u.bdd, r)
 
 
-cpdef Function and_exists(Function u, Function v, qvars, BDD bdd):
+cpdef Function and_exists(Function u, Function v, qvars):
     """Return `\E qvars:  u /\ v`."""
-    assert u.bdd is bdd
-    assert v.bdd is bdd
+    assert u.bdd is v.bdd
+    bdd = u.bdd
     sy.LACE_ME
     cube = bdd.cube(qvars)
     r = sy.sylvan_and_exists(u.node, v.node, cube.node)
     return wrap(u.bdd, r)
 
 
-cpdef Function or_forall(Function u, Function v, qvars, BDD bdd):
+cpdef Function or_forall(Function u, Function v, qvars):
     """Return `\A qvars:  u \/ v`."""
-    assert u.bdd is bdd
-    assert v.bdd is bdd
+    assert u.bdd is v.bdd
+    bdd = u.bdd
     sy.LACE_ME
     cube = bdd.cube(qvars)
     r = sy.sylvan_and_exists(

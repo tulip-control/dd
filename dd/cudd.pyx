@@ -629,7 +629,7 @@ cdef class BDD(object):
         @type other: `BDD`
         @rtype: node
         """
-        return copy_bdd(u, self, other)
+        return copy_bdd(u, other)
 
     cpdef Function let(self, definitions, Function u):
         """Replace variables with `definitions` in `u`."""
@@ -1173,7 +1173,7 @@ def copy_vars(BDD source, BDD target):
         target.add_var(var, index=index)
 
 
-cpdef copy_bdd(Function u, BDD source, BDD target):
+cpdef copy_bdd(Function u, BDD target):
     """Transfer the node `u` to `bdd`.
 
     Turns off reordering in `source`
@@ -1183,7 +1183,7 @@ cpdef copy_bdd(Function u, BDD source, BDD target):
     @type source, target: `BDD`
     """
     logger.debug('++ transfer bdd')
-    assert u.manager == source.manager
+    source = u.bdd
     if u.manager == target.manager:
         logger.warning('copying node to same manager')
         return u

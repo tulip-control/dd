@@ -1128,7 +1128,6 @@ cpdef Function or_forall(Function u, Function v, qvars):
     """Return `! qvars. u | v`."""
     assert u.manager == v.manager
     cube = u.bdd.cube(qvars)
-    cdef DdNode *r
     r = Cudd_bddAndAbstract(
         u.manager, Cudd_Not(u.node), Cudd_Not(v.node), cube.node)
     r = Cudd_Not(r)

@@ -1549,7 +1549,7 @@ def _adjacent(i, j, bdd):
 
 def _assert_no_overlap(d):
     """Raise `AssertionError` if keys and values overlap."""
-    assert not set(d).intersection(_compat.values(d)), d
+    assert not any((k in d) for k in _compat.values(d))
 
 
 def image(trans, source, rename, qvars, bdd, forall=False):

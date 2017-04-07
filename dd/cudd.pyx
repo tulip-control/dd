@@ -721,10 +721,6 @@ cdef class BDD(object):
         target_vars = dvars.values()
         common = set(dvars).intersection(target_vars)
         assert not common, common
-        # assert new vars not in support
-        support = self.support(u)
-        common = support.intersection(target_vars)
-        assert not common, common
         # rename
         n = len(dvars)
         cdef DdNode **x = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))

@@ -1467,8 +1467,7 @@ def _assert_valid_ordering(levels):
 def rename(u, bdd, dvars):
     """Rename variables of node `u`.
 
-    @param dvars: `dict` from variabe levels to variable levels
-        or from variable names to variable names
+    @param dvars: `dict` from variabe names to variable names
     """
     assert abs(u) in bdd, u
     # nothing to rename ?
@@ -1476,10 +1475,8 @@ def rename(u, bdd, dvars):
         return u
     # map variable names to levels, if needed
     levels = bdd.vars
-    k = next(iter(dvars))
-    if k in levels:
-        dvars = {levels[k]: levels[v]
-                 for k, v in items(dvars)}
+    dvars = {levels[k]: levels[v]
+             for k, v in items(dvars)}
     _assert_valid_rename(u, bdd, dvars)
     if not _all_adjacent(dvars, bdd):
         logger.warning('BDD.rename: not all vars adjacent')
@@ -1524,8 +1521,6 @@ def _assert_valid_rename(u, bdd, dvars):
         return
     # valid levels ?
     bdd.var_at_level(0)
-    assert set(dvars).issubset(bdd._level_to_var), dvars
-    assert set(_compat.values(dvars)).issubset(bdd._level_to_var), dvars
     # pairwise disjoint ?
     _assert_no_overlap(dvars)
 

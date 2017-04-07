@@ -1008,9 +1008,10 @@ def test_rename():
     with nt.assert_raises(AssertionError):
         g.let(dvars, 1000)
     # y essential for u
-    dvars = {'xp': 'y'}
-    with nt.assert_raises(AssertionError):
-        g.let(dvars, u)
+    dvars = {'x': 'y'}
+    v = g.let(dvars, u)
+    v_ = g.add_expr('y /\ ~ z')
+    assert v == v_, (v, v_)
     # old and new vars intersect
     dvars = {'x': 'x'}
     with nt.assert_raises(AssertionError):
@@ -1070,10 +1071,11 @@ def test_image_rename_map_checks():
         _bdd.image(trans, source, rename, qvars, bdd)
     # in support of `target` ?
     qvars = set()
-    target = bdd.add_expr('y & yp')
-    rename = {2: 3}
-    with nt.assert_raises(AssertionError):
-        _bdd.preimage(trans, target, rename, qvars, bdd)
+    trans = bdd.add_expr('y')
+    target = bdd.add_expr('x /\ y')
+    rename = {0: 2}
+    r = _bdd.preimage(trans, target, rename, qvars, bdd)
+    assert r == bdd.var('y'), r
 
 
 def test_preimage():

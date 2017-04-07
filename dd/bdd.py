@@ -1528,14 +1528,6 @@ def _assert_valid_rename(u, bdd, dvars):
     assert set(_compat.values(dvars)).issubset(bdd._level_to_var), dvars
     # pairwise disjoint ?
     _assert_no_overlap(dvars)
-    # u independent of primed vars ?
-    s = bdd.support(u, as_levels=True)
-    for i in _compat.values(dvars):
-        assert i not in s, (
-            'renaming target var "{v}" at '
-            'level {i} is essential, rename: {r}, support: {s}').format(
-                v=bdd.var_at_level(i), i=i,
-                r=dvars, s=s)
 
 
 def _all_adjacent(dvars, bdd):

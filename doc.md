@@ -5,10 +5,10 @@
 
 - [Design principles](#design-principles)
 - [Create and plot a binary decision diagram](#create-and-plot-a-binary-decision-diagram)
-    - [Initialize a `BDD` manager](#initialize-a-bdd-manager)
-    - [Working with BDDs](#working-with-bdds)
-    - [Quantified formulae](#quantified-formulae)
+    - [Using a `BDD` manager](#using-a-bdd-manager)
     - [Plotting](#plotting)
+    - [Alternatives](#alternatives)
+    - [Reminders about the implementation beneath](#reminders-about-the-implementation-beneath)
     - [Pickle](#pickle)
     - [Nodes as `Function` objects](#nodes-as-function-objects)
         - [BDD equality](#bdd-equality)
@@ -29,14 +29,14 @@
 
 The interface is in Python. The representation depends on what you want and
 have installed. For solving small to medium size problems, say for teaching,
-or develop algorithms using BDDs, you will likely want to use pure Python.
-For working with larger problems, you need to install the C library
+or prototyping new algorithms, pure Python can be more convenient.
+To work with larger problems, it works better if you install the C library
 [CUDD](http://vlsi.colorado.edu/~fabio/).
 Lets call these “backends”.
 
 The same user code can run with both the Python and C backends.
 You only need to modify an `import dd.autoref as _bdd` to
-`import.cudd as _bdd`, or import conditionally, e.g.,
+`import dd.cudd as _bdd`, or import the best available interface:
 
 ```python
 try:
@@ -57,144 +57,72 @@ The starting point for using a BDD library is a *shared* reduced ordered
 binary decision diagram. Implementations call this *manager*.
 The adjectives mean:
 
-- binary: a node represents a set, interpreting a propositional formula
-- ordered: variables have a fixed order that can change only when
-  instructed to do so
-- reduced: a unique BDD is associated to each set
-- shared: different sets are represented using common elements in memory.
+- binary: each node represents a propositional formula
+- ordered: variables have a fixed order that changes in a controlled way
+- reduced: given variable order, equivalent propositional formulae are
+  represented by a unique diagram
+- shared: common subformulae are represented using common elements in memory.
 
-The manager is a directed graph, with each node representing a set.
-Each such set is understood as a collection of assignments to variables.
+The manager is a directed graph, with each node representing a formula.
+Each formula can be understood as a collection of assignments to variables.
 As mentioned above, the variables are ordered.
 The *level* of a variable is its index in this order, starting from 0.
-The *terminal* nodes correspond to true and false, with maximal index.
+The *terminal* nodes correspond to `TRUE` and `FALSE`, with maximal index.
 
 Each manager is a `BDD` class, residing in a different module:
 
 - `dd.autoref.BDD`: high-level interface to pure Python implementation
-- `dd.cudd.BDD`: same high-level interface to C implementation
+- `dd.cudd.BDD`: same high-level interface to a C implementation
+- `dd.sylvan.BDD`: interface to another C implementation (multi-core)
 - `dd.bdd.BDD`: low-level interface to pure Python implementation
   (wrapped by `dd.autoref.BDD`).
 
-Besides the class `BDD`, each module contains also related functions that
-are compatible with the interface implemented there.
-The difference between these modules is how a BDD node is represented.
-In `autoref` and `cudd`, a `Function` class represents a node.
-In `bdd`, a signed integer represents a node.
-
-All representations use negated edges,
-so logical negation takes *constant* time.
-
-
-### Initialize a `BDD` manager
-
-First, instantiate a manager with variables
-
-```python
-from dd import autoref as _bdd
-
-bdd = _bdd.BDD()
-bdd.add_var('x')
-```
-
-The keyword arguments of `BDD.add_var` differ between `autoref` and `cudd`,
-see the docstring. The BDD node for variable `x` is
-
-```python
-u = bdd.var('x')
-```
-
-This is more efficient inside loops, because it does not invoke the parser.
-An alternative that invokes the parser is
-
-```python
-u = bdd.add_expr('x')
-```
-
-What type `u` has depends on the module used:
+The main difference between these modules is how a BDD node is represented:
 
 - `autoref`: `autoref.Function`
 - `cudd`: `cudd.Function`
+- `sylvan`: `sylvan.Function`
 - `bdd`: `int`
 
-To confirm consistency, we can check whether
+In `autoref` and `cudd`, a `Function` class represents a node.
+In `bdd`, a signed integer represents a node.
 
-```python
-assert u in bdd, u
-```
-
-The number of (referenced) nodes in the manager `bdd` is `len(bdd)`.
-As noted earlier, each variable corresponds to a level, which is an index in
-the variable order. This mapping can be obtained with
-
-```python
-level = bdd.level_of_var('x')
-var = bdd.var_at_level(level)
-assert var == 'x', var
-```
-
-The `dict` that maps each defined variable to its corresponding level can be
-obtained also from the attribute `BDD.vars`
-
-```python
-bdd = _bdd.BDD()
-bdd.add_var('x')
-bdd.add_var('y')
-bdd.add_var('z')
->>> bdd.vars
-{'x': 0, 'y': 1, 'z': 2}
-```
-
-The Boolean constants are `bdd.false` and `bdd.true`.
-These attributes return a BDD node equal to the selected constant.
-In `dd.bdd.BDD`, this node is `+1` (true) or `-1` (false).
-But in `dd.autoref` and `dd.cudd` this is not the case, which is why
-these attributes exist.
+All implementations use negated edges,
+so logical negation takes *constant* time.
 
 
-### Working with BDDs
+### Using a `BDD` manager
 
-The methods available can be loosely distinguished by purpose.
-Below, this is implicit in the order of presentation.
 
-Most frequently, you will use Boolean operators.
-There are three ways to do this:
+Roughly four kinds of operations suffice to perform most tasks:
 
-- overloaded Python operators `~, |, &` between `Function` objects
-  (not in `dd.bdd`)
-- `BDD.apply()`
-- `BDD.add_expr()`
+- creating BDDs from formulae
+- quantification (`forall`, `exist`)
+- substitution (`let`)
+- enumerating models that satisfy a BDD
 
-If you do not use the first variant, then your code will most likely
-run with any of `dd.autoref`, `dd.cudd`, or `dd.bdd`.
-Otherwise, it will not run with `dd.bdd`, because nodes there are plain `int`.
-
-For example:
+First, instantiate a manager and declare variables
 
 ```python
 from dd import autoref as _bdd
 
 bdd = _bdd.BDD()
-for var in ('x', 'y'):
-	bdd.add_var(var)
-
-x = bdd.var('x')
-y = bdd.var('y')
-
-u = x & y
-u = bdd.apply('and', x, y)
-u = bdd.apply('/\\', x, y)  # TLA+ syntax
-u = bdd.add_expr('x /\ y')
-u = bdd.apply('&', x, y)  # Promela syntax
-u = bdd.add_expr('x & y')
+bdd.declare('x', 'y', 'z')
 ```
 
-Note that the last variant does invoke the
-[`ply.yacc`](https://github.com/dabeaz/ply)-generated parser.
+To create a BDD node for a propositional formula, call the parser
+
+```python
+u = bdd.add_expr('x /\ y')  # conjunction
+v = bdd.add_expr('z \/ ~ y')  # disjunction and negation
+w = u & ~ v
+```
+
+The formulae above are in [TLA+](https://en.wikipedia.org/wiki/TLA%2B) syntax.
+If you prefer the syntax `&, |, !`, the parser recognizes those operators too.
 The inverse of `BDD.add_expr` is `BDD.to_expr`:
 
 ```python
-u = bdd.add_expr('x & y')
 s = bdd.to_expr(u)
 >>> s
 'ite(x, y, False)'
@@ -203,105 +131,171 @@ s = bdd.to_expr(u)
 Lets create the BDD of a more colorful Boolean formula
 
 ```python
-bdd.add_var('z')
-s = '(x /\ y) <=> (~ z \/ (y ^ x))'  # TLA+ syntax
-s = '(x & y) <-> (! z | (y ^ x))'  # Promela syntax
+s = '(x /\ y) <=> (~ z \/ ~ (y <=> x))'
 v = bdd.add_expr(s)
 ```
 
 In natural language, the expression `s` reads:
 “(x and y) if and only if ( (not z) or (y xor x) )”.
-Besides the method `apply`, there is also an if-then-else method `ite`,
-but that is more commonly used internally to the package,
-rather than externally.
+The Boolean constants are `bdd.false` and `bdd.true`, and in syntax
+`FALSE` and `TRUE`.
 
-A node represents a set of assignments of values to variables.
-An assignment of values to (all the) variables is also called a *model*.
-A model is represented as a `dict` that maps variable names to values.
-It doesn't have to mention all variables, just enough for that node.
-
-Lets look closer at this with an example.
+Variables can be quantified by calling the methods `exist` and `forall`
 
 ```python
-[bdd.add_var(var) for var in ['x', 'y', 'z']]
+u = bdd.add_expr('x /\ y')
+v = bdd.exist(['x'], u)
+```
 
+or by writing quantified formulae
+
+```python
+# there exists a value of x, such that (x and y)
+u = bdd.add_expr('\E x:  x /\ y')
+y = bdd.add_expr('y')
+assert u == y, (u, y)
+
+# forall x, there exists y, such that (y or x)
+u = bdd.add_expr('\A x:  \E y:  y \/ z')
+assert u == bdd.true, u
+```
+
+`dd` supports "inline BDD references" via the `@` operator. These enable you
+to mention existing BDD nodes in formulae, without the need to expand them as
+formulae. For example:
+
+```python
+u = bdd.add_expr('y \/ z')
+s = 'x /\ @{r}'.format(u=u)
+v = bdd.add_expr(s)
+v_ = bdd.add_expr('x /\ (y \/ z)')
+assert v == v_
+```
+
+Substitution comes in several forms:
+
+- replace some variable names by other variable names
+- replace some variable names by Boolean constants
+- replace some variable names by BDD nodes, so by arbitrary formulae
+
+All these kinds of substitution are performed via the method `let`,
+which takes a `dict` that maps the variable names to replacements.
+To substitute some variables for some other variables
+
+```python
+bdd.declare('x', 'p', 'y', 'q', 'z')
+u = bdd.add_expr('x  \/  (y /\ z)')
+# substitute variables for variables (rename)
+d = dict(x='p', y='q')
+v = bdd.let(d, u)
+>>> v.support
+{'p', 'q', 'z'}
+```
+
+The other forms are similar
+
+```python
+# substitute constants for variables (cofactor)
+values = dict(x=True, y=False)
+v = bdd.let(values, u)
+# substitute BDDs for variables (compose)
+d = dict(x=bdd.add_expr('z \/ w'))
+v = bdd.let(d, u)
+```
+
+A BDD represents a formula, a syntactic object. Semantics is about how
+syntax is used to describe the world. We could interpret the same formula
+using different semantics and reach different conclusions.
+
+A formula is usually understood as describing some assignments of values to
+variables. Such an assignment is also called a *model*.
+A model is represented as a `dict` that maps variable names to values.
+
+```python
 u = bdd.add_expr('x \/ y')
-support = bdd.support(u)
->>> support
+>>> bdd.pick(u)  # choose an assignment, `u.pick()` works too
+{'x': False, 'y': True}
+```
+
+When working with BDDs, two issues arise:
+
+- which variable names are present in an assignment?
+- what values do the variables take?
+
+The values are Boolean, because BDD machinery is designed to reason for
+that case only, so `1 /\ 5` is a formula outside the realm of BDD reasoning.
+The choice of variable names is a matter we discuss below.
+
+Consider the example
+
+```python
+bdd.declare('x', 'y', 'z')
+u = bdd.add_expr('x \/ y')
+>>> u.support
 {'x', 'y'}
 ```
 
-This tells us that membership in the set described by the expression `x \/ y`
-depends on the values of the variables `x` and `y`.
-The values of other variables, like `z`, are irrelevant to evaluating
-the expression `x \/ y`.
+This tells us that the variables `x` and `y` occur in the formula that the
+BDD node `u` represents. Knowing what (Boolean) values a model assigns to
+the variables `x` and `y` suffices to decide whether the model satisfies `u`.
+In other words, the values of other variables, like `z`, are irrelevant to
+evaluating the expression `x \/ y`.
 
-This brings up the matter of function domain, a common pitfall when
-implementing symbolic algorithms.
-To each set corresponds an “indicator function”, which maps each member of
-the set to true, and everything else to false.
-For the set described by the expression `x \/ y`, the indicator function
-is described by the same expression.
-
-A function has a domain. Two functions can be described by the same expression,
-but have different domains.
-For example, the function `x & y` with domain (all the assignments to)
-the variables `{'x', 'y', 'z'}` is different from the function `x /\ y`
-with domain (all the assignments to) the variables `{'x', 'y'}`.
-The first function contains the elements `dict(x=True, y=True, z=True)` and
-`dict(x=True, y=True, z=False)`, whereas the second function contains only
-the element `dict(x=True, y=True)`.
-
-The choice of domain does not frequently come up, but when it does,
-it can be difficult to explain the resulting bug.
-It does matter when enumerating the assignments in the set corresponding
-to node `u`. For example:
+The choice of semantics is yours. Which variables you want an assignment to
+mention depends on what you are doing with the assignment in your algorithm.
 
 ```python
-[bdd.add_var(var) for var in ['x', 'y']]
-
 u = bdd.add_expr('x')
-n = bdd.sat_len(u)
->>> n
-2
-models = list(bdd.sat_iter(u))
+# default: variables in support(u)
+models = list(bdd.pick_iter(u))
 >>> models
 [{'x': True}]
+# variables in `care_vars`
+models = list(bdd.pick_iter(u, care_vars=['x', 'y']))
+>>> models
+[{'x': True, 'y': False}, {'x': True, 'y': True}]
 ```
 
-Notice that `sat_len` says that there are two models, but the generator
-returned by `sat_iter` produces only one, `dict(x=True)`.
-Where did the other model go?
-
-By default, `sat_iter` returns assignments to all variables in the support
+By default, `pick_iter` returns assignments to all variables in the support
 of the BDD node `u` given as input.
 In this example, the support of `u` contains one variable: `x`
 (because the value of the expression `'x'` is independent of variable `y`).
 
-We can use the argument `care_bits` to specify the variables that we want
+We can use the argument `care_vars` to specify the variables that we want
 the assignment to include. The assignments returned will include all variables
-in `care_bits`, plus the variables that appear along each path traversed in
-the BDD. Variables in `care_bits` that are unassigned along each path will
+in `care_vars`, plus the variables that appear along each path traversed in
+the BDD. Variables in `care_vars` that are unassigned along each path will
 be exhaustively enumerated (i.e., all combinations of `True` and `False`).
 
-For example, if `care_bits == set()`, then the assignments
-will contain only those variables that appear along the recursive traversal
-of the BDD. If `care_bits == support(u)`, then the result equals the default
-result. For `care_bits > support(u)` we will see more variables in each
-assignment than the variables in the support.
+For example, if `care_vars == []`, then the assignments will contain only
+those variables that appear along the recursive traversal of the BDD.
+If `care_vars == support(u)`, then the result equals the default result.
+For `care_vars > support(u)` we will see more variables in each assignment
+than the variables in the support.
 
-An example:
+
+We can also count how many assignments satisfy a BDD. The number depends on
+how many variables occur in an assignment. The default number is as many
+variables are contained in the support of that node. You can pass a larger
+number
 
 ```python
-# default: variables in support(u)
-models = list(bdd.sat_iter(u))
+bdd.declare('x', 'y')
+u = bdd.add_expr('x')
+>>> u.count()
+1
+models = list(bdd.pick_iter(u))
 >>> models
 [{'x': True}]
-
-# variables in `care_bits`
-models = list(bdd.sat_iter(u, care_bits=['x', 'y']))
+# pass a larger number of variables
+>>> u.count(nvars=3)
+4
+models = list(bdd.pick_iter(u, ['x', 'y', 'z']))
 >>> models
-[{'x': True, 'y': False}, {'x': True, 'y': True}]
+[{'x': True, 'y': False, 'z': False},
+ {'x': True, 'y': True, 'z': False},
+ {'x': True, 'y': False, 'z': True},
+ {'x': True, 'y': True, 'z': True}]
 ```
 
 A convenience method for creating a BDD from an assignment `dict` is
@@ -309,36 +303,79 @@ A convenience method for creating a BDD from an assignment `dict` is
 ```python
 d = dict(x=True, y=False, z=True)
 u = bdd.cube(d)
-v = bdd.add_expr('x /\ ~y /\ z')
+v = bdd.add_expr('x /\ ~ y /\ z')
 assert u == v, (u, v)
 ```
 
-To substitute some variables for some other variables
+Above we discussed semantics from a [proof-theoretic viewpoint](
+    https://en.wikipedia.org/wiki/Metamathematics).
+The same discussion can be rephrased in terms of function domains containing
+assignments to variables, so a [model-theoretic viewpoint](
+    https://en.wikipedia.org/wiki/Model_theory).
+
+
+### Plotting
+
+
+You can dump a PDF of all nodes in the manager as follows
 
 ```python
+from dd import autoref as _bdd
 
-[bdd.add_var(var) for var in ['x', 'p', 'y', 'q', 'z']]
-u = bdd.add_expr('x  \/  y /\ z')
-d = dict(x='p', y='q')
-v = bdd.let(d, u)
->>> bdd.support(v)
-{'p', 'q', 'z'}
+bdd = _bdd.BDD()
+bdd.declare('x', 'y', 'z')
+u = bdd.add_expr('(x /\ y) \/ ~ z')
+bdd.collect_garbage()  # optional
+bdd.dump('awesome.pdf')
 ```
 
-In `autoref`, renaming is supported between adjacent variables.
-To copy a node from one BDD manager to another manager
+The result is shown below, with the meaning:
+
+- integers on the left signify levels (thus variables)
+- each node is annotated with a variable name (like `x`) dash the
+  node index in `dd.bdd.BDD._succ` (mainly for debugging purposes)
+- solid arcs represent the “if” branches
+- dashed arcs the “else” branches
+- only an “else” branch can be negated, signified by a `-1` annotation
+
+Negated edges mean that logical negation, i.e., `~`, is applied to the node
+that is pointed to.
+Negated edges and BDD theory won't be discussed here, please refer to
+a reference from those listed in the docstring of the module `dd.bdd`.
+For example, [this document](
+    http://www.ecs.umass.edu/ece/labs/vlsicad/ece667/reading/somenzi99bdd.pdf)
+by Fabio Somenzi (CUDD's author).
+
+![example_bdd](https://rawgithub.com/johnyf/binaries/master/dd/awesome.png)
+
+It is instructive to dump the `bdd` with and without collecting garbage.
+
+
+### Alternatives
+
+
+As mentioned above, there are various ways to apply propositional operators
 
 ```python
-a = _bdd.BDD()
-[a.add_var(var) for var in ['x', 'y', 'z']]
-u = a('(x /\ y) \/ z')
-
-b = _bdd.BDD()
-_bdd.copy_vars(a, b)
-v = a.copy(u, b)
+x = bdd.var('x')
+y = bdd.var('y')
+u = x & y
+u = bdd.apply('and', x, y)
+u = bdd.apply('/\\', x, y)  # TLA+ syntax
+u = bdd.apply('&', x, y)  # Promela syntax
 ```
 
-Some other `BDD` methods are `let`, `assert_consistent`, and `collect_garbage`.
+Infix Python operators work for BDD nodes in `dd.autoref` and `dd.cudd`,
+not in `dd.bdd`, because nodes there are plain integers (`int`).
+Besides the method `apply`, there is also the ternary conditional method `ite`,
+but that is more commonly used internally.
+
+For single variables, the following are equivalent
+
+```python
+u = bdd.add_expr('x')
+u = bdd.var('x')  # faster
+```
 
 In `autoref`, a few functions (not methods) are available for efficient
 operations that arise naturally in fixpoint algorithms when transition
@@ -348,91 +385,51 @@ relations are involved:
   and rename some variables, all at once
 - `copy_vars`: copy the variables of one BDD manager to another manager
 
-For the curious, the attribute `dd.autoref.BDD._bdd` is the `dd.bdd.BDD`
-wrapped by `dd.autoref.BDD`.
+
+### Reminders about the implementation beneath
 
 
-### Quantified formulae
+The Python syntax for Boolean operations (`u & v`) and the method `apply`
+are faster than the method `add_expr`, because the latter invokes the
+parser (generated using [`ply.yacc`](https://github.com/dabeaz/ply)).
+Using `add_expr` is generally quicker and more readable.
+In practice, prototype new algorithms using `add_expr`,
+then profile, and if it matters convert the code to use `~`, `&`, `|`,
+and to call directly `apply`, `exist`, `let`, and other methods.
 
-You can create BDDs from quantified formulae
-
-```python
-bdd.add_var('x')
-bdd.add_var('y')
-bdd.add_var('z')
-
-# there exists x, such that (x and y)
-u = bdd.add_expr('\E x: x /\ y')
-y = bdd.var('y')
-assert u == y, (u, y)
-
-# forall x, there exists y, such that (y or x)
-u = bdd.add_expr('\A x: \E y: y \/ z')
-assert u == bdd.true, u
-```
-
-Besides variable identifiers, integers that are BDD nodes can be used too.
-
-```python
-from dd.bdd import BDD
-
-bdd = BDD()
-u = bdd.add_var('x')
-x = bdd.var('x')
-y = bdd.var('y')
-
-s = 'x /\ {r}'.format(r=y)
-u = bdd.add_expr(s)
-u_ = bdd.add_expr('x /\ y')
-assert u == u_
-```
-
-This approach is useful for writing more readable library code.
-However, it invokes the parser. Inside intensive loops, this can add
-a considerable overhead. In those cases, use `BDD.apply` or `~, &, |`,
-and `BDD.quantify`.
 In the future, a compiler may be added, to compile expressions into
 functions that can be called multiple times, without invoking again the parser.
 
 
-### Plotting
-
-With `pydot` present (or by using `dd.bdd.to_nx` and then some `networkx`
-plotting), you can dump a PDF of all nodes in the manager:
+The number of nodes in the manager `bdd` is `len(bdd)`.
+As noted earlier, each variable corresponds to a level, which is an index in
+the variable order. This mapping can be obtained with
 
 ```python
-from dd import autoref as _bdd
-
-bdd = _bdd.BDD()
-bits = ('x', 'y', 'z')
-for var in bits:
-	bdd.add_var(var)
-u = bdd.add_expr('(x /\ y) \/ ~ z')
-bdd.collect_garbage()
-bdd.dump('awesome.pdf')
+level = bdd.level_of_var('x')
+var = bdd.var_at_level(level)
+assert var == 'x', var
 ```
 
-The result is show below, with the legend:
+In `autoref.BDD`, the `dict` that maps each defined variable to its
+corresponding level can be obtained also from the attribute `BDD.vars`
 
-- integers on the left signify levels (thus variables)
-- each node is annotated with a variable name (like `x`) dash the
-  node index in `dd.bdd.BDD._succ` (mainly for debugging purposes)
-- solid arcs represent the “if” branches
-- dashed arcs the “else” branches
-- only an “else” branch can be negated, signified by a `-1` annotation
+```python
+>>> bdd.vars
+{'x': 0, 'y': 1, 'z': 2}
+```
 
-Negated edges mean that logical negation, i.e., `!`, is applied to the node
-that is pointed to.
-Negated edges and BDD theory won't be discussed here, please refer to
-a reference from those listed in the `dd.bdd` module's docstring, like
-[this document](
-    http://www.ecs.umass.edu/ece/labs/vlsicad/ece667/reading/somenzi99bdd.pdf)
-by Fabio Somenzi (CUDD's author).
+To copy a node from one BDD manager to another manager
 
-![example_bdd](https://rawgithub.com/johnyf/binaries/master/dd/awesome.png)
+```python
+a = _bdd.BDD()
+a.declare('x', 'y', 'z')
+u = a('(x /\ y) \/ z')
 
-It is instructive to dump the `bdd` with, and without collecting garbage
-after `add_expr`.
+b = _bdd.BDD()
+_bdd.copy_vars(a, b)
+v = a.copy(u, b)
+```
 
 
 ### Pickle
@@ -468,7 +465,7 @@ you cannot write `w = u & v` to get the correct result.
 You have to use either:
 
 - `BDD.apply('and', u, v)` or
-- `BDD.add_expr('{u} & {v}'.format(u=u, v=v))`.
+- `BDD.add_expr('{u} /\ {v}'.format(u=u, v=v))`.
 
 Unlike `dd.bdd`, the nodes in `autoref` and `cudd` are of class `Function`.
 This abstracts away the underlying node representation, so that you can run
@@ -530,7 +527,7 @@ We said earlier that you can develop with `autoref`, deferring usage of
 2. When should you switch from `autoref` to `cudd` ?
 
 The answer to the second question is simple: when your problem takes more
-time and memory than you are willing to invest.
+time and memory than available.
 For light to moderate use, `cudd` probably won't be needed.
 
 Regarding the first question, `dd.cudd` requires to:
@@ -559,26 +556,19 @@ problem demands it due to its size), then use:
 - `BDD.configure` to read and set the parameters “max memory”, “loose up to”,
   “max cache hard”, “min hit”, and “max growth”.
 
-Due to how CUDD manages variables, `add_var` takes as keyword argument the
-variable index, *not* the level (which `autoref` does).
+Due to how CUDD manages variables, the method `add_var` takes as keyword
+argument the variable index, *not* the level (which `autoref` does).
 The level can still be set with the method `insert_var`.
-For now, these are two separate methods.
-They may be unified or modified in the future, to improve the interface.
 
 The methods `dump` and `load` store the BDD of a selected node in a DDDMP file.
 Pickling and PDF plotting are not available yet in `dd.cudd`.
-
-Some methods present in `autoref.BDD` are not (yet) implemented in the
-`cudd.BDD` interface. These are:
-- `collect_garbage` (shouldn't need this if automated reordering enabled).
-With time, most of these will appear.
 
 An interface to the BuDDy C libary also exists, as `dd.buddy`.
 However, experimentation suggests that BuDDy does not contain as successful
 heuristics for deciding *when* to invoke reordering.
 
-CUDD is initialized with a `memory_estimate` of 1 GB. If the machine has RAM,
-then `cudd.BDD` will raise an error. In this case, pass a smaller initial
+CUDD is initialized with a `memory_estimate` of 1 GB. If the machine has les
+RAM, then `cudd.BDD` will raise an error. In this case, pass a smaller initial
 memory estimate, for example `cudd.BDD(memory_estimate=0.5 * 2**30)`.
 
 
@@ -590,7 +580,6 @@ and quantification, all at one pass over BDDs).
 This functionality is implemented with `image`, `preimage` in `dd.autoref`.
 Note that (pre)image contains substitution, unlike `and_exists`.
 
-The function `cudd.let` handles renames of variables.
 The function `cudd.reorder` is similar to `autoref.reorder`,
 but does not default to invoking automated reordering.
 Typical use of CUDD enables dynamic reordering.
@@ -599,16 +588,38 @@ Typical use of CUDD enables dynamic reordering.
 ## Lower level: `dd.bdd`
 
 We discuss now some more details about the pure Python implementation
-in `dd.bdd`. To avoid running out of memory, a BDD manager deletes nodes
-when they are not used anymore.
-This is called [garbage collection](
+in `dd.bdd`. Two interfaces are available:
+
+- convenience: the module
+  [`dd.autoref`](https://github.com/johnyf/dd/blob/master/dd/autoref.py) wraps
+  `dd.bdd` and takes care of reference counting
+  using [`__del__`](https://docs.python.org/2/reference/datamodel.html#object.__del__).
+
+- "low level": the module
+  [`dd.bdd`](https://github.com/johnyf/dd/blob/master/dd/bdd.py) requires that
+  the user in/decrement the reference counters associated with nodes that
+  are used outside of a `BDD`.
+
+The pure-Python module `dd.bdd` can be used directly,
+which allows access more extensive than `dd.autoref`.
+The `n` variables in a `dd.bdd.BDD` are ordered
+from `0` (top level) to `n - 1` (bottom level).
+The terminal node `1` is at level `n`.
+The constant `TRUE` is represented by `+1`, and `FALSE` by `-1`.
+
+To avoid running out of memory, a BDD manager deletes nodes when they are not
+used anymore. This is called [garbage collection](
     https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29).
-So, two things have to happen:
+So, two things need to happen:
 
 1. keep track of node “usage”
 2. invoke garbage collection
 
-Garbage collection is invoked automatically only in `dd.cudd`.
+Garbage collection is triggered either explicitly by the user, or
+when invoking the reordering algorithm.
+To prevent nodes from being garbage collected, their reference counts should
+be incremented, which is discussed in the next section.
+
 Node usage is tracked with reference counting, for each node.
 In `autoref`, the reference counts are maintained by the constructor and
 destructor methods of `Function` (hence the “auto”).
@@ -617,11 +628,11 @@ more by variables, so [Python decides](
     https://docs.python.org/2/glossary.html#term-garbage-collection)
 to delete it.
 
-In `dd.bdd`, you have to perform the reference counting, by suitably adding to
+In `dd.bdd`, you have to perform the reference counting by suitably adding to
 and subtracting from the counter associated to the node you reference.
-Also, garbage collection has to be explicitly invoked (or as a side-effect of
-invoking reordering). So, if you don't need to collect garbage, then you can
-skip the reference counting.
+Also, garbage collection is invoked either explicitly or by reordering
+(explicit or dynamic). So if you don't need to collect garbage, then you
+can skip the reference counting (not recommended).
 
 
 ### Reference counting
@@ -653,9 +664,7 @@ Revisiting an earlier example, manual reference counting looks like:
 from dd import bdd as _bdd
 
 bdd = _bdd.BDD()
-bits = ['x', 'y', 'z']
-for var in bits:
-	bdd.add_var(var)
+bdd.declare('x', 'y', 'z')
 s = '(x /\ y) \/ ~ z'  # TLA+ syntax
 s = '(x & y) | ! z'  # Promela syntax
 u = bdd.add_expr(s)
@@ -717,10 +726,9 @@ invocation. For example:
 from dd import bdd as _bdd
 
 bdd = _bdd.BDD()
-vars = ['x{i}'.format(i=i) for i in range(3)]
-vars.extend('y{i}'.format(i=i) for i in range(3))
-for var in vars:
-    bdd.add_var(var)
+vrs = ['x{i}'.format(i=i) for i in range(3)]
+vrs.extend('y{i}'.format(i=i) for i in range(3))
+bdd.declare(*vrs)
 >>> bdd.vars
 {'x0': 0, 'x1': 1, 'x2': 2, 'y0': 3, 'y1': 4, 'y2': 5}
 
@@ -895,9 +903,7 @@ The elevator can move as follows
 from dd import autoref as _bdd
 
 bdd = _bdd.BDD()
-dvars = ["x0", "x0'", "x1", "x1'"]
-for var in dvars:
-    bdd.add_var(var)
+bdd.declare("x0", "x0'", "x1", "x1'")
 # TLA+ syntax
 s = (
     "((~ x0 /\ ~ x1) => ( (~ x0' /\ ~ x1') \/ (x0' /\ ~ x1') )) /\ "

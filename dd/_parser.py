@@ -15,7 +15,9 @@ class Lexer(astutils.Lexer):
     reserved = {
         'ite': 'ITE',
         'False': 'FALSE',
-        'True': 'TRUE'}
+        'True': 'TRUE',
+        'FALSE': 'FALSE',
+        'TRUE': 'TRUE'}
     delimiters = ['LPAREN', 'RPAREN', 'COMMA']
     operators = ['NOT', 'AND', 'OR', 'XOR', 'IMPLIES', 'EQUIV',
                  'EQUALS', 'MINUS', 'DIV',

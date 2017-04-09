@@ -118,30 +118,30 @@ def test_quantify():
         bdd.add_var(var)
     x = bdd.var('x')
     # \E x: x = 1
-    r = bdd.quantify(x, ['x'], forall=False)
+    r = bdd.exist(['x'], x)
     assert r == bdd.true, r
     # \A x: x = 0
-    r = bdd.quantify(x, ['x'], forall=True)
+    r = bdd.forall(['x'], x)
     assert r == bdd.false, r
     # \E y: x = x
-    r = bdd.quantify(x, ['y'], forall=False)
+    r = bdd.exist(['y'], x)
     assert r == x, (r, x)
     # \A y: x = x
-    r = bdd.quantify(x, ['y'], forall=True)
+    r = bdd.forall(['y'], x)
     assert r == x, (r, x)
     # (\E x:  x /\ y) \equiv y
     y = bdd.var('y')
     u = bdd.apply('and', x, y)
-    r = bdd.quantify(u, ['x'], forall=False)
+    r = bdd.exist(['x'], u)
     assert r == y, (r, y)
     assert r != x, (r, x)
     # (\A x:  x /\ y) \equiv FALSE
-    r = bdd.quantify(u, ['x'], forall=True)
+    r = bdd.forall(['x'], u)
     assert r == bdd.false, r
     # (\A x:  ~ x \/ y) \equiv y
     not_x = bdd.apply('not', x)
     u = bdd.apply('or', not_x, y)
-    r = bdd.quantify(u, ['x'], forall=True)
+    r = bdd.forall(['x'], u)
     assert r == y, (r, y)
 
 

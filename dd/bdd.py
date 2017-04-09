@@ -1170,21 +1170,21 @@ class BDD(_abc.BDD):
 
     def _to_expr(self, u):
         if u == 1:
-            return 'True'
+            return 'TRUE'
         if u == -1:
-            return 'False'
+            return 'FALSE'
         i, v, w = self._succ[abs(u)]
         var = self._level_to_var[i]
         p = self._to_expr(v)
         q = self._to_expr(w)
         # pure var ?
-        if p == 'False' and q == 'True':
+        if p == 'FALSE' and q == 'TRUE':
             s = var
         else:
             s = 'ite({var}, {q}, {p})'.format(var=var, p=p, q=q)
         # complemented ?
         if u < 0:
-            s = '(! {s})'.format(s=s)
+            s = '(~ {s})'.format(s=s)
         return s
 
     def apply(self, op, u, v=None, w=None):

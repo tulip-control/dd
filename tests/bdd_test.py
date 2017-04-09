@@ -1199,7 +1199,7 @@ def test_function_wrapper():
     assert q_ == q, (q_, q)
     # to_expr
     s = q.to_expr()
-    assert s == 'ite(x, y, (! y))', s
+    assert s == 'ite(x, y, (~ y))', s
     # equality
     p_ = bdd.add_expr('y')
     assert p_ == p, p_

@@ -997,9 +997,9 @@ cdef class BDD(object):
 
     cdef str _to_expr(self, DdNode *u):
         if u == Cudd_ReadLogicZero(self.manager):
-            return 'False'
+            return 'FALSE'
         if u == Cudd_ReadOne(self.manager):
-            return 'True'
+            return 'TRUE'
         r = Cudd_Regular(u)
         i = r.index
         v = Cudd_E(u)
@@ -1008,13 +1008,13 @@ cdef class BDD(object):
         p = self._to_expr(v)
         q = self._to_expr(w)
         # pure var ?
-        if p == 'False' and q == 'True':
+        if p == 'FALSE' and q == 'TRUE':
             s = var
         else:
             s = 'ite({var}, {q}, {p})'.format(var=var, p=p, q=q)
         # complemented ?
         if Cudd_IsComplement(u):
-            s = '(! {s})'.format(s=s)
+            s = '(~ {s})'.format(s=s)
         return s
 
     cpdef dump(self, Function u, fname):

@@ -26,7 +26,7 @@ def test_true_false():
     false = b.false
     true = b.true
     assert false != true
-    assert false == ~true
+    assert false == ~ true
     assert false == false & true
     assert true == true | false
     del true, false
@@ -68,31 +68,31 @@ def test_add_expr():
     bdd = sylvan.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
-    # (0 | 1) & x = x
-    s = '(True | False) & x'
+    # ((0 \/ 1) /\ x) \equiv x
+    s = '(TRUE \/ FALSE) /\ x'
     u = bdd.add_expr(s)
     x = bdd.var('x')
     assert u == x, (u, x)
-    # (x | !y) & x = x
-    s = '(x | !y) & x'
+    # ((x \/ ~ y) /\ x) \equiv x
+    s = '(x \/ ~ y) /\ x'
     u = bdd.add_expr(s)
     assert u == x, (u, x)
-    # x & y & z
+    # x /\ y /\ z
     bdd.add_var('z')
     z = bdd.var('z')
-    u = bdd.add_expr('x & y & z')
+    u = bdd.add_expr('x /\ y /\ z')
     u_ = bdd.cube(dict(x=True, y=True, z=True))
     assert u == u_, (u, u_)
-    # x & !y & z
-    u = bdd.add_expr('x & !y & z')
+    # x /\ ~ y /\ z
+    u = bdd.add_expr('x /\ ~ y /\ z')
     u_ = bdd.cube(dict(x=True, y=False, z=True))
     assert u == u_, (u, u_)
-    # ? x. x & y = y
+    # (\E x:  x /\ y) \equiv y
     y = bdd.var('y')
-    u = bdd.add_expr('\E x: x & y')
+    u = bdd.add_expr('\E x:  x /\ y')
     assert u == y, (str(u), str(y))
-    # ! x. x | !x = 1
-    u = bdd.add_expr('\A x: !x | x')
+    # (\A x:  x \/ ~ x) \equiv TRUE
+    u = bdd.add_expr('\A x:  ~ x \/ x')
     assert u == bdd.true, u
     del x, y, z, u, u_
 
@@ -107,7 +107,7 @@ def test_support():
     u = bdd.var('y')
     supp = bdd.support(u)
     assert supp == {'y'}, supp
-    u = bdd.add_expr('x & y')
+    u = bdd.add_expr('x /\ y')
     supp = bdd.support(u)
     assert supp == {'x', 'y'}, supp
     del u
@@ -155,11 +155,11 @@ def test_rename():
     # multiple variables
     bdd.add_var('z')
     bdd.add_var('w')
-    s = '(x & !y) | w'
+    s = '(x /\ ~ y) \/ w'
     u = bdd.add_expr(s)
     rename = dict(x='w', y='z', w='y')
     v = bdd.let(rename, u)
-    s = '(w & !z) | y'
+    s = '(w /\ ~ z) \/ y'
     v_ = bdd.add_expr(s)
     assert v == v_, bdd.to_expr(v)
     del x, y, y_, u, v, v_

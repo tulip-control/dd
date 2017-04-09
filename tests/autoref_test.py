@@ -11,7 +11,7 @@ def test_true_false():
     true = bdd.true
     false = bdd.false
     assert false != true
-    assert false == ~true
+    assert false == ~ true
     assert false == false & true
     assert true == true | false
 
@@ -42,7 +42,7 @@ def test_compose():
     bdd = _bdd.BDD()
     for var in ['x', 'y', 'z']:
         bdd.add_var(var)
-    u = bdd.add_expr('x & !y')
+    u = bdd.add_expr('x /\ ~ y')
     # x |-> y
     sub = dict(x=bdd.var('y'))
     v = bdd.let(sub, u)
@@ -51,12 +51,12 @@ def test_compose():
     # x |-> z
     sub = dict(x=bdd.var('z'))
     v = bdd.let(sub, u)
-    v_ = bdd.add_expr('z & !y')
+    v_ = bdd.add_expr('z /\ ~ y')
     assert v == v_, v
-    # x |-> (y | z)
-    sub = dict(x=bdd.add_expr('y | z'))
+    # x |-> (y \/ z)
+    sub = dict(x=bdd.add_expr('y \/ z'))
     v = bdd.let(sub, u)
-    v_ = bdd.add_expr('(y | z) & !y')
+    v_ = bdd.add_expr('(y \/ z) /\ ~ y')
     assert v == v_, v
 
 
@@ -67,14 +67,14 @@ def test_apply():
     x = bdd.var('x')
     y = bdd.var('y')
     z = bdd.var('z')
-    # x | !x = 1
+    # (x \/ ~ x) \equiv TRUE
     not_x = bdd.apply('not', x)
     true = bdd.apply('or', x, not_x)
     assert true == bdd.true, true
-    # x & !x = 0
+    # (x /\ ~ x) \equiv FALSE
     false = bdd.apply('and', x, not_x)
     assert false == bdd.false, false
-    # x & y = ! (!x | !y)
+    # (x /\ y) \equiv ~ (~ x \/ ~ y)
     u = bdd.apply('and', x, y)
     not_y = bdd.apply('not', y)
     v = bdd.apply('or', not_x, not_y)
@@ -90,7 +90,7 @@ def test_apply():
     assert r == bdd.true, r
     r = bdd.let(dict(x=True, y=True), u)
     assert r == bdd.false, r
-    # (z | !y) & x = (z & x) | (!y & x)
+    # (z \/ ~ y) /\ x = (z /\ x) \/ (~ y /\ x)
     u = bdd.apply('or', z, not_y)
     u = bdd.apply('and', u, x)
     v = bdd.apply('and', z, x)
@@ -129,16 +129,16 @@ def test_quantify():
     # \A y: x = x
     r = bdd.quantify(x, ['y'], forall=True)
     assert r == x, (r, x)
-    # \E x: x & y = y
+    # (\E x:  x /\ y) \equiv y
     y = bdd.var('y')
     u = bdd.apply('and', x, y)
     r = bdd.quantify(u, ['x'], forall=False)
     assert r == y, (r, y)
     assert r != x, (r, x)
-    # \A x: x & y = 0
+    # (\A x:  x /\ y) \equiv FALSE
     r = bdd.quantify(u, ['x'], forall=True)
     assert r == bdd.false, r
-    # \A x: !x | y = y
+    # (\A x:  ~ x \/ y) \equiv y
     not_x = bdd.apply('not', x)
     u = bdd.apply('or', not_x, y)
     r = bdd.quantify(u, ['x'], forall=True)
@@ -149,31 +149,31 @@ def test_add_expr():
     bdd = _bdd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
-    # (0 | 1) & x = x
-    s = '(True | False) & x'
+    # (FALSE \/ TRUE) /\ x = x
+    s = '(TRUE \/ FALSE) /\ x'
     u = bdd.add_expr(s)
     x = bdd.var('x')
     assert u == x, (u, x)
-    # (x | !y) & x = x
-    s = '(x | !y) & x'
+    # ((x \/ ~ y) /\ x) \equiv x
+    s = '(x \/ ~ y) /\ x'
     u = bdd.add_expr(s)
     assert u == x, (u, x)
-    # x & y & z
+    # x /\ y /\ z
     bdd.add_var('z')
     z = bdd.var('z')
-    u = bdd.add_expr('x & y & z')
+    u = bdd.add_expr('x /\ y /\ z')
     u_ = bdd.cube(dict(x=True, y=True, z=True))
     assert u == u_, (u, u_)
-    # x & !y & z
-    u = bdd.add_expr('x & !y & z')
+    # x /\ ~ y /\ z
+    u = bdd.add_expr('x /\ ~ y /\ z')
     u_ = bdd.cube(dict(x=True, y=False, z=True))
     assert u == u_, (u, u_)
-    # \E x: x & y = y
+    # (\E x:  x /\ y) \equiv y
     y = bdd.var('y')
-    u = bdd.add_expr('\E x: x & y')
+    u = bdd.add_expr('\E x:  x /\ y')
     assert u == y, (str(u), str(y))
-    # \A x: x | !x = 1
-    u = bdd.add_expr('\A x: !x | x')
+    # (\A x:  x \/ ~ x) \equiv TRUE
+    u = bdd.add_expr('\A x:  ~ x \/ x')
     assert u == bdd.true, u
 
 

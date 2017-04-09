@@ -67,7 +67,7 @@ def test_load_dddmp():
     assert n_vars == 3, n_vars
     assert bdd.roots == {-5}, bdd.roots
     root = -5
-    u = bdd.add_expr('! ( (a & (b |c)) | (!a & (b | !c)) )')
+    u = bdd.add_expr('~ ( (a /\ (b \/ c)) \/ (~ a /\ (b \/ ~ c)) )')
     assert u == root, (u, root)
     # larger sample
     fname = 'sample1.txt'

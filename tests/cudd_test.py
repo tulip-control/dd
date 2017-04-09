@@ -141,7 +141,7 @@ def test_compose():
     bdd = cudd.BDD()
     for var in ['x', 'y', 'z']:
         bdd.add_var(var)
-    u = bdd.add_expr('x & !y')
+    u = bdd.add_expr('x /\ ~ y')
     # x |-> y
     sub = dict(x=bdd.var('y'))
     v = bdd.let(sub, u)
@@ -151,23 +151,23 @@ def test_compose():
     sub = dict(x=bdd.var('y'),
                y=bdd.var('x'))
     v = bdd.let(sub, u)
-    v_ = bdd.add_expr('y & !x')
+    v_ = bdd.add_expr('y /\ ~ x')
     assert v == v_, v
     # x |-> z
     sub = dict(x=bdd.var('z'))
     v = bdd.let(sub, u)
-    v_ = bdd.add_expr('z & !y')
+    v_ = bdd.add_expr('z /\ ~ y')
     assert v == v_, v
     # x |-> z, y |-> x
     sub = dict(x=bdd.var('z'),
                y=bdd.var('x'))
     v = bdd.let(sub, u)
-    v_ = bdd.add_expr('z & !x')
+    v_ = bdd.add_expr('z /\ ~ x')
     assert v == v_, v
-    # x |-> (y | z)
-    sub = dict(x=bdd.add_expr('y | z'))
+    # x |-> (y \/ z)
+    sub = dict(x=bdd.add_expr('y \/ z'))
     v = bdd.let(sub, u)
-    v_ = bdd.add_expr('(y | z) & !y')
+    v_ = bdd.add_expr('(y \/ z) /\ ~ y')
     assert v == v_, v
 
 
@@ -177,7 +177,7 @@ def test_cofactor():
         bdd.add_var(var)
     x = bdd.var('x')
     y = bdd.var('y')
-    # x & y
+    # x /\ y
     u = bdd.apply('and', x, y)
     r = bdd.let(dict(x=False, y=False), u)
     assert r == bdd.false, r
@@ -187,7 +187,7 @@ def test_cofactor():
     assert r == bdd.false, r
     r = bdd.let(dict(x=True, y=True), u)
     assert r == bdd.true, r
-    # x & !y
+    # x /\ ~ y
     not_y = bdd.apply('not', y)
     u = bdd.apply('and', x, not_y)
     r = bdd.let(dict(x=False, y=False), u)
@@ -198,7 +198,7 @@ def test_cofactor():
     assert r == bdd.false, r
     r = bdd.let(dict(x=True, y=True), u)
     assert r == bdd.false, r
-    # !x | y
+    # ~ x \/ y
     not_x = bdd.apply('not', x)
     u = bdd.apply('or', not_x, y)
     r = bdd.let(dict(x=False, y=False), u)
@@ -224,7 +224,7 @@ def test_count():
     n = b.count(u, 3)
     assert n == 4, n
     b.add_var('y')
-    u = b.add_expr('x & y')
+    u = b.add_expr('x /\ y')
     with assert_raises(AssertionError):
         b.count(u, 0)
     with assert_raises(AssertionError):
@@ -241,8 +241,8 @@ def test_pick_iter():
     b = cudd.BDD()
     b.add_var('x')
     b.add_var('y')
-    # x & y
-    s = '!x & y'
+    # x /\ y
+    s = '~ x /\ y'
     u = b.add_expr(s)
     g = b.pick_iter(u, care_vars=set())
     m = list(g)
@@ -253,7 +253,7 @@ def test_pick_iter():
     m = list(g)
     assert m == m_, (m, m_)
     # x
-    s = '! y'
+    s = '~ y'
     u = b.add_expr(s)
     # partial
     g = b.pick_iter(u)
@@ -269,7 +269,7 @@ def test_pick_iter():
     equal_list_contents(m, m_)
     # care bits x, y
     b.add_var('z')
-    s = 'x | y'
+    s = 'x \/ y'
     u = b.add_expr(s)
     g = b.pick_iter(u, care_vars=['x', 'y'])
     m = list(g)
@@ -294,14 +294,14 @@ def test_apply():
     x = bdd.var('x')
     y = bdd.var('y')
     z = bdd.var('z')
-    # x | !x = 1
+    # (x \/ ~ x) \equiv TRUE
     not_x = bdd.apply('not', x)
     true = bdd.apply('or', x, not_x)
     assert true == bdd.true, true
-    # x & !x = 0
+    # x /\ ~ x = 0
     false = bdd.apply('and', x, not_x)
     assert false == bdd.false, false
-    # x & y = ! (!x | !y)
+    # x /\ y = ~ (~ x \/ ~ y)
     u = bdd.apply('and', x, y)
     not_y = bdd.apply('not', y)
     v = bdd.apply('or', not_x, not_y)
@@ -317,7 +317,7 @@ def test_apply():
     assert r == bdd.true, r
     r = bdd.let(dict(x=True, y=True), u)
     assert r == bdd.false, r
-    # (z | !y) & x = (z & x) | (!y & x)
+    # (z \/ ~ y) /\ x = (z /\ x) \/ (~ y /\ x)
     u = bdd.apply('or', z, not_y)
     u = bdd.apply('and', u, x)
     v = bdd.apply('and', z, x)
@@ -344,28 +344,28 @@ def test_quantify():
     for var in ['x', 'y']:
         bdd.add_var(var)
     x = bdd.var('x')
-    # \E x: x = 1
+    # (\E x:  x) \equiv TRUE
     r = bdd.quantify(x, ['x'], forall=False)
     assert r == bdd.true, r
-    # \A x: x = 0
+    # (\A x:  x) \equiv FALSE
     r = bdd.quantify(x, ['x'], forall=True)
     assert r == bdd.false, r
-    # \E y: x = x
+    # (\E y:  x) \equiv x
     r = bdd.quantify(x, ['y'], forall=False)
     assert r == x, (r, x)
-    # \A y: x = x
+    # (\A y:  x) \equiv x
     r = bdd.quantify(x, ['y'], forall=True)
     assert r == x, (r, x)
-    # \E x: x & y = y
+    # (\E x:  x /\ y) \equiv y
     y = bdd.var('y')
     u = bdd.apply('and', x, y)
     r = bdd.quantify(u, ['x'], forall=False)
     assert r == y, (r, y)
     assert r != x, (r, x)
-    # \A x: x & y = 0
+    # (\A x:  x /\ y) \equiv FALSE
     r = bdd.quantify(u, ['x'], forall=True)
     assert r == bdd.false, r
-    # \A x: !x | y = y
+    # (\A x:  ~ x \/ y) \equiv y
     not_x = bdd.apply('not', x)
     u = bdd.apply('or', not_x, y)
     r = bdd.quantify(u, ['x'], forall=True)
@@ -380,12 +380,12 @@ def test_cube():
     x = bdd.var('x')
     c = bdd.cube(['x'])
     assert x == c, (x, c)
-    # x & y
+    # x /\ y
     y = bdd.var('y')
     u = bdd.apply('and', x, y)
     c = bdd.cube(['x', 'y'])
     assert u == c, (u, c)
-    # x & !y
+    # x /\ ~ y
     not_y = bdd.apply('not', y)
     u = bdd.apply('and', x, not_y)
     d = dict(x=True, y=False)
@@ -402,31 +402,31 @@ def test_add_expr():
     bdd = cudd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
-    # (0 | 1) & x = x
-    s = '(True | False) & x'
+    # ((FALSE \/ TRUE) /\ x) \equiv x
+    s = '(True \/ FALSE) /\ x'
     u = bdd.add_expr(s)
     x = bdd.var('x')
     assert u == x, (u, x)
-    # (x | !y) & x = x
-    s = '(x | !y) & x'
+    # ((x \/ ~ y) /\ x) \equiv x
+    s = '(x \/ ~ y) /\ x'
     u = bdd.add_expr(s)
     assert u == x, (u, x)
-    # x & y & z
+    # x /\ y /\ z
     bdd.add_var('z')
     z = bdd.var('z')
-    u = bdd.add_expr('x & y & z')
+    u = bdd.add_expr('x /\ y /\ z')
     u_ = bdd.cube(dict(x=True, y=True, z=True))
     assert u == u_, (u, u_)
-    # x & !y & z
-    u = bdd.add_expr('x & !y & z')
+    # x /\ ~ y /\ z
+    u = bdd.add_expr('x /\ ~ y /\ z')
     u_ = bdd.cube(dict(x=True, y=False, z=True))
     assert u == u_, (u, u_)
-    # \E x: x & y = y
+    # (\E x:  x /\ y) \equiv y
     y = bdd.var('y')
-    u = bdd.add_expr('\E x: x & y')
+    u = bdd.add_expr('\E x:  x /\ y')
     assert u == y, (str(u), str(y))
-    # \A x: x | !x = 1
-    u = bdd.add_expr('\A x: !x | x')
+    # (\A x:  x \/ ~ x) \equiv TRUE
+    u = bdd.add_expr('\A x:  ~ x \/ x')
     assert u == bdd.true, u
 
 
@@ -434,7 +434,7 @@ def test_dump_load():
     bdd = cudd.BDD()
     for var in ['x', 'y', 'z', 'w']:
         bdd.add_var(var)
-    u = bdd.add_expr('(x & !w) | z')
+    u = bdd.add_expr('(x /\ ~ w) \/ z')
     fname = 'bdd.txt'
     bdd.dump(u, fname)
     u_ = bdd.load(fname)
@@ -450,7 +450,7 @@ def test_load_sample0():
     u = bdd.load(fname)
     n = len(u)
     assert n == 5, n
-    s = '! ( (a & (b |c)) | (!a & (b | !c)) )'
+    s = '~ ( (a /\ (b \/ c)) \/ (~ a /\ (b \/ ~ c)) )'
     u_ = bdd.add_expr(s)
     assert u == u_, (u, u_)
 
@@ -459,13 +459,13 @@ def test_and_exists():
     bdd = cudd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
-    # \E x: x & y = y
+    # (\E x:  x /\ y) \equiv y
     x = bdd.add_expr('x')
     y = bdd.add_expr('y')
     qvars = ['x']
     r = cudd.and_exists(x, y, qvars)
     assert r == y, (r, y)
-    # \E x: x & !x = 0
+    # (\E x:  x /\ ~ x) \equiv FALSE
     not_x = bdd.apply('not', x)
     r = cudd.and_exists(x, not_x, qvars)
     assert r == bdd.false
@@ -475,9 +475,9 @@ def test_or_forall():
     bdd = cudd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
-    # \A x y: x | ! y = 0
+    # (\A x, y:  x \/ ~ y) \equiv FALSE
     x = bdd.var('x')
-    not_y = bdd.add_expr('!y')
+    not_y = bdd.add_expr('~ y')
     qvars = ['x', 'y']
     r = cudd.or_forall(x, not_y, qvars)
     assert r == bdd.false, r
@@ -602,7 +602,7 @@ def test_copy_bdd_same_indices():
     for var in dvars:
         bdd.add_var(var)
         other.add_var(var)
-    s = '(x & y) | !z'
+    s = '(x /\ y) \/ ~ z'
     u0 = bdd.add_expr(s)
     u1 = cudd.copy_bdd(u0, other)
     u2 = cudd.copy_bdd(u1, bdd)
@@ -626,7 +626,7 @@ def test_copy_bdd_different_indices():
         bdd.add_var(var)
     for var in reversed(dvars):
         other.add_var(var)
-    u0 = bdd.add_expr('(x | !y) & !z')
+    u0 = bdd.add_expr('(x \/ ~ y) /\ ~ z')
     with assert_raises(AssertionError):
         cudd.copy_bdd(u0, other)
 
@@ -658,7 +658,7 @@ def test_copy_bdd_different_order():
         j = other.level_of_var(var)
         assert i != j, (i, j)
     # copy
-    s = '(x | !y) & w & (z | !w)'
+    s = '(x \/ ~ y) /\ w /\ (z \/ ~ w)'
     u0 = bdd.add_expr(s)
     u1 = cudd.copy_bdd(u0, other)
     u2 = cudd.copy_bdd(u1, bdd)
@@ -673,8 +673,8 @@ def test_copy_bdd_different_order():
 def test_count_nodes():
     bdd = cudd.BDD()
     [bdd.add_var(var) for var in ['x', 'y', 'z']]
-    u = bdd.add_expr('x & y')
-    v = bdd.add_expr('x & z')
+    u = bdd.add_expr('x /\ y')
+    v = bdd.add_expr('x /\ z')
     assert len(u) == 3, len(u)
     assert len(v) == 3, len(v)
     cudd.reorder(bdd, dict(x=0, y=1, z=2))
@@ -695,7 +695,7 @@ def test_function():
     assert low == bdd.false, low
     high = x.high
     assert high == bdd.true, high
-    # ! x
+    # ~ x
     not_x = ~x
     assert not_x.negated
     low = not_x.low

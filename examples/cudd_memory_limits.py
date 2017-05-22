@@ -1,4 +1,3 @@
-#!usr/bin/env python
 """How place an upper bound on the memory CUDD consumes."""
 from dd import cudd
 

@@ -1111,8 +1111,14 @@ in the negated value computed for node `y-3` in the next image.
 
 ## Footnotes
 
-If you are interested in exploring other decision diagram packages,
-you can find [a list at `github.com/johnyf/tool_lists/`](
+- `Ctrl + C` won't interrupt a C extension, so if CUDD takes a long
+  time, your script will be unresponsive. Instead, launch the script
+  as a background job with `python script.py &` and use the printed
+  PID to terminate it. (Supporting `Ctrl + C` [is possible](
+  https://stackoverflow.com/a/33621355/1959808), but convoluted.)
+
+- If you are interested in exploring other decision diagram packages,
+  you can find [a list at `github.com/johnyf/tool_lists/`](
     https://github.com/johnyf/tool_lists/blob/master/bdd.md).
 
 

@@ -1465,7 +1465,7 @@ cdef class Function(object):
                 i=int(self))
 
     def __str__(self):
-        return str(int(self))
+        return '@' + str(int(self))
 
     def __len__(self):
         return Cudd_DagSize(self.node)

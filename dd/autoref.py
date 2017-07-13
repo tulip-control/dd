@@ -301,9 +301,6 @@ class Function(_abc.Operator):
     def __int__(self):
         return self.node
 
-    def __str__(self):
-        return str(int(self))
-
     def __len__(self):
         return len(self.manager.descendants([self.node]))
 

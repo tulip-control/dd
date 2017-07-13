@@ -160,13 +160,15 @@ u = bdd.add_expr('\A x:  \E y:  y \/ z')
 assert u == bdd.true, u
 ```
 
-`dd` supports "inline BDD references" via the `@` operator. These enable you
-to mention existing BDD nodes in formulas, without the need to expand them as
-formulas. For example:
+`dd` supports "inline BDD references" via the `@` operator. Each BDD node `u`
+has an integer representation `int(u)` and a string representation `str(u)`.
+For example, if the integer representation is `5`, then the string
+representation is `@5`. These enable you to mention existing BDD nodes
+in formulas, without the need to expand them as formulas. For example:
 
 ```python
 u = bdd.add_expr('y \/ z')
-s = 'x /\ @{r}'.format(u=u)
+s = 'x /\ {r}'.format(u=u)
 v = bdd.add_expr(s)
 v_ = bdd.add_expr('x /\ (y \/ z)')
 assert v == v_
@@ -991,7 +993,7 @@ expr ::= '\A' names ':' expr  # universal quantification (forall)
        | expr '=' expr    #
        | '(' expr ')'     # parentheses
        | NAME             # identifier (bit variable)
-       | INTEGER          # BDD node reference
+       | '@' INTEGER      # BDD node reference
        | 'False'          # Boolean constant
        | 'True'           # Boolean constant
 

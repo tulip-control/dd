@@ -20,7 +20,7 @@ class Lexer(astutils.Lexer):
         'TRUE': 'TRUE'}
     delimiters = ['LPAREN', 'RPAREN', 'COMMA']
     operators = ['NOT', 'AND', 'OR', 'XOR', 'IMPLIES', 'EQUIV',
-                 'EQUALS', 'MINUS', 'DIV',
+                 'EQUALS', 'MINUS', 'DIV', 'AT',
                  'COLON', 'FORALL', 'EXISTS', 'RENAME']
     misc = ['NAME', 'NUMBER']
 
@@ -66,6 +66,7 @@ class Lexer(astutils.Lexer):
     t_EXISTS = r'\\E'
     t_RENAME = r'\\S'
     t_DIV = r'/'
+    t_AT = r'@'
     t_ignore = " \t"
 
     def t_comment(self, t):
@@ -102,12 +103,16 @@ class Parser(astutils.Parser):
         """
         p[0] = self.nodes.Terminal(p[1], 'bool')
 
+    def p_node(self, p):
+        """expr : AT number"""
+        p[0] = p[2]
+
     def p_number(self, p):
-        """expr : NUMBER"""
+        """number : NUMBER"""
         p[0] = self.nodes.Terminal(p[1], 'num')
 
     def p_negative_number(self, p):
-        """expr : MINUS NUMBER %prec UMINUS"""
+        """number : MINUS NUMBER %prec UMINUS"""
         x = p[1] + p[2]
         p[0] = self.nodes.Terminal(x, 'num')
 

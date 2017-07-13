@@ -16,8 +16,19 @@ name = 'dd'
 description = (
     'Binary decision diagrams implemented in pure Python, '
     'as well as Cython wrappers of CUDD, Sylvan, and BuDDy.')
+long_description = (
+    'dd is a package for working with binary decision diagrams '
+    'that includes both a pure Python implementation and '
+    'Cython bindings to C libraries (CUDD, Sylvan, BuDDy). '
+    'The Python and Cython modules implement the same API, '
+    'so the same user code runs with both. '
+    'All the standard operations on BDDs are available, '
+    'including dynamic variable reordering using sifting, '
+    'garbage collection, dump/load from files, plotting, '
+    'and a parser of quantified Boolean expressions. '
+    'More details can be found in the README at: '
+    'https://github.com/johnyf/dd')
 url = 'https://github.com/johnyf/{name}'.format(name=name)
-README = 'README.md'
 VERSION_FILE = '{name}/_version.py'.format(name=name)
 MAJOR = 0
 MINOR = 5
@@ -129,7 +140,7 @@ def run_setup():
         name=name,
         version=version,
         description=description,
-        long_description=open(README).read(),
+        long_description=long_description,
         author='Ioannis Filippidis',
         author_email='jfilippidis@gmail.com',
         url=url,

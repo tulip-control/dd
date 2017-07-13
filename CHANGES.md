@@ -1,6 +1,41 @@
 # dd changelog
 
 
+## 0.5.2
+
+API:
+
+- require `networkx < 2.0.0`
+- add module `dd._abc` that defines API implemented by other modules.
+- add method `declare` to `BDD` classes
+- add methods `implies` and `equiv` to class `cudd.Function`
+- change BDD node reference syntax to "@ INTEGER"
+- change `Function.__str__` to include `@` in modules `cudd` and `autoref`
+- deprecate `BDD` methods `compose`, `cofactor`, `rename`, `evaluate`,
+  instead use `BDD.let`
+- class `BDD` in modules `autoref`, `bdd`, `cudd`, `sylvan`:
+  - methods `pick`, `pick_iter`:
+    rename argument from `care_bits` to `care_vars`
+- class `BDD` in modules `autoref`, `bdd`:
+  - method `count`:
+    rename argument from `n` to `nvars`
+- class `BDD` in modules `bdd`, `cudd`:
+  - allow swapping variables in method `rename`,
+    accept only variable names, not levels
+- rm argument `bdd` from functions:
+  - `image`, `preimage` in module `autoref`
+  - `and_exists`, `or_forall`, `dump` in module `cudd`
+  - `and_exists`, `or_forall` in module `sylvan`
+- rm argument `roots` from method `autoref.BDD.collect_garbage`
+- rm argument `source` from function:
+  `copy_bdd` in modules `autoref`, `cudd`
+- rm function `cudd.rename`, use method `cudd.BDD.let`
+- rm function `autoref.rename`, use method `autoref.BDD.let`
+- rm method `autoref.Function.__xor__`
+- add TLA constants "TRUE" and "FALSE" to syntax,
+  use these in method `BDD.to_expr`
+
+
 ## 0.5.1
 
 API:

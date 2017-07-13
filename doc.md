@@ -20,7 +20,7 @@
     - [Reordering](#reordering)
     - [Other methods](#other-methods)
 - [Example: Reachability analysis](#example-reachability-analysis)
-- [Syntax for quantified Boolean formulae](#syntax-for-quantified-boolean-formulae)
+- [Syntax for quantified Boolean formulas](#syntax-for-quantified-boolean-formulas)
 - [Multi-valued decision diagrams (MDD)](#multi-valued-decision-diagrams-mdd)
 - [Footnotes](#footnotes)
 
@@ -59,9 +59,9 @@ The adjectives mean:
 
 - binary: each node represents a propositional formula
 - ordered: variables have a fixed order that changes in a controlled way
-- reduced: given variable order, equivalent propositional formulae are
+- reduced: given variable order, equivalent propositional formulas are
   represented by a unique diagram
-- shared: common subformulae are represented using common elements in memory.
+- shared: common subformulas are represented using common elements in memory.
 
 The manager is a directed graph, with each node representing a formula.
 Each formula can be understood as a collection of assignments to variables.
@@ -96,7 +96,7 @@ so logical negation takes *constant* time.
 
 Roughly four kinds of operations suffice to perform most tasks:
 
-- creating BDDs from formulae
+- creating BDDs from formulas
 - quantification (`forall`, `exist`)
 - substitution (`let`)
 - enumerating models that satisfy a BDD
@@ -118,7 +118,7 @@ v = bdd.add_expr('z \/ ~ y')  # disjunction and negation
 w = u & ~ v
 ```
 
-The formulae above are in [TLA+](https://en.wikipedia.org/wiki/TLA%2B) syntax.
+The formulas above are in [TLA+](https://en.wikipedia.org/wiki/TLA%2B) syntax.
 If you prefer the syntax `&, |, !`, the parser recognizes those operators too.
 The inverse of `BDD.add_expr` is `BDD.to_expr`:
 
@@ -147,7 +147,7 @@ u = bdd.add_expr('x /\ y')
 v = bdd.exist(['x'], u)
 ```
 
-or by writing quantified formulae
+or by writing quantified formulas
 
 ```python
 # there exists a value of x, such that (x and y)
@@ -161,8 +161,8 @@ assert u == bdd.true, u
 ```
 
 `dd` supports "inline BDD references" via the `@` operator. These enable you
-to mention existing BDD nodes in formulae, without the need to expand them as
-formulae. For example:
+to mention existing BDD nodes in formulas, without the need to expand them as
+formulas. For example:
 
 ```python
 u = bdd.add_expr('y \/ z')
@@ -176,7 +176,7 @@ Substitution comes in several forms:
 
 - replace some variable names by other variable names
 - replace some variable names by Boolean constants
-- replace some variable names by BDD nodes, so by arbitrary formulae
+- replace some variable names by BDD nodes, so by arbitrary formulas
 
 All these kinds of substitution are performed via the method `let`,
 which takes a `dict` that maps the variable names to replacements.
@@ -958,7 +958,7 @@ arithmetic and automata, and examples, can be found in the package [`omega`](
     https://github.com/johnyf/omega/blob/master/doc/doc.md).
 
 
-## Syntax for quantified Boolean formulae
+## Syntax for quantified Boolean formulas
 
 The method `BDD.add_expr` parses the following grammar.
 

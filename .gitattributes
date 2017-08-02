@@ -7,3 +7,4 @@
 *.md eol=lf
 *.yml eol=lf
 
+* filter=trimWhitespace

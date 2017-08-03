@@ -1461,10 +1461,10 @@ cdef class Function(object):
         cdef DdNode *u
         u = Cudd_Regular(self.node)
         return (
-            'Function(DdNode with: '
-            'var_index={idx}, '
-            'ref_count={ref}, '
-            '__int__={i})').format(
+            'Function (DdNode) with '
+            'var index: {idx}, '
+            'ref count: {ref}, '
+            'int repr: {i}').format(
                 idx=u.index,
                 ref=u.ref,
                 i=int(self))

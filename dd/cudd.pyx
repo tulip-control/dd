@@ -1345,7 +1345,8 @@ cdef class Function(object):
 
     Attributes:
 
-      - `index`
+      - `_index`
+      - `var`
       - `level`
       - `ref`
       - `low`

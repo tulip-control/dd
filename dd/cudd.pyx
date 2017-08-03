@@ -1389,7 +1389,6 @@ cdef class Function(object):
     def _index(self):
         """Index of `self.node`."""
         cdef DdNode *u
-        u = Cudd_Regular(self.node)
         index = Cudd_NodeReadIndex(self.node)
         return index
 

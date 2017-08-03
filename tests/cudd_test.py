@@ -695,6 +695,7 @@ def test_function():
     assert low == bdd.false, low
     high = x.high
     assert high == bdd.true, high
+    assert x.var == 'x', x.var
     # ~ x
     not_x = ~x
     assert not_x.negated
@@ -702,6 +703,12 @@ def test_function():
     assert low == bdd.false, low
     high = not_x.high
     assert high == bdd.true, high
+    assert not_x.var == 'x', not_x.var
+    # constant nodes
+    false = bdd.false
+    assert false.var is None, false.var
+    true = bdd.true
+    assert true.var is None, true.var
 
 
 def test_function_support():

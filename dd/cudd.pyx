@@ -1395,7 +1395,12 @@ cdef class Function(object):
 
     @property
     def var(self):
-        """Variable at level where this node is."""
+        """Variable at level where this node is.
+
+        If node is constant, return `None`.
+        """
+        if Cudd_IsConstant(self.node):
+            return None
         return self.bdd._var_with_index[self._index]
 
     @property

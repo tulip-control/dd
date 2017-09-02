@@ -21,7 +21,7 @@ def solve_queens(n):
 
     @rtype: `int`, `BDD`
     """
-    v = [_var_str(i, j) for i in xrange(n) for j in xrange(n)]
+    v = [_var_str(i, j) for i in range(n) for j in range(n)]
     d = {xij: level for level, xij in enumerate(v)}
     bdd = _bdd.BDD(d)
     s = queens_formula(n)
@@ -45,8 +45,8 @@ def queens_formula(n):
 def at_least_one_queen_per_row(n):
     """Return formula as `str`."""
     c = list()
-    for i in xrange(n):
-        xijs = [_var_str(i, j) for j in xrange(n)]
+    for i in range(n):
+        xijs = [_var_str(i, j) for j in range(n)]
         s = disj(xijs)
         c.append(s)
     return conj(c)
@@ -58,11 +58,11 @@ def at_most_one_queen_per_line(row, n):
     @param row: if `True`, then constrain rows, else columns.
     """
     c = list()
-    for i in xrange(n):
+    for i in range(n):
         if row:
-            xijs = [_var_str(i, j) for j in xrange(n)]
+            xijs = [_var_str(i, j) for j in range(n)]
         else:
-            xijs = [_var_str(j, i) for j in xrange(n)]
+            xijs = [_var_str(j, i) for j in range(n)]
         s = mutex(xijs)
         c.append(s)
     return conj(c)
@@ -81,11 +81,11 @@ def at_most_one_queen_per_diagonal(slash, n):
     else:
         a = 0
         b = 2 * n
-    for k in xrange(a, b):
+    for k in range(a, b):
         if slash:
-            ij = [(i, i + k) for i in xrange(n)]
+            ij = [(i, i + k) for i in range(n)]
         else:
-            ij = [(i, k - i) for i in xrange(n)]
+            ij = [(i, k - i) for i in range(n)]
         ijs = [(i, j) for i, j in ij if 0 <= i < n and 0 <= j < n]
         if not ij:
             continue
@@ -136,7 +136,7 @@ if __name__ == '__main__':
     n_max = 9
     fname = 'dd_times.p'
     times = dict()
-    for n in xrange(n_max + 1):
+    for n in range(n_max + 1):
         t = benchmark(n)
         times[n] = t
     f = open(fname, 'w')

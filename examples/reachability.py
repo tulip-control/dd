@@ -41,7 +41,7 @@ def least_fixpoint(transitions, bdd):
     # fixpoint reached ?
     while q != qold:
         qold = q
-        next_q = _bdd.rename(q, bdd, prime)
+        next_q = bdd.let(prime, q)
         u = transitions & next_q
         # existential quantification over x0', x1'
         pred = bdd.exist(qvars, u)

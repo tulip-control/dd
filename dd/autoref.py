@@ -166,7 +166,7 @@ class BDD(_abc.BDD):
 
     def sat_len(self, u, n=None):
         warnings.warn(
-            'call method `count` instead',
+            'call the method `count` instead',
             DeprecationWarning)
         return self.count(u, n)
 
@@ -180,7 +180,7 @@ class BDD(_abc.BDD):
 
     def sat_iter(self, u, care_bits=None):
         warnings.warn(
-            'call method `pick_iter` instead',
+            'call the method `pick_iter` instead',
             DeprecationWarning)
         return self.pick_iter(u, care_bits)
 

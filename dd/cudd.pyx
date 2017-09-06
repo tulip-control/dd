@@ -660,6 +660,9 @@ cdef class BDD(object):
 
         @param var_sub: `dict` from variable names to nodes.
         """
+        warnings.warn(
+            'call the method `let` instead',
+            DeprecationWarning)
         n = len(var_sub)
         if n == 0:
             logger.warning('call without any effect')
@@ -707,6 +710,9 @@ cdef class BDD(object):
 
     cpdef Function cofactor(self, Function f, values):
         """Return the cofactor f|_g."""
+        warnings.warn(
+            'call the method `let` instead',
+            DeprecationWarning)
         assert self.manager == f.manager
         cdef DdNode *r
         cdef Function cube
@@ -717,6 +723,9 @@ cdef class BDD(object):
 
     cpdef Function rename(self, Function u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
+        warnings.warn(
+            'call the method `let` instead',
+            DeprecationWarning)
         # assert old and new vars are disjoint sets
         target_vars = dvars.values()
         common = set(dvars).intersection(target_vars)

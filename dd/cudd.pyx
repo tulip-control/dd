@@ -649,7 +649,7 @@ cdef class BDD(object):
             value + 's'
         except TypeError:
             raise ValueError(
-                'Key must be variable name as `str`, '
+                'Value must be variable name as `str`, '
                 'or Boolean value as `bool`, '
                 'or BDD node as `int`. Got: {value}'.format(
                     value=value))

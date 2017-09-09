@@ -1,4 +1,4 @@
-cython==0.25.1
+cython==0.26.1
 
 
 # dev

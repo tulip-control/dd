@@ -226,7 +226,7 @@ class BDD(_abc.BDD):
                        filetype=filetype)
 
     def load(self, filename, levels=True):
-        umap = self._bdd.BDD.load(filename, levels=levels)
+        umap = self._bdd.load(filename, levels=levels)
         umap = {u: self._wrap(umap[u]) for u in umap}
         return umap
 

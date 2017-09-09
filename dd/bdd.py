@@ -1820,7 +1820,7 @@ def copy_vars(source, target):
 
 
 def copy_bdd(u, from_bdd, to_bdd):
-    """Copy function of node `u` `from_bdd` `to_bdd`.
+    """Copy BDD of node `u` `from_bdd` `to_bdd`.
 
     @param u: node in `from_bdd`
     @type from_bdd, to_bdd: `BDD`

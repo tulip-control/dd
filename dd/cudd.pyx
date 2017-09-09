@@ -610,7 +610,7 @@ cdef class BDD(object):
         return level
 
     cpdef support(self, Function f):
-        """Return the variables that node `f` depends on."""
+        """Return `set` of variables that node `f` depends on."""
         assert self.manager == f.manager, f
         cdef DdNode *r
         r = Cudd_Support(self.manager, f.node)
@@ -753,6 +753,7 @@ cdef class BDD(object):
         return wrap(self, r)
 
     cpdef Function ite(self, Function g, Function u, Function v):
+        """Ternary conditional `IF g THEN u ELSE v`."""
         assert g.manager == self.manager
         assert u.manager == self.manager
         assert v.manager == self.manager
@@ -1176,7 +1177,7 @@ def copy_vars(BDD source, BDD target):
 
 
 cpdef copy_bdd(Function u, BDD target):
-    """Transfer the node `u` to `bdd`.
+    """Copy BDD of node `u` to manager `target`.
 
     Turns off reordering in `source`
     when checking for missing vars in `target`.

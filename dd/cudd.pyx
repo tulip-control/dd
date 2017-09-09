@@ -1523,6 +1523,20 @@ cdef class Function(object):
         r = Cudd_bddOr(self.manager, self.node, other.node)
         return wrap(self.bdd, r)
 
+    def implies(Function self, Function other):
+        assert self.manager == other.manager
+        r = Cudd_bddIte(
+            self.manager, self.node,
+            other.node, Cudd_ReadOne(self.manager))
+        return wrap(self.bdd, r)
+
+    def equiv(Function self, Function other):
+        assert self.manager == other.manager
+        r = Cudd_bddIte(
+            self.manager, self.node,
+            other.node, Cudd_Not(other.node))
+        return wrap(self.bdd, r)
+
     def let(Function self, **definitions):
         return self.bdd.let(definitions, self)
 

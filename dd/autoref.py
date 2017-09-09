@@ -30,6 +30,7 @@ class BDD(_abc.BDD):
     with the difference that `Function`s replace nodes
     as arguments and returned types.
     """
+    # omitted docstrings are inheritted from `super()`
 
     def __init__(self, levels=None):
         manager = _bdd.BDD(levels)
@@ -354,11 +355,6 @@ class Function(_abc.Operator):
         return self._apply('implies', other)
 
     def equiv(self, other):
-        """Return equivalence.
-
-        Differs from `__eq__` in that it returns a BDD
-        as `Function`, instead of `bool`.
-        """
         return self._apply('equiv', other)
 
     def _apply(self, op, other):

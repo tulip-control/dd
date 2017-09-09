@@ -141,6 +141,7 @@ class BDD(_abc.BDD):
     nodes using `find_or_add` to keep the table updated,
     or call `update_predecessors` prior to calling `ite`.
     """
+    # omitted docstrings are inheritted from `super()`
 
     def __init__(self, levels=None):
         if levels is None:
@@ -288,7 +289,6 @@ class BDD(_abc.BDD):
 
     @_try_to_reorder
     def var(self, var):
-        """Return node for variable named `var`."""
         assert var in self.vars, (
             'undefined variable "{v}", '
             'known variables are:\n {d}').format(
@@ -391,12 +391,6 @@ class BDD(_abc.BDD):
         return False
 
     def support(self, u, as_levels=False):
-        """Return variables that node `u` depends on.
-
-        @param as_levels: if `True`, then return variables
-            as integers, insted of strings
-        @rtype: `set`
-        """
         levels = set()
         nodes = set()
         self._support(u, levels, nodes)
@@ -703,13 +697,6 @@ class BDD(_abc.BDD):
 
     @_try_to_reorder
     def ite(self, g, u, v):
-        """Return node for if-then-else of `g`, `u` and `v`.
-
-        @param u: high
-        @param v: low
-        @type g, u, v: `int`
-        @rtype: `int`
-        """
         # wrap so reordering can delete unreferenced nodes
         return self._ite(g, u, v)
 
@@ -1155,13 +1142,6 @@ class BDD(_abc.BDD):
 
     @_try_to_reorder
     def add_expr(self, e):
-        """Return node for expression `e`, after adding it.
-
-        If you would like to use your own parser,
-        you can use utilities from `dd._parser`.
-
-        @type expr: `str`
-        """
         return _parser.add_expr(e, self)
 
     def to_expr(self, u):
@@ -1218,16 +1198,11 @@ class BDD(_abc.BDD):
                 'unknown operator "{op}"'.format(op=op))
 
     def _add_int(self, i):
-        """Return node from integer `i`."""
         assert i in self, i
         return i
 
     @_try_to_reorder
     def cube(self, dvars):
-        """Return node for conjunction of literals in `dvars`.
-
-        @param dvars: `dict` that maps each variable to a `bool`
-        """
         # `dvars` keys can be var names or levels
         r = self.true
         for var, val in items(dvars):
@@ -1238,27 +1213,6 @@ class BDD(_abc.BDD):
 
     def dump(self, filename, roots=None,
              filetype=None, **kw):
-        """Write BDDs to `filename`.
-
-        The file type is inferred from the
-        extension (case insensitive),
-        unless a `filetype` is explicitly given.
-
-        File types:
-
-          - pickle: `'.p'`
-          - PDF: `'.pdf'`
-          - PNG: `'.png'`
-          - SVG: `'.svg'`
-
-        Dump nodes reachable from `roots`.
-        If `roots is None`,
-        then all nodes in the manager are dumped.
-
-        @type filename: `str`
-        @type filetype: `str`, e.g., `"pdf"`
-        @type roots: container of nodes
-        """
         if filetype is None:
             name = filename.lower()
             if name.endswith('.pdf'):
@@ -1313,16 +1267,6 @@ class BDD(_abc.BDD):
             pickle.dump(d, f, **kw)
 
     def load(self, filename, levels=True):
-        """Load nodes from pickle file `filename`.
-
-        If `levels is True`,
-        then load variables at the same levels.
-        Otherwise, add missing variables.
-
-        @type filename: `str`
-        @return: map from dumped to loaded nodes
-        @rtype: `dict`
-        """
         with open(filename, 'rb') as f:
             d = pickle.load(f)
         var2level = d['vars']

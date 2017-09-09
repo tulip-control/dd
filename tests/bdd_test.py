@@ -750,6 +750,8 @@ def test_sifting():
     n = len(g)
     assert n == 15, n
     _bdd.reorder(g)
+    n_ = len(g)
+    assert n > n_, (n, n_)
     u_ = g.add_expr('(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)')
     g.incref(u)
     g.collect_garbage()

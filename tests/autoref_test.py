@@ -1,5 +1,7 @@
 import logging
+
 from dd import autoref as _bdd
+import dd.bdd
 from nose.tools import assert_raises
 
 
@@ -14,6 +16,16 @@ def test_true_false():
     assert false == ~ true
     assert false == false & true
     assert true == true | false
+
+
+def test_succ():
+    bdd = _bdd.BDD()
+    bdd.declare('x')
+    u = bdd.var('x')
+    level, low, high = bdd.succ(u)
+    assert level == 0, level
+    assert low == bdd.false, low
+    assert high == bdd.true, high
 
 
 def test_add_var():
@@ -36,6 +48,54 @@ def test_var_cofactor():
     values = dict(x=True)
     u = bdd.let(values, x)
     assert u == bdd.true, u
+
+
+def test_var_levels():
+    bdd = _bdd.BDD()
+    # single variable
+    bdd.declare('x')
+    level = bdd.level_of_var('x')
+    assert level == 0, level
+    var = bdd.var_at_level(0)
+    assert var == 'x', var
+    # two variables
+    bdd.declare('y')
+    x_level = bdd.level_of_var('x')
+    var = bdd.var_at_level(x_level)
+    assert var == 'x', var
+    y_level = bdd.level_of_var('y')
+    var = bdd.var_at_level(y_level)
+    assert var == 'y', var
+    assert x_level != y_level, (x_level, y_level)
+    assert x_level >= 0, x_level
+    assert y_level >= 0, y_level
+
+
+def test_manager_eq():
+    bdd = _bdd.BDD()
+    assert bdd == bdd
+    other = _bdd.BDD()
+    assert bdd != other
+
+
+def test_str():
+    bdd = _bdd.BDD()
+    s = str(bdd)
+    assert isinstance(s, str), s
+
+
+def test_copy():
+    bdd = _bdd.BDD()
+    other = _bdd.BDD()
+    bdd.declare('x')
+    other.declare('x')
+    u = bdd.add_expr('~ x')
+    v = bdd.copy(u, other)
+    v_ = other.add_expr('~ x')
+    assert v == v_, (v, v_)
+    # copy to same manager
+    w = bdd.copy(u, bdd)
+    assert u == w, (u, w)
 
 
 def test_compose():
@@ -110,6 +170,10 @@ def test_apply():
     u = bdd.apply('xor', x, y)
     v = bdd.apply('^', x, y)
     assert u == v, (u, v)
+    # ternary
+    u = bdd.apply('ite', x, y, ~ z)
+    u_ = bdd.add_expr('(x /\ y) \/ (~ x /\ ~ z)')
+    assert u == u_, (u, u_)
 
 
 def test_quantify():
@@ -177,8 +241,29 @@ def test_add_expr():
     assert u == bdd.true, u
 
 
+def test_ite():
+    bdd = _bdd.BDD()
+    bdd.declare('x')
+    x = bdd.var('x')
+    u = bdd.ite(x, bdd.false, bdd.true)
+    assert u == ~ x, (u, x)
+
+
+def test_find_or_add():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y')
+    n = len(bdd)
+    u = bdd.find_or_add('x', bdd.true, bdd.false)
+    m = len(bdd)
+    assert n < m, (n, m)
+    u_ = bdd.find_or_add('x', bdd.true, bdd.false)
+    assert u == u_, (u, u_)
+    m_ = len(bdd)
+    assert m == m_, (m, m_)
+
+
 def test_support():
-    # signle var
+    # single var
     bdd = _bdd.BDD()
     bdd.add_var('x')
     x = bdd.var('x')
@@ -190,6 +275,70 @@ def test_support():
     x_and_y = bdd.apply('and', x, y)
     supp = bdd.support(x_and_y)
     assert supp == set(['x', 'y']), supp
+    # method `Function.support`
+    supp_ = x_and_y.support
+    assert supp == supp_, (supp, supp_)
+
+
+def test_count():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y')
+    u = bdd.add_expr('x')
+    n = bdd.count(u)
+    assert n == 1, n
+    u = bdd.add_expr('x /\ y')
+    n = bdd.count(u)
+    assert n == 1, n
+    u = bdd.add_expr('x \/ y')
+    n = bdd.count(u)
+    assert n == 3, n
+
+
+def test_pick_iter():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y')
+    # single var
+    u = bdd.add_expr('x')
+    models = list(bdd.pick_iter(u))
+    models_ = [dict(x=True)]
+    assert models == models_, (models, models_)
+    # two vars
+    u = bdd.add_expr('x \/ y')
+    models = list(bdd.pick_iter(u))
+    models_ = [
+        dict(x=True, y=True),
+        dict(x=True, y=False),
+        dict(x=False, y=True)]
+    for m in models:
+        assert m in models_
+    for m in models_:
+        assert m in models
+
+
+def test_to_expr():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y')
+    u = bdd.add_expr('x')
+    s = bdd.to_expr(u)
+    assert s == 'x', s
+    u = bdd.add_expr('x /\ y')
+    s = bdd.to_expr(u)
+    assert s == 'ite(x, y, FALSE)', s
+
+
+def test_dump_load():
+    vrs = ['x', 'y', 'z']
+    s = 'x \/ y \/ ~ z'
+    fname = 'foo.p'
+    # dump
+    bdd = _bdd.BDD()
+    bdd.declare(*vrs)
+    u = bdd.add_expr(s)
+    bdd.dump(fname, roots=[u])
+    # load
+    other = _bdd.BDD()
+    umap = other.load(fname)
+    assert len(umap) == 3, umap
 
 
 def test_image():
@@ -224,6 +373,70 @@ def test_reorder():
     assert u in bdd
 
 
+def test_reorder_2():
+    bdd = _bdd.BDD()
+    vrs = [
+        'x', 'y', 'z', 'a', 'b', 'c', 'e',
+        'z1', 'z2', 'z3', 'y1', 'y2', 'y3']
+    bdd = _bdd.BDD()
+    bdd.declare(*vrs)
+    expr_1 = '(~ z \/ (c /\ b)) /\ e /\ (a /\ (~ x \/ y))'
+    # Figs. 6.24, 6.25 Baier 2008
+    expr_2 = '(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
+    u = bdd.add_expr(expr_1)
+    v = bdd.add_expr(expr_2)
+    bdd.collect_garbage()
+    n = len(bdd)
+    assert n == 23, n
+    _bdd.reorder(bdd)
+    n_ = len(bdd)
+    assert n > n_, (n, n_)
+    bdd.assert_consistent()
+
+
+def test_configure_dynamic_reordering():
+    bdd = _bdd.BDD()
+    vrs = [
+        'x', 'y', 'z', 'a', 'b', 'c', 'e',
+        'z1', 'z2', 'z3', 'y1', 'y2', 'y3']
+    expr_1 = '(~ z \/ (c /\ b)) /\ e /\ (a /\ (~ x \/ y))'
+    expr_2 = '(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
+    # w/o dynamic reordering
+    bdd = _bdd.BDD()
+    bdd.declare(*vrs)
+    u = bdd.add_expr(expr_1)
+    v = bdd.add_expr(expr_2)
+    bdd.collect_garbage()
+    n = len(bdd)
+    assert n == 23, n
+    # with dynamic reordering
+    del u, v, bdd
+    dd.bdd.REORDER_STARTS = 7
+    bdd = _bdd.BDD()
+    bdd.declare(*vrs)
+    bdd.configure(reordering=True)
+    u = bdd.add_expr(expr_1)
+    v = bdd.add_expr(expr_2)
+    bdd.collect_garbage()
+    n = len(bdd)
+    assert n < 23, n
+
+
+def test_collect_garbage():
+    bdd = _bdd.BDD()
+    n = len(bdd)
+    assert n == 1, n
+    bdd.declare('x', 'y')
+    u = bdd.add_expr('x \/ y')
+    bdd.collect_garbage()
+    n = len(bdd)
+    assert n > 1, n
+    del u
+    bdd.collect_garbage()
+    n = len(bdd)
+    assert n == 1, n
+
+
 def test_copy_vars():
     bdd = _bdd.BDD()
     other = _bdd.BDD()
@@ -245,6 +458,85 @@ def test_copy_bdd():
     # involution
     u_ = _bdd.copy_bdd(v, bdd)
     assert u == u_, bdd.to_expr(u_)
+
+
+def test_node_hash():
+    bdd = _bdd.BDD()
+    bdd.declare('z')
+    u = bdd.add_expr('z')
+    n = hash(u)
+    m = hash(bdd.true)
+    assert n != m, (n, m)
+
+
+def test_add_int():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y')
+    u = bdd.add_expr('x \/ ~ y')
+    node_id = int(u)
+    u_ = bdd._add_int(node_id)
+    assert u == u_, (u, u_)
+    id2 = int(u_)
+    assert node_id == id2, (node_id, id2)
+    # test string form
+    node_str = str(u)
+    s = '@{nid}'.format(nid=node_id)
+    assert node_str == s, (node_str, s)
+
+
+def test_func_len():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y')
+    u = bdd.add_expr('x')
+    n = len(u)
+    assert n == 2, n
+    u = bdd.add_expr('x /\ y')
+    n = len(u)
+    assert n == 3, n
+
+
+def test_negated():
+    bdd = _bdd.BDD()
+    bdd.declare('x')
+    u = bdd.add_expr('x')
+    neg_u = bdd.add_expr('~ x')
+    a = u.negated
+    b = neg_u.negated
+    assert a or b, (a, b)
+    assert not (a and b), (a, b)
+
+
+def test_comparators():
+    bdd = _bdd.BDD()
+    # `None`
+    assert not (bdd.false == None)
+    assert not (bdd.true == None)
+    assert bdd.false != None
+    assert bdd.true != None
+    # constant
+    assert bdd.false < bdd.true
+    assert bdd.false <= bdd.true
+    assert bdd.false != bdd.true
+    assert bdd.true >= bdd.false
+    assert bdd.true > bdd.false
+    assert bdd.true == bdd.true
+    assert bdd.false == bdd.false
+    # non-constant
+    bdd.declare('x')
+    u = bdd.add_expr('x')
+    # compared to false
+    assert u > bdd.false
+    assert u >= bdd.false
+    assert u != bdd.false
+    assert bdd.false <= u
+    assert bdd.false < u
+    assert u == u
+    # compared to true
+    assert u < bdd.true
+    assert u <= bdd.true
+    assert u != bdd.true
+    assert bdd.true >= u
+    assert bdd.true > u
 
 
 if __name__ == '__main__':

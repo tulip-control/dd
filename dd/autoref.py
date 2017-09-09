@@ -213,10 +213,9 @@ class BDD(_abc.BDD):
         r = self._bdd.cube(dvars)
         return self._wrap(r)
 
-    def collect_garbage(self, roots=None):
-        if roots is not None:
-            roots = [u.node for u in roots]
-        self._bdd.collect_garbage(roots)
+    def collect_garbage(self):
+        """Recursively remove nodes with zero reference count."""
+        self._bdd.collect_garbage()
 
     def dump(self, filename, roots=None,
              filetype=None, **kw):

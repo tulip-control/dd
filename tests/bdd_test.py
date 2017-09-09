@@ -1188,7 +1188,7 @@ def test_function_wrapper():
     w = u & ~ v
     w_ = bdd.add_expr('(x /\ y) /\ ~ ((~ x) \/ z)')
     assert w_ == w, (w_, w)
-    r = (u | v) ^ w
+    r = ~ (u | v).equiv(w)
     r_ = bdd.add_expr(
         '( (x /\ y) \/ ((~ x) \/ z) ) ^'
         '( (x /\ y) /\ ~ ((~ x) \/ z) )')

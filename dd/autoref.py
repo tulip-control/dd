@@ -348,9 +348,6 @@ class Function(_abc.Operator):
     def __or__(self, other):
         return self._apply('or', other)
 
-    def __xor__(self, other):
-        return self._apply('xor', other)
-
     def implies(self, other):
         return self._apply('implies', other)
 

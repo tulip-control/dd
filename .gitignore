@@ -25,3 +25,4 @@ build/*
 *.egg-info
 *.swp
 *.tags
+*.xml

@@ -36,7 +36,7 @@ def test_sample0():
         (4, 1, 0), (4, 2, 0),
         (3, 1, 0), (3, 2, 0),
         (2, 1, 0), (2, 1, 1)}
-    assert set(h.edges_iter(keys=True)) == edges
+    assert set(h.edges(keys=True)) == edges
     # complemented edges
     assert h[4][2][0]['label'] == '-1'
     assert h[2][1][0]['label'] == '-1'

@@ -197,7 +197,7 @@ class Parser(object):
             raise Exception('failed to parse')
 
         # support_var_ord_ids = {
-        #     d['var_index'] for u, d in g.nodes_iter(data=True)}
+        #     d['var_index'] for u, d in g.nodes(data=True)}
         # assert len(support_var_ord_ids) == self.n_support_vars
         # prepare levels
         if self.ordered_vars is None:

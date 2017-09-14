@@ -530,8 +530,9 @@ def test_rename():
     assert f == f_, (f, f_)
     # x -> x
     d = dict(x='y', y='x')
-    with assert_raises(AssertionError):
-        bdd.let(d, u)
+    f = bdd.let(d, u)
+    f_ = bdd.apply('or', ~ x, y)
+    assert f == f_, (f, f_)
     del x, y, not_y, z, w, not_w, u, f, f_
     # as method
     x = bdd.var('x')

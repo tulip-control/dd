@@ -10,6 +10,7 @@ sylvan/
 *.out
 *parsetab.py
 *.c
+__pycache__
 *.pyc
 *.whl
 *.pdf

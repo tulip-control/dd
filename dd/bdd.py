@@ -985,13 +985,6 @@ class BDD(_abc.BDD):
             # restore index of y node that moved up
             return (y, v, w)
 
-    def sat_len(self, u, n=None):
-        """Deprecated. Call method `count` instead."""
-        warnings.warn(
-            'call method `count` instead',
-            DeprecationWarning)
-        return self.count(u, n)
-
     def count(self, u, nvars=None):
         n = nvars
         assert abs(u) in self, u
@@ -1066,13 +1059,6 @@ class BDD(_abc.BDD):
         for cube in self._sat_iter(u, cube, value):
             for m in _enumerate_minterms(cube, care_vars):
                 yield m
-
-    def sat_iter(self, u, care_bits=None):
-        """Deprecated. Call method `pick_iter` instead."""
-        warnings.warn(
-            'call method `pick_iter` instead',
-            DeprecationWarning)
-        return self.pick_iter(u, care_bits)
 
     def _sat_iter(self, u, cube, value):
         """Recurse to enumerate models."""

@@ -758,12 +758,6 @@ cdef class BDD(object):
         r = cuddUniqueInter(self.manager, index, high.node, low.node)
         return wrap(self, r)
 
-    def sat_len(self, Function u, int nvars):
-        warnings.warn(
-            'call method `count` instead',
-            DeprecationWarning)
-        return self.count(u, nvars)
-
     def count(self, Function u, int nvars):
         """Return number of models of node `u`.
 
@@ -811,13 +805,6 @@ cdef class BDD(object):
         finally:
             Cudd_GenFree(gen)
         self.configure(reordering=True)
-
-    def sat_iter(self, Function u, care_bits=None):
-        """Deprecated. Call method `pick_iter` instead."""
-        warnings.warn(
-            'call method `pick_iter` instead',
-            DeprecationWarning)
-        return self.pick_iter(u, care_bits)
 
     cpdef Function apply(
             self,

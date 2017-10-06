@@ -134,12 +134,6 @@ class BDD(_abc.BDD):
         r = self._bdd.find_or_add(level, low.node, high.node)
         return self._wrap(r)
 
-    def sat_len(self, u, n=None):
-        warnings.warn(
-            'call the method `count` instead',
-            DeprecationWarning)
-        return self.count(u, n)
-
     def count(self, u, nvars=None):
         assert u in self, u
         return self._bdd.count(u.node, nvars)
@@ -147,12 +141,6 @@ class BDD(_abc.BDD):
     def pick_iter(self, u, care_vars=None):
         assert u in self, u
         return self._bdd.pick_iter(u.node, care_vars)
-
-    def sat_iter(self, u, care_bits=None):
-        warnings.warn(
-            'call the method `pick_iter` instead',
-            DeprecationWarning)
-        return self.pick_iter(u, care_bits)
 
     def add_expr(self, e):
         r = self._bdd.add_expr(e)

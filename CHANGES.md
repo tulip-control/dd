@@ -1,6 +1,19 @@
 # dd changelog
 
 
+## 0.5.3
+
+- distribute `manylinux1_x86_64` wheel via PyPI
+
+API:
+
+- update to `networkx >= 2.0` (works with `< 2.0` too)
+- class `BDD` in modules `autoref`, `bdd`, `cudd`, `sylvan`:
+  - remove deprecated methods (where present):
+    `compose`, `cofactor`, `rename`, `evaluate`,
+    `sat_iter`, `sat_len`
+
+
 ## 0.5.2
 
 API:

@@ -40,6 +40,7 @@ CUDD_LIB = ['cudd', 'dddmp']
 CUDD_CFLAGS = [
     # '-arch x86_64',
     '-fPIC',
+    '-std=c99',
     '-DBSD',
     '-DHAVE_IEEE_754',
     '-mtune=native', '-pthread', '-fwrapv',
@@ -148,7 +149,7 @@ def untar(fname):
 def make_cudd():
     """Compile CUDD."""
     path = CUDD_PATH
-    cmd = ["./configure", "CFLAGS=-fPIC"]
+    cmd = ["./configure", "CFLAGS=-fPIC -std=c99"]
     subprocess.call(cmd, cwd=path)
     subprocess.call(['make', '-j4'], cwd=path)
 

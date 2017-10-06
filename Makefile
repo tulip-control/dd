@@ -63,6 +63,7 @@ clean:
 	-rm dd/*.so dd/*.c
 	-rm *.pyc */*.pyc
 	-rm -rf __pycache__ */__pycache__
+	-rm -rf wheelhouse
 
 rm_cudd:
 	-rm -rf cudd*/ cudd*.tar.gz

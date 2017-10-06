@@ -2,6 +2,7 @@
 import ctypes
 import hashlib
 import os
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -85,6 +86,7 @@ def extensions(args):
     path = args.cudd if args.cudd else CUDD_PATH
     cudd_include = [(path, s) for s in CUDD_INCLUDE]
     cudd_link = [(path, s) for s in CUDD_LINK]
+    _copy_cudd_license(args)
     extensions = dict(
         cudd=Extension(
             'dd.cudd',
@@ -116,6 +118,20 @@ def extensions(args):
     else:
         ext_modules = list(extensions.values())
     return ext_modules
+
+
+def _copy_cudd_license(args):
+    """Include CUDD's license in wheels."""
+    path = args.cudd if args.cudd else CUDD_PATH
+    license = os.path.join(path, 'LICENSE')
+    included = os.path.join('dd', 'CUDD_LICENSE')
+    yes = (
+        args.bdist_wheel and
+        getattr(args, 'cudd') is not None)
+    if yes:
+        shutil.copyfile(license, included)
+    elif os.path.isfile(included):
+        os.remove(included)
 
 
 def _join(paths):

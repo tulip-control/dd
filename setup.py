@@ -107,6 +107,7 @@ def parse_args():
             const='', type=str, nargs='?',
             help='build Cython extension {s}'.format(s=opt))
     args, unknown = parser.parse_known_args()
+    args.bdist_wheel = 'bdist_wheel' in unknown
     # avoid confusing `setuptools`
     sys.argv = [sys.argv[0]] + unknown
     return args
@@ -152,6 +153,7 @@ def run_setup():
         tests_require=tests_require,
         packages=[name],
         package_dir={name: name},
+        include_package_data=True,
         ext_modules=ext_modules,
         classifiers=classifiers,
         keywords=[

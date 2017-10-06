@@ -1,6 +1,9 @@
 # The script `rtests.py` below is an adaptation of:
 # https://github.com/tulip-control/tulip-control/blob/master/run_tests.py
 
+wheel_file := $(wildcard dist/*.whl)
+
+
 build_cudd: clean cudd install test
 
 build_sylvan:
@@ -29,6 +32,16 @@ sdist_test_cudd:
 	python setup.py install --fetch --cudd
 	pip install nose rednose
 	rtests.py --rednose
+
+wheel:
+	-rm dist/*.whl
+	python setup.py bdist_wheel --cudd
+	@echo "-------------"
+	auditwheel show dist/*.whl
+	@echo "-------------"
+	auditwheel repair dist/*.whl
+	@echo "-------------"
+	auditwheel show dist/*.whl
 
 install:
 	python setup.py install --cudd

@@ -642,9 +642,9 @@ cdef class BDD(object):
         var = next(iter(d))
         value = d[var]
         if isinstance(value, python_bool):
-            return self.cofactor(u, d)
+            return self._cofactor(u, d)
         elif isinstance(value, Function):
-            return self.compose(u, d)
+            return self._compose(u, d)
         try:
             value + 's'
         except TypeError:
@@ -653,16 +653,13 @@ cdef class BDD(object):
                 'or Boolean value as `bool`, '
                 'or BDD node as `int`. Got: {value}'.format(
                     value=value))
-        return self.rename(u, d)
+        return self._rename(u, d)
 
-    cpdef Function compose(self, Function f, var_sub):
+    cpdef Function _compose(self, Function f, var_sub):
         """Return the composition f|_(var = g).
 
         @param var_sub: `dict` from variable names to nodes.
         """
-        warnings.warn(
-            'call the method `let` instead',
-            DeprecationWarning)
         n = len(var_sub)
         if n == 0:
             logger.warning('call without any effect')
@@ -671,9 +668,9 @@ cdef class BDD(object):
             return self._vector_compose(f, var_sub)
         assert n == 1, n
         for var, g in _compat.items(var_sub):
-            return self._compose(f, var, g)
+            return self._unary_compose(f, var, g)
 
-    cdef Function _compose(self, Function f, var, Function g):
+    cdef Function _unary_compose(self, Function f, var, Function g):
         """Return single composition."""
         assert f.manager == self.manager
         assert g.manager == self.manager
@@ -708,11 +705,8 @@ cdef class BDD(object):
             PyMem_Free(x)
         return wrap(self, r)
 
-    cpdef Function cofactor(self, Function f, values):
+    cpdef Function _cofactor(self, Function f, values):
         """Return the cofactor f|_g."""
-        warnings.warn(
-            'call the method `let` instead',
-            DeprecationWarning)
         assert self.manager == f.manager
         cdef DdNode *r
         cdef Function cube
@@ -721,11 +715,8 @@ cdef class BDD(object):
         assert r != NULL, 'cofactor failed'
         return wrap(self, r)
 
-    cpdef Function rename(self, Function u, dvars):
+    cpdef Function _rename(self, Function u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
-        warnings.warn(
-            'call the method `let` instead',
-            DeprecationWarning)
         n = len(dvars)
         cdef DdNode **x = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
         cdef DdNode **y = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))

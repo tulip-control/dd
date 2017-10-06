@@ -248,9 +248,9 @@ cdef class BDD(object):
         var = next(iter(d))
         value = d[var]
         if isinstance(value, python_bool):
-            return self.cofactor(u, d)
+            return self._cofactor(u, d)
         elif isinstance(value, Function):
-            return self.compose(u, d)
+            return self._compose(u, d)
         try:
             value + 's'
         except TypeError:
@@ -259,9 +259,9 @@ cdef class BDD(object):
                 'or Boolean value as `bool`, '
                 'or BDD node as `int`. Got: {value}'.format(
                     value=value))
-        return self.rename(u, d)
+        return self._rename(u, d)
 
-    cpdef Function compose(self, Function u, var_sub):
+    cpdef Function _compose(self, Function u, var_sub):
         assert self is u.bdd
         sy.LACE_ME
         cdef sy.BDDMAP map
@@ -275,19 +275,19 @@ cdef class BDD(object):
         r = sy.sylvan_compose(u.node, map)
         return wrap(self, r)
 
-    cpdef Function cofactor(self, Function u, values):
+    cpdef Function _cofactor(self, Function u, values):
         """Return the cofactor f|_g."""
         var_sub = {
             var: self.true if value else self.false
             for var, value in values.iteritems()}
-        return self.compose(u, var_sub)
+        return self._compose(u, var_sub)
 
-    cpdef Function rename(self, Function u, dvars):
+    cpdef Function _rename(self, Function u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
         assert self is u.bdd
         var_sub = {
             var: self.var(sub) for var, sub in dvars.iteritems()}
-        r = self.compose(u, var_sub)
+        r = self._compose(u, var_sub)
         return r
 
     def pick_iter(self, Function u,

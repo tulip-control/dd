@@ -110,37 +110,6 @@ class BDD(_abc.BDD):
         r = self._bdd.let(d, u.node)
         return self._wrap(r)
 
-    def evaluate(self, u, values):
-        warnings.warn(
-            'call the method `let` instead',
-            DeprecationWarning)
-        assert u in self, u
-        return self._bdd.evaluate(u.node, values)
-
-    def compose(self, f, var, g):
-        warnings.warn(
-            'call the method `let` instead',
-            DeprecationWarning)
-        assert f in self, f
-        assert g in self, g
-        r = self._bdd.compose(f.node, var, g.node)
-        return self._wrap(r)
-
-    def rename(self, u, dvars):
-        warnings.warn(
-            'call the method `let` instead',
-            DeprecationWarning)
-        r = self._bdd.rename(u.node, dvars)
-        return self._wrap(r)
-
-    def cofactor(self, u, values):
-        warnings.warn(
-            'call the method `let` instead',
-            DeprecationWarning)
-        assert u in self, u
-        r = self._bdd.cofactor(u.node, values)
-        return self._wrap(r)
-
     def quantify(self, u, qvars, forall=False):
         assert u in self, u
         r = self._bdd.quantify(u.node, qvars, forall)

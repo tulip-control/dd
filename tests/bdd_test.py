@@ -1,10 +1,24 @@
 import logging
-from dd.bdd import BDD, preimage
+from dd.bdd import BDD as _BDD
+from dd.bdd import preimage
 from dd import autoref
 from dd import bdd as _bdd
 import nose.tools as nt
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
+
+
+class BDD(_BDD):
+    """Disables refcount check upon shutdown.
+
+    This script tests the low-level manager, where
+    reference counting is not automated. For simplicity,
+    references are not cleared at the end of tests here.
+    Automated reference counting is in `dd.autoref`.
+    """
+
+    def __del__(self):
+        pass
 
 
 def test_add_var():
@@ -862,7 +876,7 @@ def test_dynamic_reordering():
     assert b.reordering_is_on()
 
 
-class TrackReorderings(_bdd.BDD):
+class TrackReorderings(BDD):
     """To record invocations of reordering."""
 
     def __init__(self, *arg, **kw):

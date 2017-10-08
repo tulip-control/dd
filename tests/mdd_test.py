@@ -35,6 +35,7 @@ def test_bdd_to_mdd():
     if u < 0:
         v = -v
     print(v)
+    bdd.decref(u)
 
 
 if __name__ == '__main__':

@@ -176,6 +176,12 @@ class BDD(_abc.BDD):
         bdd.max_nodes = self.max_nodes
         return bdd
 
+    def __del__(self):
+        """Assert that all remaining nodes are garbage."""
+        self.decref(1)  # free ref from `self._init_terminal`
+        self.collect_garbage()
+        assert all(v == 0 for v in self._ref.values()), self._ref
+
     def __len__(self):
         return len(self._succ)
 

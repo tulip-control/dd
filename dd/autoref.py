@@ -327,7 +327,9 @@ class Function(_abc.Operator):
 
     @property
     def var(self):
-        i, _, _ = self.manager._succ[abs(self.node)]
+        i, low, _ = self.manager._succ[abs(self.node)]
+        if low is None:
+            return None
         return self.manager.var_at_level(i)
 
     @property

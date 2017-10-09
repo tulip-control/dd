@@ -539,5 +539,30 @@ def test_comparators():
     assert bdd.true > u
 
 
+def test_function_properties():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y')
+    order = dict(x=0, y=1)
+    _bdd.reorder(bdd, order)
+    u = bdd.add_expr('x \/ y')
+    y = bdd.add_expr('y')
+    # Assigned first because in presence of a bug
+    # different property calls could yield
+    # different values.
+    level = u.level
+    assert level == 0, level
+    var = u.var
+    assert var == 'x', var
+    low = u.low
+    assert low == y, low
+    high = u.high
+    assert high == bdd.true, high
+    ref = u.ref
+    assert ref == 1, ref
+    assert not u.negated
+    support = u.support
+    assert support == {'x', 'y'}, support
+
+
 if __name__ == '__main__':
     test_support()

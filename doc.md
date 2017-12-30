@@ -32,7 +32,7 @@ have installed. For solving small to medium size problems, say for teaching,
 or prototyping new algorithms, pure Python can be more convenient.
 To work with larger problems, it works better if you install the C library
 [CUDD](http://vlsi.colorado.edu/~fabio/).
-Lets call these “backends”.
+Let's call these “backends”.
 
 The same user code can run with both the Python and C backends.
 You only need to modify an `import dd.autoref as _bdd` to

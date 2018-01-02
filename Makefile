@@ -63,6 +63,8 @@ cudd:
 	cd cudd-*; \
 	make build XCFLAGS="-fPIC -mtune=native -DHAVE_IEEE_754 -DBSD -DSIZEOF_VOID_P=8 -DSIZEOF_LONG=8"
 
+doc:
+	grip --export doc.md index.html
 
 .PHONY: clean_all clean_cudd clean rm_cudd
 

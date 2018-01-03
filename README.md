@@ -146,6 +146,20 @@ For graph layout with `pydot`, install also [graphviz](http://graphviz.org/).
 ## Cython bindings
 
 
+### Wheel files with compiled CUDD
+
+
+As of `dd` version 0.5.3, [`manylinux1_x86_64`](
+    https://www.python.org/dev/peps/pep-0513/)
+[wheel files](https://www.python.org/dev/peps/pep-0427/) are
+[available from PyPI](https://pypi.org/project/dd/#files) for some Python
+versions. These wheel files contain the module `dd.cudd` with the CUDD
+library compiled and linked.
+If you have a Linux system and Python version compatible with one of the
+available wheels, then `pip install dd` will install `dd.cudd`, so you need
+not compile CUDD. Otherwise, see below.
+
+
 ### `dd` fetching CUDD
 
 By default, the package installs only the Python modules.

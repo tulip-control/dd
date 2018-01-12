@@ -1118,5 +1118,5 @@ in the negated value computed for node `y-3` in the next image.
     https://github.com/johnyf/tool_lists/blob/master/bdd.md).
 
 
-This document is copyright 2015 by California Institute of Technology.
-All rights reserved. Licensed under BSD-3.
+This document is copyright 2015-2018 by California Institute of Technology.
+All rights reserved. Licensed under 3-clause BSD.

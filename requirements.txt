@@ -1,4 +1,5 @@
 cython==0.26.1
+cysignals
 
 
 # dev

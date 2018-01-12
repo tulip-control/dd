@@ -32,6 +32,15 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Free
 import psutil
 
 
+IF HAVE_CYSIGNALS:
+    from cysignals.signals cimport sig_on, sig_off
+ELSE:
+    # for non-POSIX systems
+    noop = lambda: None
+    sig_on = noop
+    sig_off = noop
+
+
 cdef extern from 'cuddInt.h':
     cdef char* CUDD_VERSION
     # subtable (for a level)
@@ -850,10 +859,14 @@ cdef class BDD(object):
                             Cudd_ReadLogicZero(mgr))
         elif op in ('\A', 'forall'):
             assert w is None, w
+            sig_on()
             r = Cudd_bddUnivAbstract(mgr, v.node, u.node)
+            sig_off()
         elif op in ('\E', 'exists'):
             assert w is None, w
+            sig_on()
             r = Cudd_bddExistAbstract(mgr, v.node, u.node)
+            sig_off()
         # ternary
         elif op == 'ite':
             assert v is not None
@@ -941,9 +954,13 @@ cdef class BDD(object):
         cube = self.cube(c)
         # quantify
         if forall:
+            sig_on()
             r = Cudd_bddUnivAbstract(mgr, u.node, cube.node)
+            sig_off()
         else:
+            sig_on()
             r = Cudd_bddExistAbstract(mgr, u.node, cube.node)
+            sig_off()
         return wrap(self, r)
 
     cpdef Function forall(self, qvars, Function u):

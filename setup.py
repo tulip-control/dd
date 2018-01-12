@@ -46,6 +46,7 @@ install_requires = [
     'pydot >= 1.2.2',
     'setuptools >= 19.6']
 tests_require = [
+    'cysignals >= 1.6.5',
     'nose >= 1.3.4']
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',

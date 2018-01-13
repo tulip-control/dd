@@ -86,7 +86,7 @@ Cudd_bddTransfer(
     }
     return(res);
 
-} /* end of Cudd_bddTransfer */
+}
 
 
 /*---------------------------------------------------------------------------*/
@@ -101,9 +101,6 @@ Cudd_bddTransfer(
   successful; NULL otherwise.
 
   @sideeffect None
-
-  @see Cudd_bddTransfer
-
 */
 DdNode *
 cuddBddTransfer(
@@ -140,7 +137,7 @@ failure:
     if (table != NULL) st_free_table(table);
     return(NULL);
 
-} /* end of cuddBddTransfer */
+}
 
 
 /**
@@ -149,9 +146,6 @@ failure:
   @return a pointer to the result if successful; NULL otherwise.
 
   @sideeffect None
-
-  @see cuddBddTransfer
-
 */
 static DdNode *
 cuddBddTransferRecur(
@@ -219,8 +213,7 @@ cuddBddTransferRecur(
 	return(NULL);
     }
     return(Cudd_NotCond(res,comple));
-
-} /* end of cuddBddTransferRecur */
+}
 
 
 
@@ -236,8 +229,6 @@ cuddBddTransferRecur(
   otherwise.
 
   @sideeffect None
-
-  @see Cudd_addPermute Cudd_bddSwapVariables
 
 */
 DdNode *
@@ -266,7 +257,7 @@ Cudd_bddPermute(
     }
     return(res);
 
-} /* end of Cudd_bddPermute */
+}
 
 
 /**
@@ -284,8 +275,6 @@ Cudd_bddPermute(
   but in the new order.
 
   @sideeffect None
-
-  @see Cudd_bddPermute cuddAddPermuteRecur
 
 */
 static DdNode *
@@ -355,4 +344,4 @@ cuddBddPermuteRecur(
     cuddDeref(res);
     return(Cudd_NotCond(res,N != node));
 
-} /* end of cuddBddPermuteRecur */
+}

@@ -49,7 +49,8 @@
 /*---------------------------------------------------------------------------*/
 /* Static function prototypes                                                */
 /*---------------------------------------------------------------------------*/
-static DdNode * cuddBddTransferRecur (DdManager *ddS, DdManager *ddD, DdNode *f, st_table *table);
+static DdNode * cuddBddTransferRecur(
+    DdManager *ddS, DdManager *ddD, DdNode *f, st_table *table);
 
 /*---------------------------------------------------------------------------*/
 /* Definition of exported functions                                          */

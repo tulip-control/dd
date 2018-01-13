@@ -822,7 +822,6 @@ cdef class BDD(object):
             Function v=None,
             Function w=None):
         """Return as `Function` the result of applying `op`."""
-        # TODO: add ite, also to slugsin syntax
         assert self.manager == u.manager
         if v is not None:
             assert self.manager == v.manager

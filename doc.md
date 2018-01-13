@@ -430,8 +430,9 @@ To copy a node from one BDD manager to another manager
 a = _bdd.BDD()
 a.declare('x', 'y', 'z')
 u = a.add_expr('(x /\ y) \/ z')
+# copy to another BDD manager
 b = _bdd.BDD()
-_bdd.copy_vars(a, b)
+b.declare(*a.vars)
 v = a.copy(u, b)
 ```
 

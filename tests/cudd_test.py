@@ -627,9 +627,18 @@ def test_copy_bdd_different_indices():
         bdd.add_var(var)
     for var in reversed(dvars):
         other.add_var(var)
-    u0 = bdd.add_expr('(x \/ ~ y) /\ ~ z')
-    with assert_raises(AssertionError):
-        cudd.copy_bdd(u0, other)
+    s = '(x \/ ~ y) /\ ~ z'
+    u0 = bdd.add_expr(s)
+    u1 = cudd.copy_bdd(u0, other)
+    u2 = cudd.copy_bdd(u1, bdd)
+    # involution
+    assert u0 == u2, (u0, u2)
+    # confirm
+    w = other.add_expr(s)
+    assert w == u1, (w, u1)
+    # different nodes
+    u3 = cudd.copy_bdd(other.true, bdd)
+    assert u3 != u2, (u3, u2)
 
 
 def test_copy_bdd_different_order():

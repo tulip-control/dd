@@ -188,6 +188,10 @@ cdef extern from 'cudd.h':
     cdef DdNode *Cudd_bddSwapVariables(
         DdManager *dd,
         DdNode *f, DdNode **x, DdNode **y, int n)
+cdef extern from '_cudd_addendum.c':
+    cdef DdNode *Cudd_bddTransferRename(
+        DdManager *ddSource, DdManager *ddDestination,
+        DdNode *f, int *renaming)
 cdef CUDD_UNIQUE_SLOTS = 2**8
 cdef CUDD_CACHE_SLOTS = 2**18
 cdef CUDD_REORDER_GROUP_SIFT = 14
@@ -1194,12 +1198,20 @@ cpdef copy_bdd(Function u, BDD target):
         '{target.vars}\n').format(
             missing=missing,
             target=target)
-    # same indices ?
+    # mapping of indices
+    n = len(source.vars)
+    cdef int *renaming
+    renaming = <int *> PyMem_Malloc(n * sizeof(int))
+    # only support will show up during BDD traversal
     for var in supp:
         i = source._index_of_var[var]
         j = target._index_of_var[var]
-        assert i == j, (var, i, j)
-    r = Cudd_bddTransfer(source.manager, target.manager, u.node)
+        renaming[i] = j
+    try:
+        r = Cudd_bddTransferRename(
+            source.manager, target.manager, u.node, renaming)
+    finally:
+        PyMem_Free(renaming)
     logger.debug('-- done transferring bdd')
     return wrap(target, r)
 

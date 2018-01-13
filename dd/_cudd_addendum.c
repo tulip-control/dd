@@ -1,11 +1,11 @@
 /**
-  @file
 
   @ingroup cudd
 
-  @brief Excerpts from `cudd/cuddBridge.c` and `cudd/cuddCompose.c`.
+  @brief Transfer between different managers, with renaming.
 
-  @author Fabio Somenzi and Kavita Ravi
+  Based on `cudd/cuddBridge.c` and `cudd/cuddCompose.c` by
+  Fabio Somenzi and Kavita Ravi.
 
   @copyright@parblock
   Copyright (c) 1995-2015, Regents of the University of Colorado
@@ -49,9 +49,10 @@
 /*---------------------------------------------------------------------------*/
 /* Static function prototypes                                                */
 /*---------------------------------------------------------------------------*/
-static DdNode * cuddBddTransferRecur(
-    DdManager *ddS, DdManager *ddD, DdNode *f, st_table *table);
-
+static DdNode * cuddBddTransferRecurRename(
+    DdManager *ddS, DdManager *ddD, DdNode *f, st_table *table, int *renaming);
+extern DdNode * cuddBddTransferRename(
+    DdManager * ddS, DdManager * ddD, DdNode * f, int * renaming);
 /*---------------------------------------------------------------------------*/
 /* Definition of exported functions                                          */
 /*---------------------------------------------------------------------------*/
@@ -61,24 +62,25 @@ static DdNode * cuddBddTransferRecur(
   @brief Convert a %BDD from a manager to another one.
 
   @details The orders of the variables in the two managers may be
-  different.
+  different. The array `renaming` is a mapping from variable indices
+  in `ddSource` to variable indices in `ddDestination`.
 
   @return a pointer to the %BDD in the destination manager if
   successful; NULL otherwise.
 
   @sideeffect None
-
 */
 DdNode *
-Cudd_bddTransfer(
+Cudd_bddTransferRename(
   DdManager * ddSource,
   DdManager * ddDestination,
-  DdNode * f)
+  DdNode * f,
+  int * renaming)
 {
     DdNode *res;
     do {
 	ddDestination->reordered = 0;
-	res = cuddBddTransfer(ddSource, ddDestination, f);
+	res = cuddBddTransferRename(ddSource, ddDestination, f, renaming);
     } while (ddDestination->reordered == 1);
     if (ddDestination->errorCode == CUDD_TIMEOUT_EXPIRED &&
         ddDestination->timeoutHandler) {
@@ -103,10 +105,11 @@ Cudd_bddTransfer(
   @sideeffect None
 */
 DdNode *
-cuddBddTransfer(
+cuddBddTransferRename(
   DdManager * ddS,
   DdManager * ddD,
-  DdNode * f)
+  DdNode * f,
+  int * renaming)
 {
     DdNode *res;
     st_table *table = NULL;
@@ -115,7 +118,7 @@ cuddBddTransfer(
 
     table = st_init_table(st_ptrcmp,st_ptrhash);
     if (table == NULL) goto failure;
-    res = cuddBddTransferRecur(ddS, ddD, f, table);
+    res = cuddBddTransferRecurRename(ddS, ddD, f, table, renaming);
     if (res != NULL) cuddRef(res);
 
     /* Dereference all elements in the table and dispose of the table.
@@ -141,18 +144,19 @@ failure:
 
 
 /**
-  @brief Performs the recursive step of Cudd_bddTransfer.
+  @brief Performs the recursive step of Cudd_bddTransferRename.
 
   @return a pointer to the result if successful; NULL otherwise.
 
   @sideeffect None
 */
 static DdNode *
-cuddBddTransferRecur(
+cuddBddTransferRecurRename(
   DdManager * ddS,
   DdManager * ddD,
   DdNode * f,
-  st_table * table)
+  st_table * table,
+  int * renaming)
 {
     DdNode *ft, *fe, *t, *e, *var, *res;
     DdNode *one, *zero;
@@ -175,16 +179,16 @@ cuddBddTransferRecur(
 	return(Cudd_NotCond(res,comple));
 
     /* Recursive step. */
-    index = f->index;
+    index = renaming[f->index];
     ft = cuddT(f); fe = cuddE(f);
 
-    t = cuddBddTransferRecur(ddS, ddD, ft, table);
+    t = cuddBddTransferRecurRename(ddS, ddD, ft, table, renaming);
     if (t == NULL) {
     	return(NULL);
     }
     cuddRef(t);
 
-    e = cuddBddTransferRecur(ddS, ddD, fe, table);
+    e = cuddBddTransferRecurRename(ddS, ddD, fe, table, renaming);
     if (e == NULL) {
     	Cudd_RecursiveDeref(ddD, t);
     	return(NULL);
@@ -213,135 +217,4 @@ cuddBddTransferRecur(
 	return(NULL);
     }
     return(Cudd_NotCond(res,comple));
-}
-
-
-
-/**
-  @brief Permutes the variables of a %BDD.
-
-  @details Given a permutation in array permut, creates a new %BDD
-  with permuted variables. There should be an entry in array permut
-  for each variable in the manager. The i-th entry of permut holds the
-  index of the variable that is to substitute the i-th variable.
-
-  @return a pointer to the resulting %BDD if successful; NULL
-  otherwise.
-
-  @sideeffect None
-
-*/
-DdNode *
-Cudd_bddPermute(
-  DdManager * manager,
-  DdNode * node,
-  int * permut)
-{
-    DdHashTable		*table;
-    DdNode		*res;
-
-    do {
-	manager->reordered = 0;
-	table = cuddHashTableInit(manager,1,2);
-	if (table == NULL) return(NULL);
-	res = cuddBddPermuteRecur(manager,table,node,permut);
-	if (res != NULL) cuddRef(res);
-	/* Dispose of local cache. */
-	cuddHashTableQuit(table);
-
-    } while (manager->reordered == 1);
-
-    if (res != NULL) cuddDeref(res);
-    if (manager->errorCode == CUDD_TIMEOUT_EXPIRED && manager->timeoutHandler) {
-        manager->timeoutHandler(manager, manager->tohArg);
-    }
-    return(res);
-
-}
-
-
-/**
-  @brief Implements the recursive step of Cudd_bddPermute.
-
-  @details Recursively puts the %BDD in the order given in the array permut.
-  Checks for trivial cases to terminate recursion, then splits on the
-  children of this node.  Once the solutions for the children are
-  obtained, it puts into the current position the node from the rest of
-  the %BDD that should be here. Then returns this %BDD.
-  The key here is that the node being visited is NOT put in its proper
-  place by this instance, but rather is switched when its proper position
-  is reached in the recursion tree.<p>
-  The DdNode * that is returned is the same %BDD as passed in as node,
-  but in the new order.
-
-  @sideeffect None
-
-*/
-static DdNode *
-cuddBddPermuteRecur(
-  DdManager * manager /**< %DD manager */,
-  DdHashTable * table /**< computed table */,
-  DdNode * node /**< %BDD to be reordered */,
-  int * permut /**< permutation array */)
-{
-    DdNode	*N,*T,*E;
-    DdNode	*res;
-    int		index;
-
-    statLine(manager);
-    N = Cudd_Regular(node);
-
-    /* Check for terminal case of constant node. */
-    if (cuddIsConstant(N)) {
-	return(node);
-    }
-
-    /* If problem already solved, look up answer and return. */
-    if (N->ref != 1 && (res = cuddHashTableLookup1(table,N)) != NULL) {
-#ifdef DD_DEBUG
-	manager->bddPermuteRecurHits++;
-#endif
-	return(Cudd_NotCond(res,N != node));
-    }
-
-    /* Split and recur on children of this node. */
-    T = cuddBddPermuteRecur(manager,table,cuddT(N),permut);
-    if (T == NULL) return(NULL);
-    cuddRef(T);
-    E = cuddBddPermuteRecur(manager,table,cuddE(N),permut);
-    if (E == NULL) {
-	Cudd_IterDerefBdd(manager, T);
-	return(NULL);
-    }
-    cuddRef(E);
-
-    /* Move variable that should be in this position to this position
-    ** by retrieving the single var BDD for that variable, and calling
-    ** cuddBddIteRecur with the T and E we just created.
-    */
-    index = permut[N->index];
-    res = cuddBddIteRecur(manager,manager->vars[index],T,E);
-    if (res == NULL) {
-	Cudd_IterDerefBdd(manager, T);
-	Cudd_IterDerefBdd(manager, E);
-	return(NULL);
-    }
-    cuddRef(res);
-    Cudd_IterDerefBdd(manager, T);
-    Cudd_IterDerefBdd(manager, E);
-
-    /* Do not keep the result if the reference count is only 1, since
-    ** it will not be visited again.
-    */
-    if (N->ref != 1) {
-	ptrint fanout = (ptrint) N->ref;
-	cuddSatDec(fanout);
-	if (!cuddHashTableInsert1(table,N,res,fanout)) {
-	    Cudd_IterDerefBdd(manager, res);
-	    return(NULL);
-	}
-    }
-    cuddDeref(res);
-    return(Cudd_NotCond(res,N != node));
-
 }

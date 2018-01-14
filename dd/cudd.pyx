@@ -43,6 +43,12 @@ ELSE:
     sig_off = noop
 
 
+cdef extern from 'mtr.h':
+    cdef struct MtrNode_:
+        pass
+    ctypedef MtrNode_ MtrNode
+cdef MTR_DEFAULT = 0
+cdef MTR_FIXED = 4
 cdef extern from 'cuddInt.h':
     cdef char* CUDD_VERSION
     # subtable (for a level)
@@ -164,6 +170,13 @@ cdef extern from 'cudd.h':
     cdef int Cudd_ReadSiftMaxSwap(DdManager *dd)
     cdef void Cudd_SetSiftMaxVar(DdManager *dd, int smv)
     cdef int Cudd_ReadSiftMaxVar(DdManager *dd)
+    # variable grouping
+    extern MtrNode *Cudd_MakeTreeNode(
+        DdManager *dd, unsigned int low,
+        unsigned int size, unsigned int type)
+    extern MtrNode *Cudd_ReadTree(DdManager *dd)
+    extern void Cudd_SetTree(DdManager *dd, MtrNode *tree)
+    extern void Cudd_FreeTree(DdManager *dd)
     # manager config
     cdef unsigned long Cudd_ReadMaxMemory(DdManager *dd)
     cdef void Cudd_SetMaxMemory(DdManager *dd,
@@ -637,6 +650,16 @@ cdef class BDD(object):
         # must be positive unate
         assert set(_compat.values(supp)) == {True}, supp
         return set(supp)
+
+    def group(self, vrs):
+        """Couple variables in range of contiguous levels."""
+        cdef unsigned int group_low
+        cdef unsigned int group_size
+        for var, group_size in vrs.items():
+            assert group_size > 1, 'singleton as group has no effect'
+            group_low = self._index_of_var[var]
+            Cudd_MakeTreeNode(
+                self.manager, group_low, group_size, MTR_DEFAULT)
 
     def copy(self, u, other):
         """Transfer BDD with root `u` to `other`.
@@ -1174,7 +1197,10 @@ cpdef reorder(BDD bdd, dvars=None):
         r = Cudd_ShuffleHeap(bdd.manager, p)
     finally:
         PyMem_Free(p)
-    assert r == 1, 'failed to reorder'
+    assert r == 1, (
+        'Failed to reorder. '
+        'Variable groups that are incompatible to '
+        'the given order can cause this.')
 
 
 def copy_vars(BDD source, BDD target):

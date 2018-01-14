@@ -1140,7 +1140,10 @@ cpdef reorder(BDD bdd, dvars=None):
         return
     # partial reorderings not supported for now
     assert len(dvars) == len(bdd.vars), (
-        'Missing variables from new variable order')
+        'Mismatch of variable numbers:\n'
+        'declared variables: {n}\n'
+        'new variable order: {m}').format(
+            n=len(bdd.vars), m=len(dvars))
     cdef int *p
     n = len(dvars)
     p = <int *> PyMem_Malloc(n * sizeof(int *))

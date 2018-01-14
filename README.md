@@ -36,6 +36,7 @@ Contains:
   [Promela](https://en.wikipedia.org/wiki/Promela) syntax.
 - Pre/Image computation (relational product).
 - Renaming variables.
+- Zero-suppressed binary decision diagrams (ZDDs) in CUDD
 - Conversion from BDDs to MDDs.
 - Conversion functions to [`networkx`](https://networkx.github.io/) and
   [`pydot`](https://pypi.python.org/pypi/pydot) graphs.
@@ -121,6 +122,12 @@ A `Function` object wraps each BDD node and decrements its reference count
 when disposed by Python's garbage collector. Lower-level details are
 discussed in the documentation.
 
+For using ZDDs, change the first line to
+
+```python
+from dd.cudd_zdd import ZDD as BDD
+```
+
 
 Installation
 ============
@@ -166,9 +173,10 @@ By default, the package installs only the Python modules.
 You can select to install any Cython extensions using
 the `setup.py` options:
 
-- `--cudd`
-- `--sylvan`
-- `--buddy`
+- `--cudd`: build module of CUDD BDDs
+- `--cudd_zdd`: build module of CUDD ZDDs
+- `--sylvan`: build module of Sylvan BDDs
+- `--buddy`: build module of BuDDy BDDs
 
 Pass `--fetch` to `setup.py` to tell it to download, unpack, and
 `make` CUDD v3.0.0. For example:
@@ -177,7 +185,7 @@ Pass `--fetch` to `setup.py` to tell it to download, unpack, and
 pip download dd --no-deps
 tar xzf dd-*.tar.gz
 cd dd-*
-python setup.py install --fetch --cudd
+python setup.py install --fetch --cudd --cudd_zdd
 ```
 
 The path to an existing CUDD build directory can be passed as an argument:

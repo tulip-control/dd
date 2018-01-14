@@ -4,6 +4,7 @@ This specification is implemented by the modules:
 
 - `dd.autoref`
 - `dd.cudd`
+- `dd.cudd_zdd`
 - `dd.sylvan` (partially)
 - `dd.buddy` (partially)
 """

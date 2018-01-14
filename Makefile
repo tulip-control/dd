@@ -56,6 +56,10 @@ reinstall:
 	-pip uninstall -y dd
 	python setup.py install --cudd
 
+reinstall_zdd:
+	-pip uninstall -y dd
+	python setup.py install --cudd --cudd_zdd
+
 uninstall:
 	-pip uninstall -y dd
 
@@ -88,6 +92,7 @@ clean:
 	-rm dd/*.so
 	-rm dd/buddy.c
 	-rm dd/cudd.c
+	-rm dd/cudd_zdd.c
 	-rm dd/sylvan.c
 	-rm *.pyc */*.pyc
 	-rm -rf __pycache__ */__pycache__

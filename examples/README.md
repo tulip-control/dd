@@ -18,3 +18,5 @@ The examples are:
 
 - `cudd_memory_limits.py`: bound how much memory CUDD is
   allowed to use.
+
+- `cudd_zdd.py`: how to use ZDDs with CUDD.

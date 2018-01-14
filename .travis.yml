@@ -36,7 +36,7 @@ install:
   - export LD_LIBRARY_PATH=`pwd`/src/.libs:$LD_LIBRARY_PATH
   - cd ..
   # dd
-  - python setup.py install --fetch --cudd --sylvan
+  - python setup.py install --fetch --cudd --cudd_zdd --sylvan
 
 script:
   - cd tests/

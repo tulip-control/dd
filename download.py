@@ -25,7 +25,7 @@ except ImportError:
 from setuptools.extension import Extension
 
 
-EXTENSIONS = ['cudd', 'buddy', 'sylvan']
+EXTENSIONS = ['cudd', 'cudd_zdd', 'buddy', 'sylvan']
 # CUDD
 CUDD_VERSION = '3.0.0'
 CUDD_TARBALL = 'cudd-{v}.tar.gz'.format(v=CUDD_VERSION)
@@ -103,6 +103,13 @@ def extensions(args):
         cudd=Extension(
             'dd.cudd',
             sources=['dd/cudd' + pyx],
+            include_dirs=_join(cudd_include),
+            library_dirs=_join(cudd_link),
+            libraries=CUDD_LIB,
+            extra_compile_args=cudd_cflags),
+        cudd_zdd=Extension(
+            'dd.cudd_zdd',
+            sources=['dd/cudd_zdd' + pyx],
             include_dirs=_join(cudd_include),
             library_dirs=_join(cudd_link),
             libraries=CUDD_LIB,

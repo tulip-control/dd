@@ -33,7 +33,7 @@ def copy_bdds_from(roots, target):
 def copy_bdd(u, target, cache=None):
     """Copy BDD with root `u` to manager `target`.
 
-    @param target: BDD
+    @param target: BDD or ZDD
     @param cache: `dict` for memoizing results
     """
     if cache is None:
@@ -80,6 +80,47 @@ def _copy_bdd(u, bdd, cache):
 def _flip(r, u):
     """Negate `r` if `u` is negated, else identity."""
     return ~ r if u.negated else r
+
+
+def copy_zdd(u, target, cache=None):
+    """Copy ZDD with root `u` to manager `target`.
+
+    @param target: BDD or ZDD
+    @param cache: `dict` for memoizing results
+    """
+    if cache is None:
+        cache = dict()
+    level = 0
+    r = _copy_zdd(level, u, target, cache)
+    return r
+
+
+def _copy_zdd(level, u, target, cache):
+    """Recurse to copy node `u` to `target`.
+
+    @type cache: `dict`
+    """
+    src = u.bdd
+    # terminal ?
+    if u == src.false:
+        return target.false
+    if level == len(src.vars):
+        return target.true
+    # memoized ?
+    k = int(u)
+    if k in cache:
+        return cache[k]
+    # recurse
+    v, w = src._top_cofactor(u, level)
+    low = _copy_zdd(level + 1, v, target, cache)
+    high = _copy_zdd(level + 1, w, target, cache)
+    # add node
+    var = src.var_at_level(level)
+    g = target.var(var)
+    r = target.ite(g, high, low)
+    # memoize
+    cache[k] = r
+    return r
 
 
 def dump_json(nodes, file_name):

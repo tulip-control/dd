@@ -345,7 +345,26 @@ class Operator(object):
     def equiv(self, other):
         """Logical equivalence `self <=> other`.
 
-        Differs from `__eq__` in that it returns a BDD
+        The result is *different* from `__eq__`:
+
+        - Logical equivalence is the Boolean function that is
+          `TRUE` for models for which both `self` and `other`
+          are `TRUE`, and `FALSE` otherwise.
+
+        - BDD equality (`__eq__`) is the Boolean function
+          that results from universal quantification of the
+          logical equivalence, over all declared variables.
+
+        In other words:
+
+        "A <=> B" versus "\A x, y, ..., z:  A <=> B"
+        or, from a metatheoretic viewpoint:
+        "A <=> B" versus "|= A <=> B"
+
+        In the metatheory, [[A <=> B]] (`equiv`) is different from
+        [[A]] = [[B]] (`__eq__`).
+
+        Also, `equiv` differs from `__eq__` in that it returns a BDD
         as `Function`, instead of `bool`.
         """
 

@@ -309,6 +309,9 @@ v = bdd.add_expr('x /\ ~ y /\ z')
 assert u == v, (u, v)
 ```
 
+The interface is specified in the module `dd._abc`. Although internal,
+you may want to take a look at the `_abc` module.
+
 Above we discussed semantics from a [proof-theoretic viewpoint](
     https://en.wikipedia.org/wiki/Metamathematics).
 The same discussion can be rephrased in terms of function domains containing

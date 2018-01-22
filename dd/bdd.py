@@ -1397,16 +1397,21 @@ def _rename(u, bdd, dvars, umap):
     # terminal ?
     if abs(u) == 1:
         return u
+    # non-terminal
     # memoized ?
     r = umap.get(abs(u))
     if r is not None:
+        assert r > 0, r
         # complement ?
         if u < 0:
             r = -r
         return r
+    # recurse
     i, v, w = bdd._succ[abs(u)]
     p = _rename(v, bdd, dvars, umap)
     q = _rename(w, bdd, dvars, umap)
+    assert p * v > 0, (p, v)
+    assert q > 0, q
     # to be renamed ?
     j = dvars.get(i, i)
     g = bdd.find_or_add(j, -1, 1)
@@ -1778,9 +1783,9 @@ def _copy_bdd(u, umap, level_map, old_bdd, bdd):
         return u
     # non-terminal
     # memoized ?
-    if abs(u) in umap:
-        r = umap[abs(u)]
-        assert r > 0
+    r = umap.get(abs(u))
+    if r is not None:
+        assert r > 0, r
         # complement ?
         if u < 0:
             r = -r
@@ -1794,10 +1799,10 @@ def _copy_bdd(u, umap, level_map, old_bdd, bdd):
     # add node
     jnew = level_map[jold]  # TODO: replace with more generic map
     r = bdd.find_or_add(jnew, p, q)
-    assert r > 0
     # memoize
-    umap[abs(u)] = abs(r)
-    # negate ?
+    assert r > 0, r
+    umap[abs(u)] = r
+    # complement ?
     if u < 0:
         r = -r
     return r

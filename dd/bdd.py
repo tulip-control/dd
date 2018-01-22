@@ -1788,9 +1788,6 @@ def _level_map(from_bdd, to_bdd, support):
            for var in from_bdd.vars}
     new = {var: to_bdd.level_of_var(var)
            for var in to_bdd.vars}
-    # TODO: rm these refactoring checks
-    assert old == from_bdd.vars
-    assert new == to_bdd.vars
     _assert_isomorphic_orders(old, new, support)
     level_map = {old[x]: new[x] for x in support}
     return level_map

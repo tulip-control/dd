@@ -1383,8 +1383,9 @@ def rename(u, bdd, dvars):
         return u
     # map variable names to levels
     levels = bdd.vars
-    dvars = {levels[k]: levels[v]
-             for k, v in items(dvars)}
+    dvars = {
+        levels[var]: levels[dvars.get(var, var)]
+        for var in bdd.vars}
     cache = dict()
     return _rename(u, bdd, dvars, cache)
 
@@ -1410,7 +1411,7 @@ def _rename(u, bdd, dvars, cache):
     assert p * v > 0, (p, v)
     assert q > 0, q
     # to be renamed ?
-    j = dvars.get(i, i)
+    j = dvars[i]
     g = bdd.find_or_add(j, -1, 1)
     r = bdd.ite(g, q, p)
     # memoize

@@ -1381,7 +1381,7 @@ def rename(u, bdd, dvars):
     # nothing to rename ?
     if not dvars:
         return u
-    # map variable names to levels, if needed
+    # map variable names to levels
     levels = bdd.vars
     dvars = {levels[k]: levels[v]
              for k, v in items(dvars)}

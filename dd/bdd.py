@@ -1387,10 +1387,10 @@ def rename(u, bdd, dvars):
         levels[var]: levels[dvars.get(var, var)]
         for var in bdd.vars}
     cache = dict()
-    return _rename(u, bdd, dvars, cache)
+    return _rename(u, dvars, bdd, cache)
 
 
-def _rename(u, bdd, dvars, cache):
+def _rename(u, dvars, bdd, cache):
     """Recursive renaming."""
     # terminal ?
     if abs(u) == 1:
@@ -1406,8 +1406,8 @@ def _rename(u, bdd, dvars, cache):
         return r
     # recurse
     i, v, w = bdd._succ[abs(u)]
-    p = _rename(v, bdd, dvars, cache)
-    q = _rename(w, bdd, dvars, cache)
+    p = _rename(v, dvars, bdd, cache)
+    q = _rename(w, dvars, bdd, cache)
     assert p * v > 0, (p, v)
     assert q > 0, q
     # to be renamed ?
@@ -1743,17 +1743,17 @@ def copy_bdd(u, from_bdd, to_bdd):
         from_bdd.level_of_var(var): to_bdd.level_of_var(var)
         for var in from_bdd.vars if var in to_bdd.vars}
     cache = dict()
-    r = _copy_bdd(u, cache, level_map, from_bdd, to_bdd)
+    r = _copy_bdd(u, level_map, from_bdd, to_bdd, cache)
     return r
 
 
-def _copy_bdd(u, cache, level_map, old_bdd, bdd):
+def _copy_bdd(u, level_map, old_bdd, bdd, cache):
     """Recurse to copy nodes from `old_bdd` to `bdd`.
 
     @param u: node in `old_bdd`
-    @type cache: `dict`
     @type level_map: `dict` that maps old to new levels
     @type old_bdd, bdd: `BDD`
+    @type cache: `dict`
     """
     # terminal ?
     if abs(u) == 1:
@@ -1769,8 +1769,8 @@ def _copy_bdd(u, cache, level_map, old_bdd, bdd):
         return r
     # recurse
     jold, v, w = old_bdd._succ[abs(u)]
-    p = _copy_bdd(v, cache, level_map, old_bdd, bdd)
-    q = _copy_bdd(w, cache, level_map, old_bdd, bdd)
+    p = _copy_bdd(v, level_map, old_bdd, bdd, cache)
+    q = _copy_bdd(w, level_map, old_bdd, bdd, cache)
     assert p * v > 0, (p, v)
     assert q > 0, q
     # map this level

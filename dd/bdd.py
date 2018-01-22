@@ -1760,7 +1760,6 @@ def _level_map(from_bdd, to_bdd, support):
            for var in from_bdd.vars}
     new = {var: to_bdd.level_of_var(var)
            for var in to_bdd.vars}
-    _assert_isomorphic_orders(old, new, support)
     level_map = {old[x]: new[x] for x in support}
     return level_map
 
@@ -1793,7 +1792,8 @@ def _copy_bdd(u, cache, level_map, old_bdd, bdd):
     assert q > 0, q
     # add node
     jnew = level_map[jold]  # TODO: replace with more generic map
-    r = bdd.find_or_add(jnew, p, q)
+    g = bdd.find_or_add(jnew, -1, 1)
+    r = bdd.ite(g, q, p)
     # memoize
     assert r > 0, r
     cache[abs(u)] = r

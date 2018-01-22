@@ -1741,9 +1741,6 @@ def copy_bdd(u, from_bdd, to_bdd):
     if from_bdd is to_bdd:
         logger.warning('copying node to same manager')
         return u
-    # TODO: more efficient bottom-up implementation
-    # first find all descendants of given roots
-    # then map them, starting from the bottom layer
     _assert_valid_ordering(from_bdd.vars)
     _assert_valid_ordering(to_bdd.vars)
     support = from_bdd.support(u)

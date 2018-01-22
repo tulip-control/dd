@@ -1387,40 +1387,7 @@ def rename(u, bdd, dvars):
         levels[var]: levels[dvars.get(var, var)]
         for var in bdd.vars}
     cache = dict()
-    return _rename(u, dvars, bdd, cache)
-
-
-def _rename(u, dvars, bdd, cache):
-    """Recursive renaming."""
-    # terminal ?
-    if abs(u) == 1:
-        return u
-    # non-terminal
-    # memoized ?
-    r = cache.get(abs(u))
-    if r is not None:
-        assert r > 0, r
-        # complement ?
-        if u < 0:
-            r = -r
-        return r
-    # recurse
-    i, v, w = bdd._succ[abs(u)]
-    p = _rename(v, dvars, bdd, cache)
-    q = _rename(w, dvars, bdd, cache)
-    assert p * v > 0, (p, v)
-    assert q > 0, q
-    # to be renamed ?
-    j = dvars[i]
-    g = bdd.find_or_add(j, -1, 1)
-    r = bdd.ite(g, q, p)
-    # memoize
-    assert r > 0, r
-    cache[abs(u)] = r
-    # complement ?
-    if u < 0:
-        r = -r
-    return r
+    return _copy_bdd(u, dvars, bdd, bdd, cache)
 
 
 def _assert_valid_rename(u, bdd, dvars):

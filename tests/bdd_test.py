@@ -149,40 +149,6 @@ def test_descendants():
     assert len(nodes) == 0, nodes
 
 
-def test_evaluate():
-    # x, y
-    g = two_vars_xy()
-    u = 2
-    assert g.evaluate(u, {'x': 1}) == 1
-    assert g.evaluate(u, {'x': 0}) == -1
-    u = 3
-    assert g.evaluate(u, {'y': 1}) == 1
-    assert g.evaluate(u, {'y': 0}) == -1
-    # x /\ y
-    g = x_and_y()
-    u = 4
-    # missing value for y
-    with nt.assert_raises(KeyError):
-        g.evaluate(u, {'x': 1})
-    assert g.evaluate(u, {'x': 0, 'y': 0}) == -1
-    assert g.evaluate(u, {'x': 0, 'y': 1}) == -1
-    assert g.evaluate(u, {'x': 1, 'y': 0}) == -1
-    assert g.evaluate(u, {'x': 1, 'y': 1}) == 1
-    # x /\ ~ y
-    g = x_and_not_y()
-    u = -2
-    assert g.evaluate(u, {'x': 0, 'y': 0}) == -1
-    assert g.evaluate(u, {'x': 0, 'y': 1}) == -1
-    assert g.evaluate(u, {'x': 1, 'y': 0}) == 1
-    assert g.evaluate(u, {'x': 1, 'y': 1}) == -1
-    # ~ (x /\ ~ y) = ~ x \/ y
-    u = 2
-    assert g.evaluate(u, {'x': 0, 'y': 0}) == 1
-    assert g.evaluate(u, {'x': 0, 'y': 1}) == 1
-    assert g.evaluate(u, {'x': 1, 'y': 0}) == -1
-    assert g.evaluate(u, {'x': 1, 'y': 1}) == 1
-
-
 def test_is_essential():
     g = two_vars_xy()
     assert g.is_essential(2, 'x')

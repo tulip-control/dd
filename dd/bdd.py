@@ -496,34 +496,6 @@ class BDD(_abc.BDD):
                 'or BDD node as `int`.')
         return self.rename(u, d)
 
-    def evaluate(self, u, values):
-        """Return value of node `u` given `values`.
-
-        @param values: (partial) mapping from
-            `variables` to values
-            keys can be variable names as `str` or
-            levels as `int`.
-            The keys should include the support of `u`.
-        @type values: `dict`
-        """
-        assert abs(u) in self, u
-        values = self._map_to_level(values)
-        return self._evaluate(u, values)
-
-    def _evaluate(self, u, values):
-        """Recurse to compute value."""
-        if abs(u) == 1:
-            return u
-        i, v, w = self._succ[abs(u)]
-        if values[i]:
-            r = self._evaluate(w, values)
-        else:
-            r = self._evaluate(v, values)
-        if u < 0:
-            return -r
-        else:
-            return r
-
     @_try_to_reorder
     def compose(self, f, var, g):
         """Return f(x_var=g).

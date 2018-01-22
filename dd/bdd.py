@@ -483,10 +483,7 @@ class BDD(_abc.BDD):
         if isinstance(value, bool):
             return self.cofactor(u, d)
         elif isinstance(value, int):
-            # `compose` will support multiple substitutions
-            # in the future
-            assert len(d) == 1, d
-            return self.compose(u, var, value)
+            return self.compose(u, d)
         try:
             value + 's'
         except TypeError:
@@ -497,17 +494,20 @@ class BDD(_abc.BDD):
         return self.rename(u, d)
 
     @_try_to_reorder
-    def compose(self, f, var, g):
-        """Return f(x_var=g).
+    def compose(self, f, var_sub):
+        """Return substitutions `var_sub` in `f`.
 
-        @param f, g: nodes
-        @param var: variable name
-        @param cache: stores intermediate results
+        @param f: node
+        @param var_sub: `dict` that maps variables to BDD nodes
         """
-        j = self.level_of_var(var)
         cache = dict()
-        u = self._compose(f, j, g, cache)
-        return u
+        if len(var_sub) == 1:
+            (var, g), = var_sub.items()
+            j = self.level_of_var(var)
+            r = self._compose(f, j, g, cache)
+        else:
+            r = _copy_bdd(f, var_sub, self, self, cache)
+        return r
 
     def _compose(self, f, j, g, cache):
         # terminal ?

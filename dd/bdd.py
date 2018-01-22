@@ -1743,7 +1743,6 @@ def copy_bdd(u, from_bdd, to_bdd):
         from_bdd.level_of_var(var): to_bdd.level_of_var(var)
         for var in from_bdd.vars if var in to_bdd.vars}
     cache = dict()
-    cache[1] = 1
     r = _copy_bdd(u, cache, level_map, from_bdd, to_bdd)
     return r
 

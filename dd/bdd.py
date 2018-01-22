@@ -510,7 +510,7 @@ class BDD(_abc.BDD):
         return u
 
     def _compose(self, f, j, g, cache):
-        # terminal or exhausted valuation ?
+        # terminal ?
         if abs(f) == 1:
             return f
         # cached ?
@@ -518,6 +518,7 @@ class BDD(_abc.BDD):
             return cache[(f, g)]
         # independent of j ?
         i, v, w = self._succ[abs(f)]
+        # below j ?
         if j < i:
             return f
         elif i == j:
@@ -587,6 +588,7 @@ class BDD(_abc.BDD):
         # terminal ?
         if abs(u) == 1:
             return u
+        # memoized ?
         if u in cache:
             return cache[u]
         i, v, w = self._succ[abs(u)]

@@ -1385,7 +1385,6 @@ def rename(u, bdd, dvars):
     levels = bdd.vars
     dvars = {levels[k]: levels[v]
              for k, v in items(dvars)}
-    _assert_valid_rename(u, bdd, dvars)
     if not _all_adjacent(dvars, bdd):
         logger.warning('BDD.rename: not all vars adjacent')
     cache = dict()

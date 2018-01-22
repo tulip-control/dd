@@ -996,8 +996,8 @@ def test_rename():
     assert v == v_, (v, v_)
     # old and new vars intersect
     dvars = {'x': 'x'}
-    with nt.assert_raises(AssertionError):
-        g.let(dvars, u)
+    v = g.let(dvars, u)
+    assert v == u, (v, u)
 
 
 def test_rename_syntax():

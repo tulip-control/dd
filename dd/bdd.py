@@ -1388,18 +1388,18 @@ def rename(u, bdd, dvars):
     _assert_valid_rename(u, bdd, dvars)
     if not _all_adjacent(dvars, bdd):
         logger.warning('BDD.rename: not all vars adjacent')
-    umap = dict()
-    return _rename(u, bdd, dvars, umap)
+    cache = dict()
+    return _rename(u, bdd, dvars, cache)
 
 
-def _rename(u, bdd, dvars, umap):
+def _rename(u, bdd, dvars, cache):
     """Recursive renaming."""
     # terminal ?
     if abs(u) == 1:
         return u
     # non-terminal
     # memoized ?
-    r = umap.get(abs(u))
+    r = cache.get(abs(u))
     if r is not None:
         assert r > 0, r
         # complement ?
@@ -1408,8 +1408,8 @@ def _rename(u, bdd, dvars, umap):
         return r
     # recurse
     i, v, w = bdd._succ[abs(u)]
-    p = _rename(v, bdd, dvars, umap)
-    q = _rename(w, bdd, dvars, umap)
+    p = _rename(v, bdd, dvars, cache)
+    q = _rename(w, bdd, dvars, cache)
     assert p * v > 0, (p, v)
     assert q > 0, q
     # to be renamed ?
@@ -1418,7 +1418,7 @@ def _rename(u, bdd, dvars, umap):
     r = bdd.ite(g, q, p)
     # memoize
     assert r > 0, r
-    umap[abs(u)] = r
+    cache[abs(u)] = r
     # complement ?
     if u < 0:
         r = -r
@@ -1748,9 +1748,9 @@ def copy_bdd(u, from_bdd, to_bdd):
     _assert_valid_ordering(to_bdd.vars)
     support = from_bdd.support(u)
     level_map = _level_map(from_bdd, to_bdd, support)
-    umap = dict()
-    umap[1] = 1
-    r = _copy_bdd(u, umap, level_map, from_bdd, to_bdd)
+    cache = dict()
+    cache[1] = 1
+    r = _copy_bdd(u, cache, level_map, from_bdd, to_bdd)
     return r
 
 
@@ -1770,11 +1770,11 @@ def _level_map(from_bdd, to_bdd, support):
     return level_map
 
 
-def _copy_bdd(u, umap, level_map, old_bdd, bdd):
+def _copy_bdd(u, cache, level_map, old_bdd, bdd):
     """Recurse to copy nodes from `old_bdd` to `bdd`.
 
     @param u: node in `old_bdd`
-    @type umap: `dict`
+    @type cache: `dict`
     @type level_map: `dict` as returned by `_level_map`
     @type old_bdd, bdd: `BDD`
     """
@@ -1783,7 +1783,7 @@ def _copy_bdd(u, umap, level_map, old_bdd, bdd):
         return u
     # non-terminal
     # memoized ?
-    r = umap.get(abs(u))
+    r = cache.get(abs(u))
     if r is not None:
         assert r > 0, r
         # complement ?
@@ -1792,8 +1792,8 @@ def _copy_bdd(u, umap, level_map, old_bdd, bdd):
         return r
     # recurse
     jold, v, w = old_bdd._succ[abs(u)]
-    p = _copy_bdd(v, umap, level_map, old_bdd, bdd)
-    q = _copy_bdd(w, umap, level_map, old_bdd, bdd)
+    p = _copy_bdd(v, cache, level_map, old_bdd, bdd)
+    q = _copy_bdd(w, cache, level_map, old_bdd, bdd)
     assert p * v > 0, (p, v)
     assert q > 0, q
     # add node
@@ -1801,7 +1801,7 @@ def _copy_bdd(u, umap, level_map, old_bdd, bdd):
     r = bdd.find_or_add(jnew, p, q)
     # memoize
     assert r > 0, r
-    umap[abs(u)] = r
+    cache[abs(u)] = r
     # complement ?
     if u < 0:
         r = -r

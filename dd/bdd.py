@@ -1741,27 +1741,13 @@ def copy_bdd(u, from_bdd, to_bdd):
     if from_bdd is to_bdd:
         logger.warning('copying node to same manager')
         return u
-    support = from_bdd.support(u)
-    level_map = _level_map(from_bdd, to_bdd, support)
+    level_map = {
+        from_bdd.level_of_var(var): to_bdd.level_of_var(var)
+        for var in from_bdd.vars if var in to_bdd.vars}
     cache = dict()
     cache[1] = 1
     r = _copy_bdd(u, cache, level_map, from_bdd, to_bdd)
     return r
-
-
-def _level_map(from_bdd, to_bdd, support):
-    """Return map from old to new levels.
-
-    @type from_bdd, to_bdd: `BDD`
-    @param support: restrict the map to these variables
-    @type support: var names as `str`
-    """
-    old = {var: from_bdd.level_of_var(var)
-           for var in from_bdd.vars}
-    new = {var: to_bdd.level_of_var(var)
-           for var in to_bdd.vars}
-    level_map = {old[x]: new[x] for x in support}
-    return level_map
 
 
 def _copy_bdd(u, cache, level_map, old_bdd, bdd):
@@ -1769,7 +1755,7 @@ def _copy_bdd(u, cache, level_map, old_bdd, bdd):
 
     @param u: node in `old_bdd`
     @type cache: `dict`
-    @type level_map: `dict` as returned by `_level_map`
+    @type level_map: `dict` that maps old to new levels
     @type old_bdd, bdd: `BDD`
     """
     # terminal ?
@@ -1790,8 +1776,8 @@ def _copy_bdd(u, cache, level_map, old_bdd, bdd):
     q = _copy_bdd(w, cache, level_map, old_bdd, bdd)
     assert p * v > 0, (p, v)
     assert q > 0, q
-    # add node
-    jnew = level_map[jold]  # TODO: replace with more generic map
+    # map this level
+    jnew = level_map[jold]
     g = bdd.find_or_add(jnew, -1, 1)
     r = bdd.ite(g, q, p)
     # memoize

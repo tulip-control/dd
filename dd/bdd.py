@@ -1689,16 +1689,6 @@ def reorder_to_pairs(bdd, pairs):
     logger.info('total swaps: {m}'.format(m=m))
 
 
-def copy_vars(source, target):
-    """Copy variables, preserving levels.
-
-    @type source, target: `BDD`
-    """
-    for var in source.vars:
-        level = source.level_of_var(var)
-        target.add_var(var, level=level)
-
-
 def copy_bdd(u, from_bdd, to_bdd):
     """Copy BDD of node `u` `from_bdd` `to_bdd`.
 

@@ -9,6 +9,7 @@ import logging
 import warnings
 
 from dd import _abc
+from dd import _copy
 from dd import bdd as _bdd
 
 
@@ -220,7 +221,7 @@ def reorder(bdd, order=None):
 
 
 def copy_vars(source, target):
-    _bdd.copy_vars(source._bdd, target._bdd)
+    _copy.copy_vars(source._bdd, target._bdd)
 
 
 def copy_bdd(u, target):

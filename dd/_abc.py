@@ -263,20 +263,6 @@ def reorder(bdd, order=None):
     _bdd.reorder(bdd._bdd, order=order)
 
 
-def copy_vars(source, target):
-    """Copy variables, preserving levels.
-
-    @type source, target: `BDD`
-    """
-    _bdd.copy_vars(source._bdd, target._bdd)
-
-
-def copy_bdd(u, target):
-    """Copy BDD of node `u` to manager `target`."""
-    r = _bdd.copy_bdd(u.node, u.bdd, target._bdd)
-    return target._wrap(r)
-
-
 class Operator(object):
     """Convenience wrapper for edges returned by `BDD`."""
 

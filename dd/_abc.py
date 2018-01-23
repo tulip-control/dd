@@ -260,7 +260,6 @@ def reorder(bdd, order=None):
     @type order: `dict: str -> int` that maps
         variable names to levels
     """
-    _bdd.reorder(bdd._bdd, order=order)
 
 
 class Operator(object):

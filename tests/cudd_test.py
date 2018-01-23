@@ -436,7 +436,7 @@ def test_dump_load():
         bdd.add_var(var)
     u = bdd.add_expr('(x /\ ~ w) \/ z')
     fname = 'bdd.txt'
-    bdd.dump(u, fname)
+    bdd.dump(fname, [u], filetype='dddmp')
     u_ = bdd.load(fname)
     assert u == u_
 

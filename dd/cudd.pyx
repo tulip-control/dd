@@ -1020,7 +1020,8 @@ cdef class BDD(object):
             s = '(~ {s})'.format(s=s)
         return s
 
-    cpdef dump(self, Function u, fname):
+    cpdef dump(self, fname, roots, filetype=None):
+        u, = roots  # single root supported for now
         """Dump BDD as DDDMP file `fname`."""
         assert u.manager == self.manager
         n = len(self._index_of_var)

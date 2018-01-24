@@ -21,9 +21,9 @@ def solve_queens(n):
 
     @rtype: `int`, `BDD`
     """
-    v = [_var_str(i, j) for i in range(n) for j in range(n)]
-    d = {xij: level for level, xij in enumerate(v)}
-    bdd = _bdd.BDD(d)
+    vrs = [_var_str(i, j) for i in range(n) for j in range(n)]
+    bdd = _bdd.BDD()
+    bdd.declare(*vrs)
     s = queens_formula(n)
     u = bdd.add_expr(s)
     return u, bdd

@@ -352,27 +352,23 @@ class BDD(_abc.BDD):
         Nodes in `roots` are included.
         Nodes are represented as positive integers.
         """
+        if not roots:
+            return set()
+        visited = {1}
         for u in roots:
-            assert u in self, u
-        nodes = set()
-        q = [u for u in roots]
-        while q:
-            u = q.pop(0)
-            r = abs(u)
-            # visited ?
-            if r in nodes:
-                continue
-            nodes.add(r)
-            # terminal ?
-            if r == 1:
-                continue
-            # descendants
-            _, v, w = self._succ[r]
-            q.extend((v, w))
+            self._descendants(u, visited)
         abs_roots = set(abs(u) for u in roots)
-        assert nodes.issuperset(abs_roots), (nodes, abs_roots)
-        assert not roots or 1 in nodes, nodes
-        return nodes
+        assert abs_roots.issubset(visited), (abs_roots, visited)
+        return visited
+
+    def _descendants(self, u, visited):
+        r = abs(u)
+        if r == 1 or r in visited:
+            return
+        _, v, w = self._succ[r]
+        self._descendants(v, visited)
+        self._descendants(w, visited)
+        visited.add(r)
 
     def is_essential(self, u, var):
         """Return `True` if `var` is essential for node `u`.

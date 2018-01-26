@@ -590,6 +590,10 @@ cdef class Function(object):
     def __len__(self):
         return sy.sylvan_nodecount(self.node)
 
+    @property
+    def dag_size(self):
+        return len(self)
+
     def __richcmp__(Function self, Function other, op):
         assert self.bdd is other.bdd, self.bdd
         if other is None:

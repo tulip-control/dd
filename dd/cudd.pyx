@@ -1503,6 +1503,10 @@ cdef class Function(object):
     def __len__(self):
         return Cudd_DagSize(self.node)
 
+    @property
+    def dag_size(self):
+        return len(self)
+
     def __richcmp__(Function self, Function other, op):
         if other is None:
             eq = False

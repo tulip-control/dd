@@ -274,6 +274,10 @@ class Function(_abc.Operator):
     def __len__(self):
         return len(self.manager.descendants([self.node]))
 
+    @property
+    def dag_size(self):
+        return len(self)
+
     def __del__(self):
         """Decrement reference count of `self.node` in `self.bdd`."""
         self.manager.decref(self.node)

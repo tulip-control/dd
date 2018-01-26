@@ -456,8 +456,7 @@ class BDD(_abc.BDD):
     def reduction(self):
         """Return copy reduced with respect to `self.vars`.
 
-        Not to be used for large BDDs.
-        Instead, construct them directly reduced.
+        This function has educational value.
         """
         # terminals
         bdd = BDD(self.vars)

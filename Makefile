@@ -75,7 +75,10 @@ clean_cudd:
 
 clean:
 	-rm -rf build/ dist/ dd.egg-info/
-	-rm dd/*.so dd/*.c
+	-rm dd/*.so
+	-rm dd/buddy.c
+	-rm dd/cudd.c
+	-rm dd/sylvan.c
 	-rm *.pyc */*.pyc
 	-rm -rf __pycache__ */__pycache__
 	-rm -rf wheelhouse

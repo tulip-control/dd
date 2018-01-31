@@ -74,6 +74,12 @@ class BDD(_abc.BDD):
         w = self._wrap(w)
         return i, v, w
 
+    def incref(self, u):
+        self._bdd.incref(u.node)
+
+    def decref(self, u):
+        self._bdd.decref(u.node)
+
     def add_var(self, var, level=None):
         return self._bdd.add_var(var, level=level)
 

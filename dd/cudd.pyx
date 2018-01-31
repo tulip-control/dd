@@ -544,6 +544,12 @@ cdef class BDD(object):
         w = u.high
         return i, v, w
 
+    cpdef incref(self, Function u):
+        self._incref(u.node)
+
+    cpdef decref(self, Function u, recursive=False):
+        self._decref(u.node, recursive)
+
     cdef _incref(self, DdNode *u):
         Cudd_Ref(u)
 

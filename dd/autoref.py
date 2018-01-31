@@ -87,6 +87,9 @@ class BDD(_abc.BDD):
     def level_of_var(self, var):
         return self._bdd.level_of_var(var)
 
+    def reorder(self, var_order=None):
+        reorder(self, var_order)
+
     def copy(self, u, other):
         assert u in self, u
         if self is other:

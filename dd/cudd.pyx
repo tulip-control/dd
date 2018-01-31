@@ -637,6 +637,13 @@ cdef class BDD(object):
         assert level != -1, 'index {j} out of bounds'.format(j=j)
         return level
 
+    def reorder(self, var_order=None):
+        """Reorder variables to `var_order`.
+
+        If `var_order` is `None`, then invoke sifting.
+        """
+        reorder(self, var_order)
+
     cpdef support(self, Function f):
         """Return `set` of variables that node `f` depends on."""
         assert self.manager == f.manager, f

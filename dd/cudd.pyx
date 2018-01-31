@@ -547,7 +547,7 @@ cdef class BDD(object):
     cdef incref(self, DdNode *u):
         Cudd_Ref(u)
 
-    cdef decref(self, DdNode *u, recursive=True):
+    cdef decref(self, DdNode *u, recursive=False):
         if recursive:
             Cudd_RecursiveDeref(self.manager, u)
         else:
@@ -1619,7 +1619,8 @@ cpdef _test_incref():
     bdd.incref(f.node)
     j = f.ref
     assert j == i + 1, (j, i)
-    bdd.decref(f.node)  # avoid errors in `BDD.__dealloc__`
+    # avoid errors in `BDD.__dealloc__`
+    bdd.decref(f.node, recursive=True)
     del f
 
 
@@ -1632,7 +1633,7 @@ cpdef _test_decref():
     bdd.incref(f.node)
     i = f.ref
     assert i == 3, i
-    bdd.decref(f.node)
+    bdd.decref(f.node, recursive=True)
     j = f.ref
     assert j == i - 1, (j, i)
     del f

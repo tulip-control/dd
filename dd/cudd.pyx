@@ -21,8 +21,10 @@ import sys
 import time
 import warnings
 
+from dd import _copy
 from dd import _parser
 from dd import _compat
+from dd import autoref
 from dd import bdd as _bdd
 from libcpp cimport bool
 from libc.stdio cimport FILE, fdopen, fopen, fclose
@@ -1022,6 +1024,17 @@ cdef class BDD(object):
 
     cpdef dump(self, fname, roots, filetype=None):
         u, = roots  # single root supported for now
+        if (
+                fname.lower().endswith('.dddmp') or
+                filetype == 'dddmp'):
+            return self._dump_dddmp(u, fname)
+        else:
+            bdd = autoref.BDD()
+            _copy.copy_vars(self, bdd)  # preserve levels
+            v = _copy.copy_bdd(u, bdd)
+            bdd.dump(fname, [v], filetype=filetype)
+
+    cpdef _dump_dddmp(self, Function u, fname):
         """Dump BDD as DDDMP file `fname`."""
         assert u.manager == self.manager
         n = len(self._index_of_var)

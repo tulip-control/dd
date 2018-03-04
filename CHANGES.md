@@ -1,6 +1,31 @@
 # dd changelog
 
 
+## 0.5.4
+
+- enable `KeyboardInterrupt` on POSIX systems for `cudd`
+  when `cysignals >= 1.7.0` is present at installation
+
+API:
+
+- change signature of method `cudd.BDD.dump`
+- add GraphViz as an option of `cudd.BDD.dump`
+- allow copying between managers with different variable orders
+- allow simultaneous substitution in `bdd.BDD.let`
+- add property `BDD.var_levels`
+- add method `BDD.reorder` to `cudd` and `autoref`
+- add method `cudd.BDD.group` for grouping variables
+- add `autoref.BDD` methods `incref` and `decref`
+- change signatures of `cudd.BDD` methods `incref` and `decref`
+- change default to `recursive=False` in method `cudd.BDD.decref`
+- add property `Function.dag_size`
+- add module `dd._copy`
+- rm method `bdd.copy_vars`, use method `BDD.declare` instead,
+  and separately copy variable order, if needed.
+  This method has moved to `_copy.copy_vars`.
+- rm method `bdd.BDD.evaluate`, use method `dd.BDD.let`
+
+
 ## 0.5.3
 
 - distribute `manylinux1_x86_64` wheel via PyPI

@@ -677,10 +677,14 @@ cdef class BDD(object):
     def copy(self, u, other):
         """Transfer BDD with root `u` to `other`.
 
-        @type other: `BDD`
+        @param other: BDD manager
+        @type other: `dd.cudd.BDD` or `dd.autoref.BDD`
         @rtype: node
         """
-        return copy_bdd(u, other)
+        if isinstance(other, BDD):
+            return copy_bdd(u, other)
+        else:
+            return _copy.copy_bdd(u, other)
 
     cpdef Function let(self, definitions, Function u):
         """Replace variables with `definitions` in `u`."""

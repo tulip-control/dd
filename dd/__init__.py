@@ -2,5 +2,5 @@
 from dd.bdd import BDD
 try:
     from ._version import version as __version__
-except:
+except ImportError:
     __version__ = None

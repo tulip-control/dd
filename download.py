@@ -28,6 +28,7 @@ from setuptools.extension import Extension
 EXTENSIONS = ['cudd', 'buddy', 'sylvan']
 # CUDD
 CUDD_VERSION = '3.0.0'
+CUDD_TARBALL = 'cudd-{v}.tar.gz'.format(v=CUDD_VERSION)
 CUDD_URL = (
     'ftp://vlsi.colorado.edu/'
     'pub/cudd-{v}.tar.gz').format(v=CUDD_VERSION)
@@ -153,7 +154,7 @@ def fetch(url, sha256, fname=None):
     print('++ download: {url}'.format(url=url))
     u = urllib2.urlopen(url)
     if fname is None:
-        fname = url.split('/')[-1]
+        fname = CUDD_TARBALL
     with open(fname, 'wb') as f:
         f.write(u.read())
     with open(fname, 'rb') as f:

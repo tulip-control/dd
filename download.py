@@ -30,8 +30,8 @@ EXTENSIONS = ['cudd', 'buddy', 'sylvan']
 CUDD_VERSION = '3.0.0'
 CUDD_TARBALL = 'cudd-{v}.tar.gz'.format(v=CUDD_VERSION)
 CUDD_URL = (
-    'ftp://vlsi.colorado.edu/'
-    'pub/cudd-{v}.tar.gz').format(v=CUDD_VERSION)
+    'https://sourceforge.net/projects/cudd-mirror/files/'
+    'cudd-{v}.tar.gz/download').format(v=CUDD_VERSION)
 CUDD_SHA256 = (
     'b8e966b4562c96a03e7fbea239729587'
     'd7b395d53cadcc39a7203b49cf7eeb69')

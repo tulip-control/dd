@@ -471,6 +471,57 @@ class BDD(_abc.BDD):
                 bdd.roots.add(r)
         return bdd
 
+    def prune(self):
+        """Remove variables not of importance to BDD."""
+
+        # Clean garbage
+        self.collect_garbage()
+        levels = self._levels()
+        empty_levels = []
+        full_levels = []
+
+        i = 0
+        trans_lev = dict()
+        inv_lev = dict()
+        lev = 0
+        for lev in sorted(levels):
+            if levels[lev] == set():  # for empty set
+                empty_levels += [lev]  # unneeded level
+            else:
+                full_levels += [lev]  # needed level
+                trans_lev[lev] = i
+                inv_lev[i] = lev
+                i += 1
+        # created dictionary trans_lev: old_level => new_level
+        # created dictionary inv_lev: new_level => old_level
+        trans_lev[lev + 1] = i
+
+        inv_lev[i] = lev + 1
+        print(trans_lev)
+        print(inv_lev)
+        empty_vars = [self._level_to_var.pop(emp_lev) for emp_lev in empty_levels]
+        # list with empty vars (same order as empty_levels)
+        # remove empty levels from self._level_to_var..
+
+        # start changing the BDD
+        for lev in full_levels:
+            var = self._level_to_var.pop(lev)  # remove old level
+            self.vars[var] = trans_lev[lev]  # new level
+            self._level_to_var[trans_lev[lev]] = var  # new level to var
+        for e_vars in empty_vars:
+            self.vars.pop(e_vars)
+
+        for u in self._succ:
+            if not (u == 1):  # last node is not saved in self._pred
+                self._pred.pop(self._succ[u])
+                self._pred[(trans_lev[self._succ[u][0]], self._succ[u][1], self._succ[u][2])] = u
+            self._succ[u] = (trans_lev[self._succ[u][0]], self._succ[u][1], self._succ[u][2])
+        # self._pred = dict()  # (i, low, high) -> u
+        # self._succ = dict()  # u -> (i, low, high)
+        self._ite_table = dict()  # (cond, high, low)
+
+        return empty_vars
+
     def let(self, definitions, u):
         d = definitions
         if not d:

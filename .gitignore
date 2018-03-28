@@ -28,3 +28,4 @@ build/*
 *.swp
 *.tags
 *.xml
+*.iml

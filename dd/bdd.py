@@ -476,6 +476,49 @@ class BDD(_abc.BDD):
             bdd.roots.add(p)
         return bdd
 
+    def undeclare_vars(self, *vrs):
+        """Remove unused variables `vrs` from `self.vars`.
+
+        Asserts that each variable in `vrs` corresponds to
+        an empty level.
+
+        If `vrs` is empty, then remove all unused variables.
+
+        Garbage collection may need to be called before
+        calling `undeclare_vars`, in order to collect
+        unreferenced nodes to obtain empty levels.
+        """
+        for var in vrs:
+            assert var in self.vars, var
+        full_levels = {i for i, _, _ in _compat.values(self._succ)}
+        # remove only unused variables
+        for var in vrs:
+            level = self.level_of_var(var)
+            assert level not in full_levels, (var, level)
+        # keep unused variables not in `vrs`
+        if vrs:
+            full_levels |= {
+                level for var, level in items(self.vars)
+                if var not in vrs}
+        # map old to new levels
+        n = 1 + len(self.vars)  # include terminal
+        new_levels = [i for i in range(n) if i in full_levels]
+        new_levels = {i: new for new, i in enumerate(new_levels)}
+        # update variables and level declarations
+        rm_vars = {var for var, level in items(self.vars)
+                   if level not in full_levels}
+        self.vars = {var: new_levels[old] for var, old in items(self.vars)
+                     if old in full_levels}
+        self._level_to_var = {k: var for var, k in items(self.vars)}
+        # update node levels
+        self._succ = {
+            u: (new_levels[i], v, w)
+            for u, (i, v, w) in items(self._succ)}
+        self._pred = {v: k for k, v in items(self._succ)}
+        # clear cache
+        self._ite_table = dict()
+        return rm_vars
+
     def let(self, definitions, u):
         d = definitions
         if not d:

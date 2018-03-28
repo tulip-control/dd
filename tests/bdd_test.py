@@ -888,6 +888,45 @@ class TrackReorderings(BDD):
         return r is True
 
 
+def test_undeclare_vars():
+    bdd = BDD()
+    bdd.declare('x', 'y', 'z', 'w')
+    # empty arg `vrs`
+    u = bdd.add_expr('x /\ y /\ w')
+    rm_vars = bdd.undeclare_vars()
+    rm_vars_ = {'z'}
+    assert rm_vars == rm_vars_, (rm_vars, rm_vars_)
+    bdd_vars_ = dict(x=0, y=1, w=2)
+    assert bdd.vars == bdd_vars_, bdd.vars
+    assert bdd.assert_consistent()
+    # nonempty `vrs` with all empty levels
+    bdd = BDD()
+    bdd.declare('x', 'y', 'z', 'w')
+    u = bdd.add_expr('y /\ w')
+    rm_vars = bdd.undeclare_vars('x', 'z')
+    rm_vars_ = {'x', 'z'}
+    assert rm_vars == rm_vars_, (rm_vars, rm_vars_)
+    bdd_vars_ = dict(y=0, w=1)
+    assert bdd.vars == bdd_vars_, bdd.vars
+    assert bdd.assert_consistent()
+    # nonempty `vrs` without all empty levels
+    bdd = BDD()
+    bdd.declare('x', 'y', 'z', 'w')
+    u = bdd.add_expr('y /\ w')
+    rm_vars = bdd.undeclare_vars('z')
+    rm_vars_ = {'z'}
+    assert rm_vars == rm_vars_, (rm_vars, rm_vars_)
+    bdd_vars_ = dict(x=0, y=1, w=2)
+    assert bdd.vars == bdd_vars_, bdd.vars
+    assert bdd.assert_consistent()
+    # remove only unused variables
+    bdd = BDD()
+    bdd.declare('x', 'y', 'z', 'w')
+    u = bdd.add_expr('y /\ w')
+    with nt.assert_raises(AssertionError):
+        bdd.undeclare_vars('z', 'y')
+
+
 def test_dump_load():
     prefix = 'test_dump_load'
     fname = prefix + '.p'

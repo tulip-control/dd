@@ -963,6 +963,10 @@ def test_quantify():
     r = g.quantify(e, {'y', 'z'})
     assert r == x, r
 
+    g.incref(r)
+
+    assert isinstance(g.prune(),list)
+
 
 def test_quantifier_syntax():
     b = BDD()

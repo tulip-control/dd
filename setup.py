@@ -41,7 +41,7 @@ VERSION_TEXT = (
 install_requires = [
     'astutils >= 0.0.1',
     'networkx >= 1.9.1',
-    'ply >= 3.4',
+    'ply >= 3.4, <= 3.10',
     'psutil >= 3.2.2',
     'pydot >= 1.2.2',
     'setuptools >= 19.6']

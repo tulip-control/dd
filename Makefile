@@ -6,14 +6,12 @@ wheel_file := $(wildcard dist/*.whl)
 
 build_cudd: clean cudd install test
 
-build_sylvan:
-	make clean
+build_sylvan: clean
 	-pip uninstall -y dd
 	python setup.py install --sylvan
 	rtests.py --rednose
 
-sdist_test:
-	make clean
+sdist_test: clean
 	python setup.py sdist --cudd --buddy
 	cd dist; \
 	pip install dd*.tar.gz; \
@@ -21,8 +19,7 @@ sdist_test:
 	pip install nose rednose
 	rtests.py --rednose
 
-sdist_test_cudd:
-	make clean
+sdist_test_cudd: clean
 	pip install cython ply
 	python setup.py sdist --cudd --buddy
 	yes | pip uninstall cython ply

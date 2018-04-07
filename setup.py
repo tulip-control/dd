@@ -46,7 +46,6 @@ install_requires = [
     'pydot >= 1.2.2',
     'setuptools >= 19.6']
 tests_require = [
-    'cysignals >= 1.6.5',
     'nose >= 1.3.4']
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
@@ -108,6 +107,7 @@ def parse_args():
             const='', type=str, nargs='?',
             help='build Cython extension {s}'.format(s=opt))
     args, unknown = parser.parse_known_args()
+    args.sdist = 'sdist' in unknown
     args.bdist_wheel = 'bdist_wheel' in unknown
     # avoid confusing `setuptools`
     sys.argv = [sys.argv[0]] + unknown

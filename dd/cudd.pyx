@@ -34,7 +34,7 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Free
 import psutil
 
 
-IF HAVE_CYSIGNALS:
+IF USE_CYSIGNALS:
     from cysignals.signals cimport sig_on, sig_off
 ELSE:
     # for non-POSIX systems

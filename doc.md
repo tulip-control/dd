@@ -1116,6 +1116,12 @@ in the negated value computed for node `y-3` in the next image.
 
 ## Footnotes
 
+- The `Makefile` contains the rules `sdist` and `wheel` that
+  create distributions for uploading to PyPI with `twine`.
+
+- To use `Ctrl + C` (`KeyboardInterrupt`) to interrupt CUDD computations
+  that take a long time, install `cysignals`, then build `dd.cudd`.
+
 - If you are interested in exploring other decision diagram packages,
   you can find [a list at `github.com/johnyf/tool_lists/`](
     https://github.com/johnyf/tool_lists/blob/master/bdd.md).

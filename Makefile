@@ -33,7 +33,13 @@ sdist_test_cudd:
 	pip install nose rednose
 	rtests.py --rednose
 
-wheel:
+# use to create source distributions for PyPI
+sdist: clean
+	-rm dist/*.tar.gz
+	python setup.py sdist --cudd --buddy --sylvan
+
+# use to create binary distributions for PyPI
+wheel: clean
 	-rm dist/*.whl
 	python setup.py bdist_wheel --cudd
 	@echo "-------------"

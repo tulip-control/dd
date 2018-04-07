@@ -1,5 +1,5 @@
 cython==0.26.1
-cysignals
+# cysignals >= 1.7.0  # optional
 
 
 # dev

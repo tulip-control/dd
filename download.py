@@ -79,12 +79,13 @@ def extensions(args):
     @param args: known args from `argparse.parse_known_args`
     """
     directives = dict()
-    compile_time_env = dict(HAVE_CYSIGNALS=False)
     cudd_cflags = list(CUDD_CFLAGS)
     sylvan_cflags = list()
-    # detect `cysignals`
-    if cysignals is not None:
-        compile_time_env['HAVE_CYSIGNALS'] = True
+    # detect optional `cysignals` (unless dist)
+    compile_time_env = dict(
+        USE_CYSIGNALS=not (
+            cysignals is None or
+            args.sdist or args.bdist_wheel))
     # tell gcc to compile line tracing
     if args.linetrace:
         print('compile Cython extensions with line tracing')

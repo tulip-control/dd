@@ -3,6 +3,9 @@
 
 wheel_file := $(wildcard dist/*.whl)
 
+.PHONY: cudd install test
+.PHONY: clean clean_all clean_cudd
+
 
 build_cudd: clean cudd install test
 
@@ -68,8 +71,6 @@ cudd:
 
 doc:
 	grip --export doc.md index.html
-
-.PHONY: clean_all clean_cudd clean rm_cudd
 
 clean_all: clean_cudd clean
 

@@ -1119,6 +1119,9 @@ in the negated value computed for node `y-3` in the next image.
 - The `Makefile` contains the rules `sdist` and `wheel` that
   create distributions for uploading to PyPI with `twine`.
 
+- Press `Ctrl + \` on Linux and Darwin to quit the Python process when
+  CUDD computations take a long time. See `stty -a` for your settings.
+
 - To use `Ctrl + C` (`KeyboardInterrupt`) to interrupt CUDD computations
   that take a long time, install `cysignals`, then build `dd.cudd`.
 

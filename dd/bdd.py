@@ -152,7 +152,7 @@ class BDD(_abc.BDD):
         self._ref = dict()  # reference counters
         self._min_free = 2  # all smaller positive integers used
         self._ite_table = dict()  # (cond, high, low)
-        self.vars = dict()
+        self.vars = dict()  # var_to_level
         self._level_to_var = dict()
         self._init_terminal(len(self.vars))  # handle no vars
         self._reordering_context = False  # for decorator nesting

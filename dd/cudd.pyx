@@ -643,6 +643,10 @@ cdef class BDD(object):
         assert level != -1, 'index {j} out of bounds'.format(j=j)
         return level
 
+    @property
+    def var_levels(self):
+        return {var: self.level_of_var(var) for var in self.vars}
+
     def reorder(self, var_order=None):
         """Reorder variables to `var_order`.
 

@@ -312,6 +312,10 @@ class BDD(_abc.BDD):
     def level_of_var(self, var):
         return self.vars.get(var)
 
+    @property
+    def var_levels(self):
+        return dict(self.vars)
+
     def _map_to_level(self, d):
         """Map keys of `d` to variable levels using `self.vars`.
 

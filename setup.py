@@ -32,7 +32,7 @@ url = 'https://github.com/johnyf/{name}'.format(name=name)
 VERSION_FILE = '{name}/_version.py'.format(name=name)
 MAJOR = 0
 MINOR = 5
-MICRO = 4
+MICRO = 5
 VERSION = '{major}.{minor}.{micro}'.format(
     major=MAJOR, minor=MINOR, micro=MICRO)
 VERSION_TEXT = (

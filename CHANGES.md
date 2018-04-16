@@ -20,9 +20,9 @@ API:
 - change default to `recursive=False` in method `cudd.BDD.decref`
 - add property `Function.dag_size`
 - add module `dd._copy`
-- rm method `bdd.copy_vars`, use method `BDD.declare` instead,
+- rm function `dd.bdd.copy_vars`, use method `BDD.declare` instead,
   and separately copy variable order, if needed.
-  This method has moved to `_copy.copy_vars`.
+  This function has moved to `_copy.copy_vars`.
 - rm method `bdd.BDD.evaluate`, use method `dd.BDD.let`
 
 

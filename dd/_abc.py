@@ -68,7 +68,6 @@ class BDD(object):
     @property
     def var_levels(self):
         """Return `dict` that maps variables to levels."""
-        return self.bdd.var_levels
 
     def copy(self, u, other):
         """Copy operator `u` from `self` to `other` manager."""

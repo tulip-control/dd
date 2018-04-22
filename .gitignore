@@ -19,6 +19,7 @@ __pycache__
 *.svg
 *.txt
 *.p
+*.json
 *.so
 *.html
 *.tar.gz

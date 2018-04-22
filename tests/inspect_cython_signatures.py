@@ -54,13 +54,11 @@ def inspect_signatures(spec, imp):
             continue
         assert method_name in spec_dir, method_name
         assert method_name in imp_dir, method_name
-        spec_sig = inspect.signature(method)
-        method = getattr(imp, method_name)
-        try:
-            imp_sig = inspect.signature(method)
-        except ValueError:
-            warnings.warn(
-                'Compile `cudd` with the compiler directive `binding`')
+        spec_method = getattr(spec, method_name)
+        imp_method = getattr(imp, method_name)
+        spec_sig = get_signature(spec_method)
+        imp_sig = get_signature(imp_method)
+        if spec_sig is None or imp_sig is None:
             continue
         spec_args = spec_sig.parameters.keys()
         imp_args = imp_sig.parameters.keys()
@@ -86,6 +84,17 @@ def inspect_signatures(spec, imp):
 def is_hidden(method_name):
     """Return `True` if not an interface method."""
     return method_name.startswith('_')
+
+
+def get_signature(func):
+    """Wrapper of `inspect.signature` with Cython reminder."""
+    try:
+        sig = inspect.signature(func)
+    except ValueError:
+        warnings.warn(
+            'Compile `cudd` with the compiler directive `binding`')
+        sig = None
+    return sig
 
 
 if __name__ == '__main__':

@@ -54,14 +54,14 @@ def inspect_signatures(spec, imp):
             continue
         assert method_name in spec_dir, method_name
         assert method_name in imp_dir, method_name
+        spec_sig = inspect.signature(method)
+        method = getattr(imp, method_name)
         try:
-            spec_sig = inspect.signature(method)
+            imp_sig = inspect.signature(method)
         except ValueError:
             warnings.warn(
                 'Compile `cudd` with the compiler directive `binding`')
             continue
-        method = getattr(imp, method_name)
-        imp_sig = inspect.signature(method)
         spec_args = spec_sig.parameters.keys()
         imp_args = imp_sig.parameters.keys()
         if spec_args != imp_args:

@@ -5,8 +5,10 @@ include CHANGES.md
 include AUTHORS
 include requirements.txt
 include download.py
+include tests/README.md
 include tests/*_test.py
 include tests/sample*.txt
+include examples/README.md
 include examples/*.py
 include dd/*.pyx
 include dd/*.pxd

@@ -528,10 +528,34 @@ def test_rename():
     not_w = bdd.apply('not', w)
     f_ = bdd.apply('or', z, not_w)
     assert f == f_, (f, f_)
-    # x -> x
+    # ensure substitution, not swapping
+    #
+    # f == LET x == y
+    #      IN x /\ y
+    u = bdd.apply('and', x, y)
+    # replace x with y, but leave y as is
+    d = dict(x='y')
+    f = bdd.let(d, u)
+    # THEOREM f <=> y
+    assert f == y, (f, y)
+    # f == LET x == y
+    #      IN x /\ ~ y
+    u = bdd.apply('and', x, ~ y)
+    d = dict(x='y')
+    f = bdd.let(d, u)
+    # THEOREM f <=> FALSE
+    assert f == bdd.false, f
+    # simultaneous substitution
+    #
+    # f == LET x == y1  (* x1, y1 correspond to *)
+    #          y == x1  (* x, y after substitution *)
+    #      IN x /\ ~ y
+    u = bdd.apply('and', x, ~ y)
+    # replace x with y, and simultaneously, y with x
     d = dict(x='y', y='x')
     f = bdd.let(d, u)
-    f_ = bdd.apply('or', ~ x, y)
+    f_ = bdd.apply('and', y, ~ x)
+    # THEOREM f <=> (~ x /\ y)
     assert f == f_, (f, f_)
     del x, y, not_y, z, w, not_w, u, f, f_
     # as method
@@ -541,6 +565,67 @@ def test_rename():
     y = bdd.let(d, x)
     assert y == y_, (y, y_)
     del x, y, y_
+
+
+def test_swap():
+    bdd = cudd.BDD()
+    bdd.declare('x', 'y')
+    x = bdd.var('x')
+    y = bdd.var('y')
+    # swap x and y
+    #
+    # This swap returns the same result as `bdd.let`
+    # with the same arguments, because `d` contains
+    # both `'x'` and `'y'` as keys.
+    #
+    # This result is obtained when the arguments are
+    # not checked for overlapping key-value pairs.
+    u = bdd.apply('and', x, ~ y)
+    d = dict(x='y', y='x')
+    with assert_raises(AssertionError):
+        f = bdd._swap(u, d)
+    # f_ = bdd.apply('and', ~ x, y)
+    # assert f == f_, (f, f_)
+    #
+    # swap x and y
+    # ensure swapping, not simultaneous substitution
+    #
+    # This swap returns a different result than
+    # `bdd.let` when given the same arguments,
+    # because `d` contains only `'x'` as key,
+    # so `let` does not result in simultaneous
+    # substitution.
+    u = bdd.apply('and', x, ~ y)
+    d = dict(x='y')  # swap x with y
+    f = bdd._swap(u, d)
+    f_ = bdd.apply('and', y, ~ x)
+    # compare to the corresponding test of `bdd.let`
+    assert f == f_, (f, f_)
+    #
+    # each variable should in at most one
+    # key-value pair of `d`
+    #
+    # 1) keys and values are disjoint sets
+    bdd.declare('z')
+    z = bdd.var('z')
+    u = bdd.apply('and', x, ~ y)
+    d = dict(x='y', y='z')
+    with assert_raises(AssertionError):
+        f = bdd._swap(u, d)
+    # The following result is obtained if the
+    # assertions are removed from `BDD._swap`.
+    # f_ = bdd.apply('and', y, ~ z)
+    # assert f == f_, bdd.to_expr(f)
+    #
+    # 2) each value appears once among values
+    u = bdd.apply('and', x, ~ y)
+    d = dict(x='y', z='y')
+    with assert_raises(AssertionError):
+        f = bdd._swap(u, d)
+    # The following result is obtained if the
+    # assertions are removed from `BDD._swap`.
+    # f_ = bdd.apply('and', y, ~ z)
+    # assert f == f_, bdd.to_expr(f)
 
 
 def test_ite():

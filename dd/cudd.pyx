@@ -775,7 +775,41 @@ cdef class BDD(object):
         return wrap(self, r)
 
     cpdef Function _rename(self, Function u, dvars):
-        """Return node `u` after renaming variables in `dvars`."""
+        """Return node `u` after renaming variables in `dvars`.
+
+        The argument value `dvars = dict(x='y')` results in
+        variable `'x'` substituted by variable `'y'`.
+
+        The argument value `dvars = dict(x='y', y='x')` results in
+        simultaneous substitution of variable `'x'` by variable `'y'`
+        and of variable `'y'` by variable `'x'`.
+        """
+        rename = {k: self.var(v) for k, v in dvars.items()}
+        return self._compose(u, rename)
+
+    cpdef Function _swap(self, Function u, dvars):
+        """Return node `u` after swapping variable pairs in `dvars`.
+
+        Asserts that each variable occurs in at most one key-value pair
+        of the dictionary `dvars`.
+
+        The argument value `dvars = dict(x='y')` results in swapping
+        of variables `'x'` and `'y'`, which is equivalent to
+        simultaneous substitution of `'x'` by `'y'` and `'y'` by `'x'`.
+
+        So the argument value `dvars = dict(x='y')` has the same
+        result as calling `_rename` with `dvars = dict(x='y', y='x')`.
+        """
+        # assert that each variable occurs in at most one
+        # key-value pair of the dictionary `dvars`:
+        # 1) assert keys and values of `dvars` are disjoint sets
+        common = {var for var in dvars.values() if var in dvars}
+        assert not common, common
+        # 2) assert each value is unique
+        values = set(dvars.values())
+        assert len(dvars) == len(values), dvars
+        #
+        # call swapping
         n = len(dvars)
         cdef DdNode **x = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
         cdef DdNode **y = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))

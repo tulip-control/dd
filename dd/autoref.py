@@ -77,7 +77,7 @@ class BDD(_abc.BDD):
     def incref(self, u):
         self._bdd.incref(u.node)
 
-    def decref(self, u):
+    def decref(self, u, **kw):
         self._bdd.decref(u.node)
 
     def add_var(self, var, level=None):
@@ -366,7 +366,6 @@ class Function(_abc.Operator):
 
     @property
     def negated(self):
-
         return self.node < 0
 
     @property

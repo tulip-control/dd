@@ -177,10 +177,12 @@ def _load_json(f, bdd, load_order, cache):
         _store_line(d, bdd, context, cache)
     roots = [_node_from_int(k, bdd, cache)
              for k in context['roots']]
-    # invert refs to cached nodes
+    # rm refs to cached nodes
     for uid in cache:
         u = _node_from_int(int(uid), bdd, cache)
         bdd.decref(u)
+        assert not load_order or u.ref > 1
+    bdd.assert_consistent()
     return roots
 
 

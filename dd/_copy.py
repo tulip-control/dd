@@ -150,11 +150,11 @@ def _dump_bdd(u, f, cache):
     return -k if u.negated else k
 
 
-def load_json(file_name, bdd, keep_order=True):
+def load_json(file_name, bdd, load_order=False):
     """Add BDDs from JSON `file_name` to `bdd`.
 
-    If `keep_order` is `True`, then load also the variable
-    order from `file_name`.
+    @param load_order: if `True`, then load variable order
+        from `file_name`.
     """
     tmp_fname = os.path.join(
         SHELVE_DIR, 'temporary_shelf')
@@ -162,16 +162,16 @@ def load_json(file_name, bdd, keep_order=True):
     try:
         cache = shelve.open(tmp_fname)
         with open(file_name, 'r') as f:
-            nodes = _load_json(f, bdd, keep_order, cache)
+            nodes = _load_json(f, bdd, load_order, cache)
         cache.close()
     finally:
         shutil.rmtree(SHELVE_DIR)
     return nodes
 
 
-def _load_json(f, bdd, keep_order, cache):
+def _load_json(f, bdd, load_order, cache):
     """Load BDDs from JSON file `f` to manager `bdd`."""
-    context = dict(keep_order=keep_order)
+    context = dict(load_order=load_order)
     for line in f:
         d = _parse_line(line)
         _store_line(d, bdd, context, cache)
@@ -205,7 +205,7 @@ def _store_line(d, bdd, context, cache):
         context['level_of_var'] = order
         context['var_at_level'] = {
             v: k for k, v in order.items()}
-        if not context['keep_order']:
+        if context['load_order']:
             bdd.reorder(order)
         return
     roots = d.get('roots')

@@ -59,18 +59,43 @@ def _setup():
     return bdd_1, bdd_2
 
 
-def test_dump_load():
+def test_dump_load_same_order():
     b = cudd.BDD()
     b.declare('x', 'y', 'z')
-    u = b.add_expr('x /\ ~ y')
+    expr = 'x /\ ~ y'
+    u = b.add_expr(expr)
     # dump
     fname = 'hoho.json'
     nodes = [u]
     _copy.dump_json(nodes, fname)
     # load
     target = cudd.BDD()
-    roots = _copy.load_json(fname, target)
+    roots = _copy.load_json(
+        fname, target, load_order=True)
     # assert
     v, = roots
+    v_ = target.add_expr(expr)
+    assert v == v_, (v, v_)
+    # copy to source BDD manager
     u_ = target.copy(v, b)
     assert u == u_, (u, u_)
+
+
+def test_dump_load_different_order():
+    source = cudd.BDD()
+    source.declare('x', 'y')
+    expr = ' x <=> y '
+    u = source.add_expr(expr)
+    # dump
+    fname = 'hoho.json'
+    nodes = [u]
+    _copy.dump_json(nodes, fname)
+    # load
+    target = cudd.BDD()
+    target.declare('y', 'x')
+    roots = _copy.load_json(
+        fname, target, load_order=False)
+    # assert
+    v, = roots
+    v_ = target.add_expr(expr)
+    assert v == v_, (v, v_)

@@ -228,7 +228,11 @@ def _make_node(d, bdd, context, cache):
     low = _node_from_int(low_id, bdd, cache)
     high = _node_from_int(high_id, bdd, cache)
     var = context['var_at_level'][level]
-    u = bdd.find_or_add(var, low, high)
+    if context['load_order']:
+        u = bdd.find_or_add(var, low, high)
+    else:
+        g = bdd.var(var)
+        u = bdd.ite(g, high, low)
     assert not u.negated
     # memoize
     cache[str(k)] = int(u)

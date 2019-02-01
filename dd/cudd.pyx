@@ -850,7 +850,7 @@ cdef class BDD(object):
                 'Missing bits:  '
                 'support - care_vars = {missing}').format(
                     missing=missing))
-        self.configure(reordering=False)
+        config = self.configure(reordering=False)
         gen = Cudd_FirstCube(self.manager, u.node, &cube, &value)
         assert gen != NULL, 'first cube failed'
         try:
@@ -863,7 +863,7 @@ cdef class BDD(object):
                 r = Cudd_NextCube(gen, &cube, &value)
         finally:
             Cudd_GenFree(gen)
-        self.configure(reordering=True)
+        self.configure(reordering=config['reordering'])
 
     cpdef Function apply(
             self,

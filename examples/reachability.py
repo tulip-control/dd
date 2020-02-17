@@ -7,7 +7,7 @@ If you are interested in using integers,
 then take a look at the package `omega`.
 
 
-[1](https://github.com/johnyf/dd/blob/
+[1](https://github.com/tulip-control/dd/blob/
     master/doc.md#example-reachability-analysis)
 """
 from dd import autoref as _bdd

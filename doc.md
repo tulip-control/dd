@@ -542,7 +542,7 @@ Regarding the first question, `dd.cudd` requires to:
 
 The `setup.py` of `dd` can do these for you, as described in the file
 [`README.md`](
-    https://github.com/johnyf/dd/blob/master/README.md#cython-bindings).
+    https://github.com/tulip-control/dd/blob/master/README.md#cython-bindings).
 However, this may require more attention than appropriate for the occassion.
 An example is teaching BDDs in a class on data structures, with the objective
 for students to play with BDDs, not with [`gcc`](
@@ -596,12 +596,12 @@ We discuss now some more details about the pure Python implementation
 in `dd.bdd`. Two interfaces are available:
 
 - convenience: the module
-  [`dd.autoref`](https://github.com/johnyf/dd/blob/master/dd/autoref.py) wraps
+  [`dd.autoref`](https://github.com/tulip-control/dd/blob/master/dd/autoref.py) wraps
   `dd.bdd` and takes care of reference counting
   using [`__del__`](https://docs.python.org/2/reference/datamodel.html#object.__del__).
 
 - "low level": the module
-  [`dd.bdd`](https://github.com/johnyf/dd/blob/master/dd/bdd.py) requires that
+  [`dd.bdd`](https://github.com/tulip-control/dd/blob/master/dd/bdd.py) requires that
   the user in/decrement the reference counters associated with nodes that
   are used outside of a `BDD`.
 
@@ -643,14 +643,14 @@ can skip the reference counting (not recommended).
 ### Reference counting
 
 The reference counters live inside [`dd.bdd.BDD._ref`](
-    https://github.com/johnyf/dd/blob/cbbc96f93da68d3d10f161ef27ccc5e3756c5ae2/dd/bdd.py#L81).
+    https://github.com/tulip-control/dd/blob/cbbc96f93da68d3d10f161ef27ccc5e3756c5ae2/dd/bdd.py#L81).
 To guard against corner cases, like attempting to decrement a zero counter, use
 
 - [`BDD.incref(u)`](
-    https://github.com/johnyf/dd/blob/cbbc96f93da68d3d10f161ef27ccc5e3756c5ae2/dd/bdd.py#L126):
+    https://github.com/tulip-control/dd/blob/cbbc96f93da68d3d10f161ef27ccc5e3756c5ae2/dd/bdd.py#L126):
   +1 to the counter of node `u`
 - [`BDD.decref(u)`](
-    https://github.com/johnyf/dd/blob/cbbc96f93da68d3d10f161ef27ccc5e3756c5ae2/dd/bdd.py#L130):
+    https://github.com/tulip-control/dd/blob/cbbc96f93da68d3d10f161ef27ccc5e3756c5ae2/dd/bdd.py#L130):
   -1 to the same counter.
 
 The method names `incref` and `decref` originate from the
@@ -790,7 +790,7 @@ The difficult part to implement is `swap`, not the optimization heuristic.
 
 The garbage collector in
 [`dd.bdd.BDD.collect_garbage`](
-    https://github.com/johnyf/dd/blob/cbbc96f93da68d3d10f161ef27ccc5e3756c5ae2/dd/bdd.py#L614)
+    https://github.com/tulip-control/dd/blob/cbbc96f93da68d3d10f161ef27ccc5e3756c5ae2/dd/bdd.py#L614)
 works by scanning all nodes, marking the unreferenced ones,
 then collecting those (mark-and-sweep).
 
@@ -960,7 +960,7 @@ evaluate to `! ite(True, True, False)` which equals `! True`, so `False`).
 
 More about building symbolic algorithms, together with infrastructure for
 arithmetic and automata, and examples, can be found in the package [`omega`](
-    https://github.com/johnyf/omega/blob/master/doc/doc.md).
+    https://github.com/tulip-control/omega/blob/master/doc/doc.md).
 
 
 ## Syntax for quantified Boolean formulas

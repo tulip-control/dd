@@ -47,16 +47,16 @@ Contains:
 If you prefer to work with integer variables instead of Booleans, and have
 BDD computations occur underneath, then use the module
 [`omega.symbolic.fol`](
-    https://github.com/johnyf/omega/blob/master/omega/symbolic/fol.py)
+    https://github.com/tulip-control/omega/blob/master/omega/symbolic/fol.py)
 from the [`omega` package](
-    https://github.com/johnyf/omega/blob/master/doc/doc.md).
+    https://github.com/tulip-control/omega/blob/master/doc/doc.md).
 
 
 Documentation
 =============
 
 In the [Markdown](https://en.wikipedia.org/wiki/Markdown) file
-[`doc.md`](https://github.com/johnyf/dd/blob/master/doc.md).
+[`doc.md`](https://github.com/tulip-control/dd/blob/master/doc.md).
 
 
 Examples
@@ -195,7 +195,7 @@ You need to have copied `CuddInt.h` to the installation's include location
 If building from the repository, then first install `cython`. For example:
 
 ```shell
-git clone git@github.com:johnyf/dd
+git clone git@github.com:tulip-control/dd
 cd dd
 pip install cython  # not needed if building from PyPI distro
 python setup.py install --fetch --cudd
@@ -227,7 +227,7 @@ If you build and install CUDD, Sylvan, or BuDDy yourself, then ensure that:
 - suitable compiler, include, linking, and library flags are passed,
 either by setting [environment variables](
     https://en.wikipedia.org/wiki/Environment_variable)
-prior to calling `pip`, or by editing the file [`download.py`](https://github.com/johnyf/dd/blob/master/download.py).
+prior to calling `pip`, or by editing the file [`download.py`](https://github.com/tulip-control/dd/blob/master/download.py).
 
 Currently, `download.py` expects to find Sylvan under `dd/sylvan` and built with [Autotools](https://en.wikipedia.org/wiki/GNU_Build_System)
 (for an example, see `.travis.yml`).
@@ -252,7 +252,7 @@ License
 [BSD-3](http://opensource.org/licenses/BSD-3-Clause), see file `LICENSE`.
 
 
-[build_img]: https://travis-ci.org/johnyf/dd.svg?branch=master
-[travis]: https://travis-ci.org/johnyf/dd
-[coverage]: https://coveralls.io/repos/johnyf/dd/badge.svg?branch=master
-[coveralls]: https://coveralls.io/r/johnyf/dd?branch=master
+[build_img]: https://travis-ci.org/tulip-control/dd.svg?branch=master
+[travis]: https://travis-ci.org/tulip-control/dd
+[coverage]: https://coveralls.io/repos/tulip-control/dd/badge.svg?branch=master
+[coveralls]: https://coveralls.io/r/tulip-control/dd?branch=master

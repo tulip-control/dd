@@ -14,7 +14,7 @@ as well as [Cython](http://cython.org/) bindings to the C libraries:
 
 - [CUDD](http://vlsi.colorado.edu/~fabio/CUDD/)
 - [Sylvan](https://github.com/utwente-fmt/sylvan) (multi-core parallelization)
-- [BuDDy](http://buddy.sourceforge.net)
+- [BuDDy](https://sourceforge.net/projects/buddy/)
 
 These bindings expose almost identical interfaces as the Python implementation.
 The intended workflow is:

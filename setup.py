@@ -27,8 +27,8 @@ long_description = (
     'garbage collection, dump/load from files, plotting, '
     'and a parser of quantified Boolean expressions. '
     'More details can be found in the README at: '
-    'https://github.com/johnyf/dd')
-url = 'https://github.com/johnyf/{name}'.format(name=name)
+    'https://github.com/tulip-control/dd')
+url = 'https://github.com/tulip-control/{name}'.format(name=name)
 VERSION_FILE = '{name}/_version.py'.format(name=name)
 MAJOR = 0
 MINOR = 5

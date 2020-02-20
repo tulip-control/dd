@@ -460,14 +460,20 @@ class BDD(_abc.BDD):
         """
         # terminals
         bdd = BDD(self.vars)
-        umap = {-1: -1, 1: 1}
+        umap = {1: 1}
         # non-terminals
         for u, i, v, w in self.levels(skip_terminals=True):
-            p, q = umap[v], umap[w]
+            assert u > 0, u
+            p, q = umap[abs(v)], umap[abs(w)]
+            p = _flip(p, v)
+            q = _flip(q, w)
             r = bdd.find_or_add(i, p, q)
+            assert r > 0, r
             umap[u] = r
-            if u in self.roots:
-                bdd.roots.add(r)
+        for v in self.roots:
+            p = umap[abs(v)]
+            p = _flip(p, v)
+            bdd.roots.add(p)
         return bdd
 
     def let(self, definitions, u):
@@ -1742,6 +1748,11 @@ def _copy_bdd(u, level_map, old_bdd, bdd, cache):
     if u < 0:
         r = -r
     return r
+
+
+def _flip(r, u):
+    """Flip `r` if `u` is negated, else identity."""
+    return -r if u < 0 else r
 
 
 def to_nx(bdd, roots):

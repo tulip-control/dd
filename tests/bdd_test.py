@@ -361,6 +361,35 @@ def test_reduce_combined():
     # h.write('h.pdf')
 
 
+def test_reduction_complemented_edges():
+    bdd = BDD()
+    bdd.add_var('x', level=0)
+    bdd.add_var('y', level=1)
+    a, b = map(bdd.level_of_var, ['x', 'y'])
+    assert a < b, (a, b)
+    # complemented edge from internal node to
+    # non-terminal node
+    expr = '~ x /\ y'
+    _test_reduction_complemented_edges(expr, bdd)
+    # complemented edge from external reference to
+    # non-terminal node
+    expr = 'x /\ ~ y'
+    u = bdd.add_expr(expr)
+    assert u < 0, u
+    _test_reduction_complemented_edges(expr, bdd)
+
+
+def _test_reduction_complemented_edges(expr, bdd):
+    u = bdd.add_expr(expr)
+    bdd.roots.add(u)
+    bdd_r = bdd.reduction()
+    v, = bdd_r.roots
+    v_ = bdd_r.add_expr(expr)
+    assert v == v_, (v, v_)
+    bdd_r.assert_consistent()
+    bdd.roots.remove(u)
+
+
 def test_find_or_add():
     ordering = {'x': 0, 'y': 1}
     g = BDD(ordering)

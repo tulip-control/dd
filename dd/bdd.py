@@ -40,7 +40,10 @@ Henrik R. Andersen
 # Copyright 2014 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
-from collections import Mapping
+try:
+    from collections.abc import Mapping
+except ImportError:
+    from collections import Mapping
 import logging
 import pickle
 import sys

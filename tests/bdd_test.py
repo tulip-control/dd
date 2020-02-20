@@ -1233,7 +1233,7 @@ def test_to_pydot():
     # no roots
     pd = _bdd.to_pydot(None, g)
     r = nx.drawing.nx_pydot.from_pydot(pd)
-    assert len(r) == 7, r.nodes()  # 3 hidden nodes for levels
+    assert len(r) == 8, r.nodes()  # 3 hidden nodes for levels
 
 
 def test_function_wrapper():

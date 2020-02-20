@@ -1855,12 +1855,16 @@ def to_pydot(roots, bdd):
     Nodes not reachable from `roots`
     are ignored, unless `roots is None`.
 
+    The roots are plotted as external references,
+    with complemented edges where applicable.
+
     @type roots: container of BDD nodes
     @type bdd: `BDD`
     """
     # all nodes ?
     if roots is None:
         nodes = bdd._succ
+        roots = list()
     else:
         nodes = bdd.descendants(roots)
     # show only levels in aggregate support
@@ -1869,14 +1873,23 @@ def to_pydot(roots, bdd):
     g = pydot.Dot('bdd', graph_type='digraph')
     skeleton = list()
     subgraphs = dict()
-    for i in sorted(levels):
+    # layer for external BDD references
+    layers = [-1] + sorted(levels)
+    # add nodes for BDD levels
+    for i in layers:
         h = pydot.Subgraph('', rank='same')
         g.add_subgraph(h)
         subgraphs[i] = h
         # add phantom node
         u = 'L{i}'.format(i=i)
         skeleton.append(u)
-        nd = pydot.Node(name=u, label=str(i), shape='none')
+        if i == -1:
+            # layer for external BDD references
+            label = 'ref'
+        else:
+            # BDD level
+            label = str(i)
+        nd = pydot.Node(name=u, label=label, shape='none')
         h.add_node(nd)
     # auxiliary edges for ranking
     for i, u in enumerate(skeleton[:-1]):
@@ -1885,7 +1898,7 @@ def to_pydot(roots, bdd):
         g.add_edge(e)
     # add nodes
     idx2var = {k: v for v, k in items(bdd.vars)}
-
+    # BDD nodes
     def f(x):
         return str(abs(x))
     for u in nodes:
@@ -1910,5 +1923,20 @@ def to_pydot(roots, bdd):
         e = pydot.Edge(su, sv, style='dashed', taillabel=vlabel)
         g.add_edge(e)
         e = pydot.Edge(su, sw, style='solid')
+        g.add_edge(e)
+    # external references to BDD nodes
+    for u in roots:
+        i, _, _ = bdd._succ[abs(u)]
+        su = 'ref' + str(u)
+        label = '@' + str(u)
+        nd = pydot.Node(name=su, label=label)
+        # add node to subgraph for level -1
+        h = subgraphs[-1]
+        h.add_node(nd)
+        # add edge from external reference to BDD node
+        assert u is not None
+        sv = str(abs(u))
+        vlabel = '-1' if u < 0 else ' '
+        e = pydot.Edge(su, sv, style='dashed', taillabel=vlabel)
         g.add_edge(e)
     return g

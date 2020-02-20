@@ -23,6 +23,7 @@
 - [Syntax for quantified Boolean formulas](#syntax-for-quantified-boolean-formulas)
 - [Multi-valued decision diagrams (MDD)](#multi-valued-decision-diagrams-mdd)
 - [Footnotes](#footnotes)
+- [Copying](#copying)
 
 
 ## Design principles
@@ -1129,6 +1130,8 @@ in the negated value computed for node `y-3` in the next image.
   you can find [a list at `github.com/johnyf/tool_lists/`](
     https://github.com/johnyf/tool_lists/blob/master/bdd.md).
 
+
+## Copying
 
 This document is copyright 2015-2018 by California Institute of Technology.
 All rights reserved. Licensed under 3-clause BSD.

@@ -672,7 +672,7 @@ def test_reorder():
         level = bdd.level_of_var(var)
         assert level == i, (var, level, i)
     order = dict(y=0, z=1, x=2)
-    cudd.reorder(bdd, order)
+    bdd.reorder(order)
     for var in order:
         level_ = order[var]
         level = bdd.level_of_var(var)
@@ -736,7 +736,7 @@ def test_copy_bdd_different_order():
         other.add_var(var, index=index)
     # reorder
     order = dict(w=0, x=1, y=2, z=3)
-    cudd.reorder(other, order)
+    other.reorder(order)
     # confirm resultant order
     for var in order:
         level_ = order[var]
@@ -772,10 +772,10 @@ def test_count_nodes():
     v = bdd.add_expr('x /\ z')
     assert len(u) == 3, len(u)
     assert len(v) == 3, len(v)
-    cudd.reorder(bdd, dict(x=0, y=1, z=2))
+    bdd.reorder(dict(x=0, y=1, z=2))
     n = cudd.count_nodes([u, v])
     assert n == 5, n
-    cudd.reorder(bdd, dict(z=0, y=1, x=2))
+    bdd.reorder(dict(z=0, y=1, x=2))
     n = cudd.count_nodes([u, v])
     assert n == 4, n
 

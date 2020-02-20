@@ -794,13 +794,10 @@ class BDD(_abc.BDD):
         self.incref(w)
         return r * u
 
-    def _next_free_int(self, start, debug=False):
+    def _next_free_int(self, start):
         """Return the smallest unused integer larger than `start`."""
         for i in xrange(start, self.max_nodes):
             if i not in self._succ:
-                if debug:
-                    for j in xrange(1, start + 1):
-                        assert j in self, j
                 return i
         raise Exception('full: reached `self.max_nodes` nodes.')
 

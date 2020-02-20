@@ -498,13 +498,19 @@ def test_next_free_int():
     g = BDD()
     # contiguous
     g._succ = {1, 2, 3}
-    n = g._next_free_int(start=1, debug=True)
+    start = 1
+    n = g._next_free_int(start)
+    _assert_smaller_are_nodes(start, g)
     assert n == 4, n
-    n = g._next_free_int(start=3, debug=True)
+    start = 3
+    n = g._next_free_int(start)
+    _assert_smaller_are_nodes(start, g)
     assert n == 4, n
     # with blanks
     g._succ = {1, 3}
-    n = g._next_free_int(start=1, debug=True)
+    start = 1
+    n = g._next_free_int(start)
+    _assert_smaller_are_nodes(start, g)
     assert n == 2, n
     n = g._next_free_int(start=3)
     assert n == 4, n
@@ -513,6 +519,11 @@ def test_next_free_int():
     g.max_nodes = 3
     with nt.assert_raises(Exception):
         g._next_free_int(start=1)
+
+
+def _assert_smaller_are_nodes(start, bdd):
+    for i in range(1, start + 1):
+        assert i in bdd, i
 
 
 def test_collect_garbage():

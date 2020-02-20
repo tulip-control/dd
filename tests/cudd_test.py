@@ -668,15 +668,33 @@ def test_reorder():
     dvars = ['x', 'y', 'z']
     for var in dvars:
         bdd.add_var(var)
-    for i, var in enumerate(dvars):
-        level = bdd.level_of_var(var)
-        assert level == i, (var, level, i)
+    _confirm_var_order(dvars, bdd)
     order = dict(y=0, z=1, x=2)
     bdd.reorder(order)
     for var in order:
         level_ = order[var]
         level = bdd.level_of_var(var)
         assert level == level_, (var, level, level_)
+    # without args
+    bdd = cudd.BDD()
+    # Figs. 6.24, 6.25 Baier 2008
+    vrs = ['z1', 'z2', 'z3', 'y1', 'y2', 'y3']
+    bdd.declare(*vrs)
+    _confirm_var_order(vrs, bdd)
+    expr = '(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
+    u = bdd.add_expr(expr)
+    bdd.reorder()
+    levels = {var: bdd.level_of_var(var) for var in vrs}
+    for i in range(1, 4):
+        a = levels['z{i}'.format(i=i)]
+        b = levels['y{i}'.format(i=i)]
+        assert abs(a - b) == 1, levels
+
+
+def _confirm_var_order(vrs, bdd):
+    for i, var in enumerate(vrs):
+        level = bdd.level_of_var(var)
+        assert level == i, (var, level, i)
 
 
 def test_copy_bdd_same_indices():

@@ -783,6 +783,7 @@ class BDD(_abc.BDD):
             return r * u
         # find a free integer
         u = self._min_free
+        assert u > 1, u
         assert u not in self, (self._succ, u)
         # add node
         self._pred[t] = u
@@ -796,6 +797,7 @@ class BDD(_abc.BDD):
 
     def _next_free_int(self, start):
         """Return the smallest unused integer larger than `start`."""
+        assert start >= 1, start
         for i in xrange(start, self.max_nodes):
             if i not in self._succ:
                 return i

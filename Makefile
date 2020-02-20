@@ -68,6 +68,9 @@ test:
 test_abc:
 	python tests/inspect_cython_signatures.py
 
+show_deprecated:
+	python -Wall -c "from dd import bdd"
+
 cudd:
 	cd cudd-*; \
 	make build XCFLAGS="-fPIC -mtune=native -DHAVE_IEEE_754 -DBSD -DSIZEOF_VOID_P=8 -DSIZEOF_LONG=8"

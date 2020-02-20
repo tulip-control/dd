@@ -353,11 +353,15 @@ class Function(_abc.Operator):
     @property
     def low(self):
         _, v, _ = self.manager._succ[abs(self.node)]
+        if v is None:
+            return None
         return Function(v, self.bdd)
 
     @property
     def high(self):
         _, _, w = self.manager._succ[abs(self.node)]
+        if w is None:
+            return None
         return Function(w, self.bdd)
 
     @property

@@ -562,6 +562,11 @@ def test_function_properties():
     assert not u.negated
     support = u.support
     assert support == {'x', 'y'}, support
+    # terminal
+    u = bdd.false
+    assert u.var is None, u.var
+    assert u.low is None, u.low
+    assert u.high is None, u.high
 
 
 if __name__ == '__main__':

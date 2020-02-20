@@ -869,7 +869,7 @@ cdef class BDD(object):
         """Return a single assignment as `dict`."""
         return next(self.pick_iter(u, care_vars), None)
 
-    def pick_iter(self, Function u, care_vars=None):
+    def _pick_iter(self, Function u, care_vars=None):
         """Return generator over assignments."""
         assert u.manager == self.manager
         cdef DdGen *gen
@@ -892,12 +892,54 @@ cdef class BDD(object):
             while Cudd_IsGenEmpty(gen) == 0:
                 assert r == 1, ('gen not empty but no next cube', r)
                 d = _cube_array_to_dict(cube, self._index_of_var)
+                assert set(d).issubset(support), set(d).difference(support)
                 for m in _bdd._enumerate_minterms(d, care_vars):
                     yield m
                 r = Cudd_NextCube(gen, &cube, &value)
         finally:
             Cudd_GenFree(gen)
         self.configure(reordering=config['reordering'])
+
+    def pick_iter(self, Function u, care_vars=None):
+        support = self.support(u)
+        if care_vars is None:
+            care_vars = support
+        missing = {v for v in support if v not in care_vars}
+        if missing:
+            logger.warning((
+                'Missing bits:  '
+                'support - care_vars = {missing}').format(
+                    missing=missing))
+        cube = dict()
+        value = True
+        config = self.configure(reordering=False)
+        for cube in self._sat_iter(u, cube, value, support):
+            for m in _bdd._enumerate_minterms(cube, care_vars):
+                yield m
+        self.configure(reordering=config['reordering'])
+
+    def _sat_iter(self, u, cube, value, support):
+        """Recurse to enumerate models."""
+        if u.negated:
+            value = not value
+        # terminal ?
+        if u.var is None:
+            if value:
+                assert set(cube).issubset(support), set(
+                    cube).difference(support)
+                yield cube
+            return
+        # non-terminal
+        i, v, w = self.succ(u)
+        var = self.var_at_level(i)
+        d0 = dict(cube)
+        d0[var] = False
+        d1 = dict(cube)
+        d1[var] = True
+        for x in self._sat_iter(v, d0, value, support):
+            yield x
+        for x in self._sat_iter(w, d1, value, support):
+            yield x
 
     cpdef Function apply(
             self,

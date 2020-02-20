@@ -1,10 +1,16 @@
 """Test module `dd._copy`."""
+from dd import autoref
 from dd import cudd
 from dd import _copy
 
 
 def test_involution():
-    bdd_1, bdd_2 = _setup()
+    _test_involution(autoref)
+    _test_involution(cudd)
+
+
+def _test_involution(mod):
+    bdd_1, bdd_2 = _setup(mod)
     u = bdd_1.add_expr('x /\ ~ y')
     v = _copy.copy_bdd(u, bdd_2)
     u_ = _copy.copy_bdd(v, bdd_1)
@@ -12,7 +18,12 @@ def test_involution():
 
 
 def test_bdd_mapping():
-    bdd_1, bdd_2 = _setup()
+    _test_bdd_mapping(autoref)
+    _test_bdd_mapping(cudd)
+
+
+def _test_bdd_mapping(mod):
+    bdd_1, bdd_2 = _setup(mod)
     u = bdd_1.add_expr('x /\ ~ y')
     cache = dict()
     u_ = _copy.copy_bdd(u, bdd_2, cache)
@@ -51,16 +62,21 @@ def _map_node(u, umap):
     return _copy._flip(r, u)
 
 
-def _setup():
-    bdd_1 = cudd.BDD()
-    bdd_2 = cudd.BDD()
+def _setup(mod):
+    bdd_1 = mod.BDD()
+    bdd_2 = mod.BDD()
     bdd_1.declare('x', 'y')
     bdd_2.declare('x', 'y')
     return bdd_1, bdd_2
 
 
 def test_dump_load_same_order():
-    b = cudd.BDD()
+    _test_dump_load_same_order(autoref)
+    _test_dump_load_same_order(cudd)
+
+
+def _test_dump_load_same_order(mod):
+    b = mod.BDD()
     b.declare('x', 'y', 'z')
     expr = 'x /\ ~ y'
     u = b.add_expr(expr)
@@ -69,7 +85,7 @@ def test_dump_load_same_order():
     nodes = [u]
     _copy.dump_json(nodes, fname)
     # load
-    target = cudd.BDD()
+    target = mod.BDD()
     roots = _copy.load_json(
         fname, target, load_order=True)
     # assert
@@ -82,7 +98,12 @@ def test_dump_load_same_order():
 
 
 def test_dump_load_different_order():
-    source = cudd.BDD()
+    _test_dump_load_different_order(autoref)
+    _test_dump_load_different_order(cudd)
+
+
+def _test_dump_load_different_order(mod):
+    source = mod.BDD()
     source.declare('x', 'y')
     expr = ' x <=> y '
     u = source.add_expr(expr)
@@ -91,7 +112,7 @@ def test_dump_load_different_order():
     nodes = [u]
     _copy.dump_json(nodes, fname)
     # load
-    target = cudd.BDD()
+    target = mod.BDD()
     target.declare('y', 'x')
     roots = _copy.load_json(
         fname, target, load_order=False)

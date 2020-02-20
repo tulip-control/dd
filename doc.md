@@ -598,7 +598,7 @@ in `dd.bdd`. Two interfaces are available:
 - convenience: the module
   [`dd.autoref`](https://github.com/tulip-control/dd/blob/master/dd/autoref.py) wraps
   `dd.bdd` and takes care of reference counting
-  using [`__del__`](https://docs.python.org/2/reference/datamodel.html#object.__del__).
+  using [`__del__`](https://docs.python.org/3/reference/datamodel.html#object.__del__).
 
 - "low level": the module
   [`dd.bdd`](https://github.com/tulip-control/dd/blob/master/dd/bdd.py) requires that
@@ -630,7 +630,7 @@ In `autoref`, the reference counts are maintained by the constructor and
 destructor methods of `Function` (hence the “auto”).
 These methods are invoked when the `Function` object is not referenced any
 more by variables, so [Python decides](
-    https://docs.python.org/2/glossary.html#term-garbage-collection)
+    https://docs.python.org/3/glossary.html#term-garbage-collection)
 to delete it.
 
 In `dd.bdd`, you have to perform the reference counting by suitably adding to
@@ -654,7 +654,7 @@ To guard against corner cases, like attempting to decrement a zero counter, use
   -1 to the same counter.
 
 The method names `incref` and `decref` originate from the
-[Python reference counting](https://docs.python.org/2/c-api/refcounting.html)
+[Python reference counting](https://docs.python.org/3/c-api/refcounting.html)
 implementation. If we want node `u` to persist after garbage collection,
 then it needs to be actively referenced at least once
 
@@ -774,7 +774,7 @@ _bdd.reorder(bdd, my_favorite_order)
 ```
 
 (Request such inefficient reordering only if you have some special purpose.)
-You can turn [`logging`](https://docs.python.org/2/library/logging.html) to
+You can turn [`logging`](https://docs.python.org/3/library/logging.html) to
 `DEBUG`, if you want to watch reordering in action.
 
 In some cases you might want to make some pairs of variables adjacent to

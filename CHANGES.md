@@ -1,6 +1,22 @@
 # dd changelog
 
 
+## 0.5.5
+
+API:
+
+- require `networkx <= 2.2` on Python 2
+- class `dd.bdd.BDD`:
+  - remove argument `debug` from method `_next_free_int`
+  - add method `undeclare_variables`
+- plot nodes for external BDD references in function `dd.bdd.to_pydot`,
+  which is used by the methods `BDD.dump` of the modules
+  `dd.cudd`, `dd.autoref`, and `dd.bdd`
+- function `dd._copy.load_json`:
+  rename argument from `keep_order` to `load_order`
+- add unused keyword arguments to method `autoref.BDD.decref`
+
+
 ## 0.5.4
 
 - enable `KeyboardInterrupt` on POSIX systems for `cudd`

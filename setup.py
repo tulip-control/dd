@@ -38,9 +38,13 @@ VERSION = '{major}.{minor}.{micro}'.format(
 VERSION_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")
+if sys.version_info.major == 3:
+    networkx_versions = 'networkx >= 1.9.1'
+else:
+    networkx_versions = 'networkx >= 1.9.1, <= 2.2'
 install_requires = [
     'astutils >= 0.0.1',
-    'networkx >= 1.9.1',
+    networkx_versions,
     'ply >= 3.4, <= 3.10',
     'psutil >= 3.2.2',
     'pydot >= 1.2.2',

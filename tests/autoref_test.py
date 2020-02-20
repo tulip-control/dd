@@ -369,7 +369,7 @@ def test_reorder():
     bdd = _bdd.BDD()
     bdd.declare('x', 'y', 'z')
     u = bdd.add_expr('(x /\ y) \/ z')
-    _bdd.reorder(bdd)
+    bdd.reorder()
     assert u in bdd
 
 
@@ -388,7 +388,7 @@ def test_reorder_2():
     bdd.collect_garbage()
     n = len(bdd)
     assert n == 23, n
-    _bdd.reorder(bdd)
+    bdd.reorder()
     n_ = len(bdd)
     assert n > n_, (n, n_)
     bdd.assert_consistent()
@@ -543,7 +543,7 @@ def test_function_properties():
     bdd = _bdd.BDD()
     bdd.declare('x', 'y')
     order = dict(x=0, y=1)
-    _bdd.reorder(bdd, order)
+    bdd.reorder(order)
     u = bdd.add_expr('x \/ y')
     y = bdd.add_expr('y')
     # Assigned first because in presence of a bug

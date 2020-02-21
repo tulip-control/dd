@@ -12,7 +12,7 @@ A pure-Python (3 and 2) package for manipulating:
 
 as well as [Cython](http://cython.org/) bindings to the C libraries:
 
-- [CUDD](http://vlsi.colorado.edu/~fabio/CUDD/)
+- [CUDD](https://web.archive.org/web/20180127051756/http://vlsi.colorado.edu/~fabio/CUDD/html/index.html) (also read [the introduction](https://web.archive.org/web/20150317121927/http://vlsi.colorado.edu/~fabio/CUDD/node1.html), and note that the original link for CUDD is <http://vlsi.colorado.edu/~fabio/CUDD/>)
 - [Sylvan](https://github.com/utwente-fmt/sylvan) (multi-core parallelization)
 - [BuDDy](https://sourceforge.net/projects/buddy/)
 

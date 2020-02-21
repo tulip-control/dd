@@ -780,7 +780,7 @@ You can turn [`logging`](https://docs.python.org/3/library/logging.html) to
 
 In some cases you might want to make some pairs of variables adjacent to
 each other, but don't care about the location of each pair in the
-variable order (e.g., this is enables efficient variable renaming).
+variable order (e.g., this enables efficient variable renaming).
 Use `reorder_to_pairs`.
 
 All reordering algorithms rely on the elementary operation of swapping two

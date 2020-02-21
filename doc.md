@@ -32,7 +32,7 @@ The interface is in Python. The representation depends on what you want and
 have installed. For solving small to medium size problems, say for teaching,
 or prototyping new algorithms, pure Python can be more convenient.
 To work with larger problems, it works better if you install the C library
-[CUDD](http://vlsi.colorado.edu/~fabio/).
+[CUDD](https://web.archive.org/web/http://vlsi.colorado.edu/~fabio/CUDD/html/index.html).
 Let's call these “backends”.
 
 The same user code can run with both the Python and C backends.

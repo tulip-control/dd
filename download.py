@@ -100,6 +100,7 @@ def extensions(args):
     cudd_include = [(path, s) for s in CUDD_INCLUDE]
     cudd_link = [(path, s) for s in CUDD_LINK]
     _copy_cudd_license(args)
+    _copy_extern_licenses(args)
     extensions = dict(
         cudd=Extension(
             'dd.cudd',
@@ -154,6 +155,28 @@ def _copy_cudd_license(args):
         shutil.copyfile(license, included)
     elif os.path.isfile(included):
         os.remove(included)
+
+
+def _copy_extern_licenses(args):
+    """Include in wheels licenses related to building CUDD.
+
+    To fetch the license files, invoke `make download_licenses`.
+    """
+    licenses = [
+        'GLIBC_COPYING.LIB',
+        'GLIBC_LICENSES',
+        'PYTHON_LICENSE']
+    path = os.path.join(FILE_PATH, 'extern')
+    yes = (
+        args.bdist_wheel and
+        getattr(args, 'cudd') is not None)
+    for name in licenses:
+        license = os.path.join(path, name)
+        included = os.path.join('dd', name)
+        if yes:
+            shutil.copyfile(license, included)
+        elif os.path.isfile(included):
+            os.remove(included)
 
 
 def _join(paths):

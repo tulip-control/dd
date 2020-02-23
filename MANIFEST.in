@@ -15,3 +15,6 @@ include dd/*.pyx
 include dd/*.pxd
 include dd/*.c
 include dd/CUDD_LICENSE
+include dd/GLIBC_COPYING.LIB
+include dd/GLIBC_LICENSES
+include dd/PYTHON_LICENSE

@@ -162,8 +162,8 @@ For graph layout with `pydot`, install also [graphviz](http://graphviz.org/).
 ### Wheel files with compiled CUDD
 
 
-As of `dd` version 0.5.3, [`manylinux1_x86_64`](
-    https://www.python.org/dev/peps/pep-0513/)
+As of `dd` version 0.5.3, [`manylinux2014_x86_64`](
+    https://www.python.org/dev/peps/pep-0599/)
 [wheel files](https://www.python.org/dev/peps/pep-0427/) are
 [available from PyPI](https://pypi.org/project/dd/#files) for some Python
 versions. These wheel files contain the module `dd.cudd` with the CUDD
@@ -267,6 +267,52 @@ and the installation confirmed by invoking in another directory:
 ```shell
 python -c "import dd.buddy"
 ```
+
+
+### Licensing of the compiled modules `dd.cudd` and `dd.cudd_zdd` in the wheel
+
+These notes apply to the compiled modules `dd.cudd` and `dd.cudd_zdd` that are
+contained in the [wheel file](https://www.python.org/dev/peps/pep-0427/) on
+PyPI (namely the files `dd/cudd.cpython-39-x86_64-linux-gnu.so` and
+`dd/cudd_zdd.cpython-39-x86_64-linux-gnu.so` in the [`*.whl` file](
+    https://pypi.org/project/dd/#files), which can
+be obtained using [`unzip`](http://infozip.sourceforge.net/UnZip.html)).
+These notes do not apply to the source code of the modules
+`dd.cudd` and `dd.cudd_zdd`.
+The source distribution of `dd` on PyPI is distributed under a 3-clause BSD
+license.
+
+The following libraries and their headers were used when building the modules
+`dd.cudd` and `dd.cudd_zdd` that are included in the wheel:
+
+- [Python](https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tgz),
+- [CUDD](https://sourceforge.net/projects/cudd-mirror/files/cudd-3.0.0.tar.gz/download).
+
+The licenses of Python and CUDD are included in the wheel archive.
+
+Cython [does not](https://github.com/cython/cython/blob/master/COPYING.txt)
+add its license to C code that it generates.
+
+GCC was used to compile the modules `dd.cudd` and `dd.cudd_zdd` in the wheel,
+and the GCC [runtime library exception](
+    https://github.com/gcc-mirror/gcc/blob/master/COPYING.RUNTIME#L61-L66)
+applies.
+
+The modules `dd.cudd` and `dd.cudd_zdd` in the wheel dynamically link to the:
+
+- Linux kernel (in particular [`linux-vdso.so.1`](
+    https://man7.org/linux/man-pages/man7/vdso.7.html)),
+  which allows system calls (see the kernel's file [`COPYING`](
+    https://github.com/torvalds/linux/blob/master/COPYING) and the explicit
+  syscall exception in the file [`LICENSES/exceptions/Linux-syscall-note`](
+    https://github.com/torvalds/linux/blob/master/LICENSES/exceptions/Linux-syscall-note))
+- [GNU C Library](https://www.gnu.org/software/libc/) (glibc) (in particular
+  `libpthread.so.0`, `libc.so.6`, `/lib64/ld-linux-x86-64.so.2`), which uses
+  the [LGPLv2.1](https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=COPYING.LIB;hb=HEAD)
+  that allows dynamic linking, and other [licenses](
+    https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=LICENSES;hb=HEAD).
+  These licenses are included in the wheel file and apply to the GNU C Library
+  that is dynamically linked.
 
 
 Tests

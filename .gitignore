@@ -4,7 +4,11 @@ todo.txt
 dd/_version.py
 cython_debug/*
 cudd*/*
+extern/
 dd/CUDD_LICENSE
+dd/GLIBC_COPYING.LIB
+dd/GLIBC_LICENSES
+dd/PYTHON_LICENSE
 sylvan/
 .DS_Store
 ._.DS_Store

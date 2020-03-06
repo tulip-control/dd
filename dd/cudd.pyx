@@ -1089,19 +1089,19 @@ cdef class BDD(object):
             sig_off()
         return wrap(self, r)
 
-    cpdef Function forall(self, qvars, Function u):
-        """Quantify `qvars` in `u` universally.
+    cpdef Function forall(self, variables, Function u):
+        """Quantify `variables` in `u` universally.
 
         Wraps method `quantify` to be more readable.
         """
-        return self.quantify(u, qvars, forall=True)
+        return self.quantify(u, variables, forall=True)
 
-    cpdef Function exist(self, qvars, Function u):
-        """Quantify `qvars` in `u` existentially.
+    cpdef Function exist(self, variables, Function u):
+        """Quantify `variables` in `u` existentially.
 
         Wraps method `quantify` to be more readable.
         """
-        return self.quantify(u, qvars, forall=False)
+        return self.quantify(u, variables, forall=False)
 
     cpdef assert_consistent(self):
         """Raise `AssertionError` if not consistent."""
@@ -1112,9 +1112,9 @@ cdef class BDD(object):
         assert n == m, (n, m)
         assert m == k, (m, k)
 
-    def add_expr(self, e):
+    def add_expr(self, expr):
         """Return node for `str` expression `e`."""
-        return _parser.add_expr(e, self)
+        return _parser.add_expr(expr, self)
 
     cpdef str to_expr(self, Function u):
         """Return a Boolean expression for node `u`."""
@@ -1143,17 +1143,17 @@ cdef class BDD(object):
             s = '(~ {s})'.format(s=s)
         return s
 
-    cpdef dump(self, fname, roots, filetype=None):
+    cpdef dump(self, filename, roots, filetype=None):
         u, = roots  # single root supported for now
         if (
-                fname.lower().endswith('.dddmp') or
+                filename.lower().endswith('.dddmp') or
                 filetype == 'dddmp'):
-            return self._dump_dddmp(u, fname)
+            return self._dump_dddmp(u, filename)
         else:
             bdd = autoref.BDD()
             _copy.copy_vars(self, bdd)  # preserve levels
             v = _copy.copy_bdd(u, bdd)
-            bdd.dump(fname, [v], filetype=filetype)
+            bdd.dump(filename, [v], filetype=filetype)
 
     cpdef _dump_dddmp(self, Function u, fname):
         """Dump BDD as DDDMP file `fname`."""
@@ -1185,8 +1185,8 @@ cdef class BDD(object):
             PyMem_Free(names)
         assert i == DDDMP_SUCCESS, 'failed to write to DDDMP file'
 
-    cpdef load(self, fname):
-        """Return `Function` loaded from file `fname`."""
+    cpdef load(self, filename):
+        """Return `Function` loaded from file `filename`."""
         n = len(self._index_of_var)
         cdef DdNode *r
         cdef FILE *f
@@ -1199,7 +1199,7 @@ cdef class BDD(object):
             str_mem.append(py_bytes)
             names[index] = py_bytes
         try:
-            f = fopen(fname.encode(), 'r')
+            f = fopen(filename.encode(), 'r')
             r = Dddmp_cuddBddLoad(
                 self.manager,
                 DDDMP_VAR_MATCHNAMES,

@@ -39,7 +39,6 @@ def copy_bdd(u, target, cache=None):
     if cache is None:
         cache = dict()
     r = _copy_bdd(u, target, cache)
-    assert len(r) == len(u), (r, u)
     return r
 
 

@@ -91,8 +91,9 @@ def get_signature(func):
     try:
         sig = inspect.signature(func)
     except ValueError:
-        warnings.warn(
-            'Compile `cudd` with the compiler directive `binding`')
+        warnings.warn((
+            'Compile `cudd` with the compiler directive `binding`'
+            ' for the function "{func}"').format(func=func))
         sig = None
     return sig
 

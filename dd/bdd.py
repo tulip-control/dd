@@ -603,7 +603,6 @@ class BDD(_abc.BDD):
 
         @param u: node
         @param i: variable level
-        @param value: assignment to variable `i`
         """
         # terminal node ?
         if abs(u) == 1:

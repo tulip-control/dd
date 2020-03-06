@@ -272,7 +272,7 @@ cdef class BDD(object):
                   initial_cache_size=None):
         """Initialize BDD manager.
 
-        @param memory: maximum allowed memory, in bytes.
+        @param memory_estimate: maximum allowed memory, in bytes.
         """
         total_memory = psutil.virtual_memory().total
         default_memory = DEFAULT_MEMORY

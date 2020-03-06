@@ -97,7 +97,7 @@ u = bdd.var('x') | bdd.var('y')
 u = bdd.exist(['x', 'y'], u)
 assert u == bdd.true, u
 # inline BDD references
-u = bdd.add_expr('x /\ @{v}'.format(v=v))
+u = bdd.add_expr('x /\ {v}'.format(v=v))
 # satisfying assignments (models)
 d = bdd.pick(u, care_vars=['x', 'y'])
 for d in bdd.pick_iter(u):

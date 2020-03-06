@@ -1054,14 +1054,14 @@ class BDD(_abc.BDD):
                 n = 2**(map_level['all'] - i) - n
             return n
         # non-terminal
-        nu = self._sat_len(v, map_level, d)
+        nv = self._sat_len(v, map_level, d)
         nw = self._sat_len(w, map_level, d)
         iv, _, _ = self._succ[abs(v)]
         iw, _, _ = self._succ[w]
         iv = map_level[iv]
         iw = map_level[iw]
         # sum
-        n = (nu * 2**(iv - i - 1) +
+        n = (nv * 2**(iv - i - 1) +
              nw * 2**(iw - i - 1))
         d[abs(u)] = n
         # complement ?

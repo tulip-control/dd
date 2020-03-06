@@ -901,6 +901,7 @@ cdef class BDD(object):
         self.configure(reordering=config['reordering'])
 
     def pick_iter(self, Function u, care_vars=None):
+        assert self.manager == u.manager
         support = self.support(u)
         if care_vars is None:
             care_vars = support

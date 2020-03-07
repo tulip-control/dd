@@ -557,7 +557,10 @@ class BDD(_abc.BDD):
             j = self.level_of_var(var)
             r = self._compose(f, j, g, cache)
         else:
-            r = _copy_bdd(f, var_sub, self, self, cache)
+            dvars = {
+                self.level_of_var(var): g
+                for var, g in var_sub.items()}
+            r = self._vector_compose(f, dvars, cache)
         return r
 
     def _compose(self, f, j, g, cache):
@@ -587,6 +590,33 @@ class BDD(_abc.BDD):
             q = self._compose(f1, j, g1, cache)
             r = self.find_or_add(z, p, q)
         cache[(f, g)] = r
+        return r
+
+    def _vector_compose(self, f, level_sub, cache):
+        # terminal ?
+        if abs(f) == 1:
+            return f
+        # cached ?
+        r = cache.get(abs(f))
+        if r is not None:
+            assert r > 0, r
+            # complement ?
+            if f < 0:
+                r = -r
+            return r
+        # recurse
+        i, v, w = self._succ[abs(f)]
+        p = self._vector_compose(v, level_sub, cache)
+        q = self._vector_compose(w, level_sub, cache)
+        # map this level
+        var = self.var_at_level(i)
+        g = level_sub.get(i, self.var(var))
+        r = self.ite(g, q, p)
+        # memoize
+        cache[abs(f)] = r
+        # complement ?
+        if f < 0:
+            r = -r
         return r
 
     @_try_to_reorder

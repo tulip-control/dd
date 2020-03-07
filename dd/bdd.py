@@ -1055,6 +1055,7 @@ class BDD(_abc.BDD):
         if n is None:
             n = k
         slack = n - k
+        assert slack >= 0, slack
         map_level = dict()
         for new, old in enumerate(sorted(levels)):
             map_level[old] = new + slack

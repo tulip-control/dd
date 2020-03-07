@@ -362,6 +362,22 @@ class Tests(object):
         u = bdd.add_expr('\A x:  ~ x \/ x')
         assert u == bdd.true, u
 
+    def test_to_expr(self):
+        bdd = self.DD()
+        bdd.declare('x', 'y')
+        u = bdd.var('x')
+        r = bdd.to_expr(u)
+        r_ = 'x'
+        assert r == r_, (r, r_)
+        u = bdd.add_expr('x /\ y')
+        r = bdd.to_expr(u)
+        r_ = 'ite(x, y, FALSE)'
+        assert r == r_, (r, r_)
+        u = bdd.add_expr('x \/ y')
+        r = bdd.to_expr(u)
+        r_ = 'ite(x, TRUE, y)'
+        assert r == r_, (r, r_)
+
     def test_support(self):
         # signle var
         bdd = self.DD()

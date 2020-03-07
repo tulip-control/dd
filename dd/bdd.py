@@ -1249,6 +1249,8 @@ class BDD(_abc.BDD):
 
     @_try_to_reorder
     def cube(self, dvars):
+        if not isinstance(dvars, dict):
+            dvars = {k: True for k in dvars}
         # `dvars` keys can be var names or levels
         r = self.true
         for var, val in items(dvars):

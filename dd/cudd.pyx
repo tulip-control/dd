@@ -846,6 +846,9 @@ cdef class BDD(object):
         assert low.manager == self.manager
         assert high.manager == self.manager
         assert var in self.vars, (var, self.vars)
+        level = self.level_of_var(var)
+        assert level < low.level, (level, low.level, 'low.level')
+        assert level < high.level, (level, high.level, 'high.level')
         cdef DdNode *r
         index = self._index_of_var[var]
         r = cuddUniqueInter(self.manager, index, high.node, low.node)

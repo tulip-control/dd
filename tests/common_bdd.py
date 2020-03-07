@@ -15,10 +15,10 @@ class Tests(object):
         u = b.find_or_add('y', b.false, b.true)
         u_ = b.var('y')
         assert u == u_, b.to_expr(u)
-        v = b.var('x')
-        w = b.var('y')
-        u = b.find_or_add('z', v, w)
-        u_ = b.add_expr('(~ z /\ x)  \/  (z /\ y)')
+        v = b.var('y')
+        w = b.var('z')
+        u = b.find_or_add('x', v, w)
+        u_ = b.add_expr('(~ x /\ y)  \/  (x /\ z)')
         assert b.apply('<=>', u, u_)
         # as a reminder of the syntactic nature of BDDs
         # and that ZF is untyped, the below assertion is false.

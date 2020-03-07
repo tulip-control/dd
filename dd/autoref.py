@@ -114,6 +114,8 @@ class BDD(_abc.BDD):
 
     def let(self, definitions, u):
         assert u in self, u
+        if not definitions:
+            return u
         d = definitions
         var = next(iter(d))
         value = d[var]

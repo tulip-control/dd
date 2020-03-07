@@ -72,7 +72,7 @@ class Tests(object):
         ix = bdd.level_of_var('x')
         iy = bdd.level_of_var('y')
         iz = bdd.level_of_var('z')
-        # before any reordering, levels match var indices
+        # before any reordering, levels are unchanged
         assert ix == 0, ix
         assert iy == 1, iy
         assert iz == 2, iz
@@ -365,21 +365,20 @@ class Tests(object):
     def test_support(self):
         # signle var
         bdd = self.DD()
-        bdd.add_var('x')
+        # declared at the start, for ZDDs to work
+        bdd.declare('x', 'y')
         x = bdd.var('x')
         supp = bdd.support(x)
         assert supp == set(['x']), supp
         # two vars
-        bdd.add_var('y')
         y = bdd.var('y')
         x_and_y = bdd.apply('and', x, y)
         supp = bdd.support(x_and_y)
-        assert supp == set(['x', 'y']), supp
+        assert supp == set(['x', 'y']), (supp, len(x_and_y))
 
     def test_rename(self):
         bdd = self.DD()
-        for var in ['x', 'y']:
-            bdd.add_var(var)
+        bdd.declare('x', 'y', 'z', 'w')
         # x -> y
         x = bdd.var('x')
         supp = bdd.support(x)
@@ -391,8 +390,6 @@ class Tests(object):
         y = bdd.var('y')
         assert f == y, (f, y)
         # x, y -> z, w
-        for var in ['z', 'w']:
-            bdd.add_var(var)
         not_y = bdd.apply('not', y)
         u = bdd.apply('or', x, not_y)
         supp = bdd.support(u)

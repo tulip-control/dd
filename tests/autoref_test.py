@@ -4,8 +4,15 @@ from dd import autoref as _bdd
 import dd.bdd
 from nose.tools import assert_raises
 
+from common import Tests
+from common_bdd import Tests as BDDTests
+
 
 logging.getLogger('astutils').setLevel('ERROR')
+
+
+Tests.DD = _bdd.BDD
+BDDTests.DD = _bdd.BDD
 
 
 def test_true_false():

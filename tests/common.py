@@ -15,6 +15,16 @@ class Tests(object):
         assert false == false & true
         assert true == true | false
 
+    def test_succ(self):
+        bdd = self.DD()
+        bdd.declare('x')
+        u = bdd.var('x')
+        level, low, high = bdd.succ(u)
+        assert level == 0, level
+        assert low == bdd.false, low
+        # The next line applies to only BDDs
+        # assert high == bdd.true, high
+
     def test_add_var(self):
         bdd = self.DD()
         bdd.add_var('x')
@@ -64,6 +74,26 @@ class Tests(object):
         s = str(bdd)
         s + 'must be a string'
 
+    def test_var_levels(self):
+        bdd = self.DD()
+        # single variable
+        bdd.declare('x')
+        level = bdd.level_of_var('x')
+        assert level == 0, level
+        var = bdd.var_at_level(0)
+        assert var == 'x', var
+        # two variables
+        bdd.declare('y')
+        x_level = bdd.level_of_var('x')
+        var = bdd.var_at_level(x_level)
+        assert var == 'x', var
+        y_level = bdd.level_of_var('y')
+        var = bdd.var_at_level(y_level)
+        assert var == 'y', var
+        assert x_level != y_level, (x_level, y_level)
+        assert x_level >= 0, x_level
+        assert y_level >= 0, y_level
+
     def test_levels(self):
         bdd = self.DD()
         bdd.add_var('x')
@@ -82,6 +112,19 @@ class Tests(object):
         assert x == 'x', x
         assert y == 'y', y
         assert z == 'z', z
+
+    def test_copy(self):
+        bdd = self.DD()
+        other = self.DD()
+        bdd.declare('x')
+        other.declare('x')
+        u = bdd.add_expr('~ x')
+        v = bdd.copy(u, other)
+        v_ = other.add_expr('~ x')
+        assert v == v_, (v, v_)
+        # copy to same manager
+        w = bdd.copy(u, bdd)
+        assert u == w, (u, w)
 
     def test_compose(self):
         bdd = self.DD()
@@ -184,6 +227,11 @@ class Tests(object):
         b = self.DD()
         b.add_var('x')
         b.add_var('y')
+        # x
+        u = b.add_expr('x')
+        m = list(b.pick_iter(u))
+        m_ = [dict(x=True)]
+        assert m == m_, (m, m_)
         # x /\ y
         s = '~ x /\ y'
         u = b.add_expr(s)
@@ -239,10 +287,10 @@ class Tests(object):
         not_x = bdd.apply('not', x)
         true = bdd.apply('or', x, not_x)
         assert true == bdd.true, true
-        # x /\ ~ x = 0
+        # x /\ ~ x \equiv FALSE
         false = bdd.apply('and', x, not_x)
         assert false == bdd.false, false
-        # x /\ y = ~ (~ x \/ ~ y)
+        # x /\ y \equiv ~ (~ x \/ ~ y)
         u = bdd.apply('and', x, y)
         not_y = bdd.apply('not', y)
         v = bdd.apply('or', not_x, not_y)
@@ -278,6 +326,10 @@ class Tests(object):
         u = bdd.apply('xor', x, y)
         v = bdd.apply('^', x, y)
         assert u == v, (u, v)
+        # ternary
+        u = bdd.apply('ite', x, y, ~ z)
+        u_ = bdd.add_expr('(x /\ y) \/ (~ x /\ ~ z)')
+        assert u == u_, (u, u_)
 
     def test_quantify(self):
         bdd = self.DD()
@@ -309,6 +361,38 @@ class Tests(object):
         not_x = bdd.apply('not', x)
         u = bdd.apply('or', not_x, y)
         r = bdd.quantify(u, ['x'], forall=True)
+        assert r == y, (r, y)
+
+    def test_exist_forall(self):
+        bdd = self.DD()
+        for var in ['x', 'y']:
+            bdd.add_var(var)
+        x = bdd.var('x')
+        # \E x: x = 1
+        r = bdd.exist(['x'], x)
+        assert r == bdd.true, r
+        # \A x: x = 0
+        r = bdd.forall(['x'], x)
+        assert r == bdd.false, r
+        # \E y: x = x
+        r = bdd.exist(['y'], x)
+        assert r == x, (r, x)
+        # \A y: x = x
+        r = bdd.forall(['y'], x)
+        assert r == x, (r, x)
+        # (\E x:  x /\ y) \equiv y
+        y = bdd.var('y')
+        u = bdd.apply('and', x, y)
+        r = bdd.exist(['x'], u)
+        assert r == y, (r, y)
+        assert r != x, (r, x)
+        # (\A x:  x /\ y) \equiv FALSE
+        r = bdd.forall(['x'], u)
+        assert r == bdd.false, r
+        # (\A x:  ~ x \/ y) \equiv y
+        not_x = bdd.apply('not', x)
+        u = bdd.apply('or', not_x, y)
+        r = bdd.forall(['x'], u)
         assert r == y, (r, y)
 
     def test_cube(self):
@@ -503,6 +587,45 @@ class Tests(object):
             level = bdd.level_of_var(var)
             assert level == i, (var, level, i)
 
+    def test_reorder_contains(self):
+        bdd = self.DD()
+        bdd.declare('x', 'y', 'z')
+        u = bdd.add_expr('(x /\ y) \/ z')
+        bdd.reorder()
+        assert u in bdd
+
+    def test_comparators(self):
+        bdd = self.DD()
+        # `None`
+        assert not (bdd.false == None)
+        assert not (bdd.true == None)
+        assert bdd.false != None
+        assert bdd.true != None
+        # constant
+        assert bdd.false < bdd.true
+        assert bdd.false <= bdd.true
+        assert bdd.false != bdd.true
+        assert bdd.true >= bdd.false
+        assert bdd.true > bdd.false
+        assert bdd.true == bdd.true
+        assert bdd.false == bdd.false
+        # non-constant
+        bdd.declare('x')
+        u = bdd.add_expr('x')
+        # compared to false
+        assert u > bdd.false
+        assert u >= bdd.false
+        assert u != bdd.false
+        assert bdd.false <= u
+        assert bdd.false < u
+        assert u == u
+        # compared to true
+        assert u < bdd.true
+        assert u <= bdd.true
+        assert u != bdd.true
+        assert bdd.true >= u
+        assert bdd.true > u
+
     def test_function_support(self):
         bdd = self.DD()
         bdd.add_var('x')
@@ -513,3 +636,25 @@ class Tests(object):
         u = bdd.add_expr('y /\ x')
         r = u.support
         assert r == {'x', 'y'}, r
+
+    def test_node_hash(self):
+        bdd = self.DD()
+        bdd.declare('z')
+        u = bdd.add_expr('z')
+        n = hash(u)
+        m = hash(bdd.true)
+        assert n != m, (n, m)
+
+    def test_add_int(self):
+        bdd = self.DD()
+        bdd.declare('x', 'y')
+        u = bdd.add_expr('x \/ ~ y')
+        node_id = int(u)
+        u_ = bdd._add_int(node_id)
+        assert u == u_, (u, u_)
+        id2 = int(u_)
+        assert node_id == id2, (node_id, id2)
+        # test string form
+        node_str = str(u)
+        s = '@{nid}'.format(nid=node_id)
+        assert node_str == s, (node_str, s)

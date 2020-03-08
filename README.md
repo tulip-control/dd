@@ -52,6 +52,11 @@ BDD computations occur underneath, then use the module
 from the [`omega` package](
     https://github.com/tulip-control/omega/blob/master/doc/doc.md).
 
+If you are interested in computing minimal covers (two-level logic minimization)
+then use the module `omega.symbolic.cover` of the `omega` package.
+The method `omega.symbolic.fol.Context.to_expr` converts BDDs to minimal
+formulas in disjunctive normal form (DNF).
+
 
 Documentation
 =============

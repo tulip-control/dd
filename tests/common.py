@@ -10,10 +10,24 @@ class Tests(object):
         bdd = self.DD()
         true = bdd.true
         false = bdd.false
+        assert false.low is None
+        assert false.high is None
         assert false != true
         assert false == ~ true
         assert false == false & true
         assert true == true | false
+
+    def test_configure_reordering(self):
+        zdd = self.DD()
+        zdd.declare('x', 'y', 'z')
+        u = zdd.add_expr('x \/ y')
+        cfg = zdd.configure(reordering=False)
+        cfg = zdd.configure()
+        assert cfg['reordering'] == False
+        cfg = zdd.configure(reordering=True)
+        assert cfg['reordering'] == False
+        cfg = zdd.configure()
+        assert cfg['reordering'] == True
 
     def test_succ(self):
         bdd = self.DD()
@@ -158,6 +172,26 @@ class Tests(object):
         v = bdd.let(sub, u)
         v_ = bdd.add_expr('(y \/ z) /\ ~ y')
         assert v == v_, v
+        # LET x == ~ y IN ~ x
+        u = bdd.add_expr('~ x')
+        v = bdd.add_expr('~ y')
+        let = dict(x=v)
+        w = bdd.let(let, u)
+        w_ = bdd.var('y')
+        assert w == w_, len(w)
+        # LET x == y IN x /\ y
+        u = bdd.add_expr('x /\ y')
+        v = bdd.add_expr('y')
+        let = dict(x=v)
+        w = bdd.let(let, u)
+        w_ = bdd.var('y')
+        assert w == w_, len(w)
+        # LET x == ~ y IN x /\ y
+        v = bdd.add_expr('~ y')
+        let = dict(x=v)
+        w = bdd.let(let, u)
+        w_ = bdd.false
+        assert w == w_, len(w)
 
     def test_cofactor(self):
         bdd = self.DD()
@@ -175,6 +209,16 @@ class Tests(object):
         assert r == bdd.false, r
         r = bdd.let(dict(x=True, y=True), u)
         assert r == bdd.true, r
+        # x=False
+        let = dict(x=False)
+        r = bdd.let(let, u)
+        r_ = bdd.false
+        assert r == r_, len(r)
+        # x=True
+        let = dict(x=True)
+        r = bdd.let(let, u)
+        r_ = bdd.var('y')
+        assert r == r_, len(r)
         # x /\ ~ y
         not_y = bdd.apply('not', y)
         u = bdd.apply('and', x, not_y)
@@ -186,6 +230,16 @@ class Tests(object):
         assert r == bdd.false, r
         r = bdd.let(dict(x=True, y=True), u)
         assert r == bdd.false, r
+        # y=False
+        let = dict(y=False)
+        r = bdd.let(let, u)
+        r_ = bdd.add_expr('x')
+        assert r == r_, len(r)
+        # y=True
+        let = dict(y=True)
+        r = bdd.let(let, u)
+        r_ = bdd.false
+        assert r == r_, len(r)
         # ~ x \/ y
         not_x = bdd.apply('not', x)
         u = bdd.apply('or', not_x, y)
@@ -227,12 +281,20 @@ class Tests(object):
         b = self.DD()
         b.add_var('x')
         b.add_var('y')
+        # FALSE
+        u = b.false
+        m = list(b.pick_iter(u))
+        assert not m, m
+        # TRUE, no care vars
+        u = b.true
+        m = list(b.pick_iter(u))
+        assert m == [{}], m
         # x
         u = b.add_expr('x')
         m = list(b.pick_iter(u))
         m_ = [dict(x=True)]
         assert m == m_, (m, m_)
-        # x /\ y
+        # ~ x /\ y
         s = '~ x /\ y'
         u = b.add_expr(s)
         g = b.pick_iter(u, care_vars=set())
@@ -243,6 +305,11 @@ class Tests(object):
         g = b.pick_iter(u)
         m = list(g)
         assert m == m_, (m, m_)
+        # x /\ y
+        u = b.add_expr('x /\ y')
+        m = list(b.pick_iter(u))
+        m_ = [dict(x=True, y=True)]
+        assert m == m_, m
         # x
         s = '~ y'
         u = b.add_expr(s)
@@ -333,7 +400,7 @@ class Tests(object):
 
     def test_quantify(self):
         bdd = self.DD()
-        for var in ['x', 'y']:
+        for var in ['x', 'y', 'z']:
             bdd.add_var(var)
         x = bdd.var('x')
         # (\E x:  x) \equiv TRUE
@@ -362,6 +429,20 @@ class Tests(object):
         u = bdd.apply('or', not_x, y)
         r = bdd.quantify(u, ['x'], forall=True)
         assert r == y, (r, y)
+        # \E x:  ((x /\ ~ y) \/ ~ z)
+        u = bdd.add_expr('(x /\ ~ y) \/ ~ z')
+        qvars = ['x']
+        r = bdd.exist(qvars, u)
+        r_ = bdd.add_expr('\E x:  ((x /\ ~ y) \/ ~ z)')
+        assert r == r_, (r, r_)
+        r_ = bdd.add_expr('(~ y) \/ ~ z')
+        assert r == r_, (r, r_)
+        # \E y:  x /\ ~ y /\ ~ z
+        u = bdd.add_expr('x /\ ~ y /\ ~ z')
+        qvars = ['y']
+        r = bdd.exist(qvars, u)
+        r_ = bdd.add_expr('x /\ ~ z')
+        assert r == r_, len(r)
 
     def test_exist_forall(self):
         bdd = self.DD()
@@ -463,23 +544,46 @@ class Tests(object):
         assert r == r_, (r, r_)
 
     def test_support(self):
-        # signle var
-        bdd = self.DD()
+        zdd = self.DD()
         # declared at the start, for ZDDs to work
-        bdd.declare('x', 'y')
-        x = bdd.var('x')
-        supp = bdd.support(x)
-        assert supp == set(['x']), supp
-        # two vars
-        y = bdd.var('y')
-        x_and_y = bdd.apply('and', x, y)
-        supp = bdd.support(x_and_y)
-        assert supp == set(['x', 'y']), (supp, len(x_and_y))
+        zdd.declare('x', 'y', 'z')
+        # FALSE
+        u = zdd.false
+        s = zdd.support(u)
+        assert s == set(), s
+        # TRUE
+        u = zdd.true
+        s = zdd.support(u)
+        assert s == set(), s
+        # x
+        u = zdd.add_expr('x')
+        s = zdd.support(u)
+        assert s == {'x'}, s
+        # ~ x
+        u = zdd.add_expr('x')
+        s = zdd.support(u)
+        assert s == {'x'}, s
+        # ~ y
+        u = zdd.add_expr('~ y')
+        s = zdd.support(u)
+        assert s == {'y'}, s
+        # x /\ y
+        u = zdd.add_expr(r'x /\ y')
+        s = zdd.support(u)
+        assert s == {'x', 'y'}, s
+        # x \/ y
+        u = zdd.add_expr(r'x \/ y')
+        s = zdd.support(u)
+        assert s == {'x', 'y'}, s
+        # x /\ ~ y
+        u = zdd.add_expr(r'x /\ ~ y')
+        s = zdd.support(u)
+        assert s == {'x', 'y'}, s
 
     def test_rename(self):
         bdd = self.DD()
         bdd.declare('x', 'y', 'z', 'w')
-        # x -> y
+        # LET x == y IN x
         x = bdd.var('x')
         supp = bdd.support(x)
         assert supp == set(['x']), supp
@@ -610,7 +714,7 @@ class Tests(object):
         assert bdd.true == bdd.true
         assert bdd.false == bdd.false
         # non-constant
-        bdd.declare('x')
+        bdd.declare('x', 'y')
         u = bdd.add_expr('x')
         # compared to false
         assert u > bdd.false
@@ -625,6 +729,11 @@ class Tests(object):
         assert u != bdd.true
         assert bdd.true >= u
         assert bdd.true > u
+        # x /\ y
+        x = bdd.var('x')
+        y = bdd.var('y')
+        assert (x & y) == ~ (~ x | ~ y)
+        assert (x & y) != ~ (~ x | y)
 
     def test_function_support(self):
         bdd = self.DD()

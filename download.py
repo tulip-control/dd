@@ -79,7 +79,8 @@ def extensions(args):
     @param args: known args from `argparse.parse_known_args`
     """
     directives = dict(
-        language_level=2)
+        language_level=2,
+        embedsignature=True)
     cudd_cflags = list(CUDD_CFLAGS)
     sylvan_cflags = list()
     # detect optional `cysignals` (unless dist)

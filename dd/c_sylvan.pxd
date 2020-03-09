@@ -16,6 +16,13 @@ from libcpp cimport bool
 from libc cimport stdint
 
 
+cdef extern from 'lace.h':
+    """
+    #define LACE_ME_WRAP 0); LACE_ME (0
+    """
+    cdef void LACE_ME_WRAP()
+    ctypedef struct WorkerP
+    ctypedef struct Task
 cdef extern from 'sylvan.h':
     ctypedef stdint.uint64_t BDD
     ctypedef stdint.uint64_t BDDSET
@@ -28,8 +35,6 @@ cdef extern from 'sylvan.h':
     cdef BDD sylvan_invalid
     # cdef int gc_enabled  # should not be `static`
     #
-    ctypedef struct WorkerP
-    ctypedef struct Task
     ctypedef void (*lace_startup_cb)(
         WorkerP*, Task*, void*)
     # node elements
@@ -69,7 +74,6 @@ cdef extern from 'sylvan.h':
     cdef BDD sylvan_ref(BDD a)
     cdef void sylvan_deref(BDD a)
     # logistics
-    cdef void LACE_ME()
     cdef void lace_exit()
     cdef void lace_init(int n_workers, size_t dqsize)
     cdef void lace_startup(

@@ -352,6 +352,18 @@ For example, [this document](
     http://www.ecs.umass.edu/ece/labs/vlsicad/ece667/reading/somenzi99bdd.pdf)
 by Fabio Somenzi (CUDD's author).
 
+In the following diagram, the BDD rooted at node `x-7` represents the
+Boolean function `(x /\ y) \/ ~ z`. For example, for the assignment
+`dict(x=False)`, the dashed arc from node `x-7` leads to the negation
+(due to the negated edge, signified by a `-1`) of the node `z-5`.
+The BDD rooted at `z-5` represents the Boolean function `z`,
+so its negation is `~ z`.
+
+The nodes `x-2`, `x-4`, `y-3` are intermediate results that result while
+constructing the BDD for the Boolean function `(x /\ y) \/ ~ z`.
+The BDD rooted at node `x-2` represents the Boolean function `x`, and the
+BDD rooted at node `x-4` represents the Boolean function `x /\ y`.
+
 ![example_bdd](https://rawgithub.com/johnyf/binaries/master/dd/awesome.png)
 
 It is instructive to dump the `bdd` with and without collecting garbage.

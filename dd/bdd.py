@@ -1315,6 +1315,16 @@ class BDD(_abc.BDD):
             pickle.dump(d, f, **kw)
 
     def load(self, filename, levels=True):
+        name = filename.lower()
+        if name.endswith('.p'):
+            return self._load_pickle(
+                filename, levels=levels)
+        else:
+            raise ValueError(
+                'Unknown file type of "{f}"'.format(
+                    f=filename))
+
+    def _load_pickle(self, filename, levels=True):
         with open(filename, 'rb') as f:
             d = pickle.load(f)
         var2level = d['vars']

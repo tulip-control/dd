@@ -192,6 +192,20 @@ class BDD(_abc.BDD):
 
     def dump(self, filename, roots=None,
              filetype=None, **kw):
+        if filetype is None:
+            name = filename.lower()
+            if name.endswith('.pdf'):
+                filetype = 'pdf'
+            elif name.endswith('.png'):
+                filetype = 'png'
+            elif name.endswith('.svg'):
+                filetype = 'svg'
+            elif name.endswith('.p'):
+                filetype = 'pickle'
+            else:
+                raise Exception(
+                    'cannot infer file type '
+                    'from extension')
         if roots is not None:
             roots = [u.node for u in roots]
         self._bdd.dump(filename, roots=roots,

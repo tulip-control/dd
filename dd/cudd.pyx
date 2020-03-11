@@ -1152,6 +1152,10 @@ cdef class BDD(object):
                 filetype == 'dddmp'):
             u, = roots  # single root supported for now
             return self._dump_dddmp(u, filename)
+        elif (
+                filename.lower().endswith('.json') or
+                filetype == 'json'):
+            return _copy.dump_json(roots, filename)
         else:
             bdd = autoref.BDD()
             _copy.copy_vars(self, bdd)  # preserve levels
@@ -1193,6 +1197,8 @@ cdef class BDD(object):
         if filename.lower().endswith('.dddmp'):
             r = self._load_dddmp(filename)
             return [r]
+        elif filename.lower().endswith('.json'):
+            return _copy.load_json(filename, self)
         else:
             raise ValueError(
                 'Unknown file type "{s}"'.format(

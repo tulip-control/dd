@@ -27,7 +27,7 @@ def test_parser():
 
 
 def test_sample0():
-    fname = 'sample0.txt'
+    fname = 'sample0.dddmp'
     bdd, n_vars, ordering, roots = parser.parse(fname)
     h = to_nx(bdd, n_vars, ordering, roots)
     assert len(h) == 5, len(h)
@@ -49,7 +49,7 @@ def test_sample0():
 
 
 def test_sample1():
-    fname = 'sample1.txt'
+    fname = 'sample1.dddmp'
     parser.build(debug=True)
     bdd, n_vars, ordering, roots = parser.parse(fname)
     assert len(bdd) == 16, len(bdd)
@@ -60,7 +60,7 @@ def test_sample1():
 def test_sample2():
     # x /\ y
     # where x, y have indices 0, 1
-    fname = 'sample2.txt'
+    fname = 'sample2.dddmp'
     bdd = load(fname)
     n = len(bdd)
     assert n == 3, n
@@ -85,7 +85,7 @@ def test_sample3():
     # x /\ y
     # where x, y are at levels 1, 0
     # nodes are labeled with var names
-    fname = 'sample3.txt'
+    fname = 'sample3.dddmp'
     bdd = load(fname)
     n = len(bdd)
     assert n == 3, n
@@ -99,7 +99,7 @@ def test_sample3():
 
 def test_load_dddmp():
     # small sample
-    fname = 'sample0.txt'
+    fname = 'sample0.dddmp'
     bdd = load(fname)
     n = len(bdd)
     n_vars = len(bdd.vars)
@@ -110,7 +110,7 @@ def test_load_dddmp():
     u = bdd.add_expr('~ ( (a /\ (b \/ c)) \/ (~ a /\ (b \/ ~ c)) )')
     assert u == root, (u, root)
     # larger sample
-    fname = 'sample1.txt'
+    fname = 'sample1.dddmp'
     bdd = load(fname)
     n = len(bdd)
     n_vars = len(bdd.vars)

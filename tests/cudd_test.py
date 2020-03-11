@@ -69,7 +69,7 @@ def test_dump_load():
     for var in ['x', 'y', 'z', 'w']:
         bdd.add_var(var)
     u = bdd.add_expr('(x /\ ~ w) \/ z')
-    fname = 'bdd.txt'
+    fname = 'bdd.dddmp'
     bdd.dump(fname, [u], filetype='dddmp')
     u_ = bdd.load(fname)
     assert u == u_
@@ -80,7 +80,7 @@ def test_load_sample0():
     names = ['a', 'b', 'c']
     for var in names:
         bdd.add_var(var)
-    fname = 'sample0.txt'
+    fname = 'sample0.dddmp'
     u = bdd.load(fname)
     n = len(u)
     assert n == 5, n

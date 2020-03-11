@@ -1147,16 +1147,16 @@ cdef class BDD(object):
         return s
 
     cpdef dump(self, filename, roots, filetype=None):
-        u, = roots  # single root supported for now
         if (
                 filename.lower().endswith('.dddmp') or
                 filetype == 'dddmp'):
+            u, = roots  # single root supported for now
             return self._dump_dddmp(u, filename)
         else:
             bdd = autoref.BDD()
             _copy.copy_vars(self, bdd)  # preserve levels
-            v = _copy.copy_bdd(u, bdd)
-            bdd.dump(filename, [v], filetype=filetype)
+            v = _copy.copy_bdds_from(roots, bdd)
+            bdd.dump(filename, v, filetype=filetype)
 
     cpdef _dump_dddmp(self, Function u, fname):
         """Dump BDD as DDDMP file `fname`."""

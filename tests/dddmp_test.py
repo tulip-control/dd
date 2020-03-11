@@ -81,6 +81,22 @@ def test_sample2():
     assert u == root, u
 
 
+def test_sample3():
+    # x /\ y
+    # where x, y are at levels 1, 0
+    # nodes are labeled with var names
+    fname = 'sample3.txt'
+    bdd = load(fname)
+    n = len(bdd)
+    assert n == 3, n
+    n_vars = len(bdd.vars)
+    assert n_vars == 2, n_vars
+    assert bdd.roots == {3}, bdd.roots
+    root = 3
+    u = bdd.add_expr('x /\ y')
+    assert root == u, u
+
+
 def test_load_dddmp():
     # small sample
     fname = 'sample0.txt'
@@ -140,6 +156,24 @@ def to_nx(bdd, n_vars, ordering, roots):
         assert w >= 0, w  # "then" edge cannot be complemented
         h.add_edge(u, w)
     return h
+
+
+def test_dump_with_cudd_load_with_dddmp():
+    from dd import cudd
+    fname = 'foo.dddmp'
+    # dump
+    bdd = cudd.BDD()
+    bdd.declare('y', 'x')
+    u = bdd.add_expr('x /\ y')
+    bdd.dump(fname, [u])
+    # load
+    bdd = load(fname)
+    print(bdd.roots)
+    u, = bdd.roots
+    u_ = bdd.add_expr('x /\ y')
+    assert u == u_, (u, u_)
+    expr = bdd.to_expr(u)
+    print(expr)
 
 
 if __name__ == '__main__':

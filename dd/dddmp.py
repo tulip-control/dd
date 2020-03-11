@@ -224,12 +224,14 @@ class Parser(object):
             for line in f:
                 if '.end' in line:
                     break
+                u, info, index, v, w = line.split(' ')
+                u, index, v, w = map(int, (u, index, v, w))
                 try:
-                    u, info, index, v, w = map(int, line.split(' '))
+                    info = int(info)
                 except ValueError:
-                    u, info, index, v, w = line.split(' ')
-                    assert info == 'T', info
-                    u, index, v, w = map(int, (u, index, v, w))
+                    pass  # info == 'T' or `str` var name
+                assert info in self.info2permid, (
+                    info, self.info2permid)
                 self._add_node(u, info, index, v, w)
         assert len(self.bdd) == self.n_nodes
 

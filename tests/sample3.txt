@@ -1,0 +1,23 @@
+# x /\ y
+# y at level 0
+# x at level 1
+# nodes are labeled with
+# variable names
+
+.ver DDDMP-2.0
+.mode A
+.varinfo 3
+.nnodes 3
+.nvars 2
+.nsuppvars 2
+.suppvarnames y x
+.orderedvarnames y x
+.ids 0 1
+.permids 0 1
+.nroots 1
+.rootids 3
+.nodes
+1 T 1 0 0
+2 x 1 1 -1
+3 y 0 2 -1
+.end

@@ -1,6 +1,25 @@
 # dd changelog
 
 
+## 0.5.6
+
+API:
+
+- require `cython >= 0.29.15`
+- add module `dd.cudd_zdd`
+- allow empty support variable names in DDDMP files in function `dd.dddmp.load`
+- methods `dump` and `load` of the classes
+  `dd.cudd.BDD` and `dd.autoref.BDD`:
+  - add JSON to file types
+  - load by file extension
+- change return type of method `dd.cudd.BDD.load`
+  to `list` of `dd.cudd.Function`
+- multiple roots supported in `dd.cudd.BDD.dump` for
+  file types other than DDDMP
+- `dd.autoref.BDD.load`:
+  require file extension `.p` for pickle files
+
+
 ## 0.5.5
 
 API:

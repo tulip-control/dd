@@ -198,6 +198,16 @@ class BDD(_abc.BDD):
                        filetype=filetype)
 
     def load(self, filename, levels=True):
+        name = filename.lower()
+        if name.endswith('.p'):
+            return self._load_pickle(
+                filename, levels=levels)
+        else:
+            raise ValueError(
+                'Unknown file type of "{f}"'.format(
+                    f=filename))
+
+    def _load_pickle(self, filename, levels=True):
         umap = self._bdd.load(filename, levels=levels)
         umap = {u: self._wrap(umap[u]) for u in umap}
         return umap

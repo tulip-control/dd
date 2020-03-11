@@ -57,6 +57,30 @@ def test_sample1():
     assert roots == {6, -13, -16}, roots
 
 
+def test_sample2():
+    # x /\ y
+    # where x, y have indices 0, 1
+    fname = 'sample2.txt'
+    bdd = load(fname)
+    n = len(bdd)
+    assert n == 3, n
+    n_vars = len(bdd.vars)
+    assert n_vars == 2, n_vars
+    assert bdd.roots == {3}, bdd.roots
+    root = 3
+    i, v, w = bdd.succ(root)
+    assert i == 0, i
+    assert v == -1, v
+    i, v, w = bdd.succ(w)
+    assert i == 1, i
+    assert v == -1, v
+    assert w == 1, w
+    # overwrite indices with strings
+    bdd.vars = dict(x=0, y=1)
+    u = bdd.add_expr('x /\ y')
+    assert u == root, u
+
+
 def test_load_dddmp():
     # small sample
     fname = 'sample0.txt'

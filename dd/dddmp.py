@@ -200,14 +200,18 @@ class Parser(object):
         #     d['var_index'] for u, d in g.nodes(data=True)}
         # assert len(support_var_ord_ids) == self.n_support_vars
         # prepare levels
-        if self.ordered_vars is None:
+        if self.ordered_vars is not None:
+            levels = {var: k for k, var in enumerate(self.ordered_vars)}
+        elif self.support_vars is not None:
             permid2var = {
                 k: var for k, var in zip(self.permuted_var_ids,
                                          self.support_vars)}
             levels = {
                 permid2var[k]: k for k in sorted(self.permuted_var_ids)}
         else:
-            levels = {var: k for k, var in enumerate(self.ordered_vars)}
+            levels = {
+                idx: level for level, idx in
+                enumerate(self.permuted_var_ids)}
         roots = set(self.rootids)
         return levels, roots
 
@@ -267,7 +271,8 @@ class Parser(object):
 
     def _assert_consistent(self):
         """Check that the loaded attributes are reasonable."""
-        assert len(self.support_vars) == self.n_support_vars
+        if self.support_vars is not None:
+            assert len(self.support_vars) == self.n_support_vars
         if self.ordered_vars is not None:
             assert len(self.ordered_vars) == self.n_vars
         assert len(self.var_ids) == self.n_support_vars

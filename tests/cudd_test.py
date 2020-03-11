@@ -71,7 +71,7 @@ def test_dump_load():
     u = bdd.add_expr('(x /\ ~ w) \/ z')
     fname = 'bdd.dddmp'
     bdd.dump(fname, [u], filetype='dddmp')
-    u_ = bdd.load(fname)
+    u_, = bdd.load(fname)
     assert u == u_
 
 
@@ -81,7 +81,7 @@ def test_load_sample0():
     for var in names:
         bdd.add_var(var)
     fname = 'sample0.dddmp'
-    u = bdd.load(fname)
+    u, = bdd.load(fname)
     n = len(u)
     assert n == 5, n
     s = '~ ( (a /\ (b \/ c)) \/ (~ a /\ (b \/ ~ c)) )'

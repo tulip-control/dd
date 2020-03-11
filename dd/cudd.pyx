@@ -1190,6 +1190,15 @@ cdef class BDD(object):
 
     cpdef load(self, filename):
         """Return `Function` loaded from file `filename`."""
+        if filename.lower().endswith('.dddmp'):
+            r = self._load_dddmp(filename)
+            return [r]
+        else:
+            raise ValueError(
+                'Unknown file type "{s}"'.format(
+                    s=filename))
+
+    cpdef _load_dddmp(self, filename):
         n = len(self._index_of_var)
         cdef DdNode *r
         cdef FILE *f

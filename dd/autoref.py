@@ -202,20 +202,27 @@ class BDD(_abc.BDD):
                 filetype = 'svg'
             elif name.endswith('.p'):
                 filetype = 'pickle'
+            elif name.endswith('.json'):
+                filetype = 'json'
             else:
                 raise Exception(
                     'cannot infer file type '
                     'from extension')
-        if roots is not None:
-            roots = [u.node for u in roots]
-        self._bdd.dump(filename, roots=roots,
-                       filetype=filetype)
+        if filetype == 'json':
+            _copy.dump_json(roots, filename)
+        else:
+            if roots is not None:
+                roots = [u.node for u in roots]
+            self._bdd.dump(filename, roots=roots,
+                           filetype=filetype)
 
     def load(self, filename, levels=True):
         name = filename.lower()
         if name.endswith('.p'):
             return self._load_pickle(
                 filename, levels=levels)
+        elif name.endswith('.json'):
+            return _copy.load_json(filename, self)
         else:
             raise ValueError(
                 'Unknown file type of "{f}"'.format(

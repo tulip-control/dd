@@ -567,7 +567,10 @@ cdef class Function(object):
     def negated(self):
         """Return `True` if `self` is a complemented edge."""
         # see `BDD_HASMARK` in `sylvan_bdd`
-        return ((self.node & sy.sylvan_complement) == 1)
+        if self.node & sy.sylvan_complement:
+            return True
+        else:
+            return False
 
     @property
     def support(self):

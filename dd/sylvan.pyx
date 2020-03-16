@@ -554,6 +554,7 @@ cdef class Function(object):
     @property
     def low(self):
         """Return "else" node as `Function`."""
+        # propagates complement bit
         u = sy.sylvan_low(self.node)
         return wrap(self.bdd, u)
 

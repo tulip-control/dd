@@ -366,6 +366,30 @@ BDD rooted at node `x-4` represents the Boolean function `x /\ y`.
 
 ![example_bdd](https://rawgithub.com/johnyf/binaries/master/dd/awesome.png)
 
+An external reference to a BDD is an arc that points to a node.
+For example, `u` above is an external reference. An external reference can be
+a complemented arc. External references can be included in a BDD diagram by
+using the argument `roots` of the method `BDD.dump`. For example
+
+```python
+from dd import autoref as _bdd
+
+bdd = _bdd.BDD()
+bdd.declare('x', 'y', 'z')
+u = bdd.add_expr('(x /\ y) \/ ~ z')
+print(u.negated)
+v = ~ u
+print(v.negated)
+bdd.collect_garbage()
+bdd.dump('rooted.pdf', roots=[v])
+```
+
+The result is the following diagram, where the node `@-7` is the external
+reference `v`, which is a complemented arc.
+
+![example_bdd](https://rawgithub.com/johnyf/binaries/master/dd/rooted.png)
+
+
 It is instructive to dump the `bdd` with and without collecting garbage.
 
 

@@ -64,7 +64,7 @@ def test_cube_array():
     cudd._test_cube_array_to_dict()
 
 
-def test_dump_load():
+def test_dump_load_dddmp():
     bdd = cudd.BDD()
     for var in ['x', 'y', 'z', 'w']:
         bdd.add_var(var)

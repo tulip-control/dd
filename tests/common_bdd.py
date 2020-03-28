@@ -1,4 +1,6 @@
 """Common tests for `autoref`, `cudd`."""
+import os
+
 from nose.tools import assert_raises
 
 
@@ -97,6 +99,17 @@ class Tests(object):
         assert a or b, (a, b)
         assert not (a and b), (a, b)
 
+    def test_dump_pdf(self):
+        bdd = self.DD()
+        bdd.declare('x', 'y', 'z')
+        u = bdd.add_expr(r'x /\ y')
+        v = bdd.add_expr(r'y /\ ~ z')
+        fname = 'bdd.pdf'
+        roots = [u, v]
+        self.rm_file(fname)
+        bdd.dump(fname, roots)
+        assert os.path.isfile(fname)
+
     def test_dump_load_json(self):
         bdd = self.DD()
         bdd.declare('x', 'y', 'z')
@@ -105,3 +118,7 @@ class Tests(object):
         bdd.dump(fname, [u])
         u_, = bdd.load(fname)
         assert u == u_, len(u_)
+
+    def rm_file(self, fname):
+        if os.path.isfile(fname):
+            os.remove(fname)

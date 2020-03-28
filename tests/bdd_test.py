@@ -1,4 +1,6 @@
 import logging
+import os
+
 from dd.bdd import BDD as _BDD
 from dd.bdd import preimage
 from dd import autoref
@@ -974,6 +976,19 @@ def test_dump_load_manager():
     u_ = h.add_expr(e)
     assert u == u_, (u, u_)
     # h.dump(prefix + '.pdf')
+
+
+def test_dump_pdf():
+    bdd = BDD()
+    bdd.declare('x', 'y', 'z')
+    u = bdd.add_expr(r'x /\ y')
+    v = bdd.add_expr(r'y /\ ~ z')
+    fname = 'bdd.pdf'
+    roots = [u, v]
+    if os.path.isfile(fname):
+        os.remove(fname)
+    bdd.dump(fname, roots)
+    assert os.path.isfile(fname)
 
 
 def test_quantify():

@@ -96,3 +96,12 @@ class Tests(object):
         b = neg_u.negated
         assert a or b, (a, b)
         assert not (a and b), (a, b)
+
+    def test_dump_load_json(self):
+        bdd = self.DD()
+        bdd.declare('x', 'y', 'z')
+        u = bdd.add_expr('(z /\ x /\ y) \/ x \/ ~ y')
+        fname = 'foo.json'
+        bdd.dump(fname, [u])
+        u_, = bdd.load(fname)
+        assert u == u_, len(u_)

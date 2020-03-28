@@ -127,10 +127,9 @@ def test_load_dddmp():
 def test_rewrite_tables():
     prefix = 'dddmp_parsetab'
     for ext in ('.py', '.pyc'):
-        try:
-            os.remove(prefix + ext)
-        except:
-            pass
+        fname = prefix + ext
+        if os.path.isfile(fname):
+            os.remove(fname)
     _rewrite_tables()
     assert os.path.isfile(prefix + '.py')
 

@@ -189,7 +189,7 @@ Pass `--fetch` to `setup.py` to tell it to download, unpack, and
 ```shell
 pip download dd --no-deps
 tar xzf dd-*.tar.gz
-cd dd-*
+cd dd-*/
 python setup.py install --fetch --cudd --cudd_zdd
 ```
 

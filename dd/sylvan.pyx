@@ -537,6 +537,8 @@ cdef class Function(object):
     @property
     def var(self):
         """Variable at level where this node is."""
+        if sy.sylvan_isconst(self.node):
+            return None
         return self.bdd._var_with_index[self._index]
 
     @property

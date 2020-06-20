@@ -165,5 +165,77 @@ def test_rename():
     del x, y, y_, u, v, v_
 
 
+# The function `test_pick_iter` is copied
+# from `common.Tests.test_pick_iter`.
+def test_pick_iter():
+    b = sylvan.BDD()
+    b.add_var('x')
+    b.add_var('y')
+    # FALSE
+    u = b.false
+    m = list(b.pick_iter(u))
+    assert not m, m
+    # TRUE, no care vars
+    u = b.true
+    m = list(b.pick_iter(u))
+    assert m == [{}], m
+    # x
+    u = b.add_expr('x')
+    m = list(b.pick_iter(u))
+    m_ = [dict(x=True)]
+    assert m == m_, (m, m_)
+    # ~ x /\ y
+    s = '~ x /\ y'
+    u = b.add_expr(s)
+    g = b.pick_iter(u, care_vars=set())
+    m = list(g)
+    m_ = [dict(x=False, y=True)]
+    assert m == m_, (m, m_)
+    u = b.add_expr(s)
+    g = b.pick_iter(u)
+    m = list(g)
+    assert m == m_, (m, m_)
+    # x /\ y
+    u = b.add_expr('x /\ y')
+    m = list(b.pick_iter(u))
+    m_ = [dict(x=True, y=True)]
+    assert m == m_, m
+    # x
+    s = '~ y'
+    u = b.add_expr(s)
+    # partial
+    g = b.pick_iter(u)
+    m = list(g)
+    m_ = [dict(y=False)]
+    equal_list_contents(m, m_)
+    # partial
+    g = b.pick_iter(u, care_vars=['x', 'y'])
+    m = list(g)
+    m_ = [
+        dict(x=True, y=False),
+        dict(x=False, y=False)]
+    equal_list_contents(m, m_)
+    # care bits x, y
+    b.add_var('z')
+    s = 'x \/ y'
+    u = b.add_expr(s)
+    g = b.pick_iter(u, care_vars=['x', 'y'])
+    m = list(g)
+    m_ = [
+        dict(x=True, y=False),
+        dict(x=False, y=True),
+        dict(x=True, y=True)]
+    equal_list_contents(m, m_)
+
+
+# The function `equal_list_contents` is copied
+# from `common.Tests.equal_list_contents`.
+def equal_list_contents(x, y):
+    for u in x:
+        assert u in y, (u, x, y)
+    for u in y:
+        assert u in x, (u, x, y)
+
+
 if __name__ == '__main__':
-    test_cofactor()
+    test_pick_iter()

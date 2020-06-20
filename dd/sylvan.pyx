@@ -27,7 +27,7 @@ from libcpp cimport bool
 import psutil
 
 from dd import _parser
-# from dd import bdd as _bdd
+from dd import bdd as _bdd
 from dd cimport c_sylvan as sy
 
 
@@ -301,10 +301,53 @@ cdef class BDD(object):
         r = self._compose(u, var_sub)
         return r
 
-    def pick_iter(self, Function u,
-                 full=False, care_vars=None):
+    def pick(self, Function u, care_vars=None):
+        """Return a single assignment as `dict`."""
+        return next(self.pick_iter(u, care_vars), None)
+
+    def pick_iter(self, Function u, care_vars=None):
         """Return generator over assignments."""
-        raise NotImplementedError
+        support = self.support(u)
+        if care_vars is None:
+            care_vars = support
+        missing = {v for v in support if v not in care_vars}
+        if missing:
+            logger.warning((
+                'Missing bits:  '
+                'support - care_vars = {missing}').format(
+                    missing=missing))
+        cube = dict()
+        value = True
+        config = self.configure(reordering=False)
+        for cube in self._sat_iter(u, cube, value, support):
+            for m in _bdd._enumerate_minterms(cube, care_vars):
+                yield m
+        self.configure(reordering=config['reordering'])
+
+    def _sat_iter(self, u, cube, value, support):
+        """Recurse to enumerate models."""
+        if u.negated:
+            value = not value
+        # terminal ?
+        if u.var is None:
+            # high nodes are negated
+            # the constant node is 0
+            if not value:
+                assert set(cube).issubset(support), set(
+                    cube).difference(support)
+                yield cube
+            return
+        # non-terminal
+        _, v, w = self.succ(u)
+        var = u.var
+        d0 = dict(cube)
+        d0[var] = False
+        d1 = dict(cube)
+        d1[var] = True
+        for x in self._sat_iter(v, d0, value, support):
+            yield x
+        for x in self._sat_iter(w, d1, value, support):
+            yield x
 
     cpdef Function ite(self, Function g, Function u, Function v):
         assert self is g.bdd

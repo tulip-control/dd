@@ -659,7 +659,7 @@ class Tests(object):
         u_ = b.add_expr('x /\ y')
         assert u == u_, (u, u_)
 
-    def test_reorder(self):
+    def test_reorder_with_args(self):
         bdd = self.DD()
         dvars = ['x', 'y', 'z']
         for var in dvars:
@@ -671,7 +671,8 @@ class Tests(object):
             level_ = order[var]
             level = bdd.level_of_var(var)
             assert level == level_, (var, level, level_)
-        # without args
+
+    def test_reorder_without_args(self):
         bdd = self.DD()
         # Figs. 6.24, 6.25 Baier 2008
         vrs = ['z1', 'z2', 'z3', 'y1', 'y2', 'y3']

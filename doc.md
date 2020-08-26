@@ -169,7 +169,7 @@ in formulas, without the need to expand them as formulas. For example:
 
 ```python
 u = bdd.add_expr('y \/ z')
-s = 'x /\ {r}'.format(u=u)
+s = 'x /\ {u}'.format(u=u)
 v = bdd.add_expr(s)
 v_ = bdd.add_expr('x /\ (y \/ z)')
 assert v == v_

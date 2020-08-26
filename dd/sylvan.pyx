@@ -134,6 +134,17 @@ cdef class BDD(object):
             max_vars=None)
         return d
 
+    cpdef succ(self, Function u):
+        """Return `(level, low, high)` for `u`."""
+        i = u._index  # level, assuming
+            # static variable order
+        v = u.low
+        w = u.high
+        # account for complement bit propagation
+        if u.negated:
+            v, w = ~ v, ~ w
+        return i, v, w
+
     cdef incref(self, sy.BDD u):
         sy.sylvan_ref(u)
 

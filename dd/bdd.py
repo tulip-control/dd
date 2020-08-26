@@ -1697,7 +1697,7 @@ def _reorder_var(bdd, var, levels):
     start = 0
     end = n
     level = bdd.level_of_var(var)
-    # closer to top ?
+    # closer to bottom ?
     if (2 * level) >= n:
         start, end = end, start
     _shift(bdd, level, start, levels)

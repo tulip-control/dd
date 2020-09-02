@@ -254,7 +254,8 @@ class Tests(object):
 
     def test_count(self):
         b = self.DD()
-        b.add_var('x')
+        # x
+        b.declare('x')
         u = b.add_expr('x')
         with assert_raises(AssertionError):
             b.count(u, 0)
@@ -264,7 +265,10 @@ class Tests(object):
         assert n == 2, n
         n = b.count(u, 3)
         assert n == 4, n
-        b.add_var('y')
+        n = b.count(u)
+        assert n == 1, n
+        # x /\ y
+        b.declare('y')
         u = b.add_expr('x /\ y')
         with assert_raises(AssertionError):
             b.count(u, 0)
@@ -276,6 +280,22 @@ class Tests(object):
         assert n == 2, n
         n = b.count(u, 5)
         assert n == 8, n
+        n = b.count(u)
+        assert n == 1, n
+        # x \/ ~ y
+        u = b.add_expr('x \/ ~ y')
+        with assert_raises(AssertionError):
+            b.count(u, 0)
+        with assert_raises(AssertionError):
+            b.count(u, 1)
+        n = b.count(u, 2)
+        assert n == 3, n
+        n = b.count(u, 3)
+        assert n == 6, n
+        n = b.count(u, 4)
+        assert n == 12, n
+        n = b.count(u)
+        assert n == 3, n
 
     def test_pick_iter(self):
         b = self.DD()

@@ -854,14 +854,18 @@ cdef class BDD(object):
         r = cuddUniqueInter(self.manager, index, high.node, low.node)
         return wrap(self, r)
 
-    def count(self, Function u, int nvars):
+    def count(self, Function u, nvars=None):
         """Return number of models of node `u`.
 
         @param nvars: regard `u` as an operator that
             depends on `nvars` many variables.
+
+            If omitted, then assume those in `support(u)`.
         """
         assert u.manager == self.manager
         n = len(self.support(u))
+        if nvars is None:
+            nvars = n
         assert nvars >= n, (nvars, n)
         r = Cudd_CountMinterm(self.manager, u.node, nvars)
         assert r != CUDD_OUT_OF_MEM

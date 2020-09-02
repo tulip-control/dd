@@ -16,6 +16,9 @@ API:
   to `list` of `dd.cudd.Function`
 - multiple roots supported in `dd.cudd.BDD.dump` for
   file types other than DDDMP
+- method `count` of the classes
+  `dd.cudd.BDD` and `dd.cudd_zdd.ZDD`:
+  - make optional the argument `nvars`
 - `dd.autoref.BDD.load`:
   require file extension `.p` for pickle files
 

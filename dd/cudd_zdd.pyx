@@ -1030,17 +1030,21 @@ cdef class ZDD(object):
         assert w is not None
         return (v, w)
 
-    def count(self, Function u, int nvars):
+    def count(self, Function u, nvars=None):
         """Return nuber of models of node `u`.
 
         @param nvars: regard `u` as an operator that
             depends on `nvars` many variables.
+
+            If omitted, then assume those in `support(u)`.
         """
         logger.debug('count')
         assert u.manager == self.manager
         support = self.support(u)
         r = self._count(0, u, support, cache=dict())
         n_support = len(support)
+        if nvars == None:
+            nvars = n_support
         assert nvars >= n_support, (nvars, n_support)
         return r * 2**(nvars - n_support)
 

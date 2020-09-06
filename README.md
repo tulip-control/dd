@@ -140,7 +140,8 @@ Installation
 
 ## pure-Python
 
-From PyPI:
+From the [Python Package Index (PyPI)](https://pypi.org) using the
+package installer [`pip`](https://pip.pypa.io):
 
 ```shell
 pip install dd

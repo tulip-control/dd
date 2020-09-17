@@ -30,10 +30,8 @@ class Tests(object):
         w = b.var('z')
         u = b.find_or_add('x', v, w)
         u_ = b.add_expr('(~ x /\ y)  \/  (x /\ z)')
-        assert b.apply('<=>', u, u_)
-        # as a reminder of the syntactic nature of BDDs
-        # and that ZF is untyped, the below assertion is false.
-        # assert u == u_, (b.to_expr(u), b.to_expr(u_))
+        assert b.apply('<=>', u, u_) == b.true
+        assert u == u_, (b.to_expr(u), b.to_expr(u_))
 
     def test_function(self):
         bdd = self.DD()

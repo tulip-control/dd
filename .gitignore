@@ -20,6 +20,7 @@ __pycache__
 *.txt
 *.p
 *.json
+*.dddmp
 *.so
 *.html
 *.tar.gz

@@ -279,12 +279,17 @@ cdef class BDD(object):
         if memory_estimate is None:
             memory_estimate = default_memory
         if memory_estimate >= total_memory:
-            print(
+            print((
                 'Error in `dd.cudd`: '
                 'total physical memory is {t} bytes, '
-                'but requested {r} bytes').format(
+                'but requested {r} bytes. '
+                'Please pass an amount of memory to '
+                'the `BDD` constructor to avoid this error. '
+                'For example, by instantiating '
+                'the `BDD` manager as `BDD({q})`.').format(
                     t=total_memory,
-                    r=memory_estimate)
+                    r=memory_estimate,
+                    q=round(total_memory / 2)))
         assert memory_estimate < total_memory, (
             memory_estimate, total_memory)
         if initial_cache_size is None:

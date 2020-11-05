@@ -3,6 +3,11 @@ from dd import cudd
 
 
 def main():
+    """
+    Main function.
+
+    Args:
+    """
     assert cudd.GB == 2**30, cudd.GB
     b = cudd.BDD()
     b.configure(

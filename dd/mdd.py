@@ -66,6 +66,13 @@ class MDD(object):
     #  - level
 
     def __init__(self, dvars=None):
+        """
+        Initialize the table.
+
+        Args:
+            self: (todo): write your description
+            dvars: (list): write your description
+        """
         self._pred = dict()
         self._succ = dict()
         self._ref = dict()
@@ -96,6 +103,12 @@ class MDD(object):
         return abs(u) in self._succ
 
     def __iter__(self):
+        """
+        Returns an iterator over the iterables.
+
+        Args:
+            self: (todo): write your description
+        """
         return iter(self._succ)
 
     def _allocate(self):
@@ -238,6 +251,13 @@ class MDD(object):
         self._ite_table = dict()
 
     def to_expr(self, u):
+        """
+        Return an expression to an expression expression.
+
+        Args:
+            self: (todo): write your description
+            u: (int): write your description
+        """
         if u == 1:
             return u
         elif u == -1:
@@ -273,6 +293,13 @@ class MDD(object):
         return s
 
     def dump(self, fname):
+        """
+        Dump the pandas. dataframe.
+
+        Args:
+            self: (todo): write your description
+            fname: (str): write your description
+        """
         if fname.endswith('.pdf'):
             pd = to_pydot(self)
             pd.write_pdf(fname)
@@ -396,6 +423,12 @@ def bdd_to_mdd(bdd, dvars):
 
 
 def _enumerate_integer(bits):
+    """
+    Enumerate bits of bits.
+
+    Args:
+        bits: (int): write your description
+    """
     n = len(bits)
     for i in xrange(2**n):
         values = list(reversed(bin(i).lstrip('-0b').zfill(n)))
@@ -406,6 +439,12 @@ def _enumerate_integer(bits):
 
 
 def to_pydot(mdd):
+    """
+    Convert a networkx graph to pydot.
+
+    Args:
+        mdd: (todo): write your description
+    """
     g = pydot.Dot('mdd', graph_type='digraph')
     skeleton = list()
     subgraphs = dict()

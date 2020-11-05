@@ -157,10 +157,24 @@ def _copy_cudd_license(args):
 
 
 def _join(paths):
+    """
+    Join paths.
+
+    Args:
+        paths: (str): write your description
+    """
     return [os.path.join(*x) for x in paths]
 
 
 def fetch(url, sha256, fname=None):
+    """
+    Fetch the given url.
+
+    Args:
+        url: (str): write your description
+        sha256: (str): write your description
+        fname: (str): write your description
+    """
     print('++ download: {url}'.format(url=url))
     u = urllib2.urlopen(url)
     if fname is None:

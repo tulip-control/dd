@@ -254,6 +254,12 @@ def add_ast(t, bdd):
 
 
 def _rewrite_tables(outputdir='./'):
+    """
+    Rewrite all tables.
+
+    Args:
+        outputdir: (str): write your description
+    """
     astutils.rewrite_tables(Parser, TABMODULE, outputdir)
 
 

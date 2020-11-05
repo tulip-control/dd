@@ -14,6 +14,11 @@ from dd import autoref as _bdd
 
 
 def comparing_two_variable_orders():
+    """
+    Comparing two variables.
+
+    Args:
+    """
     n = 6
     # declare variables
     vrs = ['x{i}'.format(i=i) for i in range(n)]
@@ -40,10 +45,22 @@ def comparing_two_variable_orders():
 
 
 def list_to_dict(c):
+    """
+    Convert a list of dicts to a dictionary.
+
+    Args:
+        c: (str): write your description
+    """
     return {var: level for level, var in enumerate(c)}
 
 
 def prime(s):
+    """
+    Prime s
+
+    Args:
+        s: (int): write your description
+    """
     return s + "'"
 
 

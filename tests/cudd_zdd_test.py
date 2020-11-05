@@ -14,12 +14,22 @@ CuddTests.DD = cudd_zdd.ZDD
 
 
 def test_false():
+    """
+    Test if zdd of the test.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     u = zdd.false
     assert len(u) == 0, len(u)
 
 
 def test_true():
+    """
+    Determine the test. test.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z', 'w')
     u = zdd.true
@@ -29,6 +39,11 @@ def test_true():
 
 
 def test_true_node():
+    """
+    Test if the test node.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y')
     u = zdd.true_node
@@ -38,6 +53,11 @@ def test_true_node():
 
 
 def test_var():
+    """
+    Return the test test is a test.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     x = zdd.var('x')
@@ -52,6 +72,11 @@ def test_var():
 
 
 def test_support_cudd():
+    """
+    Return a set of support support for the test variables.
+
+    Args:
+    """
     # support implemented by CUDD
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y')
@@ -63,6 +88,11 @@ def test_support_cudd():
 
 
 def test_cudd_cofactor():
+    """
+    Return a scalar coefficients of a polynomial.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y')
     u = zdd.add_expr('x /\ ~ y')
@@ -76,6 +106,11 @@ def test_cudd_cofactor():
 
 
 def test_find_or_add():
+    """
+    R find the bdd of a test variables.
+
+    Args:
+    """
     bdd = cudd_zdd.ZDD()
     bdd.declare('x', 'y', 'z')
     v = bdd.add_expr('~ x /\ y /\ ~ z')
@@ -88,6 +123,11 @@ def test_find_or_add():
 
 
 def test_count():
+    """
+    Deter test count of the number.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y')
     # FALSE
@@ -103,6 +143,11 @@ def test_count():
 
 
 def test_bdd_to_zdd_copy():
+    """
+    Declare the zdd_zdd_zdd
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     bdd = cudd.BDD()
@@ -120,6 +165,11 @@ def test_bdd_to_zdd_copy():
 
 
 def test_len():
+    """
+    Compute the length of a test.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     # x
@@ -137,6 +187,11 @@ def test_len():
 
 
 def test_disjunction():
+    """
+    Return the test_disjunction.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('w', 'x', 'y')
     # x \/ TRUE
@@ -163,6 +218,11 @@ def test_disjunction():
 
 
 def test_conjunction():
+    """
+    R calculate test test.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     v = zdd.var('x')
@@ -176,6 +236,11 @@ def test_conjunction():
 
 
 def test_c_disjunction():
+    """
+    Return the test for the test.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('w', 'x', 'y')
     v = zdd.add_expr('~ w /\ x')
@@ -186,6 +251,11 @@ def test_c_disjunction():
 
 
 def test_c_conjunction():
+    """
+    Return the test c_conjunction.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     x = zdd.var('x')
@@ -196,6 +266,11 @@ def test_c_conjunction():
 
 
 def test_c_exist():
+    """
+    R test test for test for test.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     # \E x:  (x /\ ~ y) \/ ~ z
@@ -213,6 +288,11 @@ def test_c_exist():
 
 
 def test_dump():
+    """
+    Dump the test information in a. test file
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'w')
     u = zdd.add_expr('~ w')
@@ -225,6 +305,11 @@ def test_dump():
 
 
 def test_dict_to_zdd():
+    """
+    Convert zdd of zdds to a dict.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     qvars = {'x', 'z'}
@@ -239,6 +324,13 @@ def test_dict_to_zdd():
 
 
 def print_size(u, msg):
+    """
+    Prints a message to printable >>> print )
+
+    Args:
+        u: (todo): write your description
+        msg: (str): write your description
+    """
     n = len(u)
     print('Dag size of {msg}: {n}'.format(
         msg=msg, n=n))

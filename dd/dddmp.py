@@ -73,6 +73,13 @@ class Lexer(object):
     t_ignore = ' \t'
 
     def __init__(self, debug=False):
+        """
+        Initialize the context manager.
+
+        Args:
+            self: (todo): write your description
+            debug: (bool): write your description
+        """
         self.tokens = self.misc + list(self.reserved.values())
         self.build(debug=debug)
 
@@ -95,6 +102,13 @@ class Lexer(object):
         t.lexer.lineno += t.value.count("\n")
 
     def t_error(self, t):
+        """
+        R
+
+        Args:
+            self: (todo): write your description
+            t: (todo): write your description
+        """
         raise Exception('Illegal character "{t}"'.format(t=t.value[0]))
 
     def build(self, debug=False, debuglog=None, **kwargs):
@@ -120,6 +134,12 @@ class Parser(object):
     tabmodule = TABMODULE
 
     def __init__(self):
+        """
+        Initialize the lexer.
+
+        Args:
+            self: (todo): write your description
+        """
         self.lexer = Lexer()
         self.tokens = self.lexer.tokens
         self.build()
@@ -131,6 +151,17 @@ class Parser(object):
               write_tables=False,
               debug=False,
               debuglog=None):
+        """
+        Build a directory structure of this module.
+
+        Args:
+            self: (todo): write your description
+            tabmodule: (todo): write your description
+            outputdir: (str): write your description
+            write_tables: (bool): write your description
+            debug: (bool): write your description
+            debuglog: (bool): write your description
+        """
         if tabmodule is None:
             tabmodule = self.tabmodule
         self.lexer.build(debug=debug)
@@ -150,6 +181,14 @@ class Parser(object):
         return self.bdd, self.n_vars, levels, roots
 
     def _parse_header(self, filename, debuglog):
+        """
+        Parse the header.
+
+        Args:
+            self: (todo): write your description
+            filename: (str): write your description
+            debuglog: (bool): write your description
+        """
         self.reset()
         if debuglog is None:
             debuglog = logging.getLogger(PARSER_LOG)
@@ -216,6 +255,13 @@ class Parser(object):
         return levels, roots
 
     def _parse_body(self, filename):
+        """
+        Parse the body of a file.
+
+        Args:
+            self: (todo): write your description
+            filename: (str): write your description
+        """
         # parse nodes (large but very uniform)
         with open(filename, 'r') as f:
             for line in f:
@@ -254,6 +300,12 @@ class Parser(object):
         self.bdd[u] = (level, w, v)
 
     def reset(self):
+        """
+        Reset the internal state.
+
+        Args:
+            self: (todo): write your description
+        """
         self.bdd = dict()
         self.algebraic_dd = None
         self.var_extra_info = None
@@ -419,6 +471,13 @@ class Parser(object):
         p[0] = p[1]
 
     def p_error(self, p):
+        """
+        Error
+
+        Args:
+            self: (todo): write your description
+            p: (todo): write your description
+        """
         raise Exception('Syntax error at "{p}"'.format(p=p))
 
 

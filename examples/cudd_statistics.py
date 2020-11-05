@@ -6,6 +6,11 @@ import humanize
 
 
 def main():
+    """
+    Main function.
+
+    Args:
+    """
     b = cudd.BDD()
     b.declare('x', 'y', 'z')
     u = b.add_expr('x & y & z')

@@ -2,6 +2,11 @@ from dd import cudd
 
 
 def test_reordering_setting_restore():
+    """
+    Restore a new configuration of a new variables.
+
+    Args:
+    """
     # Original report at https://github.com/tulip-control/dd/issues/40
     b = cudd.BDD()
     b.configure(reordering=False)

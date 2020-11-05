@@ -6,6 +6,12 @@ class Tests(object):
     DD = None  # `cudd.BDD` or `cudd_zdd.ZDD`
 
     def test_add_var(self):
+        """
+        Adds a bdd of variables.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.add_var('x')
         bdd.add_var('y')
@@ -23,6 +29,12 @@ class Tests(object):
         assert x != y, (x, y)
 
     def test_len(self):
+        """
+        Compute the length of bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         assert len(bdd) == 0, len(bdd)
         u = bdd.true
@@ -31,6 +43,12 @@ class Tests(object):
         assert len(bdd) == 0, len(bdd)
 
     def test_levels(self):
+        """
+        Return a bdd of all levels.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.add_var('x', index=0)
         bdd.add_var('y', index=2)

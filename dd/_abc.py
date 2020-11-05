@@ -17,6 +17,13 @@ class BDD(object):
     """Shared reduced ordered binary decision diagram."""
 
     def __init__(self, levels=None):
+        """
+        Initialize self.
+
+        Args:
+            self: (todo): write your description
+            levels: (int): write your description
+        """
         # subclasses are not supposed to call `super().__init__()`
         self.vars = dict()  # overridden
 
@@ -30,6 +37,12 @@ class BDD(object):
         """Return `True` """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'Specification of BDD class.'
 
     def configure(self, **kw):
@@ -271,6 +284,14 @@ class Operator(object):
     """Convenience wrapper for edges returned by `BDD`."""
 
     def __init__(self, node, bdd):
+        """
+        Initialize bdd
+
+        Args:
+            self: (todo): write your description
+            node: (todo): write your description
+            bdd: (float): write your description
+        """
         assert node in bdd._bdd, node
         self.bdd = bdd
         self.manager = bdd._bdd
@@ -278,6 +299,12 @@ class Operator(object):
         self.manager.incref(node)
 
     def __hash__(self):
+        """
+        Returns the hash of the node.
+
+        Args:
+            self: (todo): write your description
+        """
         return self.node
 
     def to_expr(self):
@@ -387,16 +414,51 @@ class Operator(object):
         """Return `set` of variables in support."""
 
     def let(self, **definitions):
+        """
+        : meth :. wlet.
+
+        Args:
+            self: (todo): write your description
+            definitions: (todo): write your description
+        """
         return self.bdd.let(definitions, self)
 
     def exist(self, *variables):
+        """
+        Returns true if variables.
+
+        Args:
+            self: (todo): write your description
+            variables: (list): write your description
+        """
         return self.bdd.exist(variables, self)
 
     def forall(self, *variables):
+        """
+        Returns a list of all variables.
+
+        Args:
+            self: (todo): write your description
+            variables: (list): write your description
+        """
         return self.bdd.forall(variables, self)
 
     def pick(self, care_vars=None):
+        """
+        Pick the pickled variable.
+
+        Args:
+            self: (todo): write your description
+            care_vars: (bool): write your description
+        """
         return self.bdd.pick(self, care_vars)
 
     def count(self, nvars=None):
+        """
+        Return the number of results.
+
+        Args:
+            self: (todo): write your description
+            nvars: (todo): write your description
+        """
         return self.bdd.count(self, nvars)

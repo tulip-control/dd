@@ -16,6 +16,11 @@ BDDTests.DD = _bdd.BDD
 
 
 def test_find_or_add():
+    """
+    Test if bdd is a bdd.
+
+    Args:
+    """
     bdd = _bdd.BDD()
     bdd.declare('x', 'y')
     n = len(bdd)
@@ -29,6 +34,11 @@ def test_find_or_add():
 
 
 def test_count():
+    """
+    Compute the bdd of bdd
+
+    Args:
+    """
     bdd = _bdd.BDD()
     bdd.declare('x', 'y')
     u = bdd.add_expr('x')
@@ -43,6 +53,11 @@ def test_count():
 
 
 def test_dump_load():
+    """
+    Dump test dataframe
+
+    Args:
+    """
     vrs = ['x', 'y', 'z']
     s = 'x \/ y \/ ~ z'
     fname = 'foo.p'
@@ -58,6 +73,11 @@ def test_dump_load():
 
 
 def test_image():
+    """
+    Create a bdd of image is_image
+
+    Args:
+    """
     bdd = _bdd.BDD()
     bdd.declare('x', 'y', 'z')
     action = bdd.add_expr('x => y')
@@ -70,6 +90,11 @@ def test_image():
 
 
 def test_preimage():
+    """
+    Determine the bdd of a.
+
+    Args:
+    """
     bdd = _bdd.BDD()
     bdd.declare('x', 'y', 'z')
     action = bdd.add_expr('x <=> y')
@@ -82,6 +107,11 @@ def test_preimage():
 
 
 def test_reorder_2():
+    """
+    Reorder vrs.
+
+    Args:
+    """
     bdd = _bdd.BDD()
     vrs = [
         'x', 'y', 'z', 'a', 'b', 'c', 'e',
@@ -103,6 +133,11 @@ def test_reorder_2():
 
 
 def test_configure_dynamic_reordering():
+    """
+    Configure the dynamic configuration.
+
+    Args:
+    """
     bdd = _bdd.BDD()
     vrs = [
         'x', 'y', 'z', 'a', 'b', 'c', 'e',
@@ -131,6 +166,11 @@ def test_configure_dynamic_reordering():
 
 
 def test_collect_garbage():
+    """
+    Collects the bdd of two bdds.
+
+    Args:
+    """
     bdd = _bdd.BDD()
     n = len(bdd)
     assert n == 1, n
@@ -146,6 +186,11 @@ def test_collect_garbage():
 
 
 def test_copy_vars():
+    """
+    Returns a copy of the copy.
+
+    Args:
+    """
     bdd = _bdd.BDD()
     other = _bdd.BDD()
     vrs = {'x', 'y', 'z'}
@@ -155,6 +200,11 @@ def test_copy_vars():
 
 
 def test_copy_bdd():
+    """
+    Returns a copy of the bdd.
+
+    Args:
+    """
     bdd = _bdd.BDD()
     other = _bdd.BDD()
     bdd.declare('x')
@@ -169,6 +219,11 @@ def test_copy_bdd():
 
 
 def test_func_len():
+    """
+    Compute the bdd of two scalar values of bdd
+
+    Args:
+    """
     bdd = _bdd.BDD()
     bdd.declare('x', 'y')
     u = bdd.add_expr('x')

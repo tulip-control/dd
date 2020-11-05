@@ -113,6 +113,12 @@ def demo_specific_var_order():
 
 
 def print_manager_size(bdd):
+    """
+    Print the size of bdd of bdd.
+
+    Args:
+        bdd: (str): write your description
+    """
     msg = 'Nodes in manager: {n}'.format(n=len(bdd))
     print(msg)
 

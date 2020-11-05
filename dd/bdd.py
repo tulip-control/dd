@@ -81,6 +81,12 @@ def _request_reordering(bdd):
 def _try_to_reorder(func):
     """Decorator that serves reordering requests."""
     def _wrapper(bdd, *args, **kwargs):
+        """
+        Decorator for bdd.
+
+        Args:
+            bdd: (todo): write your description
+        """
         with _ReorderingContext(bdd):
             return func(bdd, *args, **kwargs)
         logger.info('Reordering needed...')
@@ -101,14 +107,36 @@ class _ReorderingContext(object):
     """Context manager that tracks decorator nesting."""
 
     def __init__(self, bdd):
+        """
+        Initialize bdd.
+
+        Args:
+            self: (todo): write your description
+            bdd: (float): write your description
+        """
         self.bdd = bdd
         self.nested = None
 
     def __enter__(self):
+        """
+        Enter the context manager.
+
+        Args:
+            self: (todo): write your description
+        """
         self.nested = self.bdd._reordering_context
         self.bdd._reordering_context = True
 
     def __exit__(self, ex_type, ex_value, tb):
+        """
+        Returns the given the given type. tb.
+
+        Args:
+            self: (todo): write your description
+            ex_type: (todo): write your description
+            ex_value: (todo): write your description
+            tb: (todo): write your description
+        """
         self.bdd._reordering_context = self.nested
         if ex_type is _NeedsReordering and not self.nested:
             return True
@@ -147,6 +175,13 @@ class BDD(_abc.BDD):
     # omitted docstrings are inheritted from `super()`
 
     def __init__(self, levels=None):
+        """
+        Initialize the table.
+
+        Args:
+            self: (todo): write your description
+            levels: (int): write your description
+        """
         if levels is None:
             levels = dict()
         _assert_valid_ordering(levels)
@@ -170,6 +205,12 @@ class BDD(_abc.BDD):
             self.max_nodes = sys.maxsize
 
     def __copy__(self):
+        """
+        Returns a copy of the bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = BDD(self.vars)
         bdd._pred = dict(self._pred)
         bdd._succ = dict(self._succ)
@@ -186,15 +227,40 @@ class BDD(_abc.BDD):
         assert all(v == 0 for v in self._ref.values()), self._ref
 
     def __len__(self):
+        """
+        Returns the length of bytes in bytes.
+
+        Args:
+            self: (todo): write your description
+        """
         return len(self._succ)
 
     def __contains__(self, u):
+        """
+        Return true if u is contained within u.
+
+        Args:
+            self: (todo): write your description
+            u: (str): write your description
+        """
         return abs(u) in self._succ
 
     def __iter__(self):
+        """
+        Returns an iterator over the iterables.
+
+        Args:
+            self: (todo): write your description
+        """
         return iter(self._succ)
 
     def __str__(self):
+        """
+        Return a string representation of the object.
+
+        Args:
+            self: (todo): write your description
+        """
         return (
             'Binary decision diagram:\n'
             '------------------------\n'
@@ -225,6 +291,12 @@ class BDD(_abc.BDD):
 
     @property
     def ordering(self):
+        """
+        Sets the ordering.
+
+        Args:
+            self: (todo): write your description
+        """
         raise DeprecationWarning(
             'use `dd.BDD.vars` instead of `.ordering`')
 
@@ -298,6 +370,13 @@ class BDD(_abc.BDD):
 
     @_try_to_reorder
     def var(self, var):
+        """
+        Return the vars. variable.
+
+        Args:
+            self: (todo): write your description
+            var: (array): write your description
+        """
         assert var in self.vars, (
             'undefined variable "{v}", '
             'known variables are:\n {d}').format(
@@ -307,16 +386,36 @@ class BDD(_abc.BDD):
         return u
 
     def var_at_level(self, level):
+        """
+        Return the variable at level level.
+
+        Args:
+            self: (todo): write your description
+            level: (int): write your description
+        """
         if level not in self._level_to_var:
             raise AssertionError(
                 'level {j} does not exist'.format(j=level))
         return self._level_to_var[level]
 
     def level_of_var(self, var):
+        """
+        Returns the variable of a variable
+
+        Args:
+            self: (todo): write your description
+            var: (array): write your description
+        """
         return self.vars.get(var)
 
     @property
     def var_levels(self):
+        """
+        Return a dictionary of all variables.
+
+        Args:
+            self: (todo): write your description
+        """
         return dict(self.vars)
 
     def _map_to_level(self, d):
@@ -344,6 +443,13 @@ class BDD(_abc.BDD):
         return r
 
     def _top_var(self, *nodes):
+        """
+        Return variable var.
+
+        Args:
+            self: (todo): write your description
+            nodes: (list): write your description
+        """
         return min(map(lambda x: self._succ[abs(x)][0], nodes))
 
     def copy(self, u, other):
@@ -369,6 +475,14 @@ class BDD(_abc.BDD):
         return visited
 
     def _descendants(self, u, visited):
+        """
+        Return the descendants of the node u.
+
+        Args:
+            self: (todo): write your description
+            u: (todo): write your description
+            visited: (todo): write your description
+        """
         r = abs(u)
         if r == 1 or r in visited:
             return
@@ -400,6 +514,14 @@ class BDD(_abc.BDD):
         return False
 
     def support(self, u, as_levels=False):
+        """
+        Return the list of the nodes.
+
+        Args:
+            self: (todo): write your description
+            u: (todo): write your description
+            as_levels: (int): write your description
+        """
         levels = set()
         nodes = set()
         self._support(u, levels, nodes)
@@ -523,6 +645,14 @@ class BDD(_abc.BDD):
         return rm_vars
 
     def let(self, definitions, u):
+        """
+        Return a function.
+
+        Args:
+            self: (todo): write your description
+            definitions: (todo): write your description
+            u: (todo): write your description
+        """
         d = definitions
         if not d:
             logger.warning(
@@ -564,6 +694,16 @@ class BDD(_abc.BDD):
         return r
 
     def _compose(self, f, j, g, cache):
+        """
+        Compute the completeness function f.
+
+        Args:
+            self: (todo): write your description
+            f: (str): write your description
+            j: (str): write your description
+            g: (str): write your description
+            cache: (bool): write your description
+        """
         # terminal ?
         if abs(f) == 1:
             return f
@@ -593,6 +733,15 @@ class BDD(_abc.BDD):
         return r
 
     def _vector_compose(self, f, level_sub, cache):
+        """
+        Compute the vector.
+
+        Args:
+            self: (todo): write your description
+            f: (todo): write your description
+            level_sub: (dict): write your description
+            cache: (dict): write your description
+        """
         # terminal ?
         if abs(f) == 1:
             return f
@@ -750,13 +899,38 @@ class BDD(_abc.BDD):
         return r
 
     def forall(self, qvars, u):
+        """
+        Returns a list of the quantile of the given variables.
+
+        Args:
+            self: (todo): write your description
+            qvars: (todo): write your description
+            u: (todo): write your description
+        """
         return self.quantify(u, qvars, forall=True)
 
     def exist(self, qvars, u):
+        """
+        Determine whether or not u is true.
+
+        Args:
+            self: (todo): write your description
+            qvars: (todo): write your description
+            u: (array): write your description
+        """
         return self.quantify(u, qvars, forall=False)
 
     @_try_to_reorder
     def ite(self, g, u, v):
+        """
+        Return the graph g ( g and g.
+
+        Args:
+            self: (todo): write your description
+            g: (todo): write your description
+            u: (todo): write your description
+            v: (todo): write your description
+        """
         # wrap so reordering can delete unreferenced nodes
         return self._ite(g, u, v)
 
@@ -1045,6 +1219,14 @@ class BDD(_abc.BDD):
             return (y, v, w)
 
     def count(self, u, nvars=None):
+        """
+        Return the number of successors in the level.
+
+        Args:
+            self: (todo): write your description
+            u: (todo): write your description
+            nvars: (todo): write your description
+        """
         n = nvars
         assert abs(u) in self, u
         # index those levels in support separately
@@ -1100,6 +1282,14 @@ class BDD(_abc.BDD):
         return n
 
     def pick_iter(self, u, care_vars=None):
+        """
+        Iterate an iterator over a pickling.
+
+        Args:
+            self: (todo): write your description
+            u: (todo): write your description
+            care_vars: (bool): write your description
+        """
         # empty ?
         if not self._succ:
             return
@@ -1188,13 +1378,34 @@ class BDD(_abc.BDD):
 
     @_try_to_reorder
     def add_expr(self, e):
+        """
+        Add an expression to the expression.
+
+        Args:
+            self: (todo): write your description
+            e: (todo): write your description
+        """
         return _parser.add_expr(e, self)
 
     def to_expr(self, u):
+        """
+        Convert the expression into a new expression.
+
+        Args:
+            self: (todo): write your description
+            u: (int): write your description
+        """
         assert u in self, u
         return self._to_expr(u)
 
     def _to_expr(self, u):
+        """
+        Convert a variable to an expression.
+
+        Args:
+            self: (todo): write your description
+            u: (str): write your description
+        """
         if u == 1:
             return 'TRUE'
         if u == -1:
@@ -1214,6 +1425,16 @@ class BDD(_abc.BDD):
         return s
 
     def apply(self, op, u, v=None, w=None):
+        """
+        Applies a function to the given operator.
+
+        Args:
+            self: (todo): write your description
+            op: (array): write your description
+            u: (array): write your description
+            v: (array): write your description
+            w: (array): write your description
+        """
         assert abs(u) in self, u
         assert v is None or abs(v) in self, v
         assert w is None or abs(w) in self, w
@@ -1244,11 +1465,25 @@ class BDD(_abc.BDD):
                 'unknown operator "{op}"'.format(op=op))
 
     def _add_int(self, i):
+        """
+        Add an int int to int i to the i.
+
+        Args:
+            self: (todo): write your description
+            i: (str): write your description
+        """
         assert i in self, i
         return i
 
     @_try_to_reorder
     def cube(self, dvars):
+        """
+        Return a new cube.
+
+        Args:
+            self: (todo): write your description
+            dvars: (float): write your description
+        """
         if not isinstance(dvars, dict):
             dvars = {k: True for k in dvars}
         # `dvars` keys can be var names or levels
@@ -1261,6 +1496,16 @@ class BDD(_abc.BDD):
 
     def dump(self, filename, roots=None,
              filetype=None, **kw):
+        """
+        Dump the dataframe to a file.
+
+        Args:
+            self: (todo): write your description
+            filename: (str): write your description
+            roots: (todo): write your description
+            filetype: (str): write your description
+            kw: (todo): write your description
+        """
         if filetype is None:
             name = filename.lower()
             if name.endswith('.pdf'):
@@ -1315,6 +1560,14 @@ class BDD(_abc.BDD):
             pickle.dump(d, f, **kw)
 
     def load(self, filename, levels=True):
+        """
+        Load pickle from pickle file.
+
+        Args:
+            self: (todo): write your description
+            filename: (str): write your description
+            levels: (str): write your description
+        """
         name = filename.lower()
         if name.endswith('.p'):
             return self._load_pickle(
@@ -1325,6 +1578,14 @@ class BDD(_abc.BDD):
                     f=filename))
 
     def _load_pickle(self, filename, levels=True):
+        """
+        Load a pickle file.
+
+        Args:
+            self: (todo): write your description
+            filename: (str): write your description
+            levels: (str): write your description
+        """
         with open(filename, 'rb') as f:
             d = pickle.load(f)
         var2level = d['vars']
@@ -1405,10 +1666,22 @@ class BDD(_abc.BDD):
 
     @property
     def false(self):
+        """
+        Returns the first two - zero.
+
+        Args:
+            self: (todo): write your description
+        """
         return -1
 
     @property
     def true(self):
+        """
+        True if the result.
+
+        Args:
+            self: (todo): write your description
+        """
         return 1
 
 
@@ -1942,6 +2215,12 @@ def to_pydot(roots, bdd):
     idx2var = {k: v for v, k in items(bdd.vars)}
     # BDD nodes
     def f(x):
+        """
+        Return a string representation of x ).
+
+        Args:
+            x: (int): write your description
+        """
         return str(abs(x))
     for u in nodes:
         i, v, w = bdd._succ[abs(u)]

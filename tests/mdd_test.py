@@ -7,6 +7,11 @@ logger = logging.getLogger(__name__)
 
 
 def test_find_or_add():
+    """
+    Find the test test or test.
+
+    Args:
+    """
     dvars = dict(x=dict(level=0, len=4),
                  y=dict(level=1, len=2))
     m = dd.mdd.MDD(dvars)
@@ -17,6 +22,11 @@ def test_find_or_add():
 
 
 def test_bdd_to_mdd():
+    """
+    Convert a bdd file
+
+    Args:
+    """
     from dd.bdd import BDD
 
     ordering = {'x': 0, 'y': 1}

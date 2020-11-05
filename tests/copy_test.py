@@ -5,11 +5,22 @@ from dd import _copy
 
 
 def test_involution():
+    """
+    Test if a test is a solution.
+
+    Args:
+    """
     _test_involution(autoref)
     _test_involution(cudd)
 
 
 def _test_involution(mod):
+    """
+    Test if a bdd_1 and bdd.
+
+    Args:
+        mod: (todo): write your description
+    """
     bdd_1, bdd_2 = _setup(mod)
     u = bdd_1.add_expr('x /\ ~ y')
     v = _copy.copy_bdd(u, bdd_2)
@@ -18,11 +29,22 @@ def _test_involution(mod):
 
 
 def test_bdd_mapping():
+    """
+    Test if the test mapping.
+
+    Args:
+    """
     _test_bdd_mapping(autoref)
     _test_bdd_mapping(cudd)
 
 
 def _test_bdd_mapping(mod):
+    """
+    Test if a bdd is equal bdd.
+
+    Args:
+        mod: (todo): write your description
+    """
     bdd_1, bdd_2 = _setup(mod)
     u = bdd_1.add_expr('x /\ ~ y')
     cache = dict()
@@ -63,6 +85,12 @@ def _map_node(u, umap):
 
 
 def _setup(mod):
+    """
+    Initialize bdd module.
+
+    Args:
+        mod: (todo): write your description
+    """
     bdd_1 = mod.BDD()
     bdd_2 = mod.BDD()
     bdd_1.declare('x', 'y')
@@ -71,11 +99,22 @@ def _setup(mod):
 
 
 def test_dump_load_same_order():
+    """
+    Determine whether the test test test set.
+
+    Args:
+    """
     _test_dump_load_same_order(autoref)
     _test_dump_load_same_order(cudd)
 
 
 def _test_dump_load_same_order(mod):
+    """
+    Dump the order of all the same order.
+
+    Args:
+        mod: (todo): write your description
+    """
     b = mod.BDD()
     b.declare('x', 'y', 'z')
     expr = 'x /\ ~ y'
@@ -98,11 +137,22 @@ def _test_dump_load_same_order(mod):
 
 
 def test_dump_load_different_order():
+    """
+    Determine whether the test load_different.
+
+    Args:
+    """
     _test_dump_load_different_order(autoref)
     _test_dump_load_different_order(cudd)
 
 
 def _test_dump_load_different_order(mod):
+    """
+    Dump a json dump of a json file.
+
+    Args:
+        mod: (todo): write your description
+    """
     source = mod.BDD()
     source.declare('x', 'y')
     expr = ' x <=> y '

@@ -16,6 +16,11 @@ CuddTests.DD = cudd.BDD
 
 
 def test_insert_var():
+    """
+    Insert a variable in - 1d.
+
+    Args:
+    """
     bdd = cudd.BDD()
     level = 0
     j = bdd.insert_var('x', level)
@@ -29,11 +34,21 @@ def test_insert_var():
 
 
 def test_refs():
+    """
+    A test refs to the test.
+
+    Args:
+    """
     cudd._test_incref()
     cudd._test_decref()
 
 
 def test_len():
+    """
+    Compute the length of two bdds.
+
+    Args:
+    """
     bdd = cudd.BDD()
     assert len(bdd) == 0, len(bdd)
     u = bdd.true
@@ -60,11 +75,21 @@ def test_len():
 
 
 def test_cube_array():
+    """
+    Test if the cube is array.
+
+    Args:
+    """
     cudd._test_dict_to_cube_array()
     cudd._test_cube_array_to_dict()
 
 
 def test_dump_load_dddmp():
+    """
+    Dump test test test test is_dump.
+
+    Args:
+    """
     bdd = cudd.BDD()
     for var in ['x', 'y', 'z', 'w']:
         bdd.add_var(var)
@@ -76,6 +101,11 @@ def test_dump_load_dddmp():
 
 
 def test_load_sample0():
+    """
+    Test for sample sample sample sample.
+
+    Args:
+    """
     bdd = cudd.BDD()
     names = ['a', 'b', 'c']
     for var in names:
@@ -90,6 +120,11 @@ def test_load_sample0():
 
 
 def test_and_exists():
+    """
+    Return true if a bdd is a bdd file.
+
+    Args:
+    """
     bdd = cudd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
@@ -106,6 +141,11 @@ def test_and_exists():
 
 
 def test_or_forall():
+    """
+    Test whether or not all of the variables.
+
+    Args:
+    """
     bdd = cudd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
@@ -118,6 +158,11 @@ def test_or_forall():
 
 
 def test_swap():
+    """
+    Swap bdd.
+
+    Args:
+    """
     bdd = cudd.BDD()
     bdd.declare('x', 'y')
     x = bdd.var('x')
@@ -179,6 +224,11 @@ def test_swap():
 
 
 def test_copy_bdd_same_indices():
+    """
+    Return a copy of two polynomials.
+
+    Args:
+    """
     # each va has same index in each `BDD`
     bdd = cudd.BDD()
     other = cudd.BDD()
@@ -202,6 +252,11 @@ def test_copy_bdd_same_indices():
 
 
 def test_copy_bdd_different_indices():
+    """
+    Return a copy of the bdd.
+
+    Args:
+    """
     # each var has different index in each `BDD`
     bdd = cudd.BDD()
     other = cudd.BDD()
@@ -226,6 +281,11 @@ def test_copy_bdd_different_indices():
 
 
 def test_copy_bdd_different_order():
+    """
+    Test if a copy of a polynomial.
+
+    Args:
+    """
     bdd = cudd.BDD()
     other = cudd.BDD()
     assert bdd != other
@@ -265,6 +325,11 @@ def test_copy_bdd_different_order():
 
 
 def test_count_nodes():
+    """
+    Compute count of the bdd of the number of - bdd.
+
+    Args:
+    """
     bdd = cudd.BDD()
     [bdd.add_var(var) for var in ['x', 'y', 'z']]
     u = bdd.add_expr('x /\ y')
@@ -280,6 +345,11 @@ def test_count_nodes():
 
 
 def test_function():
+    """
+    Test if a test function.
+
+    Args:
+    """
     bdd = cudd.BDD()
     bdd.add_var('x')
     # x

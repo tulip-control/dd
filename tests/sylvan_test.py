@@ -6,6 +6,11 @@ logging.getLogger('astutils').setLevel('ERROR')
 
 
 def test_len():
+    """
+    Return the length of the length.
+
+    Args:
+    """
     b = sylvan.BDD()
     # constant
     assert len(b) == 0, len(b)
@@ -22,6 +27,11 @@ def test_len():
 
 
 def test_true_false():
+    """
+    Test if two true false false otherwise.
+
+    Args:
+    """
     b = sylvan.BDD()
     false = b.false
     true = b.true
@@ -33,6 +43,11 @@ def test_true_false():
 
 
 def test_add_var():
+    """
+    Add a bdd to make a var.
+
+    Args:
+    """
     bdd = sylvan.BDD()
     bdd.add_var('x')
     bdd.add_var('y')
@@ -52,6 +67,11 @@ def test_add_var():
 
 
 def test_insert_var():
+    """
+    Insert a new variables.
+
+    Args:
+    """
     bdd = sylvan.BDD()
     level = 0
     j = bdd.add_var('x', index=level)
@@ -65,6 +85,11 @@ def test_insert_var():
 
 
 def test_add_expr():
+    """
+    Add expr expr to bdd.
+
+    Args:
+    """
     bdd = sylvan.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
@@ -98,6 +123,11 @@ def test_add_expr():
 
 
 def test_support():
+    """
+    Create a new support support.
+
+    Args:
+    """
     bdd = sylvan.BDD()
     bdd.add_var('x')
     bdd.add_var('y')
@@ -114,6 +144,11 @@ def test_support():
 
 
 def test_compose():
+    """
+    Compute the test test for a test.
+
+    Args:
+    """
     bdd = sylvan.BDD()
     bdd.add_var('x')
     bdd.add_var('y')
@@ -126,6 +161,11 @@ def test_compose():
 
 
 def test_cofactor():
+    """
+    Calculate cofactor coefficients.
+
+    Args:
+    """
     bdd = sylvan.BDD()
     bdd.add_var('x')
     x = bdd.var('x')
@@ -143,6 +183,11 @@ def test_cofactor():
 
 
 def test_rename():
+    """
+    Rename a bdd
+
+    Args:
+    """
     bdd = sylvan.BDD()
     # single variable
     bdd.add_var('x')
@@ -168,6 +213,11 @@ def test_rename():
 # The function `test_pick_iter` is copied
 # from `common.Tests.test_pick_iter`.
 def test_pick_iter():
+    """
+    Iterate over an iterable of a pickle.
+
+    Args:
+    """
     b = sylvan.BDD()
     b.add_var('x')
     b.add_var('y')
@@ -231,6 +281,13 @@ def test_pick_iter():
 # The function `equal_list_contents` is copied
 # from `common.Tests.equal_list_contents`.
 def equal_list_contents(x, y):
+    """
+    Check if two lists are equal.
+
+    Args:
+        x: (todo): write your description
+        y: (todo): write your description
+    """
     for u in x:
         assert u in y, (u, x, y)
     for u in y:

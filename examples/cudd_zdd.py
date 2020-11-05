@@ -3,6 +3,11 @@ from dd import cudd_zdd
 
 
 def main():
+    """
+    Main function.
+
+    Args:
+    """
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     u = zdd.add_expr('(x /\ y) \/ z')

@@ -8,6 +8,12 @@ class Tests(object):
     DD = None  # `autoref.BDD` or `cudd.BDD`
 
     def test_succ(self):
+        """
+        Compute the bdd of the bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x')
         u = bdd.var('x')
@@ -17,6 +23,12 @@ class Tests(object):
         assert high == bdd.true, high
 
     def test_find_or_add(self):
+        """
+        Test if a test ) a ) a b ) or b.
+
+        Args:
+            self: (todo): write your description
+        """
         b = self.DD()
         for var in ['x', 'y', 'z']:
             b.add_var(var)
@@ -34,6 +46,12 @@ class Tests(object):
         assert u == u_, (b.to_expr(u), b.to_expr(u_))
 
     def test_function(self):
+        """
+        Compute a test function.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.add_var('x')
         # x
@@ -59,6 +77,12 @@ class Tests(object):
         assert true.var is None, true.var
 
     def test_function_properties(self):
+        """
+        Calculate properties.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x', 'y')
         order = dict(x=0, y=1)
@@ -88,6 +112,12 @@ class Tests(object):
         assert u.high is None, u.high
 
     def test_negated(self):
+        """
+        Negative equality of the expression.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x')
         u = bdd.add_expr('x')
@@ -98,6 +128,12 @@ class Tests(object):
         assert not (a and b), (a, b)
 
     def test_dump_pdf(self):
+        """
+        Dump the test test file.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x', 'y', 'z')
         u = bdd.add_expr(r'x /\ y')
@@ -109,6 +145,12 @@ class Tests(object):
         assert os.path.isfile(fname)
 
     def test_dump_load_json(self):
+        """
+        Dump test test test data in json format.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x', 'y', 'z')
         u = bdd.add_expr('(z /\ x /\ y) \/ x \/ ~ y')
@@ -118,5 +160,12 @@ class Tests(object):
         assert u == u_, len(u_)
 
     def rm_file(self, fname):
+        """
+        Removes file
+
+        Args:
+            self: (str): write your description
+            fname: (str): write your description
+        """
         if os.path.isfile(fname):
             os.remove(fname)

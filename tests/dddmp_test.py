@@ -10,6 +10,11 @@ parser = Parser()
 
 
 def test_lexer():
+    """
+    Return a lexer.
+
+    Args:
+    """
     lexer = Lexer()
     s = '.ghs?5'
     lexer.lexer.input(s)
@@ -20,6 +25,11 @@ def test_lexer():
 
 
 def test_parser():
+    """
+    Parse input.
+
+    Args:
+    """
     parser = Parser()
     with nt.assert_raises(Exception):
         parser.parser.parse(input='.mode C',
@@ -27,6 +37,11 @@ def test_parser():
 
 
 def test_sample0():
+    """
+    Parse sample sample
+
+    Args:
+    """
     fname = 'sample0.dddmp'
     bdd, n_vars, ordering, roots = parser.parse(fname)
     h = to_nx(bdd, n_vars, ordering, roots)
@@ -49,6 +64,11 @@ def test_sample0():
 
 
 def test_sample1():
+    """
+    Calculate test1 test test1.
+
+    Args:
+    """
     fname = 'sample1.dddmp'
     parser.build(debug=True)
     bdd, n_vars, ordering, roots = parser.parse(fname)
@@ -58,6 +78,11 @@ def test_sample1():
 
 
 def test_sample2():
+    """
+    Convert a bdd to - sample. 0.
+
+    Args:
+    """
     # x /\ y
     # where x, y have indices 0, 1
     fname = 'sample2.dddmp'
@@ -82,6 +107,11 @@ def test_sample2():
 
 
 def test_sample3():
+    """
+    Return a sample3 test3. bdd.
+
+    Args:
+    """
     # x /\ y
     # where x, y are at levels 1, 0
     # nodes are labeled with var names
@@ -98,6 +128,11 @@ def test_sample3():
 
 
 def test_load_dddmp():
+    """
+    Load bdd of bddmp dataset.
+
+    Args:
+    """
     # small sample
     fname = 'sample0.dddmp'
     bdd = load(fname)
@@ -125,6 +160,11 @@ def test_load_dddmp():
 
 
 def test_rewrite_tables():
+    """
+    Rewrite all tables in the database.
+
+    Args:
+    """
     prefix = 'dddmp_parsetab'
     for ext in ('.py', '.pyc'):
         fname = prefix + ext
@@ -158,6 +198,11 @@ def to_nx(bdd, n_vars, ordering, roots):
 
 
 def test_dump_with_cudd_load_with_dddmp():
+    """
+    Dump a scalar bdd to dump file
+
+    Args:
+    """
     from dd import cudd
     fname = 'foo.dddmp'
     # dump

@@ -7,6 +7,12 @@ class Tests(object):
         # `cudd_zdd.ZDD`
 
     def test_true_false(self):
+        """
+        Check if true true if true false otherwise.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         true = bdd.true
         false = bdd.false
@@ -18,6 +24,12 @@ class Tests(object):
         assert true == true | false
 
     def test_configure_reordering(self):
+        """
+        Configure the test configuration
+
+        Args:
+            self: (todo): write your description
+        """
         zdd = self.DD()
         zdd.declare('x', 'y', 'z')
         u = zdd.add_expr('x \/ y')
@@ -30,6 +42,12 @@ class Tests(object):
         assert cfg['reordering'] == True
 
     def test_succ(self):
+        """
+        Test if the test.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x')
         u = bdd.var('x')
@@ -40,6 +58,12 @@ class Tests(object):
         # assert high == bdd.true, high
 
     def test_add_var(self):
+        """
+        Add a new bdd to the bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.add_var('x')
         bdd.add_var('y')
@@ -49,6 +73,12 @@ class Tests(object):
         assert x != y, (x, y)
 
     def test_var_cofactor(self):
+        """
+        Compute the coefficients of the bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.add_var('x')
         x = bdd.var('x')
@@ -60,17 +90,35 @@ class Tests(object):
         assert u == bdd.true, u
 
     def test_richcmp(self):
+        """
+        Test if two bdds.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         assert bdd == bdd
         other = self.DD()
         assert bdd != other
 
     def test_len(self):
+        """
+        Test if the bdd of the bdd of the first.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         u = bdd.true
         assert len(bdd) == 1, len(bdd)
 
     def test_contains(self):
+        """
+        Returns true if the bddbddbdd is true.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         true = bdd.true
         assert true in bdd
@@ -84,11 +132,23 @@ class Tests(object):
             other_true in bdd
 
     def test_str(self):
+        """
+        Test if a string
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         s = str(bdd)
         s + 'must be a string'
 
     def test_var_levels(self):
+        """
+        Test if the variable is a bdd is_level.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         # single variable
         bdd.declare('x')
@@ -109,6 +169,12 @@ class Tests(object):
         assert y_level >= 0, y_level
 
     def test_levels(self):
+        """
+        Return a bdd of bdds.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.add_var('x')
         bdd.add_var('y')
@@ -128,6 +194,12 @@ class Tests(object):
         assert z == 'z', z
 
     def test_copy(self):
+        """
+        Returns a copy of self. cfg.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         other = self.DD()
         bdd.declare('x')
@@ -141,6 +213,12 @@ class Tests(object):
         assert u == w, (u, w)
 
     def test_compose(self):
+        """
+        Compute the expr.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         for var in ['x', 'y', 'z']:
             bdd.add_var(var)
@@ -194,6 +272,12 @@ class Tests(object):
         assert w == w_, len(w)
 
     def test_cofactor(self):
+        """
+        Compute cofactor coefficients.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         for var in ['x', 'y']:
             bdd.add_var(var)
@@ -253,6 +337,12 @@ class Tests(object):
         assert r == bdd.true, r
 
     def test_count(self):
+        """
+        Compute the test count.
+
+        Args:
+            self: (todo): write your description
+        """
         b = self.DD()
         # x
         b.declare('x')
@@ -298,6 +388,12 @@ class Tests(object):
         assert n == 3, n
 
     def test_pick_iter(self):
+        """
+        Iterate an iterable expression.
+
+        Args:
+            self: (todo): write your description
+        """
         b = self.DD()
         b.add_var('x')
         b.add_var('y')
@@ -358,12 +454,26 @@ class Tests(object):
         self.equal_list_contents(m, m_)
 
     def equal_list_contents(self, x, y):
+        """
+        Evaluate all y.
+
+        Args:
+            self: (todo): write your description
+            x: (todo): write your description
+            y: (todo): write your description
+        """
         for u in x:
             assert u in y, (u, x, y)
         for u in y:
             assert u in x, (u, x, y)
 
     def test_apply(self):
+        """
+        Apply test to bdd
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         for var in ['x', 'y', 'z']:
             bdd.add_var(var)
@@ -419,6 +529,12 @@ class Tests(object):
         assert u == u_, (u, u_)
 
     def test_quantify(self):
+        """
+        Compute quantify quantiles.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         for var in ['x', 'y', 'z']:
             bdd.add_var(var)
@@ -465,6 +581,12 @@ class Tests(object):
         assert r == r_, len(r)
 
     def test_exist_forall(self):
+        """
+        Determine whether all of the bdd of all bdd of all the bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         for var in ['x', 'y']:
             bdd.add_var(var)
@@ -497,6 +619,12 @@ class Tests(object):
         assert r == y, (r, y)
 
     def test_cube(self):
+        """
+        Test cube cube cube.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         for var in ['x', 'y', 'z']:
             bdd.add_var(var)
@@ -517,6 +645,12 @@ class Tests(object):
         assert u == c, (u, c)
 
     def test_add_expr(self):
+        """
+        Return a new expr that bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         for var in ['x', 'y']:
             bdd.add_var(var)
@@ -548,6 +682,12 @@ class Tests(object):
         assert u == bdd.true, u
 
     def test_to_expr(self):
+        """
+        Convert a bdd expression.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x', 'y')
         u = bdd.var('x')
@@ -564,6 +704,12 @@ class Tests(object):
         assert r == r_, (r, r_)
 
     def test_support(self):
+        """
+        Calculate support support.
+
+        Args:
+            self: (todo): write your description
+        """
         zdd = self.DD()
         # declared at the start, for ZDDs to work
         zdd.declare('x', 'y', 'z')
@@ -601,6 +747,12 @@ class Tests(object):
         assert s == {'x', 'y'}, s
 
     def test_rename(self):
+        """
+        Rename a bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x', 'y', 'z', 'w')
         # LET x == y IN x
@@ -666,6 +818,12 @@ class Tests(object):
         del x, y, y_
 
     def test_ite(self):
+        """
+        Test if the test case.
+
+        Args:
+            self: (todo): write your description
+        """
         b = self.DD()
         for var in ['x', 'y', 'z']:
             b.add_var(var)
@@ -680,6 +838,12 @@ class Tests(object):
         assert u == u_, (u, u_)
 
     def test_reorder_with_args(self):
+        """
+        Reorder test variables.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         dvars = ['x', 'y', 'z']
         for var in dvars:
@@ -693,6 +857,12 @@ class Tests(object):
             assert level == level_, (var, level, level_)
 
     def test_reorder_without_args(self):
+        """
+        Reorder the arguments in the query.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         # Figs. 6.24, 6.25 Baier 2008
         vrs = ['z1', 'z2', 'z3', 'y1', 'y2', 'y3']
@@ -715,11 +885,25 @@ class Tests(object):
         #     assert abs(a - b) == 1, levels
 
     def _confirm_var_order(self, vrs, bdd):
+        """
+        Confirm variable order.
+
+        Args:
+            self: (todo): write your description
+            vrs: (todo): write your description
+            bdd: (todo): write your description
+        """
         for i, var in enumerate(vrs):
             level = bdd.level_of_var(var)
             assert level == i, (var, level, i)
 
     def test_reorder_contains(self):
+        """
+        Determine whether or bdd is in the order.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x', 'y', 'z')
         u = bdd.add_expr('(x /\ y) \/ z')
@@ -727,6 +911,12 @@ class Tests(object):
         assert u in bdd
 
     def test_comparators(self):
+        """
+        Compute bdd of the bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         # `None`
         assert not (bdd.false == None)
@@ -764,6 +954,12 @@ class Tests(object):
         assert (x & y) != ~ (~ x | y)
 
     def test_function_support(self):
+        """
+        Runs a bdd.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.add_var('x')
         u = bdd.var('x')
@@ -775,6 +971,12 @@ class Tests(object):
         assert r == {'x', 'y'}, r
 
     def test_node_hash(self):
+        """
+        Calculate the hash of the node.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('z')
         u = bdd.add_expr('z')
@@ -783,6 +985,12 @@ class Tests(object):
         assert n != m, (n, m)
 
     def test_add_int(self):
+        """
+        Returns : class : bdd. int.
+
+        Args:
+            self: (todo): write your description
+        """
         bdd = self.DD()
         bdd.declare('x', 'y')
         u = bdd.add_expr('x \/ ~ y')

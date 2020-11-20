@@ -45,7 +45,7 @@ wheel: clean
 	@echo "-------------"
 	auditwheel show dist/*.whl
 	@echo "-------------"
-	auditwheel repair dist/*.whl
+	auditwheel repair --plat manylinux2014_x86_64 dist/*.whl
 	@echo "-------------"
 	auditwheel show wheelhouse/*.whl
 

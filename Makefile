@@ -41,6 +41,7 @@ sdist: clean
 # use to create binary distributions for PyPI
 wheel: clean
 	-rm dist/*.whl
+	-rm wheelhouse/*.whl
 	python setup.py bdist_wheel --cudd --cudd_zdd
 	@echo "-------------"
 	auditwheel show dist/*.whl

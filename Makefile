@@ -47,7 +47,7 @@ wheel: clean
 	@echo "-------------"
 	auditwheel repair dist/*.whl
 	@echo "-------------"
-	auditwheel show dist/*.whl
+	auditwheel show wheelhouse/*.whl
 
 install:
 	python setup.py install --cudd

@@ -333,7 +333,7 @@ License
 [BSD-3](http://opensource.org/licenses/BSD-3-Clause), see file `LICENSE`.
 
 
-[build_img]: https://travis-ci.org/tulip-control/dd.svg?branch=master
-[travis]: https://travis-ci.org/tulip-control/dd
+[build_img]: https://travis-ci.com/tulip-control/dd.svg?branch=master
+[travis]: https://travis-ci.com/tulip-control/dd
 [coverage]: https://coveralls.io/repos/tulip-control/dd/badge.svg?branch=master
 [coveralls]: https://coveralls.io/r/tulip-control/dd?branch=master

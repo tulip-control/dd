@@ -7,8 +7,11 @@ include requirements.txt
 include download.py
 include tests/README.md
 include tests/inspect_cython_signatures.py
+include tests/common.py
+include tests/common_bdd.py
+include tests/common_cudd.py
 include tests/*_test.py
-include tests/sample*.txt
+include tests/sample*.dddmp
 include examples/README.md
 include examples/*.py
 include dd/*.pyx

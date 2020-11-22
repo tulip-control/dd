@@ -3,6 +3,8 @@
 
 ## 0.5.6
 
+- distribute `manylinux2014_x86_64` wheel via PyPI
+
 API:
 
 - require `cython >= 0.29.15`

@@ -23,7 +23,7 @@ def transition_system(bdd):
     s = (
         "((!x0 & !x1) -> ( (!x0' & !x1') | (x0' & !x1') )) & "
         "((x0 & !x1) -> ! (x0' & x1')) & "
-        "((!x0 & x1) -> ( (!x0' & !x1') | (x0' & x1') )) & "
+        "((!x0 & x1) -> ( (!x0' & x1') | (x0' & !x1') )) & "
         "! (x0 & x1)")
     transitions = bdd.add_expr(s)
     return transitions

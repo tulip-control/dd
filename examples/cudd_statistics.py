@@ -8,8 +8,8 @@ import humanize
 def main():
     b = cudd.BDD()
     b.declare('x', 'y', 'z')
-    u = b.add_expr('x & y & z')
-    u = b.add_expr('x | y | ~ z')
+    u = b.add_expr('x /\ y /\ z')
+    u = b.add_expr('x \/ y \/ ~ z')
     stats = b.statistics()
     pprint.pprint(format_dict(stats))
 

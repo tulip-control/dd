@@ -20,11 +20,12 @@ def transition_system(bdd):
     dvars = ["x0", "x0'", "x1", "x1'"]
     for var in dvars:
         bdd.add_var(var)
-    s = (
-        "((!x0 & !x1) -> ( (!x0' & !x1') | (x0' & !x1') )) & "
-        "((x0 & !x1) -> ! (x0' & x1')) & "
-        "((!x0 & x1) -> ( (!x0' & x1') | (x0' & !x1') )) & "
-        "! (x0 & x1)")
+    s = '''
+           ((~ x0 /\ ~ x1) => ( (~ x0' /\ ~ x1') \/ (x0' /\ ~ x1') ))
+        /\ ((x0 /\ ~ x1) => ~ (x0' /\ x1'))
+        /\ ((~ x0 /\ x1) => ( (~ x0' /\ x1') \/ (x0' /\ ~ x1') ))
+        /\ ~ (x0 /\ x1)
+        '''
     transitions = bdd.add_expr(s)
     return transitions
 
@@ -32,7 +33,7 @@ def transition_system(bdd):
 def least_fixpoint(transitions, bdd):
     """Return ancestor nodes."""
     # target is the set {2}
-    target = bdd.add_expr('!x0 & x1')
+    target = bdd.add_expr('~ x0 /\ x1')
     # start from empty set
     q = bdd.false
     qold = None

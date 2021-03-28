@@ -1037,8 +1037,8 @@ expr ::= '\A' names ':' expr  # universal quantification (forall)
        | '(' expr ')'     # parentheses
        | NAME             # identifier (bit variable)
        | '@' INTEGER      # BDD node reference
-       | 'False'          # Boolean constant
-       | 'True'           # Boolean constant
+       | 'FALSE' | 'False' # Boolean constant
+       | 'TRUE' | 'True'   # Boolean constant
 
 pairs ::= [pairs] ',' pair
 pair ::= NAME '/' NAME

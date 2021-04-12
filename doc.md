@@ -1063,7 +1063,7 @@ The token precedence (lowest to highest) and associativity
 - `^` (l)
 - `\/, |` (l)
 - `/\, &` (l)
-- `=`, `!=` (l)
+- `=` (l)
 - `~, !` (r)
 - `-` (r) unary minus, as in `-5`
 

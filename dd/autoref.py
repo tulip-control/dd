@@ -169,11 +169,14 @@ class BDD(_abc.BDD):
     def apply(self, op, u, v=None, w=None):
         assert u in self, u
         if v is None:
+            assert w is None, w
             r = self._bdd.apply(op, u.node)
         elif w is None:
             assert v in self, v
+            assert w is None, w
             r = self._bdd.apply(op, u.node, v.node)
         else:
+            assert v in self, v
             assert w in self, w
             r = self._bdd.apply(op, u.node, v.node, w.node)
         return self._wrap(r)

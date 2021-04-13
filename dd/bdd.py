@@ -1217,26 +1217,46 @@ class BDD(_abc.BDD):
         assert v is None or abs(v) in self, v
         assert w is None or abs(w) in self, w
         if op in ('~', 'not', '!'):
+            assert v is None, v
+            assert w is None, w
             return -u
         elif op in ('or', r'\/', '|', '||'):
+            assert v is not None, v
+            assert w is None, w
             return self.ite(u, 1, v)
         elif op in ('and', '/\\', '&', '&&'):
+            assert v is not None, v
+            assert w is None, w
             return self.ite(u, v, -1)
         elif op in ('xor', '^'):
+            assert v is not None, v
+            assert w is None, w
             return self.ite(u, -v, v)
         elif op in ('=>', '->', 'implies'):
+            assert v is not None, v
+            assert w is None, w
             return self.ite(u, v, 1)
         elif op in ('<=>', '<->', 'equiv'):
+            assert v is not None, v
+            assert w is None, w
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
+            assert v is not None, v
+            assert w is None, w
             return self.ite(u, -v, -1)
         elif op in ('\A', 'forall'):
+            assert v is not None, v
+            assert w is None, w
             qvars = self.support(u)
             return self.quantify(v, qvars, forall=True)
         elif op in ('\E', 'exists'):
+            assert v is not None, v
+            assert w is None, w
             qvars = self.support(u)
             return self.quantify(v, qvars, forall=False)
         elif op == 'ite':
+            assert v is not None, v
+            assert w is not None, w
             return self.ite(u, v, w)
         else:
             raise Exception(

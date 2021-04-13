@@ -3,11 +3,11 @@ from dd import cudd
 
 
 def main():
-    assert cudd.GB == 2**30, cudd.GB
+    GiB = 2**30
     b = cudd.BDD()
     b.configure(
         # number of bytes
-        max_memory=2 * cudd.GB,
+        max_memory=2 * GiB,
         # number of entries, not memory units!
         max_cache_hard=2**25)
 

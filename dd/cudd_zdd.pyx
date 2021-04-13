@@ -280,8 +280,8 @@ cdef MAX_CACHE = <unsigned int> - 1  # entries
 __version__ = CUDD_VERSION.decode('utf-8')
 
 
-GB = 2**30
-DEFAULT_MEMORY = 1 * GB
+# 2**30 = 1 GiB (gibibyte, read ISO/IEC 80000)
+DEFAULT_MEMORY = 1 * 2**30
 logger = logging.getLogger(__name__)
 
 

@@ -610,12 +610,23 @@ An interface to the BuDDy C libary also exists, as `dd.buddy`.
 However, experimentation suggests that BuDDy does not contain as successful
 heuristics for deciding *when* to invoke reordering.
 
-CUDD is initialized with a `memory_estimate` of 1 GB. If the machine has les
-RAM, then `cudd.BDD` will raise an error. In this case, pass a smaller initial
-memory estimate, for example `cudd.BDD(memory_estimate=0.5 * 2**30)`.
+CUDD is initialized with a `memory_estimate` of 1 GiB (1 [gibibyte](
+    https://en.wikipedia.org/wiki/Gibibyte)).
+If the machine has less RAM, then `cudd.BDD` will raise an error. In this case,
+pass a smaller initial memory estimate, for example
+
+```python
+cudd.BDD(memory_estimate=0.5 * 2**30)
+```
+
 The package [`humanize`](https://pypi.org/project/humanize/) is useful for
-reading memory sizes, for example `humanize.naturalsize(1073741824, gnu=True)`
-returns `'1.0G'`.
+reading memory sizes, for example
+`humanize.naturalsize(1073741824, binary=True)` returns `'1.0 GiB'`.
+Relevant reading about [gigabyte](https://en.wikipedia.org/wiki/Gigabyte),
+[IEC prefixes for binary multiples](
+    https://en.wikipedia.org/wiki/Binary_prefix#IEC_prefixes), and
+the [ISO/IEC 80000 standard](
+    https://en.wikipedia.org/wiki/ISO/IEC_80000#Information_science_and_technology).
 
 
 ### Functions

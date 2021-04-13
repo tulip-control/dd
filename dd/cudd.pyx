@@ -247,8 +247,8 @@ cdef DDDMP_VAR_MATCHNAMES = 3
 cdef DDDMP_SUCCESS = 1
 
 
-GB = 2**30
-DEFAULT_MEMORY = 1 * GB
+# 2**30 = 1 GiB (gibibyte, read ISO/IEC 80000)
+DEFAULT_MEMORY = 1 * 2**30
 logger = logging.getLogger(__name__)
 
 

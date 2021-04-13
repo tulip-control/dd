@@ -5,6 +5,7 @@
 
 API:
 
+- remove the now obsolete constants `dd.cudd.GB`, `dd.cudd_zdd.GB`
 - add method `apply` to the class `dd.mdd.MDD`
 
 

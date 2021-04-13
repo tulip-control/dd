@@ -161,7 +161,7 @@ cdef extern from 'cudd.h':
         unsigned int numVarsZ,
         unsigned int numSlots,
         unsigned int cacheSize,
-        unsigned long maxMemory)
+        size_t maxMemory)
     # generator
     cdef struct DdGen
     # variables
@@ -204,7 +204,7 @@ cdef extern from 'cudd.h':
     cdef long Cudd_zddReadNodeCount(DdManager *dd)
     cdef long Cudd_ReadPeakNodeCount(DdManager *dd)
     cdef int Cudd_ReadPeakLiveNodeCount(DdManager *dd)
-    cdef unsigned long Cudd_ReadMemoryInUse(DdManager *dd)
+    cdef size_t Cudd_ReadMemoryInUse(DdManager *dd)
     cdef unsigned int Cudd_ReadSlots(DdManager *dd)
     cdef double Cudd_ReadUsedSlots(DdManager *dd)
     cdef double Cudd_ExpectedUsedSlots(DdManager *dd)
@@ -238,9 +238,9 @@ cdef extern from 'cudd.h':
     # reads this attribute.
     cdef long Cudd_ReadReorderingTime(DdManager *dd)
     # manager config
-    cdef unsigned long Cudd_ReadMaxMemory(DdManager *dd)
-    cdef void Cudd_SetMaxMemory(DdManager *dd,
-                                unsigned long maxMemory)
+    cdef size_t Cudd_ReadMaxMemory(DdManager *dd)
+    cdef size_t Cudd_SetMaxMemory(DdManager *dd,
+                                size_t maxMemory)
     cdef unsigned int Cudd_ReadMaxCacheHard(DdManager *dd)
     cdef unsigned int Cudd_ReadMaxCache(DdManager *dd)
     cdef void Cudd_SetMaxCacheHard(DdManager *dd, unsigned int mc)

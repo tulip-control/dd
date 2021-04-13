@@ -1,4 +1,4 @@
-"""How place an upper bound on the memory CUDD consumes."""
+"""How to place an upper bound on the memory CUDD consumes."""
 from dd import cudd
 
 

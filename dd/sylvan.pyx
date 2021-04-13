@@ -31,7 +31,6 @@ from dd import bdd as _bdd
 from dd cimport c_sylvan as sy
 
 
-GB = 2**30
 logger = logging.getLogger(__name__)
 
 

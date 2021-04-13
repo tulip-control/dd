@@ -263,9 +263,9 @@ cdef class BDD(object):
     """
 
     cdef DdManager *manager
-    cpdef public object vars
-    cpdef public object _index_of_var
-    cpdef public object _var_with_index
+    cdef public object vars
+    cdef public object _index_of_var
+    cdef public object _var_with_index
 
     def __cinit__(self,
                   memory_estimate=None,

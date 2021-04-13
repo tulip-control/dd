@@ -46,7 +46,7 @@ cdef class BDD(object):
     so use only one instance.
     """
 
-    cpdef public object var_to_index
+    cdef public object var_to_index
 
     def __cinit__(self):
         self.var_to_index = dict()
@@ -235,7 +235,7 @@ cdef class Function(object):
     """
 
     cdef object __weakref__
-    cpdef public int node
+    cdef public int node
 
     def __cinit__(self, node):
         self.node = node

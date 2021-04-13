@@ -48,9 +48,9 @@ cdef class BDD(object):
       - `vars`: `set` of bit names as strings
     """
 
-    cpdef public object vars
-    cpdef public object _index_of_var
-    cpdef public object _var_with_index
+    cdef public object vars
+    cdef public object _index_of_var
+    cdef public object _var_with_index
 
     def __cinit__(self):
         """Initialize BDD manager.
@@ -579,7 +579,7 @@ cdef class Function(object):
 
     cdef object __weakref__
     cdef public BDD bdd
-    cpdef sy.BDD node
+    cdef sy.BDD node
 
     cdef init(self, sy.BDD u, BDD bdd):
         assert u != sy.sylvan_invalid, (

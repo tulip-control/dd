@@ -1,6 +1,13 @@
 # dd changelog
 
 
+## 0.5.7
+
+API:
+
+- add method `apply` to the class `dd.mdd.MDD`
+
+
 ## 0.5.6
 
 - distribute `manylinux2014_x86_64` wheel via PyPI

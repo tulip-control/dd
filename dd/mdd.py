@@ -272,6 +272,56 @@ class MDD(object):
         s = '({s})'.format(s=s)
         return s
 
+    def apply(self, op, u, v=None, w=None):
+        assert u in self, u
+        assert v is None or v in self, v
+        assert w is None or w in self, w
+        if op in ('~', 'not', '!'):
+            assert v is None, v
+            assert w is None, w
+            return -u
+        elif op in ('or', r'\/', '|', '||'):
+            assert v is not None, v
+            assert w is None, w
+            return self.ite(u, 1, v)
+        elif op in ('and', '/\\', '&', '&&'):
+            assert v is not None, v
+            assert w is None, w
+            return self.ite(u, v, -1)
+        elif op in ('xor', '^'):
+            assert v is not None, v
+            assert w is None, w
+            return self.ite(u, -v, v)
+        elif op in ('=>', '->', 'implies'):
+            assert v is not None, v
+            assert w is None, w
+            return self.ite(u, v, 1)
+        elif op in ('<=>', '<->', 'equiv'):
+            assert v is not None, v
+            assert w is None, w
+            return self.ite(u, v, -v)
+        elif op in ('diff', '-'):
+            assert v is not None, v
+            assert w is None, w
+            return self.ite(u, -v, -1)
+        elif op in ('\A', 'forall'):
+            assert v is not None, v
+            assert w is None, w
+            raise NotImplementedError(
+                'quantification is not implemented for MDDs.')
+        elif op in ('\E', 'exists'):
+            assert v is not None, v
+            assert w is None, w
+            raise NotImplementedError(
+                'quantification is not implemented for MDDs.')
+        elif op == 'ite':
+            assert v is not None, v
+            assert w is not None, w
+            return self.ite(u, v, w)
+        else:
+            raise Exception(
+                'unknown operator "{op}"'.format(op=op))
+
     def dump(self, fname):
         """Write MDD as a diagram to PDF file `fname`.
 

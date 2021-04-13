@@ -192,9 +192,9 @@ def fetch(url, sha256, fname=None):
         f.write(u.read())
     with open(fname, 'rb') as f:
         s = f.read()
-        h = hashlib.sha256(s)
-        x = h.hexdigest()
-        assert x == sha256, (x, sha256)
+    h = hashlib.sha256(s)
+    x = h.hexdigest()
+    assert x == sha256, (x, sha256)
     print('-- done downloading.')
     return fname
 

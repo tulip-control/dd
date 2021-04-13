@@ -354,8 +354,9 @@ cdef class BDD(object):
             '\t {n} live nodes now\n'
             '\t {peak} live nodes at peak\n'
             '\t {n_vars} BDD variables\n'
-            '\t {mem:10.1f} MB in use\n'
-            '\t {reorder_time:10.1f} sec spent reordering\n'
+            '\t {mem:10.1f} bytes in use\n'
+            '\t {reorder_time:10.1f} sec '
+                'spent reordering\n'
             '\t {n_reorderings} reorderings\n').format(
                 n=d['n_nodes'],
                 peak=d['peak_live_nodes'],
@@ -381,7 +382,7 @@ cdef class BDD(object):
           - `reordering_time`: sec spent reordering
           - `n_reorderings`: number of reorderings
 
-          - `mem`: MB in use
+          - `mem`: bytes in use
           - `unique_size`: total number of buckets in unique table
           - `unique_used_fraction`: buckets that contain >= 1 node
           - `expected_unique_used_fraction`: if properly working
@@ -394,6 +395,13 @@ cdef class BDD(object):
           - `cache_collisions`
           - `cache_deletions`
         """
+        warnings.warn(
+            "Changed in `dd` version 0.5.7: "
+            "In the `dict` returned by the method "
+            "`dd.cudd.BDD.statistics`, "
+            "the value of the key `'mem'` "
+            "has changed to bytes (from 10**6 bytes).",
+            UserWarning)
         cdef DdManager *mgr
         mgr = self.manager
         n_vars = Cudd_ReadSize(mgr)
@@ -410,7 +418,7 @@ cdef class BDD(object):
         n_reorderings = Cudd_ReadReorderings(mgr)
         # memory
         m = Cudd_ReadMemoryInUse(mgr)
-        mem = float(m) / 10**6
+        mem = float(m)
         # unique table
         unique_size = Cudd_ReadSlots(mgr)
         unique_used_fraction = Cudd_ReadUsedSlots(mgr)

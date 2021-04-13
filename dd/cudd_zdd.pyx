@@ -50,6 +50,7 @@ Reference
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import logging
+import warnings
 
 from dd import _copy
 from dd import _parser
@@ -389,7 +390,7 @@ cdef class ZDD(object):
             '\t {n} live nodes now\n'
             '\t {peak} live nodes at peak\n'
             '\t {n_vars} ZDD variables\n'
-            '\t {mem:10.1f} MB in use\n'
+            '\t {mem:10.1f} bytes in use\n'
             '\t {reorder_time:10.1f} sec spent reordering\n'
             '\t {n_reorderings} reorderings\n').format(
                 n=d['n_nodes'],
@@ -408,6 +409,13 @@ cdef class ZDD(object):
         For details see the docstring of the method
         `dd.cudd.BDD.statistics`.
         """
+        warnings.warn(
+            "Changed in `dd` version 0.5.7: "
+            "In the `dict` returned by the method "
+            '`dd.cudd_zdd.ZDD.statistics`, '
+            "the value of the key `'mem'` "
+            "has changed to bytes (from 10**6 bytes).",
+            UserWarning)
         cdef DdManager *mgr
         mgr = self.manager
         n_vars = Cudd_ReadZddSize(mgr)
@@ -424,7 +432,7 @@ cdef class ZDD(object):
         n_reorderings = Cudd_ReadReorderings(mgr)
         # memory
         m = Cudd_ReadMemoryInUse(mgr)
-        mem = float(m) / 10**6
+        mem = float(m)
         # unique table
         unique_size = Cudd_ReadSlots(mgr)
         unique_used_fraction = Cudd_ReadUsedSlots(mgr)

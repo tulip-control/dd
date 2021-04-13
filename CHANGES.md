@@ -5,6 +5,11 @@
 
 API:
 
+- return memory size in bytes from methods `dd.cudd.BDD.statistics` and
+  `dd.cudd_zdd.ZDD.statistics`
+  (the value of key `'mem'` in the returned `dict`)
+- print used memory in bytes in the methods `dd.cudd.BDD.__str__` and
+  `dd.cudd_zdd.ZDD.__str__`
 - remove the now obsolete constants `dd.cudd.GB`, `dd.cudd_zdd.GB`
 - remove the unused constant `dd.sylvan.GB`
 - add method `apply` to the class `dd.mdd.MDD`

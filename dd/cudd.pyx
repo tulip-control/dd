@@ -1018,9 +1018,9 @@ cdef class BDD(object):
             raise Exception((
                 'CUDD appears to have run out of memory.\n'
                 'Current settings for upper bounds:\n'
-                '    max memory = {max_memory} GB\n'
+                '    max memory = {max_memory} bytes\n'
                 '    max cache = {max_cache} entries').format(
-                    max_memory=config['max_memory'] / GB,
+                    max_memory=config['max_memory'],
                     max_cache=config['max_cache_hard']))
         return wrap(self, r)
 

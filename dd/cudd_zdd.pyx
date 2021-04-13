@@ -1251,9 +1251,9 @@ cdef class ZDD(object):
                 'CUDD appears to have run out of memory.\n'
                 'Computing the operator {op}\n.'
                 'Current settings for upper bounds:\n'
-                '    max memory = {max_memory} GB\n'
+                '    max memory = {max_memory} bytes\n'
                 '    max cache = {max_cache} entries').format(
-                    max_memory=config['max_memory'] / GB,
+                    max_memory=config['max_memory'],
                     max_cache=config['max_cache_hard'],
                     op=op))
         res = wrap(self, r)

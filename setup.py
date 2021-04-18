@@ -12,11 +12,11 @@ import download
 # import git
 
 
-name = 'dd'
-description = (
+NAME = 'dd'
+DESCRIPTION = (
     'Binary decision diagrams implemented in pure Python, '
     'as well as Cython wrappers of CUDD, Sylvan, and BuDDy.')
-long_description = (
+LONG_DESCRIPTION = (
     'dd is a package for working with binary decision diagrams '
     'that includes both a pure Python implementation and '
     'Cython bindings to C libraries (CUDD, Sylvan, BuDDy). '
@@ -28,8 +28,8 @@ long_description = (
     'and a parser of quantified Boolean expressions. '
     'More details can be found in the README at: '
     'https://github.com/tulip-control/dd')
-url = 'https://github.com/tulip-control/{name}'.format(name=name)
-VERSION_FILE = '{name}/_version.py'.format(name=name)
+URL = 'https://github.com/tulip-control/{name}'.format(name=NAME)
+VERSION_FILE = '{name}/_version.py'.format(name=NAME)
 MAJOR = 0
 MINOR = 5
 MICRO = 7
@@ -49,9 +49,9 @@ install_requires = [
     'psutil >= 3.2.2',
     'pydot >= 1.2.2',
     'setuptools >= 19.6']
-tests_require = [
+TESTS_REQUIRE = [
     'nose >= 1.3.4']
-classifiers = [
+CLASSIFIERS = [
     'Development Status :: 2 - Pre-Alpha',
     'Intended Audience :: Developers',
     'Intended Audience :: Science/Research',
@@ -142,27 +142,27 @@ def run_setup():
     try:
         from dd import _parser, dddmp
         logging.getLogger('astutils').setLevel('ERROR')
-        dddmp._rewrite_tables(outputdir=name)
-        _parser._rewrite_tables(outputdir=name)
+        dddmp._rewrite_tables(outputdir=NAME)
+        _parser._rewrite_tables(outputdir=NAME)
     except ImportError:
         print('WARNING: `dd` could not cache parser tables '
               '(ignore this if running only for "egg_info").')
     setup(
-        name=name,
+        name=NAME,
         version=version,
-        description=description,
-        long_description=long_description,
+        description=DESCRIPTION,
+        long_description=LONG_DESCRIPTION,
         author='Caltech Control and Dynamical Systems',
         author_email='tulip@tulip-control.org',
-        url=url,
+        url=URL,
         license='BSD',
         install_requires=install_requires,
-        tests_require=tests_require,
-        packages=[name],
-        package_dir={name: name},
+        tests_require=TESTS_REQUIRE,
+        packages=[NAME],
+        package_dir={NAME: NAME},
         include_package_data=True,
         ext_modules=ext_modules,
-        classifiers=classifiers,
+        classifiers=CLASSIFIERS,
         keywords=[
             'bdd', 'binary decision diagram', 'decision diagram',
             'boolean', 'networkx', 'dot'])

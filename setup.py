@@ -12,7 +12,7 @@ import download
 # import git
 
 
-NAME = 'dd'
+PACKAGE_NAME = 'dd'
 DESCRIPTION = (
     'Binary decision diagrams implemented in pure Python, '
     'as well as Cython wrappers of CUDD, Sylvan, and BuDDy.')
@@ -28,14 +28,16 @@ LONG_DESCRIPTION = (
     'and a parser of quantified Boolean expressions. '
     'More details can be found in the README at: '
     'https://github.com/tulip-control/dd')
-URL = 'https://github.com/tulip-control/{name}'.format(name=NAME)
-VERSION_FILE = '{name}/_version.py'.format(name=NAME)
+PACKAGE_URL = 'https://github.com/tulip-control/{name}'.format(
+    name=PACKAGE_NAME)
+VERSION_FILE = '{name}/_version.py'.format(
+    name=PACKAGE_NAME)
 MAJOR = 0
 MINOR = 5
 MICRO = 7
 VERSION = '{major}.{minor}.{micro}'.format(
     major=MAJOR, minor=MINOR, micro=MICRO)
-VERSION_TEXT = (
+VERSION_FILE_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")
 if sys.version_info.major >= 3:
@@ -135,31 +137,31 @@ def run_setup():
     except:
         print('No git info: Assume release.')
         version = VERSION
-    s = VERSION_TEXT.format(version=version)
+    s = VERSION_FILE_TEXT.format(version=version)
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
     # build parsers
     try:
         from dd import _parser, dddmp
         logging.getLogger('astutils').setLevel('ERROR')
-        dddmp._rewrite_tables(outputdir=NAME)
-        _parser._rewrite_tables(outputdir=NAME)
+        dddmp._rewrite_tables(outputdir=PACKAGE_NAME)
+        _parser._rewrite_tables(outputdir=PACKAGE_NAME)
     except ImportError:
         print('WARNING: `dd` could not cache parser tables '
               '(ignore this if running only for "egg_info").')
     setup(
-        name=NAME,
+        name=PACKAGE_NAME,
         version=version,
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         author='Caltech Control and Dynamical Systems',
         author_email='tulip@tulip-control.org',
-        url=URL,
+        url=PACKAGE_URL,
         license='BSD',
         install_requires=install_requires,
         tests_require=TESTS_REQUIRE,
-        packages=[NAME],
-        package_dir={NAME: NAME},
+        packages=[PACKAGE_NAME],
+        package_dir={PACKAGE_NAME: PACKAGE_NAME},
         include_package_data=True,
         ext_modules=ext_modules,
         classifiers=CLASSIFIERS,

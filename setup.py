@@ -71,6 +71,9 @@ CLASSIFIERS = [
     'Programming Language :: Python :: 3.9',
     'Topic :: Scientific/Engineering',
     'Topic :: Software Development']
+KEYWORDS = [
+    'bdd', 'binary decision diagram', 'decision diagram',
+    'boolean', 'networkx', 'dot']
 
 
 def git_version(version):
@@ -165,9 +168,7 @@ def run_setup():
         include_package_data=True,
         ext_modules=ext_modules,
         classifiers=CLASSIFIERS,
-        keywords=[
-            'bdd', 'binary decision diagram', 'decision diagram',
-            'boolean', 'networkx', 'dot'])
+        keywords=KEYWORDS)
 
 
 if __name__ == '__main__':

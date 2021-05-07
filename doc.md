@@ -1172,5 +1172,5 @@ in the negated value computed for node `y-3` in the next image.
 
 ## Copying
 
-This document is copyright 2015-2020 by California Institute of Technology.
+This document is copyright 2015-2021 by California Institute of Technology.
 All rights reserved. Licensed under 3-clause BSD.

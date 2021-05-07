@@ -6,6 +6,7 @@ include AUTHORS
 include requirements.txt
 include download.py
 include tests/README.md
+include tests/pytest.ini
 include tests/inspect_cython_signatures.py
 include tests/common.py
 include tests/common_bdd.py

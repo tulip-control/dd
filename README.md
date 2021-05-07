@@ -1,5 +1,4 @@
 [![Build Status][build_img]][travis]
-[![Coverage Status][coverage]][coveralls]
 
 
 About
@@ -324,14 +323,15 @@ The modules `dd.cudd` and `dd.cudd_zdd` in the wheel dynamically link to the:
 Tests
 =====
 
-Require [`nose`](https://pypi.python.org/pypi/nose). Run with:
+Use [`pytest`](https://pypi.org/project/pytest). Run with:
 
 ```shell
 cd tests/
-nosetests
+pytest -v --continue-on-collection-errors .
 ```
 
 Tests of Cython modules that were not installed will fail.
+The code is covered well by tests.
 
 
 License
@@ -341,5 +341,3 @@ License
 
 [build_img]: https://travis-ci.com/tulip-control/dd.svg?branch=master
 [travis]: https://travis-ci.com/tulip-control/dd
-[coverage]: https://coveralls.io/repos/tulip-control/dd/badge.svg?branch=master
-[coveralls]: https://coveralls.io/r/tulip-control/dd?branch=master

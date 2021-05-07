@@ -1,10 +1,11 @@
 """Common tests for `autoref`, `cudd`, `cudd_zdd`."""
-from nose.tools import assert_raises
+import pytest
 
 
 class Tests(object):
-    DD = None  # `autoref.BDD` or `cudd.BDD` or
-        # `cudd_zdd.ZDD`
+    def setup_method(self):
+        self.DD = None  # `autoref.BDD` or `cudd.BDD` or
+            # `cudd_zdd.ZDD`
 
     def test_true_false(self):
         bdd = self.DD()
@@ -80,7 +81,7 @@ class Tests(object):
         # undefined `__contains__`
         other_bdd = self.DD()
         other_true = other_bdd.true
-        with assert_raises(AssertionError):
+        with pytest.raises(AssertionError):
             other_true in bdd
 
     def test_var_levels(self):
@@ -260,7 +261,7 @@ class Tests(object):
         # x
         b.declare('x')
         u = b.add_expr('x')
-        with assert_raises(AssertionError):
+        with pytest.raises(AssertionError):
             b.count(u, 0)
         n = b.count(u, 1)
         assert n == 1, n
@@ -273,9 +274,9 @@ class Tests(object):
         # x /\ y
         b.declare('y')
         u = b.add_expr(r'x /\ y')
-        with assert_raises(AssertionError):
+        with pytest.raises(AssertionError):
             b.count(u, 0)
-        with assert_raises(AssertionError):
+        with pytest.raises(AssertionError):
             b.count(u, 1)
         n = b.count(u, 2)
         assert n == 1, n
@@ -287,9 +288,9 @@ class Tests(object):
         assert n == 1, n
         # x \/ ~ y
         u = b.add_expr(r'x \/ ~ y')
-        with assert_raises(AssertionError):
+        with pytest.raises(AssertionError):
             b.count(u, 0)
-        with assert_raises(AssertionError):
+        with pytest.raises(AssertionError):
             b.count(u, 1)
         n = b.count(u, 2)
         assert n == 3, n

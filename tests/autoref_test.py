@@ -3,17 +3,22 @@ import logging
 
 from dd import autoref as _bdd
 import dd.bdd
-from nose.tools import assert_raises
 
-from common import Tests
-from common_bdd import Tests as BDDTests
+import common
+import common_bdd
 
 
 logging.getLogger('astutils').setLevel('ERROR')
 
 
-Tests.DD = _bdd.BDD
-BDDTests.DD = _bdd.BDD
+class Tests(common.Tests):
+    def setup_method(self):
+        self.DD = _bdd.BDD
+
+
+class BDDTests(common_bdd.Tests):
+    def setup_method(self):
+        self.DD = _bdd.BDD
 
 
 def test_str():

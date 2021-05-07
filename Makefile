@@ -1,6 +1,3 @@
-# The script `rtests.py` below is an adaptation of:
-# https://github.com/tulip-control/tulip-control/blob/master/run_tests.py
-
 wheel_file := $(wildcard dist/*.whl)
 
 .PHONY: cudd install test
@@ -12,15 +9,16 @@ build_cudd: clean cudd install test
 build_sylvan: clean
 	-pip uninstall -y dd
 	python setup.py install --sylvan
-	rtests.py --rednose
+	pip install pytest
+	make test
 
 sdist_test: clean
 	python setup.py sdist --cudd --buddy
 	cd dist; \
 	pip install dd*.tar.gz; \
 	tar -zxf dd*.tar.gz
-	pip install nose rednose
-	rtests.py --rednose
+	pip install pytest
+	make -C dist/dd*/ -f ../../Makefile test
 
 sdist_test_cudd: clean
 	pip install cython ply
@@ -30,8 +28,8 @@ sdist_test_cudd: clean
 	tar -zxf dd*.tar.gz; \
 	cd dd*; \
 	python setup.py install --fetch --cudd
-	pip install nose rednose
-	rtests.py --rednose
+	pip install pytest
+	make -C dist/dd*/ -f ../../Makefile test
 
 # use to create source distributions for PyPI
 sdist: clean
@@ -69,7 +67,14 @@ develop:
 
 test:
 	cd tests/; \
-	nosetests -v
+	python -X dev -m pytest -v --continue-on-collection-errors .
+# `pytest -Werror` turns all warnings into errors
+#     https://docs.pytest.org/en/latest/how-to/capture-warnings.html
+# including pytest warnings about unraisable exceptions:
+#     https://docs.pytest.org/en/latest/how-to/failures.html
+#         #warning-about-unraisable-exceptions-and-unhandled-thread-exceptions
+#     https://docs.pytest.org/en/latest/reference/reference.html
+#         #pytest.PytestUnraisableExceptionWarning
 
 test_abc:
 	python -X dev tests/inspect_cython_signatures.py

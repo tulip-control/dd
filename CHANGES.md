@@ -3,6 +3,8 @@
 
 ## 0.5.7
 
+- require `pytest >= 4.6.11`, instead of `nose`, for Python 3.10 compatibility
+
 API:
 
 - return memory size in bytes from methods `dd.cudd.BDD.statistics` and

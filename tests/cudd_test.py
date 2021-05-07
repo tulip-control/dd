@@ -2,25 +2,35 @@
 import logging
 
 from dd import cudd
-from nose.tools import assert_raises, assert_warns
+import pytest
 
-from common import Tests
-from common_bdd import Tests as BDDTests
-from common_cudd import Tests as CuddTests
+import common
+import common_bdd
+import common_cudd
 
 
 logging.getLogger('astutils').setLevel('ERROR')
 
 
-Tests.DD = cudd.BDD
-BDDTests.DD = cudd.BDD
-CuddTests.DD = cudd.BDD
-CuddTests.MODULE = cudd
+class Tests(common.Tests):
+    def setup_method(self):
+        self.DD = cudd.BDD
+
+
+class BDDTests(common_bdd.Tests):
+    def setup_method(self):
+        self.DD = cudd.BDD
+
+
+class CuddTests(common_cudd.Tests):
+    def setup_method(self):
+        self.DD = cudd.BDD
+        self.MODULE = cudd
 
 
 def test_str():
     bdd = cudd.BDD()
-    with assert_warns(UserWarning):
+    with pytest.warns(UserWarning):
         s = str(bdd)
     s + 'must be a string'
 
@@ -142,7 +152,7 @@ def test_swap():
     # not checked for overlapping key-value pairs.
     u = bdd.apply('and', x, ~ y)
     d = dict(x='y', y='x')
-    with assert_raises(AssertionError):
+    with pytest.raises(AssertionError):
         f = bdd._swap(u, d)
     # f_ = bdd.apply('and', ~ x, y)
     # assert f == f_, (f, f_)
@@ -170,7 +180,7 @@ def test_swap():
     z = bdd.var('z')
     u = bdd.apply('and', x, ~ y)
     d = dict(x='y', y='z')
-    with assert_raises(AssertionError):
+    with pytest.raises(AssertionError):
         f = bdd._swap(u, d)
     # The following result is obtained if the
     # assertions are removed from `BDD._swap`.
@@ -180,7 +190,7 @@ def test_swap():
     # 2) each value appears once among values
     u = bdd.apply('and', x, ~ y)
     d = dict(x='y', z='y')
-    with assert_raises(AssertionError):
+    with pytest.raises(AssertionError):
         f = bdd._swap(u, d)
     # The following result is obtained if the
     # assertions are removed from `BDD._swap`.

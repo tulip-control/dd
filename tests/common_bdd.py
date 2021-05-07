@@ -1,11 +1,10 @@
 """Common tests for `autoref`, `cudd`."""
 import os
 
-from nose.tools import assert_raises
-
 
 class Tests(object):
-    DD = None  # `autoref.BDD` or `cudd.BDD`
+    def setup_method(self):
+        self.DD = None  # `autoref.BDD` or `cudd.BDD`
 
     def test_succ(self):
         bdd = self.DD()

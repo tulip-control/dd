@@ -43,7 +43,4 @@ install:
 
 script:
   - cd tests/
-  - nosetests --with-coverage --cover-package=dd
-
-after_success:
-  - coveralls
+  - pytest -v --continue-on-collection-errors .

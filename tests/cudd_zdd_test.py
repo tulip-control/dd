@@ -4,20 +4,26 @@ import os
 from dd import cudd
 from dd import cudd_zdd
 from dd import _copy
-from nose.tools import assert_warns
+import pytest
 
-from common import Tests as Tests
-from common_cudd import Tests as CuddTests
+import common
+import common_cudd
 
 
-Tests.DD = cudd_zdd.ZDD
-CuddTests.DD = cudd_zdd.ZDD
-CuddTests.MODULE = cudd_zdd
+class Tests(common.Tests):
+    def setup_method(self):
+        self.DD = cudd_zdd.ZDD
+
+
+class CuddTests(common_cudd.Tests):
+    def setup_method(self):
+        self.DD = cudd_zdd.ZDD
+        self.MODULE = cudd_zdd
 
 
 def test_str():
     bdd =  cudd_zdd.ZDD()
-    with assert_warns(UserWarning):
+    with pytest.warns(UserWarning):
         s = str(bdd)
     s + 'must be a string'
 

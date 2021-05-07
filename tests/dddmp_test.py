@@ -4,7 +4,7 @@ import os
 
 from dd.dddmp import Lexer, Parser, load, _rewrite_tables
 import networkx as nx
-from nose.tools import assert_raises
+import pytest
 
 
 logging.getLogger('dd.dddmp.parser_logger').setLevel(logging.ERROR)
@@ -17,13 +17,13 @@ def test_lexer():
     lexer.lexer.input(s)
     tok = lexer.lexer.token()
     assert tok.value == '.ghs'
-    with assert_raises(Exception):
+    with pytest.raises(Exception):
         lexer.lexer.token()
 
 
 def test_parser():
     parser = Parser()
-    with assert_raises(Exception):
+    with pytest.raises(Exception):
         parser.parser.parse(input='.mode C',
                             lexer=parser.lexer.lexer)
 

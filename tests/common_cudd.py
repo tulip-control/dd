@@ -1,10 +1,11 @@
 """Common tests for `cudd`, `cudd_zdd`."""
-from nose.tools import assert_raises
+import pytest
 
 
 class Tests(object):
-    DD = None  # `cudd.BDD` or `cudd_zdd.ZDD`
-    MODULE = None  # `cudd` or `cudd_zdd`
+    def setup_method(self):
+        self.DD = None  # `cudd.BDD` or `cudd_zdd.ZDD`
+        self.MODULE = None  # `cudd` or `cudd_zdd`
 
     def test_add_var(self):
         bdd = self.DD()
@@ -119,7 +120,7 @@ class Tests(object):
         bdd.incref(u)  # ref cnt = 3
         bdd.incref(u)  # ref cnt = 4
         bdd.decref(v)  # ref cnt = 3
-        with assert_raises(RuntimeError):
+        with pytest.raises(RuntimeError):
             bdd.decref(v)
         del u, v  # ref cnt = 2
         assert len(bdd) > 0, len(bdd)
@@ -180,7 +181,7 @@ class Tests(object):
         # No need for `recursive=True`,
         # because this call should have
         # no effect at all.
-        with assert_raises(RuntimeError):
+        with pytest.raises(RuntimeError):
             bdd.decref(u)
         # safe to access the CUDD BDD/ZDD node's
         # reference count because garbage collection
@@ -218,14 +219,14 @@ class Tests(object):
         #
         # Again, `u` is not used in any way
         # that could access deallocated memory.
-        with assert_raises(RuntimeError):
+        with pytest.raises(RuntimeError):
             bdd.decref(u)
         assert u._ref == 0, u._ref
         # check also with `recursive=True`
-        with assert_raises(RuntimeError):
+        with pytest.raises(RuntimeError):
             bdd.decref(u, recursive=True)
         # check also `incref`
-        with assert_raises(RuntimeError):
+        with pytest.raises(RuntimeError):
             bdd.incref(u)
         assert len(bdd) == 0, len(bdd)
 
@@ -236,7 +237,7 @@ class Tests(object):
         # make an erroneous external modification
         assert u.ref == 1, u.ref
         u._ref = -1  # erroneous value
-        with assert_raises(AssertionError):
+        with pytest.raises(AssertionError):
             self.MODULE._test_call_dealloc(u)
         assert u.ref == 1, u.ref
         assert u._ref == -1, u._ref

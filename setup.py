@@ -52,7 +52,7 @@ install_requires = [
     'pydot >= 1.2.2',
     'setuptools >= 19.6']
 TESTS_REQUIRE = [
-    'nose >= 1.3.4']
+    'pytest >= 4.6.11']
 CLASSIFIERS = [
     'Development Status :: 2 - Pre-Alpha',
     'Intended Audience :: Developers',

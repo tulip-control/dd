@@ -117,7 +117,7 @@ To run the same code with CUDD installed, change the first line to:
 from dd.cudd import BDD
 ```
 
-Most useful functionality is available via method of the class `BDD`.
+Most useful functionality is available via methods of the class `BDD`.
 A few of the functions can prove handy too, mainly `to_nx`, `to_pydot`.
 Use the method `BDD.dump` to write a `BDD` to a `pickle` file, and
 `BDD.load` to load it back. A CUDD dddmp file can be loaded using

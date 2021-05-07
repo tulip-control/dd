@@ -104,7 +104,7 @@ def mutex(v):
     c = list()
     for x in v:
         rest = disj(y for y in v if y != x)
-        s = '{x} -> !({rest})'.format(x=x, rest=rest)
+        s = '{x} => ~ ({rest})'.format(x=x, rest=rest)
         c.append(s)
     return conj(c)
 

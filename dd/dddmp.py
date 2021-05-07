@@ -27,9 +27,11 @@ References
 # All rights reserved. Licensed under BSD-3.
 #
 import logging
+
+import astutils
 import ply.lex
 import ply.yacc
-import astutils
+
 from dd.bdd import BDD
 from dd._compat import items
 

@@ -1,5 +1,6 @@
 import logging
 import os
+
 from dd.dddmp import Lexer, Parser, load, _rewrite_tables
 import networkx as nx
 from nose import tools as nt

@@ -1,4 +1,5 @@
 import logging
+
 from dd import cudd
 from nose.tools import assert_raises
 

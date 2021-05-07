@@ -5,9 +5,9 @@ from dd.bdd import BDD as _BDD
 from dd.bdd import preimage
 from dd import autoref
 from dd import bdd as _bdd
-import nose.tools as nt
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
+from nose.tools import assert_raises
 
 
 class BDD(_BDD):
@@ -59,9 +59,9 @@ def test_add_var():
     assert b.vars['y'] == 5, b.vars
     assert j == 5, j
     # attempt to add var at an existing level
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         b.add_var('z', level=35)
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         b.add_var('z', level=5)
     #
     # mixing automated and
@@ -74,14 +74,14 @@ def test_add_var():
     assert 'y' in b.vars, b.vars
     assert b.vars['x'] == 2, b.vars
     assert b.vars['y'] == 1, b.vars
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         b.add_var('z')
     b.add_var('z', level=0)
 
 
 def test_var():
     b = BDD()
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         b.var('x')
     j = b.add_var('x')
     u = b.var('x')
@@ -98,17 +98,17 @@ def test_assert_consistent():
     g = x_or_y()
     assert g.assert_consistent()
     g._succ[2] = (5, 1, 2)
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         g.assert_consistent()
     g = x_or_y()
     g.roots.add(2)
     g._succ[4] = (0, 10, 1)
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         g.assert_consistent()
     g = x_or_y()
     g.roots.add(2)
     g._succ[1] = (2, None, 1)
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         g.assert_consistent()
     g = x_and_y()
     assert g.assert_consistent()
@@ -119,7 +119,7 @@ def test_level_to_variable():
     g = BDD(ordering)
     assert g.var_at_level(0) == 'x'
     assert g.var_at_level(1) == 'y'
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         g.var_at_level(10)
 
 
@@ -199,7 +199,7 @@ def test_count():
     assert r == 6, r
     r = g.count(-4, 3)
     assert r == 2, r
-    with nt.assert_raises(Exception):
+    with assert_raises(Exception):
         g.count()
     r = g.count(4)
     assert r == 3, r
@@ -464,10 +464,10 @@ def test_find_or_add():
     assert refv == refv_, (refv, refv_)
     assert refw == refw_, (refw, refw_)
     # only non-terminals can be added
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         g.find_or_add(2, -1, 1)
     # low and high must already exist
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         g.find_or_add(0, 3, 4)
     # canonicity of complemented edges
     # v < 0, w > 0
@@ -519,7 +519,7 @@ def test_next_free_int():
     # full
     g._succ = {1, 2, 3}
     g.max_nodes = 3
-    with nt.assert_raises(Exception):
+    with assert_raises(Exception):
         g._next_free_int(start=1)
 
 
@@ -655,7 +655,7 @@ def test_cofactor():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)
     # u not in g
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         g.let({'x': False, 'y': True, 'z': False}, 5)
     # x /\ y
     e = g.add_expr('x /\ y')
@@ -791,7 +791,7 @@ def test_request_reordering():
     ctx._last_len = 1
     ctx.length = 3  # >= 2 = 2 * _last_len
     # large growth
-    with nt.assert_raises(_bdd._NeedsReordering):
+    with assert_raises(_bdd._NeedsReordering):
         _bdd._request_reordering(ctx)
     ctx._last_len = 2
     ctx.length = 3  # < 4 = 2 * _last_len
@@ -809,20 +809,20 @@ def test_reordering_context():
     ctx.assert_(False)
     # nested context
     ctx._reordering_context = True
-    with nt.assert_raises(_bdd._NeedsReordering):
+    with assert_raises(_bdd._NeedsReordering):
         with _bdd._ReorderingContext(ctx):
             ctx.assert_(True)
             raise _bdd._NeedsReordering()
     ctx.assert_(True)
     # other exception
     ctx._reordering_context = False
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         with _bdd._ReorderingContext(ctx):
             ctx.assert_(True)
             raise AssertionError()
     ctx.assert_(False)
     ctx._reordering_context = True
-    with nt.assert_raises(Exception):
+    with assert_raises(Exception):
         with _bdd._ReorderingContext(ctx):
             raise Exception()
     ctx.assert_(True)
@@ -936,7 +936,7 @@ def test_undeclare_vars():
     bdd = BDD()
     bdd.declare('x', 'y', 'z', 'w')
     u = bdd.add_expr('y /\ w')
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         bdd.undeclare_vars('z', 'y')
 
 
@@ -1081,7 +1081,7 @@ def test_rename():
     assert r == r_, (r, r_)
     # u not in bdd
     dvars = {'x': 'xp'}
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         g.let(dvars, 1000)
     # y essential for u
     dvars = {'x': 'y'}
@@ -1134,16 +1134,16 @@ def test_image_rename_map_checks():
     assert r == 1, r
     # overlapping keys and values
     rename = {0: 1, 1: 2}
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         _bdd.image(1, 1, rename, qvars, bdd)
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         _bdd.preimage(1, 1, rename, qvars, bdd)
     # may be in support after quantification ?
     trans = bdd.add_expr('x => xp')
     source = bdd.add_expr('x /\ y')
     qvars = {0}
     rename = {1: 0, 3: 2}
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         _bdd.image(trans, source, rename, qvars, bdd)
     # in support of `target` ?
     qvars = set()
@@ -1218,7 +1218,7 @@ def test_assert_valid_ordering():
     ordering = {'x': 0, 'y': 1}
     _bdd._assert_valid_ordering(ordering)
     incorrect_ordering = {'x': 0, 'y': 2}
-    with nt.assert_raises(AssertionError):
+    with assert_raises(AssertionError):
         _bdd._assert_valid_ordering(incorrect_ordering)
 
 

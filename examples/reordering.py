@@ -58,8 +58,8 @@ def trigger_reordering(bdd):
     nodes = list()
     for i in range(25):
         expr = (
-            '(x{i1} /\ x{i2}) \/ (x{i3} /\ x{i4})'
-            ' \/ (x{i5} /\ x{i6})').format(
+            r'(x{i1} /\ x{i2}) \/ (x{i3} /\ x{i4})'
+            r' \/ (x{i5} /\ x{i6})').format(
                 i1=i, i2=i + 6, i3=i + 7,
                 i4=i + 8, i5=i + 9, i6=i + 10)
         u = bdd.add_expr(expr)
@@ -87,7 +87,7 @@ def demo_static_reordering():
         (50 * '-'))
     bdd = _bdd.BDD()
     bdd.declare('z1', 'z2', 'z3', 'y1', 'y2', 'y3')
-    expr = '(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
+    expr = r'(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
     u = bdd.add_expr(expr)
     print_manager_size(bdd)
     # invoke sifting
@@ -103,7 +103,7 @@ def demo_specific_var_order():
         (50 * '-'))
     bdd = _bdd.BDD()
     bdd.declare('a', 'b', 'c')
-    u = bdd.add_expr('(a \/ b) /\ ~ c')
+    u = bdd.add_expr(r'(a \/ b) /\ ~ c')
     print_var_levels(bdd)
     # reorder
     desired_order = dict(a=2, b=0, c=1)

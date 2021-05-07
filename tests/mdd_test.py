@@ -20,7 +20,7 @@ def test_bdd_to_mdd():
 
     ordering = {'x': 0, 'y': 1}
     bdd = BDD(ordering)
-    u = bdd.add_expr('x /\ ~ y')
+    u = bdd.add_expr(r'x /\ ~ y')
     bdd.incref(u)
     # BDD -> MDD
     dvars = dict(

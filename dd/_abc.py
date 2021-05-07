@@ -106,7 +106,7 @@ class BDD(object):
         """
 
     def pick(self, u, care_vars=None):
-        """Return a single assignment as `dict`.
+        r"""Return a single assignment as `dict`.
 
         An assignment is a `dict` that maps
         each variable to a `bool`. Examples:
@@ -124,7 +124,7 @@ class BDD(object):
         >>> bdd.pick(u, care_vars=['x', 'y'])
         {'x': False, 'y': True}
 
-        >>> u = bdd.add_expr('x \/ y')
+        >>> u = bdd.add_expr(r'x \/ y')
         >>> bdd.pick(u)
         {'x': False, 'y': True}
 
@@ -187,14 +187,14 @@ class BDD(object):
 
         @type op: `str` in:
           - `'not', '~', '!'`
-          - `'and', '/\', '&', '&&'`
-          - `'or', '\/', '|', '||'`
+          - `'and', '/\\', '&', '&&'`
+          - `'or', r'\/', '|', '||'`
           - `'xor', '#', '^'`
           - `'=>', '->', 'implies'`
           - `'<=>', '<->', 'equiv'`
           - `'diff', '-'`
-          - `'\A', 'forall'`
-          - `'\E', 'exists'`
+          - `r'\A', 'forall'`
+          - `r'\E', 'exists'`
           - `'ite'`
         @type u, v, w: nodes
         """
@@ -310,16 +310,16 @@ class Operator(object):
         """Number of nodes reachable from this node."""
 
     def __del__(self):
-        """Dereference node in manager."""
+        r"""Dereference node in manager."""
 
     def __eq__(self, other):
-        """`|= self \equiv other`."""
+        r"""`|= self \equiv other`."""
 
     def __ne__(self, other):
-        """`~ |= self \equiv other`."""
+        r"""`~ |= self \equiv other`."""
 
     def __lt__(self, other):
-        """`(|= self => other) /\ ~ |= self \equiv other`."""
+        r"""`(|= self => other) /\ ~ |= self \equiv other`."""
 
     def __le__(self, other):
         """`|= self => other`."""
@@ -328,16 +328,16 @@ class Operator(object):
         """Negation `~ self`."""
 
     def __and__(self, other):
-        """Conjunction `self /\ other`."""
+        r"""Conjunction `self /\ other`."""
 
     def __or__(self, other):
-        """Disjunction `self \/ other`."""
+        r"""Disjunction `self \/ other`."""
 
     def implies(self, other):
         """Logical implication `self => other`."""
 
     def equiv(self, other):
-        """Logical equivalence `self <=> other`.
+        r"""Logical equivalence `self <=> other`.
 
         The result is *different* from `__eq__`:
 

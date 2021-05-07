@@ -12,7 +12,7 @@ def transfer():
     source.declare(*vrs)
     target.declare(*vrs)
     # create a BDD with root `u`
-    u = source.add_expr('a /\ b')
+    u = source.add_expr(r'a /\ b')
     # copy the BDD `u` to the BDD manager `target`
     u_ = source.copy(u, target)
 
@@ -24,7 +24,7 @@ def copy_variable_order():
     # declare variables in the source BDD manager
     source.declare('a', 'b')
     # create a BDD with root `u`
-    u = source.add_expr('a /\ b')
+    u = source.add_expr(r'a /\ b')
     # copy the variables, and the variable order
     target.declare(*source.vars)
     target.reorder(source.var_levels)

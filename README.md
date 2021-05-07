@@ -86,7 +86,9 @@ bdd = BDD()
 bdd.declare('x', 'y', 'z', 'w')
 
 # conjunction (in TLA+ syntax)
-u = bdd.add_expr('x /\ y')  # operators `&, |` are supported too
+u = bdd.add_expr(r'x /\ y')  # operators `&, |` are supported too
+    # note the "r" before the quote, which signifies a raw string and is
+    # needed to allow for the backslash
 print(u.support)
 # substitute variables for variables (rename)
 rename = dict(x='z', y='w')
@@ -95,19 +97,19 @@ v = bdd.let(rename, u)
 values = dict(x=True, y=False)
 v = bdd.let(values, u)
 # substitute BDDs for variables (compose)
-d = dict(x=bdd.add_expr('z \/ w'))
+d = dict(x=bdd.add_expr(r'z \/ w'))
 v = bdd.let(d, u)
 # infix operators
 v = bdd.var('z') & bdd.var('w')
 v = ~ v
 # quantify
-u = bdd.add_expr('\E x, y:  x \/ y')
+u = bdd.add_expr(r'\E x, y:  x \/ y')
 # less readable but faster alternative
 u = bdd.var('x') | bdd.var('y')
 u = bdd.exist(['x', 'y'], u)
 assert u == bdd.true, u
 # inline BDD references
-u = bdd.add_expr('x /\ {v}'.format(v=v))
+u = bdd.add_expr(r'x /\ {v}'.format(v=v))
 # satisfying assignments (models)
 d = bdd.pick(u, care_vars=['x', 'y'])
 for d in bdd.pick_iter(u):

@@ -8,7 +8,7 @@ def test_reordering_setting_restore():
     b.add_var('x')
     b.add_var('y')
     # x /\ y
-    s = '~ x /\ y'
+    s = r'~ x /\ y'
     u = b.add_expr(s)
     assert not b.configure()['reordering']
     g = b.pick_iter(u)

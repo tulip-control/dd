@@ -1138,7 +1138,7 @@ cdef class ZDD(object):
         if missing:
             logger.warning((
                 'Missing bits:  '
-                'support \ care_vars = {missing}').format(
+                r'support \ care_vars = {missing}').format(
                     missing=missing))
         cube = dict()
         value = True
@@ -1163,7 +1163,7 @@ cdef class ZDD(object):
         if missing:
             logger.warning((
                 'Missing bits:  '
-                'support \ care_vars = {missing}').format(
+                r'support \ care_vars = {missing}').format(
                     missing=missing))
         config = self.configure(reordering=False)
         gen = Cudd_zddFirstPath(self.manager, u.node, &path)
@@ -1267,13 +1267,13 @@ cdef class ZDD(object):
         elif op in ('diff', '-'):
             assert w is None, w
             r = Cudd_zddDiff(mgr, u.node, v.node)
-        elif op in ('\A', 'forall'):
+        elif op in (r'\A', 'forall'):
             assert w is None, w
             qvars = self.support(u)
             res = self.forall(qvars, v)
             Cudd_Ref(res.node)
             r = res.node
-        elif op in ('\E', 'exists'):
+        elif op in (r'\E', 'exists'):
             assert w is None, w
             qvars = self.support(u)
             res = self.exist(qvars, v)
@@ -1299,7 +1299,7 @@ cdef class ZDD(object):
                     max_cache=config['max_cache_hard'],
                     op=op))
         res = wrap(self, r)
-        if op in ('\A', 'forall', '\E', 'exist'):
+        if op in (r'\A', 'forall', r'\E', 'exist'):
             Cudd_RecursiveDerefZdd(mgr, r)
         return res
 

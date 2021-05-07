@@ -382,9 +382,9 @@ cdef class BDD(object):
             r = sy.sylvan_biimp(u.node, v.node)
         elif op in ('diff', '-'):
             r = sy.sylvan_diff(u.node, v.node)
-        elif op in ('\A', 'forall'):
+        elif op in (r'\A', 'forall'):
             r = sy.sylvan_forall(u.node, v.node)
-        elif op in ('\E', 'exists'):
+        elif op in (r'\E', 'exists'):
             r = sy.sylvan_exists(u.node, v.node)
         if r == sy.sylvan_invalid:
             raise Exception(
@@ -493,7 +493,7 @@ cpdef Function restrict(Function u, Function care_set):
 
 
 cpdef Function and_exists(Function u, Function v, qvars):
-    """Return `\E qvars:  u /\ v`."""
+    r"""Return `\E qvars:  u /\ v`."""
     assert u.bdd is v.bdd
     bdd = u.bdd
     sy.LACE_ME_WRAP
@@ -503,7 +503,7 @@ cpdef Function and_exists(Function u, Function v, qvars):
 
 
 cpdef Function or_forall(Function u, Function v, qvars):
-    """Return `\A qvars:  u \/ v`."""
+    r"""Return `\A qvars:  u \/ v`."""
     assert u.bdd is v.bdd
     bdd = u.bdd
     sy.LACE_ME_WRAP

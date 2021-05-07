@@ -224,14 +224,14 @@ def add_ast(t, bdd):
     """
     # operator ?
     if t.type == 'operator':
-        if t.operator in ('\A', '\E') and len(t.operands) == 2:
+        if t.operator in (r'\A', r'\E') and len(t.operands) == 2:
             qvars, expr = t.operands
             u = add_ast(expr, bdd)
             qvars = {x.value for x in qvars}
-            assert t.operator in ('\A', '\E'), t.operator
-            forall = (t.operator == '\A')
+            assert t.operator in (r'\A', r'\E'), t.operator
+            forall = (t.operator == r'\A')
             return bdd.quantify(u, qvars, forall=forall)
-        elif t.operator == '\S':
+        elif t.operator == r'\S':
             expr, rename = t.operands
             u = add_ast(expr, bdd)
             rename = {k.value: v.value for k, v in rename}

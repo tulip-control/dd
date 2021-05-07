@@ -78,7 +78,7 @@ def test_sample2():
     assert w == 1, w
     # overwrite indices with strings
     bdd.vars = dict(x=0, y=1)
-    u = bdd.add_expr('x /\ y')
+    u = bdd.add_expr(r'x /\ y')
     assert u == root, u
 
 
@@ -94,7 +94,7 @@ def test_sample3():
     assert n_vars == 2, n_vars
     assert bdd.roots == {3}, bdd.roots
     root = 3
-    u = bdd.add_expr('x /\ y')
+    u = bdd.add_expr(r'x /\ y')
     assert root == u, u
 
 
@@ -108,7 +108,7 @@ def test_load_dddmp():
     assert n_vars == 3, n_vars
     assert bdd.roots == {-5}, bdd.roots
     root = -5
-    u = bdd.add_expr('~ ( (a /\ (b \/ c)) \/ (~ a /\ (b \/ ~ c)) )')
+    u = bdd.add_expr(r'~ ( (a /\ (b \/ c)) \/ (~ a /\ (b \/ ~ c)) )')
     assert u == root, (u, root)
     # larger sample
     fname = 'sample1.dddmp'
@@ -164,13 +164,13 @@ def test_dump_with_cudd_load_with_dddmp():
     # dump
     bdd = cudd.BDD()
     bdd.declare('y', 'x')
-    u = bdd.add_expr('x /\ y')
+    u = bdd.add_expr(r'x /\ y')
     bdd.dump(fname, [u])
     # load
     bdd = load(fname)
     print(bdd.roots)
     u, = bdd.roots
-    u_ = bdd.add_expr('x /\ y')
+    u_ = bdd.add_expr(r'x /\ y')
     assert u == u_, (u, u_)
     expr = bdd.to_expr(u)
     print(expr)

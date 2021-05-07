@@ -304,12 +304,12 @@ class MDD(object):
             assert v is not None, v
             assert w is None, w
             return self.ite(u, -v, -1)
-        elif op in ('\A', 'forall'):
+        elif op in (r'\A', 'forall'):
             assert v is not None, v
             assert w is None, w
             raise NotImplementedError(
                 'quantification is not implemented for MDDs.')
-        elif op in ('\E', 'exists'):
+        elif op in (r'\E', 'exists'):
             assert v is not None, v
             assert w is None, w
             raise NotImplementedError(

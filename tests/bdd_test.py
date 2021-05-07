@@ -135,8 +135,8 @@ def test_var_levels_attr():
 def test_descendants():
     ordering = dict(x=0, y=1)
     b = BDD(ordering)
-    u = b.add_expr('x /\ y')
-    v = b.add_expr('x \/ y')
+    u = b.add_expr(r'x /\ y')
+    v = b.add_expr(r'x \/ y')
     roots = [u, v]
     nodes = b.descendants(roots)
     nodes_u = b.descendants([u])
@@ -215,7 +215,7 @@ def test_count():
     g = _bdd.BDD()
     g.add_var('x')
     g.add_var('y')
-    u = g.add_expr('x /\ y ')
+    u = g.add_expr(r'x /\ y ')
     r = g.count(u)
     assert r == 1, r
 
@@ -261,7 +261,7 @@ def test_pick_iter():
     # gaps in order
     order = {'x': 0, 'y': 1, 'z': 2}
     bdd = BDD(order)
-    u = bdd.add_expr('x /\ z')
+    u = bdd.add_expr(r'x /\ z')
     (m,) = bdd.pick_iter(u)
     assert m == {'x': 1, 'z': 1}, m
 
@@ -378,11 +378,11 @@ def test_reduction_complemented_edges():
     assert a < b, (a, b)
     # complemented edge from internal node to
     # non-terminal node
-    expr = '~ x /\ y'
+    expr = r'~ x /\ y'
     _test_reduction_complemented_edges(expr, bdd)
     # complemented edge from external reference to
     # non-terminal node
-    expr = 'x /\ ~ y'
+    expr = r'x /\ ~ y'
     u = bdd.add_expr(expr)
     assert u < 0, u
     _test_reduction_complemented_edges(expr, bdd)
@@ -538,7 +538,7 @@ def _assert_smaller_are_nodes(start, bdd):
 def test_collect_garbage():
     # all nodes are garbage
     g = BDD({'x': 0, 'y': 1})
-    u = g.add_expr('x /\ y')
+    u = g.add_expr(r'x /\ y')
     n = len(g)
     assert n == 4, n
     uref = g._ref[abs(u)]
@@ -557,7 +557,7 @@ def test_collect_garbage():
     # some nodes not garbage
     # projection of x is garbage
     g = BDD({'x': 0, 'y': 1})
-    u = g.add_expr('x /\ y')
+    u = g.add_expr(r'x /\ y')
     n = len(g)
     assert n == 4, n
     g._ref[abs(u)] += 1
@@ -616,7 +616,7 @@ def test_add_expr():
     h = ref_var(ix)
     compare(u, g, h)
     # x and y
-    u = g.add_expr('x /\ y')
+    u = g.add_expr(r'x /\ y')
     h = ref_x_and_y()
     compare(u, g, h)
 
@@ -625,27 +625,27 @@ def test_compose():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)
     # x /\ (x \/ z)
-    a = g.add_expr('x /\ y')
-    b = g.add_expr('x \/ z')
+    a = g.add_expr(r'x /\ y')
+    b = g.add_expr(r'x \/ z')
     c = g.let({'y': b}, a)
-    d = g.add_expr('x /\ (x \/ z)')
+    d = g.add_expr(r'x /\ (x \/ z)')
     assert c == d, (c, d)
     # (y \/ z) /\ x
     ordering = {'x': 0, 'y': 1, 'z': 2, 'w': 3}
     g = BDD(ordering)
-    a = g.add_expr('(x /\ y) \/ z')
-    b = g.add_expr('(y \/ z) /\ x')
+    a = g.add_expr(r'(x /\ y) \/ z')
+    b = g.add_expr(r'(y \/ z) /\ x')
     c = g.let({'z': b}, a)
     assert c == b, (c, b)
     # long expr
     ordering = {'x': 0, 'y': 1, 'z': 2, 'w': 3}
     g = BDD(ordering)
-    a = g.add_expr('(x /\ y) \/ (~ z \/ (w /\ y /\ x))')
-    b = g.add_expr('(y \/ ~ z) /\ x')
+    a = g.add_expr(r'(x /\ y) \/ (~ z \/ (w /\ y /\ x))')
+    b = g.add_expr(r'(y \/ ~ z) /\ x')
     c = g.let({'y': b}, a)
     d = g.add_expr(
-        '(x /\ ((y \/ ~ z) /\ x)) \/ '
-        ' (~ z \/ (w /\ ((y \/ ~ z) /\ x) /\ x))')
+        r'(x /\ ((y \/ ~ z) /\ x)) \/ '
+        r' (~ z \/ (w /\ ((y \/ ~ z) /\ x) /\ x))')
     assert c == d, (c, d)
     # complemented edges
     ordering = {'x': 0, 'y': 1}
@@ -665,7 +665,7 @@ def test_cofactor():
     with assert_raises(AssertionError):
         g.let({'x': False, 'y': True, 'z': False}, 5)
     # x /\ y
-    e = g.add_expr('x /\ y')
+    e = g.add_expr(r'x /\ y')
     x = g.add_expr('x')
     assert g.let({'x': False}, x) == -1
     assert g.let({'x': True}, x) == 1
@@ -707,19 +707,19 @@ def test_swap():
     assert g._ref[abs(y)] == 1
     # x /\ y
     g = BDD({'x': 0, 'y': 1})
-    u = g.add_expr('x /\ y')
+    u = g.add_expr(r'x /\ y')
     g.incref(u)
     nold, n = g.swap('x', 'y')
     assert nold == n, (nold, n)
     assert g.vars == {'y': 0, 'x': 1}, g.vars
-    u_ = g.add_expr('x /\ y')
+    u_ = g.add_expr(r'x /\ y')
     assert u == u_, (u, u_)
     assert g.assert_consistent()
     # reference counts unchanged
     assert g._ref[abs(u)] == 1
     # x /\ ~ y
     # tests handling of complement edges
-    e = 'x /\ ~ y'
+    e = r'x /\ ~ y'
     g = x_and_not_y()
     u = g.add_expr(e)
     g.incref(u)
@@ -746,7 +746,7 @@ def test_swap():
     # Figs. 6.24, 6.25 Baier 2008
     g = BDD({'z1': 0, 'y1': 1, 'z2': 2,
              'y2': 3, 'z3': 4, 'y3': 5})
-    u = g.add_expr('(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)')
+    u = g.add_expr(r'(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)')
     g.incref(u)
     n = len(g)
     assert n == 16, n
@@ -764,7 +764,7 @@ def test_swap():
         'z1': 0, 'z2': 1, 'z3': 2,
         'y1': 3, 'y2': 4, 'y3': 5}
     assert g.vars == new_ordering, g.vars
-    u_ = g.add_expr('(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)')
+    u_ = g.add_expr(r'(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)')
     assert u_ == u, (u, u_, g._succ)
     # g.dump('g.pdf')
 
@@ -773,7 +773,7 @@ def test_sifting():
     # Figs. 6.24, 6.25 Baier 2008
     g = BDD({'z1': 0, 'z2': 1, 'z3': 2,
              'y1': 3, 'y2': 4, 'y3': 5})
-    u = g.add_expr('(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)')
+    u = g.add_expr(r'(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)')
     g.incref(u)
     g.collect_garbage()
     n = len(g)
@@ -781,7 +781,7 @@ def test_sifting():
     _bdd.reorder(g)
     n_ = len(g)
     assert n > n_, (n, n_)
-    u_ = g.add_expr('(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)')
+    u_ = g.add_expr(r'(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)')
     g.incref(u)
     g.collect_garbage()
     g.assert_consistent()
@@ -857,7 +857,7 @@ def test_dynamic_reordering():
     # add expr with reordering off
     assert not b.reordering_is_on()
     assert b.n_swaps == 0, b.n_swaps
-    u = b.add_expr('x /\ y /\ z')
+    u = b.add_expr(r'x /\ y /\ z')
     assert b.n_swaps == 0, b.n_swaps
     b.incref(u)
     n = len(b)
@@ -865,7 +865,7 @@ def test_dynamic_reordering():
     # add expr with reordering on
     b._last_len = 6
     assert b.reordering_is_on()
-    v = b.add_expr('a /\ b')
+    v = b.add_expr(r'a /\ b')
     assert b.reordering_is_on()
     assert b.n_swaps == 0, b.n_swaps
     b.incref(v)
@@ -873,7 +873,7 @@ def test_dynamic_reordering():
     assert n == 10, n
     # add an expr that triggers reordering
     assert b.reordering_is_on()
-    w = b.add_expr('z \/ (~ a /\ x /\ ~ y)')
+    w = b.add_expr(r'z \/ (~ a /\ x /\ ~ y)')
     assert b.reordering_is_on()
     n_swaps = b.n_swaps
     assert n_swaps > 0, n_swaps
@@ -884,8 +884,8 @@ def test_dynamic_reordering():
     # add another expr that triggers reordering
     old_n_swaps = n_swaps
     assert b.reordering_is_on()
-    r = b.add_expr('(~ z \/ (c /\ b)) /\ e /\ (a /\ (~x \/ y))')
-    b.add_expr('(e \/ ~ a) /\ x /\ (b \/ ~ y)')
+    r = b.add_expr(r'(~ z \/ (c /\ b)) /\ e /\ (a /\ (~x \/ y))')
+    b.add_expr(r'(e \/ ~ a) /\ x /\ (b \/ ~ y)')
     n_swaps = b.n_swaps
     assert n_swaps > old_n_swaps, (n_swaps, old_n_swaps)
     assert b.reordering_is_on()
@@ -912,7 +912,7 @@ def test_undeclare_vars():
     bdd = BDD()
     bdd.declare('x', 'y', 'z', 'w')
     # empty arg `vrs`
-    u = bdd.add_expr('x /\ y /\ w')
+    u = bdd.add_expr(r'x /\ y /\ w')
     rm_vars = bdd.undeclare_vars()
     rm_vars_ = {'z'}
     assert rm_vars == rm_vars_, (rm_vars, rm_vars_)
@@ -922,7 +922,7 @@ def test_undeclare_vars():
     # nonempty `vrs` with all empty levels
     bdd = BDD()
     bdd.declare('x', 'y', 'z', 'w')
-    u = bdd.add_expr('y /\ w')
+    u = bdd.add_expr(r'y /\ w')
     rm_vars = bdd.undeclare_vars('x', 'z')
     rm_vars_ = {'x', 'z'}
     assert rm_vars == rm_vars_, (rm_vars, rm_vars_)
@@ -932,7 +932,7 @@ def test_undeclare_vars():
     # nonempty `vrs` without all empty levels
     bdd = BDD()
     bdd.declare('x', 'y', 'z', 'w')
-    u = bdd.add_expr('y /\ w')
+    u = bdd.add_expr(r'y /\ w')
     rm_vars = bdd.undeclare_vars('z')
     rm_vars_ = {'z'}
     assert rm_vars == rm_vars_, (rm_vars, rm_vars_)
@@ -942,7 +942,7 @@ def test_undeclare_vars():
     # remove only unused variables
     bdd = BDD()
     bdd.declare('x', 'y', 'z', 'w')
-    u = bdd.add_expr('y /\ w')
+    u = bdd.add_expr(r'y /\ w')
     with assert_raises(AssertionError):
         bdd.undeclare_vars('z', 'y')
 
@@ -953,13 +953,13 @@ def test_dump_load():
     dvars = dict(x=0, y=1)
     # dump
     b = BDD(dvars)
-    e = 'x /\ ~ y'
+    e = r'x /\ ~ y'
     u_dumped = b.add_expr(e)
     b.dump(fname, [u_dumped])
     b.dump(fname)  # no roots
     # load
     b = BDD(dvars)
-    b.add_expr('x \/ y')
+    b.add_expr(r'x \/ y')
     u_new = b.add_expr(e)
     umap = b.load(fname)
     u_loaded = umap[abs(u_dumped)]
@@ -973,7 +973,7 @@ def test_dump_load():
 def test_dump_load_manager():
     prefix = 'test_dump_load_manager'
     g = BDD({'x': 0, 'y': 1})
-    e = 'x /\ ~ y'
+    e = r'x /\ ~ y'
     u = g.add_expr(e)
     g.incref(u)
     fname = prefix + '.p'
@@ -1013,7 +1013,7 @@ def test_quantify():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)
     # x /\ y
-    e = g.add_expr('x /\ ~ y')
+    e = g.add_expr(r'x /\ ~ y')
     x = g.add_expr('x')
     not_y = g.add_expr('~ y')
     assert g.quantify(e, {'x'}) == not_y
@@ -1021,10 +1021,10 @@ def test_quantify():
     assert g.quantify(e, {'y'}) == x
     assert g.quantify(e, {'x'}, forall=True) == -1
     # x \/ y \/ z
-    e = g.add_expr('x \/ y \/ z')
-    xy = g.add_expr('x \/ y')
-    yz = g.add_expr('y \/ z')
-    zx = g.add_expr('z \/ x')
+    e = g.add_expr(r'x \/ y \/ z')
+    xy = g.add_expr(r'x \/ y')
+    yz = g.add_expr(r'y \/ z')
+    zx = g.add_expr(r'z \/ x')
     assert g.quantify(e, {'x'})
     assert g.quantify(e, {'y'})
     assert g.quantify(e, {'z'})
@@ -1036,7 +1036,7 @@ def test_quantify():
     v = g.quantify(u, {'y'}, forall=True)
     assert v == -x, g.to_expr(v)
     # multiple values: test recursion
-    e = g.add_expr('x /\ y /\ z')
+    e = g.add_expr(r'x /\ y /\ z')
     x = g.add_expr('x')
     r = g.quantify(e, {'y', 'z'})
     assert r == x, r
@@ -1046,30 +1046,30 @@ def test_quantifier_syntax():
     b = BDD()
     [b.add_var(var) for var in ['x', 'y']]
     # constants
-    u = b.add_expr('\E x:  TRUE')
+    u = b.add_expr(r'\E x:  TRUE')
     assert u == b.true, u
-    u = b.add_expr('\E x, y:  TRUE')
+    u = b.add_expr(r'\E x, y:  TRUE')
     assert u == b.true, u
-    u = b.add_expr('\E x:  FALSE')
+    u = b.add_expr(r'\E x:  FALSE')
     assert u == b.false, u
-    u = b.add_expr('\A x:  TRUE')
+    u = b.add_expr(r'\A x:  TRUE')
     assert u == b.true, u
-    u = b.add_expr('\A x:  FALSE')
+    u = b.add_expr(r'\A x:  FALSE')
     assert u == b.false, u
-    u = b.add_expr('\A x, y:  FALSE')
+    u = b.add_expr(r'\A x, y:  FALSE')
     assert u == b.false, u
     # variables
-    u = b.add_expr('\E x:  x')
+    u = b.add_expr(r'\E x:  x')
     assert u == b.true, u
-    u = b.add_expr('\A x:  x')
+    u = b.add_expr(r'\A x:  x')
     assert u == b.false, u
-    u = b.add_expr('\E x, y:  x')
+    u = b.add_expr(r'\E x, y:  x')
     assert u == b.true, u
-    u = b.add_expr('\E x, y:  y')
+    u = b.add_expr(r'\E x, y:  y')
     assert u == b.true, u
-    u = b.add_expr('\A x:  y')
+    u = b.add_expr(r'\A x:  y')
     assert u == b.var('y'), u
-    u = b.add_expr('\A x:  ~ y')
+    u = b.add_expr(r'\A x:  ~ y')
     u_ = b.apply('not', b.var('y'))
     assert u == u_, (u, u_)
 
@@ -1086,16 +1086,16 @@ def test_rename():
                 'y': 2, 'yp': 3,
                 'z': 4, 'zp': 5}
     g = BDD(ordering)
-    u = g.add_expr('x /\ y /\ ~ z')
+    u = g.add_expr(r'x /\ y /\ ~ z')
     dvars = {'x': 'xp', 'y': 'yp', 'z': 'zp'}
     urenamed = g.let(dvars, u)
-    up = g.add_expr('xp /\ yp /\ ~ zp')
+    up = g.add_expr(r'xp /\ yp /\ ~ zp')
     assert urenamed == up, urenamed
     # assertion violations
     # non-neighbors
     dvars = {'x': 'yp'}
     r = g.let(dvars, u)
-    r_ = g.add_expr('yp /\ y /\ ~ z')
+    r_ = g.add_expr(r'yp /\ y /\ ~ z')
     assert r == r_, (r, r_)
     # u not in bdd
     dvars = {'x': 'xp'}
@@ -1104,7 +1104,7 @@ def test_rename():
     # y essential for u
     dvars = {'x': 'y'}
     v = g.let(dvars, u)
-    v_ = g.add_expr('y /\ ~ z')
+    v_ = g.add_expr(r'y /\ ~ z')
     assert v == v_, (v, v_)
     # old and new vars intersect
     dvars = {'x': 'x'}
@@ -1116,25 +1116,25 @@ def test_rename_syntax():
     b = BDD()
     [b.add_var(var) for var in ['x', 'y', 'z', 'w']]
     # single substitution
-    u = b.add_expr('\S y / x:  TRUE')
+    u = b.add_expr(r'\S y / x:  TRUE')
     assert u == b.true, u
-    u = b.add_expr('\S y / x:  FALSE')
+    u = b.add_expr(r'\S y / x:  FALSE')
     assert u == b.false, u
-    u = b.add_expr('\S y / x:  x')
+    u = b.add_expr(r'\S y / x:  x')
     u_ = b.add_expr('y')
     assert u == u_, (u, u_)
-    u = b.add_expr('\S y / x:  z')
+    u = b.add_expr(r'\S y / x:  z')
     u_ = b.add_expr('z')
     assert u == u_, (u, u_)
-    u = b.add_expr('\S y / x:  x /\ z')
-    u_ = b.add_expr('y /\ z')
+    u = b.add_expr(r'\S y / x:  x /\ z')
+    u_ = b.add_expr(r'y /\ z')
     assert u == u_, (u, u_)
     # multiple substitution
-    u = b.add_expr('\S y / x,  w / z:  x /\ z')
-    u_ = b.add_expr('y /\ w')
+    u = b.add_expr(r'\S y / x,  w / z:  x /\ z')
+    u_ = b.add_expr(r'y /\ w')
     assert u == u_, (u, u_)
-    u = b.add_expr('\S y / x,  w / z:  z \/ ~ x')
-    u_ = b.add_expr('w \/ ~ y')
+    u = b.add_expr(r'\S y / x,  w / z:  z \/ ~ x')
+    u_ = b.add_expr(r'w \/ ~ y')
     assert u == u_, (u, u_)
 
 
@@ -1158,7 +1158,7 @@ def test_image_rename_map_checks():
         _bdd.preimage(1, 1, rename, qvars, bdd)
     # may be in support after quantification ?
     trans = bdd.add_expr('x => xp')
-    source = bdd.add_expr('x /\ y')
+    source = bdd.add_expr(r'x /\ y')
     qvars = {0}
     rename = {1: 0, 3: 2}
     with assert_raises(AssertionError):
@@ -1166,7 +1166,7 @@ def test_image_rename_map_checks():
     # in support of `target` ?
     qvars = set()
     trans = bdd.add_expr('y')
-    target = bdd.add_expr('x /\ y')
+    target = bdd.add_expr(r'x /\ y')
     rename = {0: 2}
     r = _bdd.preimage(trans, target, rename, qvars, bdd)
     assert r == bdd.var('y'), r
@@ -1190,18 +1190,18 @@ def test_preimage():
     # (x /\ y) --> (~ x /\ y) -->
     # (~ x /\ ~ y) --> (x /\ ~ y) --> wrap around
     t = g.add_expr(
-        '((x /\ y) => (~ xp /\ yp)) /\ '
-        '((~ x /\ y) => (~ xp /\ ~ yp)) /\ '
-        '((~ x /\ ~ y) => (xp /\ ~ yp)) /\ '
-        '((x /\ ~ y) => (xp /\ yp))')
-    f = g.add_expr('x /\ y')
+        r'((x /\ y) => (~ xp /\ yp)) /\ '
+        r'((~ x /\ y) => (~ xp /\ ~ yp)) /\ '
+        r'((~ x /\ ~ y) => (xp /\ ~ yp)) /\ '
+        r'((x /\ ~ y) => (xp /\ yp))')
+    f = g.add_expr(r'x /\ y')
     p = preimage(t, f, rename, qvars, g)
-    assert p == g.add_expr('x /\ ~ y')
-    f = g.add_expr('x /\ ~ y')
+    assert p == g.add_expr(r'x /\ ~ y')
+    f = g.add_expr(r'x /\ ~ y')
     p = preimage(t, f, rename, qvars, g)
-    assert p == g.add_expr('~ x /\ ~ y')
+    assert p == g.add_expr(r'~ x /\ ~ y')
     # backward reachable set
-    f = g.add_expr('x /\ y')
+    f = g.add_expr(r'x /\ y')
     oldf = None
     while oldf != f:
         p = preimage(t, f, rename, qvars, g)
@@ -1209,7 +1209,7 @@ def test_preimage():
         f = g.apply('or', p, oldf)
     assert f == 1
     # go around once
-    f = g.add_expr('x /\ y')
+    f = g.add_expr(r'x /\ y')
     start = f
     for i in range(4):
         f = preimage(t, f, rename, qvars, g)
@@ -1217,19 +1217,19 @@ def test_preimage():
     assert start == end
     # forall z exists x, y
     t = g.add_expr(
-        '('
-        '    ((x /\ y) => (zp /\ xp /\ ~ yp)) \/ '
-        '    ((x /\ y) => (~ zp /\ ~ xp /\ yp))'
-        ') /\ '
-        '(~ (x /\ y) => False)')
-    f = g.add_expr('x /\ ~ y')
+        r'('
+        r'    ((x /\ y) => (zp /\ xp /\ ~ yp)) \/ '
+        r'    ((x /\ y) => (~ zp /\ ~ xp /\ yp))'
+        r') /\ '
+        r'(~ (x /\ y) => False)')
+    f = g.add_expr(r'x /\ ~ y')
     ep = preimage(t, f, rename, qvars, g)
     p = g.quantify(ep, {'zp'}, forall=True)
     assert p == -1
-    f = g.add_expr('(x /\ ~ y) \/ (~ x /\ y)')
+    f = g.add_expr(r'(x /\ ~ y) \/ (~ x /\ y)')
     ep = preimage(t, f, rename, qvars, g)
     p = g.quantify(ep, {'zp'}, forall=True)
-    assert p == g.add_expr('x /\ y')
+    assert p == g.add_expr(r'x /\ y')
 
 
 def test_assert_valid_ordering():
@@ -1272,7 +1272,7 @@ def test_to_pydot():
 def test_function_wrapper():
     levels = dict(x=0, y=1, z=2)
     bdd = autoref.BDD(levels)
-    u = bdd.add_expr('x /\ y')
+    u = bdd.add_expr(r'x /\ y')
     assert u.bdd is bdd, (repr(u.bdd), repr(bdd))
     assert abs(u.node) in bdd._bdd, (u.node, bdd._bdd._succ)
     # operators
@@ -1280,12 +1280,12 @@ def test_function_wrapper():
     z = bdd.add_expr('z')
     v = x.implies(z)
     w = u & ~ v
-    w_ = bdd.add_expr('(x /\ y) /\ ~ ((~ x) \/ z)')
+    w_ = bdd.add_expr(r'(x /\ y) /\ ~ ((~ x) \/ z)')
     assert w_ == w, (w_, w)
     r = ~ (u | v).equiv(w)
     r_ = bdd.add_expr(
-        '( (x /\ y) \/ ((~ x) \/ z) ) ^'
-        '( (x /\ y) /\ ~ ((~ x) \/ z) )')
+        r'( (x /\ y) \/ ((~ x) \/ z) ) ^'
+        r'( (x /\ y) /\ ~ ((~ x) \/ z) )')
     assert r_ == r, (r_, r)
     p = bdd.add_expr('y')
     q = p.equiv(x)
@@ -1322,7 +1322,7 @@ def test_function_wrapper():
     assert n == 1, bdd._bdd._ref
     # properties
     bdd = autoref.BDD({'x': 0, 'y': 1, 'z': 2})
-    u = bdd.add_expr('x \/ ~ y')
+    u = bdd.add_expr(r'x \/ ~ y')
     assert u.level == 0, u.level
     assert u.var == 'x', u.var
     y = bdd.add_expr('~ y')

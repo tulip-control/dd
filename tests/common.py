@@ -20,7 +20,7 @@ class Tests(object):
     def test_configure_reordering(self):
         zdd = self.DD()
         zdd.declare('x', 'y', 'z')
-        u = zdd.add_expr('x \/ y')
+        u = zdd.add_expr(r'x \/ y')
         cfg = zdd.configure(reordering=False)
         cfg = zdd.configure()
         assert cfg['reordering'] == False
@@ -152,7 +152,7 @@ class Tests(object):
         bdd = self.DD()
         for var in ['x', 'y', 'z']:
             bdd.add_var(var)
-        u = bdd.add_expr('x /\ ~ y')
+        u = bdd.add_expr(r'x /\ ~ y')
         # x |-> y
         sub = dict(x=bdd.var('y'))
         v = bdd.let(sub, u)
@@ -162,23 +162,23 @@ class Tests(object):
         sub = dict(x=bdd.var('y'),
                    y=bdd.var('x'))
         v = bdd.let(sub, u)
-        v_ = bdd.add_expr('y /\ ~ x')
+        v_ = bdd.add_expr(r'y /\ ~ x')
         assert v == v_, v
         # x |-> z
         sub = dict(x=bdd.var('z'))
         v = bdd.let(sub, u)
-        v_ = bdd.add_expr('z /\ ~ y')
+        v_ = bdd.add_expr(r'z /\ ~ y')
         assert v == v_, v
         # x |-> z, y |-> x
         sub = dict(x=bdd.var('z'),
                    y=bdd.var('x'))
         v = bdd.let(sub, u)
-        v_ = bdd.add_expr('z /\ ~ x')
+        v_ = bdd.add_expr(r'z /\ ~ x')
         assert v == v_, v
         # x |-> (y \/ z)
-        sub = dict(x=bdd.add_expr('y \/ z'))
+        sub = dict(x=bdd.add_expr(r'y \/ z'))
         v = bdd.let(sub, u)
-        v_ = bdd.add_expr('(y \/ z) /\ ~ y')
+        v_ = bdd.add_expr(r'(y \/ z) /\ ~ y')
         assert v == v_, v
         # LET x == ~ y IN ~ x
         u = bdd.add_expr('~ x')
@@ -188,7 +188,7 @@ class Tests(object):
         w_ = bdd.var('y')
         assert w == w_, len(w)
         # LET x == y IN x /\ y
-        u = bdd.add_expr('x /\ y')
+        u = bdd.add_expr(r'x /\ y')
         v = bdd.add_expr('y')
         let = dict(x=v)
         w = bdd.let(let, u)
@@ -277,7 +277,7 @@ class Tests(object):
         assert n == 1, n
         # x /\ y
         b.declare('y')
-        u = b.add_expr('x /\ y')
+        u = b.add_expr(r'x /\ y')
         with assert_raises(AssertionError):
             b.count(u, 0)
         with assert_raises(AssertionError):
@@ -291,7 +291,7 @@ class Tests(object):
         n = b.count(u)
         assert n == 1, n
         # x \/ ~ y
-        u = b.add_expr('x \/ ~ y')
+        u = b.add_expr(r'x \/ ~ y')
         with assert_raises(AssertionError):
             b.count(u, 0)
         with assert_raises(AssertionError):
@@ -323,7 +323,7 @@ class Tests(object):
         m_ = [dict(x=True)]
         assert m == m_, (m, m_)
         # ~ x /\ y
-        s = '~ x /\ y'
+        s = r'~ x /\ y'
         u = b.add_expr(s)
         g = b.pick_iter(u, care_vars=set())
         m = list(g)
@@ -334,7 +334,7 @@ class Tests(object):
         m = list(g)
         assert m == m_, (m, m_)
         # x /\ y
-        u = b.add_expr('x /\ y')
+        u = b.add_expr(r'x /\ y')
         m = list(b.pick_iter(u))
         m_ = [dict(x=True, y=True)]
         assert m == m_, m
@@ -355,7 +355,7 @@ class Tests(object):
         self.equal_list_contents(m, m_)
         # care bits x, y
         b.add_var('z')
-        s = 'x \/ y'
+        s = r'x \/ y'
         u = b.add_expr(s)
         g = b.pick_iter(u, care_vars=['x', 'y'])
         m = list(g)
@@ -423,7 +423,7 @@ class Tests(object):
         assert u == v, (u, v)
         # ternary
         u = bdd.apply('ite', x, y, ~ z)
-        u_ = bdd.add_expr('(x /\ y) \/ (~ x /\ ~ z)')
+        u_ = bdd.add_expr(r'(x /\ y) \/ (~ x /\ ~ z)')
         assert u == u_, (u, u_)
 
     def test_quantify(self):
@@ -458,18 +458,18 @@ class Tests(object):
         r = bdd.quantify(u, ['x'], forall=True)
         assert r == y, (r, y)
         # \E x:  ((x /\ ~ y) \/ ~ z)
-        u = bdd.add_expr('(x /\ ~ y) \/ ~ z')
+        u = bdd.add_expr(r'(x /\ ~ y) \/ ~ z')
         qvars = ['x']
         r = bdd.exist(qvars, u)
-        r_ = bdd.add_expr('\E x:  ((x /\ ~ y) \/ ~ z)')
+        r_ = bdd.add_expr(r'\E x:  ((x /\ ~ y) \/ ~ z)')
         assert r == r_, (r, r_)
-        r_ = bdd.add_expr('(~ y) \/ ~ z')
+        r_ = bdd.add_expr(r'(~ y) \/ ~ z')
         assert r == r_, (r, r_)
         # \E y:  x /\ ~ y /\ ~ z
-        u = bdd.add_expr('x /\ ~ y /\ ~ z')
+        u = bdd.add_expr(r'x /\ ~ y /\ ~ z')
         qvars = ['y']
         r = bdd.exist(qvars, u)
-        r_ = bdd.add_expr('x /\ ~ z')
+        r_ = bdd.add_expr(r'x /\ ~ z')
         assert r == r_, len(r)
 
     def test_exist_forall(self):
@@ -529,30 +529,30 @@ class Tests(object):
         for var in ['x', 'y']:
             bdd.add_var(var)
         # ((FALSE \/ TRUE) /\ x) \equiv x
-        s = '(True \/ FALSE) /\ x'
+        s = r'(True \/ FALSE) /\ x'
         u = bdd.add_expr(s)
         x = bdd.var('x')
         assert u == x, (u, x)
         # ((x \/ ~ y) /\ x) \equiv x
-        s = '(x \/ ~ y) /\ x'
+        s = r'(x \/ ~ y) /\ x'
         u = bdd.add_expr(s)
         assert u == x, (u, x)
         # x /\ y /\ z
         bdd.add_var('z')
         z = bdd.var('z')
-        u = bdd.add_expr('x /\ y /\ z')
+        u = bdd.add_expr(r'x /\ y /\ z')
         u_ = bdd.cube(dict(x=True, y=True, z=True))
         assert u == u_, (u, u_)
         # x /\ ~ y /\ z
-        u = bdd.add_expr('x /\ ~ y /\ z')
+        u = bdd.add_expr(r'x /\ ~ y /\ z')
         u_ = bdd.cube(dict(x=True, y=False, z=True))
         assert u == u_, (u, u_)
         # (\E x:  x /\ y) \equiv y
         y = bdd.var('y')
-        u = bdd.add_expr('\E x:  x /\ y')
+        u = bdd.add_expr(r'\E x:  x /\ y')
         assert u == y, (str(u), str(y))
         # (\A x:  x \/ ~ x) \equiv TRUE
-        u = bdd.add_expr('\A x:  ~ x \/ x')
+        u = bdd.add_expr(r'\A x:  ~ x \/ x')
         assert u == bdd.true, u
 
     def test_to_expr(self):
@@ -562,11 +562,11 @@ class Tests(object):
         r = bdd.to_expr(u)
         r_ = 'x'
         assert r == r_, (r, r_)
-        u = bdd.add_expr('x /\ y')
+        u = bdd.add_expr(r'x /\ y')
         r = bdd.to_expr(u)
         r_ = 'ite(x, y, FALSE)'
         assert r == r_, (r, r_)
-        u = bdd.add_expr('x \/ y')
+        u = bdd.add_expr(r'x \/ y')
         r = bdd.to_expr(u)
         r_ = 'ite(x, TRUE, y)'
         assert r == r_, (r, r_)
@@ -684,7 +684,7 @@ class Tests(object):
         assert u == ~ x, (u, x)
         y = b.var('y')
         u = b.ite(x, y, b.false)
-        u_ = b.add_expr('x /\ y')
+        u_ = b.add_expr(r'x /\ y')
         assert u == u_, (u, u_)
 
     def test_reorder_with_args(self):
@@ -706,7 +706,7 @@ class Tests(object):
         vrs = ['z1', 'z2', 'z3', 'y1', 'y2', 'y3']
         bdd.declare(*vrs)
         self._confirm_var_order(vrs, bdd)
-        expr = '(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
+        expr = r'(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
         u = bdd.add_expr(expr)
         n_before = u.dag_size
         bdd.reorder()
@@ -730,7 +730,7 @@ class Tests(object):
     def test_reorder_contains(self):
         bdd = self.DD()
         bdd.declare('x', 'y', 'z')
-        u = bdd.add_expr('(x /\ y) \/ z')
+        u = bdd.add_expr(r'(x /\ y) \/ z')
         bdd.reorder()
         assert u in bdd
 
@@ -778,7 +778,7 @@ class Tests(object):
         r = u.support
         assert r == {'x'}, r
         bdd.add_var('y')
-        u = bdd.add_expr('y /\ x')
+        u = bdd.add_expr(r'y /\ x')
         r = u.support
         assert r == {'x', 'y'}, r
 
@@ -793,7 +793,7 @@ class Tests(object):
     def test_add_int(self):
         bdd = self.DD()
         bdd.declare('x', 'y')
-        u = bdd.add_expr('x \/ ~ y')
+        u = bdd.add_expr(r'x \/ ~ y')
         node_id = int(u)
         u_ = bdd._add_int(node_id)
         assert u == u_, (u, u_)

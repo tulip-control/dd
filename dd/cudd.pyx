@@ -1090,12 +1090,12 @@ cdef class BDD(object):
             assert w is None, w
             r = Cudd_bddIte(mgr, u.node, Cudd_Not(v.node),
                             Cudd_ReadLogicZero(mgr))
-        elif op in ('\A', 'forall'):
+        elif op in (r'\A', 'forall'):
             assert w is None, w
             sig_on()
             r = Cudd_bddUnivAbstract(mgr, v.node, u.node)
             sig_off()
-        elif op in ('\E', 'exists'):
+        elif op in (r'\E', 'exists'):
             assert w is None, w
             sig_on()
             r = Cudd_bddExistAbstract(mgr, v.node, u.node)

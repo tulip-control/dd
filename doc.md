@@ -114,8 +114,8 @@ bdd.declare('x', 'y', 'z')
 To create a BDD node for a propositional formula, call the parser
 
 ```python
-u = bdd.add_expr('x /\ y')  # conjunction
-v = bdd.add_expr('z \/ ~ y')  # disjunction and negation
+u = bdd.add_expr(r'x /\ y')  # conjunction
+v = bdd.add_expr(r'z \/ ~ y')  # disjunction and negation
 w = u & ~ v
 ```
 
@@ -132,7 +132,7 @@ s = bdd.to_expr(u)
 Lets create the BDD of a more colorful Boolean formula
 
 ```python
-s = '(x /\ y) <=> (~ z \/ ~ (y <=> x))'
+s = r'(x /\ y) <=> (~ z \/ ~ (y <=> x))'
 v = bdd.add_expr(s)
 ```
 
@@ -144,7 +144,7 @@ The Boolean constants are `bdd.false` and `bdd.true`, and in syntax
 Variables can be quantified by calling the methods `exist` and `forall`
 
 ```python
-u = bdd.add_expr('x /\ y')
+u = bdd.add_expr(r'x /\ y')
 v = bdd.exist(['x'], u)
 ```
 
@@ -152,12 +152,12 @@ or by writing quantified formulas
 
 ```python
 # there exists a value of x, such that (x and y)
-u = bdd.add_expr('\E x:  x /\ y')
+u = bdd.add_expr(r'\E x:  x /\ y')
 y = bdd.add_expr('y')
 assert u == y, (u, y)
 
 # forall x, there exists y, such that (y or x)
-u = bdd.add_expr('\A x:  \E y:  y \/ z')
+u = bdd.add_expr(r'\A x:  \E y:  y \/ z')
 assert u == bdd.true, u
 ```
 
@@ -168,10 +168,10 @@ representation is `@5`. These enable you to mention existing BDD nodes
 in formulas, without the need to expand them as formulas. For example:
 
 ```python
-u = bdd.add_expr('y \/ z')
-s = 'x /\ {u}'.format(u=u)
+u = bdd.add_expr(r'y \/ z')
+s = r'x /\ {u}'.format(u=u)
 v = bdd.add_expr(s)
-v_ = bdd.add_expr('x /\ (y \/ z)')
+v_ = bdd.add_expr(r'x /\ (y \/ z)')
 assert v == v_
 ```
 
@@ -187,7 +187,7 @@ To substitute some variables for some other variables
 
 ```python
 bdd.declare('x', 'p', 'y', 'q', 'z')
-u = bdd.add_expr('x  \/  (y /\ z)')
+u = bdd.add_expr(r'x  \/  (y /\ z)')
 # substitute variables for variables (rename)
 d = dict(x='p', y='q')
 v = bdd.let(d, u)
@@ -202,7 +202,7 @@ The other forms are similar
 values = dict(x=True, y=False)
 v = bdd.let(values, u)
 # substitute BDDs for variables (compose)
-d = dict(x=bdd.add_expr('z \/ w'))
+d = dict(x=bdd.add_expr(r'z \/ w'))
 v = bdd.let(d, u)
 ```
 
@@ -215,7 +215,7 @@ variables. Such an assignment is also called a *model*.
 A model is represented as a `dict` that maps variable names to values.
 
 ```python
-u = bdd.add_expr('x \/ y')
+u = bdd.add_expr(r'x \/ y')
 >>> bdd.pick(u)  # choose an assignment, `u.pick()` works too
 {'x': False, 'y': True}
 ```
@@ -233,7 +233,7 @@ Consider the example
 
 ```python
 bdd.declare('x', 'y', 'z')
-u = bdd.add_expr('x \/ y')
+u = bdd.add_expr(r'x \/ y')
 >>> u.support
 {'x', 'y'}
 ```
@@ -306,7 +306,7 @@ A convenience method for creating a BDD from an assignment `dict` is
 ```python
 d = dict(x=True, y=False, z=True)
 u = bdd.cube(d)
-v = bdd.add_expr('x /\ ~ y /\ z')
+v = bdd.add_expr(r'x /\ ~ y /\ z')
 assert u == v, (u, v)
 ```
 
@@ -331,7 +331,7 @@ from dd import autoref as _bdd
 
 bdd = _bdd.BDD()
 bdd.declare('x', 'y', 'z')
-u = bdd.add_expr('(x /\ y) \/ ~ z')
+u = bdd.add_expr(r'(x /\ y) \/ ~ z')
 bdd.collect_garbage()  # optional
 bdd.dump('awesome.pdf')
 ```
@@ -377,7 +377,7 @@ from dd import autoref as _bdd
 
 bdd = _bdd.BDD()
 bdd.declare('x', 'y', 'z')
-u = bdd.add_expr('(x /\ y) \/ ~ z')
+u = bdd.add_expr(r'(x /\ y) \/ ~ z')
 print(u.negated)
 v = ~ u
 print(v.negated)
@@ -467,7 +467,7 @@ To copy a node from one BDD manager to another manager
 ```python
 a = _bdd.BDD()
 a.declare('x', 'y', 'z')
-u = a.add_expr('(x /\ y) \/ z')
+u = a.add_expr(r'(x /\ y) \/ z')
 # copy to another BDD manager
 b = _bdd.BDD()
 b.declare(*a.vars)
@@ -508,7 +508,7 @@ you cannot write `w = u & v` to get the correct result.
 You have to use either:
 
 - `BDD.apply('and', u, v)` or
-- `BDD.add_expr('{u} /\ {v}'.format(u=u, v=v))`.
+- `BDD.add_expr(r'{u} /\ {v}'.format(u=u, v=v))`.
 
 Unlike `dd.bdd`, the nodes in `autoref` and `cudd` are of class `Function`.
 This abstracts away the underlying node representation, so that you can run
@@ -776,7 +776,7 @@ from dd import bdd as _bdd
 
 bdd = _bdd.BDD()
 bdd.declare('x', 'y', 'z')
-s = '(x /\ y) \/ ~ z'  # TLA+ syntax
+s = r'(x /\ y) \/ ~ z'  # TLA+ syntax
 s = '(x & y) | ! z'  # Promela syntax
 u = bdd.add_expr(s)
 bdd.incref(u)
@@ -792,7 +792,7 @@ A formula may depend on a variable, or not.
 There are two ways to find out
 
 ```python
-u = bdd.add_expr('x /\ y')  # TLA+ syntax
+u = bdd.add_expr(r'x /\ y')  # TLA+ syntax
 u = bdd.add_expr('x & y')  # Promela syntax
 
 c = 'x' in bdd.support(u)  # more readable
@@ -843,7 +843,7 @@ bdd.declare(*vrs)
 >>> bdd.vars
 {'x0': 0, 'x1': 1, 'x2': 2, 'y0': 3, 'y1': 4, 'y2': 5}
 
-s = '(x0 /\ y0) \/ (x1 /\ y1) \/ (x2 /\ y2)'  # TLA+ syntax
+s = r'(x0 /\ y0) \/ (x1 /\ y1) \/ (x2 /\ y2)'  # TLA+ syntax
 s = '(x0 & y0) | (x1 & y1) | (x2 & y2)'  # Promela syntax
 u = bdd.add_expr(s)
 bdd.incref(u)
@@ -1018,10 +1018,10 @@ bdd = _bdd.BDD()
 bdd.declare("x0", "x0'", "x1", "x1'")
 # TLA+ syntax
 s = (
-    "((~ x0 /\ ~ x1) => ( (~ x0' /\ ~ x1') \/ (x0' /\ ~ x1') )) /\ "
-    "((x0 /\ ~ x1) => ~ (x0' /\ x1')) /\ "
-    "((~ x0 /\ x1) => ( (~ x0' /\ x1') \/ (x0' /\ ~ x1') )) /\ "
-    " ~ (x0 /\ x1)")
+    r"((~ x0 /\ ~ x1) => ( (~ x0' /\ ~ x1') \/ (x0' /\ ~ x1') )) /\ "
+    r"((x0 /\ ~ x1) => ~ (x0' /\ x1')) /\ "
+    r"((~ x0 /\ x1) => ( (~ x0' /\ x1') \/ (x0' /\ ~ x1') )) /\ "
+    r" ~ (x0 /\ x1)")
 transitions = bdd.add_expr(s)
 ```
 
@@ -1039,7 +1039,7 @@ We continue this backward iteration, until reaching a [least fixpoint](
 
 ```python
 # target is the set {2}
-target = bdd.add_expr('~ x0 /\ x1')
+target = bdd.add_expr(r'~ x0 /\ x1')
 # start from empty set
 q = bdd.false
 qold = None
@@ -1188,7 +1188,7 @@ from dd import mdd as _mdd
 
 bits = dict(x=0, y0=1, y1=2)
 bdd = BDD(bits)
-u = bdd.add_expr('x \/ (~ y0 /\ y1)')
+u = bdd.add_expr(r'x \/ (~ y0 /\ y1)')
 bdd.incref(u)
 
 # convert BDD to MDD

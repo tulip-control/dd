@@ -29,7 +29,7 @@ class Tests(object):
         v = b.var('y')
         w = b.var('z')
         u = b.find_or_add('x', v, w)
-        u_ = b.add_expr('(~ x /\ y)  \/  (x /\ z)')
+        u_ = b.add_expr(r'(~ x /\ y)  \/  (x /\ z)')
         assert b.apply('<=>', u, u_) == b.true
         assert u == u_, (b.to_expr(u), b.to_expr(u_))
 
@@ -63,7 +63,7 @@ class Tests(object):
         bdd.declare('x', 'y')
         order = dict(x=0, y=1)
         bdd.reorder(order)
-        u = bdd.add_expr('x \/ y')
+        u = bdd.add_expr(r'x \/ y')
         y = bdd.add_expr('y')
         # Assigned first because in presence of a bug
         # different property calls could yield
@@ -111,7 +111,7 @@ class Tests(object):
     def test_dump_load_json(self):
         bdd = self.DD()
         bdd.declare('x', 'y', 'z')
-        u = bdd.add_expr('(z /\ x /\ y) \/ x \/ ~ y')
+        u = bdd.add_expr(r'(z /\ x /\ y) \/ x \/ ~ y')
         fname = 'foo.json'
         bdd.dump(fname, [u])
         u_, = bdd.load(fname)

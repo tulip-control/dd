@@ -66,21 +66,21 @@ def test_support_cudd():
 def test_cudd_cofactor():
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y')
-    u = zdd.add_expr('x /\ ~ y')
+    u = zdd.add_expr(r'x /\ ~ y')
     r = zdd._cofactor_cudd(u, 'y', False)
-    r_ = zdd.add_expr('x /\ ~ y')
+    r_ = zdd.add_expr(r'x /\ ~ y')
     assert r == r_, len(r)
-    u = zdd.add_expr('x /\ y')
+    u = zdd.add_expr(r'x /\ y')
     r = zdd._cofactor_cudd(u, 'x', True)
-    r_ = zdd.add_expr('~ x /\ y')  # no node at x
+    r_ = zdd.add_expr(r'~ x /\ y')  # no node at x
     assert r == r_
 
 
 def test_find_or_add():
     bdd = cudd_zdd.ZDD()
     bdd.declare('x', 'y', 'z')
-    v = bdd.add_expr('~ x /\ y /\ ~ z')
-    w = bdd.add_expr('~ x /\ ~ y /\ z')
+    v = bdd.add_expr(r'~ x /\ y /\ ~ z')
+    w = bdd.add_expr(r'~ x /\ ~ y /\ z')
     u = bdd.find_or_add('x', v, w)
     assert u.low == v, len(u)
     assert u.high == w, len(u)
@@ -153,13 +153,13 @@ def test_disjunction():
     v = zdd.add_expr('x')
     w = zdd.add_expr('y')
     u = zdd._disjoin_root(v, w)
-    u_ = zdd.add_expr('x \/ y')
+    u_ = zdd.add_expr(r'x \/ y')
     assert u == u_, len(u)
     # (~ w /\ x) \/ y
-    v = zdd.add_expr('~ w /\ x')
+    v = zdd.add_expr(r'~ w /\ x')
     w = zdd.add_expr('y')
     u = zdd._disjoin_root(v, w)
-    u_ = zdd.add_expr('(~ w /\ x) \/ y')
+    u_ = zdd.add_expr(r'(~ w /\ x) \/ y')
     assert u == u_, len(u)
 
 
@@ -169,20 +169,20 @@ def test_conjunction():
     v = zdd.var('x')
     w = zdd.var('y')
     u = zdd._conjoin_root(v, w)
-    u_ = zdd.add_expr('x /\ y')
+    u_ = zdd.add_expr(r'x /\ y')
     assert u == u_, len(u)
     u = zdd._conjoin_root(v, ~ w)
-    u_ = zdd.add_expr('x /\ ~ y')
+    u_ = zdd.add_expr(r'x /\ ~ y')
     assert u == u_, len(u)
 
 
 def test_c_disjunction():
     zdd = cudd_zdd.ZDD()
     zdd.declare('w', 'x', 'y')
-    v = zdd.add_expr('~ w /\ x')
+    v = zdd.add_expr(r'~ w /\ x')
     w = zdd.add_expr('y')
     u = cudd_zdd._c_disjoin(v, w)
-    u_ = zdd.add_expr('(~ w /\ x) \/ y')
+    u_ = zdd.add_expr(r'(~ w /\ x) \/ y')
     assert u == u_, len(u)
 
 
@@ -192,7 +192,7 @@ def test_c_conjunction():
     x = zdd.var('x')
     y = zdd.var('y')
     u = cudd_zdd._c_conjoin(x, y)
-    u_ = zdd.add_expr('x /\ y')
+    u_ = zdd.add_expr(r'x /\ y')
     assert u == u_, len(u)
 
 
@@ -200,7 +200,7 @@ def test_c_exist():
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     # \E x:  (x /\ ~ y) \/ ~ z
-    u = zdd.add_expr('(x /\ ~ y) \/ ~ z')
+    u = zdd.add_expr(r'(x /\ ~ y) \/ ~ z')
     qvars = ['x']
     r = cudd_zdd._c_exist(qvars, u)
     r_ = zdd.exist(qvars, u)

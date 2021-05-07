@@ -5,7 +5,7 @@ from dd import cudd_zdd
 def main():
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
-    u = zdd.add_expr('(x /\ y) \/ z')
+    u = zdd.add_expr(r'(x /\ y) \/ z')
     let = dict(y=zdd.add_expr('~ x'))
     v = zdd.let(let, u)
     v_ = zdd.add_expr('z')

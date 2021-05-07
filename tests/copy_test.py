@@ -11,7 +11,7 @@ def test_involution():
 
 def _test_involution(mod):
     bdd_1, bdd_2 = _setup(mod)
-    u = bdd_1.add_expr('x /\ ~ y')
+    u = bdd_1.add_expr(r'x /\ ~ y')
     v = _copy.copy_bdd(u, bdd_2)
     u_ = _copy.copy_bdd(v, bdd_1)
     assert u == u_, (u, u_)
@@ -24,7 +24,7 @@ def test_bdd_mapping():
 
 def _test_bdd_mapping(mod):
     bdd_1, bdd_2 = _setup(mod)
-    u = bdd_1.add_expr('x /\ ~ y')
+    u = bdd_1.add_expr(r'x /\ ~ y')
     cache = dict()
     u_ = _copy.copy_bdd(u, bdd_2, cache)
     d = {bdd_1._add_int(k): v for k, v in cache.items()}
@@ -78,7 +78,7 @@ def test_dump_load_same_order():
 def _test_dump_load_same_order(mod):
     b = mod.BDD()
     b.declare('x', 'y', 'z')
-    expr = 'x /\ ~ y'
+    expr = r'x /\ ~ y'
     u = b.add_expr(expr)
     # dump
     fname = 'hoho.json'

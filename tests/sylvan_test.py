@@ -69,30 +69,30 @@ def test_add_expr():
     for var in ['x', 'y']:
         bdd.add_var(var)
     # ((0 \/ 1) /\ x) \equiv x
-    s = '(TRUE \/ FALSE) /\ x'
+    s = r'(TRUE \/ FALSE) /\ x'
     u = bdd.add_expr(s)
     x = bdd.var('x')
     assert u == x, (u, x)
     # ((x \/ ~ y) /\ x) \equiv x
-    s = '(x \/ ~ y) /\ x'
+    s = r'(x \/ ~ y) /\ x'
     u = bdd.add_expr(s)
     assert u == x, (u, x)
     # x /\ y /\ z
     bdd.add_var('z')
     z = bdd.var('z')
-    u = bdd.add_expr('x /\ y /\ z')
+    u = bdd.add_expr(r'x /\ y /\ z')
     u_ = bdd.cube(dict(x=True, y=True, z=True))
     assert u == u_, (u, u_)
     # x /\ ~ y /\ z
-    u = bdd.add_expr('x /\ ~ y /\ z')
+    u = bdd.add_expr(r'x /\ ~ y /\ z')
     u_ = bdd.cube(dict(x=True, y=False, z=True))
     assert u == u_, (u, u_)
     # (\E x:  x /\ y) \equiv y
     y = bdd.var('y')
-    u = bdd.add_expr('\E x:  x /\ y')
+    u = bdd.add_expr(r'\E x:  x /\ y')
     assert u == y, (str(u), str(y))
     # (\A x:  x \/ ~ x) \equiv TRUE
-    u = bdd.add_expr('\A x:  ~ x \/ x')
+    u = bdd.add_expr(r'\A x:  ~ x \/ x')
     assert u == bdd.true, u
     del x, y, z, u, u_
 
@@ -107,7 +107,7 @@ def test_support():
     u = bdd.var('y')
     supp = bdd.support(u)
     assert supp == {'y'}, supp
-    u = bdd.add_expr('x /\ y')
+    u = bdd.add_expr(r'x /\ y')
     supp = bdd.support(u)
     assert supp == {'x', 'y'}, supp
     del u
@@ -155,11 +155,11 @@ def test_rename():
     # multiple variables
     bdd.add_var('z')
     bdd.add_var('w')
-    s = '(x /\ ~ y) \/ w'
+    s = r'(x /\ ~ y) \/ w'
     u = bdd.add_expr(s)
     rename = dict(x='w', y='z', w='y')
     v = bdd.let(rename, u)
-    s = '(w /\ ~ z) \/ y'
+    s = r'(w /\ ~ z) \/ y'
     v_ = bdd.add_expr(s)
     assert v == v_, bdd.to_expr(v)
     del x, y, y_, u, v, v_
@@ -185,7 +185,7 @@ def test_pick_iter():
     m_ = [dict(x=True)]
     assert m == m_, (m, m_)
     # ~ x /\ y
-    s = '~ x /\ y'
+    s = r'~ x /\ y'
     u = b.add_expr(s)
     g = b.pick_iter(u, care_vars=set())
     m = list(g)
@@ -196,7 +196,7 @@ def test_pick_iter():
     m = list(g)
     assert m == m_, (m, m_)
     # x /\ y
-    u = b.add_expr('x /\ y')
+    u = b.add_expr(r'x /\ y')
     m = list(b.pick_iter(u))
     m_ = [dict(x=True, y=True)]
     assert m == m_, m
@@ -217,7 +217,7 @@ def test_pick_iter():
     equal_list_contents(m, m_)
     # care bits x, y
     b.add_var('z')
-    s = 'x \/ y'
+    s = r'x \/ y'
     u = b.add_expr(s)
     g = b.pick_iter(u, care_vars=['x', 'y'])
     m = list(g)

@@ -34,17 +34,17 @@ def test_count():
     u = bdd.add_expr('x')
     n = bdd.count(u)
     assert n == 1, n
-    u = bdd.add_expr('x /\ y')
+    u = bdd.add_expr(r'x /\ y')
     n = bdd.count(u)
     assert n == 1, n
-    u = bdd.add_expr('x \/ y')
+    u = bdd.add_expr(r'x \/ y')
     n = bdd.count(u)
     assert n == 3, n
 
 
 def test_dump_load():
     vrs = ['x', 'y', 'z']
-    s = 'x \/ y \/ ~ z'
+    s = r'x \/ y \/ ~ z'
     fname = 'foo.p'
     # dump
     bdd = _bdd.BDD()
@@ -88,9 +88,9 @@ def test_reorder_2():
         'z1', 'z2', 'z3', 'y1', 'y2', 'y3']
     bdd = _bdd.BDD()
     bdd.declare(*vrs)
-    expr_1 = '(~ z \/ (c /\ b)) /\ e /\ (a /\ (~ x \/ y))'
+    expr_1 = r'(~ z \/ (c /\ b)) /\ e /\ (a /\ (~ x \/ y))'
     # Figs. 6.24, 6.25 Baier 2008
-    expr_2 = '(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
+    expr_2 = r'(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
     u = bdd.add_expr(expr_1)
     v = bdd.add_expr(expr_2)
     bdd.collect_garbage()
@@ -107,8 +107,8 @@ def test_configure_dynamic_reordering():
     vrs = [
         'x', 'y', 'z', 'a', 'b', 'c', 'e',
         'z1', 'z2', 'z3', 'y1', 'y2', 'y3']
-    expr_1 = '(~ z \/ (c /\ b)) /\ e /\ (a /\ (~ x \/ y))'
-    expr_2 = '(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
+    expr_1 = r'(~ z \/ (c /\ b)) /\ e /\ (a /\ (~ x \/ y))'
+    expr_2 = r'(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
     # w/o dynamic reordering
     bdd = _bdd.BDD()
     bdd.declare(*vrs)
@@ -135,7 +135,7 @@ def test_collect_garbage():
     n = len(bdd)
     assert n == 1, n
     bdd.declare('x', 'y')
-    u = bdd.add_expr('x \/ y')
+    u = bdd.add_expr(r'x \/ y')
     bdd.collect_garbage()
     n = len(bdd)
     assert n > 1, n
@@ -174,7 +174,7 @@ def test_func_len():
     u = bdd.add_expr('x')
     n = len(u)
     assert n == 2, n
-    u = bdd.add_expr('x /\ y')
+    u = bdd.add_expr(r'x /\ y')
     n = len(u)
     assert n == 3, n
 

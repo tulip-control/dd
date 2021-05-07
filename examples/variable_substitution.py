@@ -7,7 +7,7 @@ from dd import autoref as _bdd
 bdd = _bdd.BDD()
 bdd.declare('x', 'y', 'u', 'v')
 # create the BDD for the disjunction of x and y
-u = bdd.add_expr('x \/ y')
+u = bdd.add_expr(r'x \/ y')
 # Substitution of x' for x and y' for y.
 # In TLA+ we can write this as:
 #
@@ -23,5 +23,5 @@ s = bdd.to_expr(v)
 print(s)
 
 # another way to confirm that the result is as expected
-v_ = bdd.add_expr('u \/ v')
+v_ = bdd.add_expr(r'u \/ v')
 assert v == v_

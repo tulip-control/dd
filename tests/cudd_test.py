@@ -70,7 +70,7 @@ def test_dump_load_dddmp():
     bdd = cudd.BDD()
     for var in ['x', 'y', 'z', 'w']:
         bdd.add_var(var)
-    u = bdd.add_expr('(x /\ ~ w) \/ z')
+    u = bdd.add_expr(r'(x /\ ~ w) \/ z')
     fname = 'bdd.dddmp'
     bdd.dump(fname, [u], filetype='dddmp')
     u_, = bdd.load(fname)
@@ -86,7 +86,7 @@ def test_load_sample0():
     u, = bdd.load(fname)
     n = len(u)
     assert n == 5, n
-    s = '~ ( (a /\ (b \/ c)) \/ (~ a /\ (b \/ ~ c)) )'
+    s = r'~ ( (a /\ (b \/ c)) \/ (~ a /\ (b \/ ~ c)) )'
     u_ = bdd.add_expr(s)
     assert u == u_, (u, u_)
 
@@ -189,7 +189,7 @@ def test_copy_bdd_same_indices():
     for var in dvars:
         bdd.add_var(var)
         other.add_var(var)
-    s = '(x /\ y) \/ ~ z'
+    s = r'(x /\ y) \/ ~ z'
     u0 = bdd.add_expr(s)
     u1 = cudd.copy_bdd(u0, other)
     u2 = cudd.copy_bdd(u1, bdd)
@@ -213,7 +213,7 @@ def test_copy_bdd_different_indices():
         bdd.add_var(var)
     for var in reversed(dvars):
         other.add_var(var)
-    s = '(x \/ ~ y) /\ ~ z'
+    s = r'(x \/ ~ y) /\ ~ z'
     u0 = bdd.add_expr(s)
     u1 = cudd.copy_bdd(u0, other)
     u2 = cudd.copy_bdd(u1, bdd)
@@ -254,7 +254,7 @@ def test_copy_bdd_different_order():
         j = other.level_of_var(var)
         assert i != j, (i, j)
     # copy
-    s = '(x \/ ~ y) /\ w /\ (z \/ ~ w)'
+    s = r'(x \/ ~ y) /\ w /\ (z \/ ~ w)'
     u0 = bdd.add_expr(s)
     u1 = cudd.copy_bdd(u0, other)
     u2 = cudd.copy_bdd(u1, bdd)
@@ -269,8 +269,8 @@ def test_copy_bdd_different_order():
 def test_count_nodes():
     bdd = cudd.BDD()
     [bdd.add_var(var) for var in ['x', 'y', 'z']]
-    u = bdd.add_expr('x /\ y')
-    v = bdd.add_expr('x /\ z')
+    u = bdd.add_expr(r'x /\ y')
+    v = bdd.add_expr(r'x /\ z')
     assert len(u) == 3, len(u)
     assert len(v) == 3, len(v)
     bdd.reorder(dict(x=0, y=1, z=2))

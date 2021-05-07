@@ -166,7 +166,7 @@ class Tests(object):
             reordering=False,
             garbage_collection=False)
         bdd.declare('x', 'y')
-        u = bdd.add_expr('x /\ ~ y')
+        u = bdd.add_expr(r'x /\ ~ y')
         assert u.ref == 1, u.ref
         assert u._ref == 1, u._ref
         bdd.decref(u, recursive=True)

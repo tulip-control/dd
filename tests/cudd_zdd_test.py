@@ -11,6 +11,7 @@ from common_cudd import Tests as CuddTests
 
 Tests.DD = cudd_zdd.ZDD
 CuddTests.DD = cudd_zdd.ZDD
+CuddTests.MODULE = cudd_zdd
 
 
 def test_false():

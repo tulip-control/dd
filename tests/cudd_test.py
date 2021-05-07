@@ -14,6 +14,7 @@ logging.getLogger('astutils').setLevel('ERROR')
 Tests.DD = cudd.BDD
 BDDTests.DD = cudd.BDD
 CuddTests.DD = cudd.BDD
+CuddTests.MODULE = cudd
 
 
 def test_insert_var():

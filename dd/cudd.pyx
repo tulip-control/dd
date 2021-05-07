@@ -24,6 +24,7 @@ import warnings
 from dd import _copy
 from dd import _parser
 from dd import _compat
+from dd import _utils
 from dd import autoref
 from dd import bdd as _bdd
 from libcpp cimport bool
@@ -558,15 +559,90 @@ cdef class BDD(object):
         return i, v, w
 
     cpdef incref(self, Function u):
+        """Increment the reference count of `u`.
+
+        Raise `RuntimeError` if `u._ref <= 0`.
+        For more details about avoiding this
+        read the docstring of the class `Function`.
+
+        The reference count of the BDD node in CUDD
+        that `u` points to is incremented.
+
+        Also, the attribute `u._ref` is incremented.
+
+        Calling this method is unnecessary,
+        because reference counting is automated.
+        """
+        if u._ref <= 0:
+            _utils._raise_runtimerror_about_ref_count(
+                u._ref, 'method `dd.cudd.BDD.incref`',
+                '`dd.cudd.Function`')
+        assert u._ref > 0, u._ref
+        u._ref += 1
         self._incref(u.node)
 
-    cpdef decref(self, Function u, recursive=False):
+    cpdef decref(
+            self, Function u,
+            recursive=False, _direct=False):
+        """Decrement the reference count of `u`.
+
+        Raise `RuntimeError` if `u._ref <= 0`.
+        For more details about avoiding this
+        read the docstring of the class `Function`.
+
+        The reference count of the BDD node in CUDD
+        that `u` points to is decremented.
+
+        Also, the attribute `u._ref` is decremented.
+
+        Calling this method is unnecessary,
+        because reference counting is automated.
+
+        If early dereferencing of the node is desired
+        in order to allow garbage collection,
+        then write `del u`, instead of calling
+        this method.
+
+        @param recursive: if `True`, then call
+            `Cudd_RecursiveDeref`,
+            else call `Cudd_Deref`
+        @param _direct: use this parameter only after
+            reading the source code of the
+            Cython file `dd/cudd.pyx`.
+            When `_direct == True`, some of the above
+            description does not apply.
+        """
+        # bypass checks and leave `u._ref` unchanged,
+        # directly call `_decref`
+        if _direct:
+            self._decref(u.node, recursive)
+            return
+        if u._ref <= 0:
+            _utils._raise_runtimerror_about_ref_count(
+                u._ref, 'method `dd.cudd.BDD.decref`',
+                '`dd.cudd.Function`')
+        assert u._ref > 0, u._ref
+        u._ref -= 1
         self._decref(u.node, recursive)
 
     cdef _incref(self, DdNode *u):
         Cudd_Ref(u)
 
     cdef _decref(self, DdNode *u, recursive=False):
+        # There is little point in checking here
+        # the reference count of `u`, because
+        # doing that relies on the assumption
+        # that `u` still corresponds to a node,
+        # which implies that the reference count
+        # is positive.
+        #
+        # This point should not be reachable
+        # after `u` reaches zero reference count.
+        #
+        # Moreover, if the memory has been deallocated,
+        # then in principle the attribute `ref`
+        # can have any value, so an assertion here
+        # would not be ensuring correctness.
         if recursive:
             Cudd_RecursiveDeref(self.manager, u)
         else:
@@ -1582,6 +1658,9 @@ cdef class Function(object):
     described in their docstrings):
 
       - `_index`
+      - `_ref`: safe lower bound on reference count
+        of the CUDD BDD node pointed to by this
+        `Function` instance. Do not modify this value.
       - `var`
       - `level`
       - `ref`
@@ -1611,18 +1690,179 @@ cdef class Function(object):
     f = Function()
     f.init(bdd, u)
     ```
+
+
+    About reference counting
+    ========================
+
+    Nothing needs to be done for reference counting
+    by the user: reference counting is automated.
+
+    "Early" dereferencing of a CUDD BDD node is
+    possible by using the statement:
+
+    ```python
+    del u
+    ```
+
+    where `u` is an instance of the class `Function`.
+    "Early" here means that the CUDD BDD node will
+    be dereferenced before it would have otherwise
+    been dereferenced.
+
+    That (possibly) later time would have been when
+    Python exited the scope where `u` was defined,
+    or even later, in case other references to the
+    object with `id(u)` existed.
+
+    The method `dd.cudd.BDD.decref` should not be
+    called for "early" dereferencing. Instead,
+    write `del u` as above.
+
+    However, if the user decides to call any
+    of the methods:
+
+    - `dd.cudd.BDD.incref(u)`
+    - `dd.cudd.BDD.decref(u)`
+
+    then the user needs to ensure that `u._ref > 0`
+    before each call to these methods,
+    taking into account that:
+
+    - `dd.cudd.BDD.incref(u)` increments `u._ref`
+    - `dd.cudd.BDD.decref(u)` decrements `u._ref`
+
+    The attribute `u._ref` is *not* the
+    reference count of the BDD node in CUDD
+    that the C attribute `u.node`
+    points to. The value of `u._ref` is
+    a lower bound on the reference count of
+    the BDD node that `u.node` points to.
+
+    This is a safe approach for accessing
+    memory in CUDD. The following example
+    demonstrates this approach.
+
+    We start with:
+
+    ```python
+    from dd.cudd import BDD
+
+    bdd = BDD()
+    bdd.declare('x', 'y')
+    u = bdd.add_expr(r'x /\ ~ y')
+
+    w = u
+    assert w is u
+    ```
+
+    i.e., `u` and `w` are different Python variables
+    that point to the *same* instance of `Function`.
+    This `Function` instance points to
+    a BDD node in CUDD.
+    We will refer to this `Function` instance as
+    "the object with `id(u)`".
+
+    ```python
+    v = bdd.add_expr(r'x /\ ~ y')
+    assert v is not u
+    ```
+
+    i.e., the Python variable `v` points to an
+    instance of `Function` different from the
+    `Function` instance that `u` points to.
+    We will refer to the `Function` instance that
+    `v` points to as "the object with `id(v)`".
+
+    The object with `id(v)` and the object with `id(u)`
+    point to the same BDD node in CUDD.
+
+    The statement
+
+    ```python
+    bdd.decref(v, recursive=True)
+    ```
+
+    decrements:
+
+    - the reference count of the BDD node in CUDD
+      that the object with `id(v)` points to
+
+    - the lower bound `v._ref`
+
+    - the reference counts of CUDD BDD nodes that
+      are successors, recursively, when a node's
+      reference count becomes 0. For more details
+      read the docstring of the CUDD function
+      `Cudd_RecursiveDeref`.
+
+    Setting the parameter `recursive` to `True`
+    here has no effect, because due to `u` the
+    reference count of the CUDD BDD node corresponding
+    to `v` remains positive after the decrement.
+
+    But in general this is not the case,
+    so `recursive=True` is then necessary,
+    because afterwards it is impossible to
+    dereference the successors of the CUDD BDD node
+    that corresponds to `v`. The reason is
+    described next.
+
+    The object with `id(v)` should *not* be used
+    after this point, because `v._ref == 0`.
+
+    In this specific example, using `v` beyond
+    this point would actually not cause problems,
+    because the CUDD BDD node's reference count
+    is still positive (due to the increment
+    when the object with `id(u)` was instantiated).
+
+    But in general this is not the case.
+
+    Also, after the attribute `v._ref` becomes `0`,
+    there is no safe way for the object with `id(v)`
+    to read the reference count of the CUDD BDD node
+    that this object points to, even though that
+    reference count is positive and the BDD node
+    is still accessible via `u` and `w`.
+
+    From the perspective of the object with `id(v)`,
+    further access to that CUDD BDD node is unsafe.
+
+    If we continue by doing:
+
+    ```python
+    bdd.decref(u, recursive=True)
+    ```
+
+    then both variables `u` and `w`
+    should *not* be used any further.
+    These variables refer to the
+    same Python object, and `u._ref == 0`
+    (thus `w._ref == 0`). So the same observations
+    apply to `u` and `w` as for `v` above.
     """
 
     cdef object __weakref__
     cdef public BDD bdd
     cdef DdManager *manager
     cdef DdNode *node
+    cdef public int _ref
 
     cdef init(self, DdNode *node, BDD bdd):
         assert node != NULL, '`DdNode *node` is `NULL` pointer.'
         self.bdd = bdd
         self.manager = bdd.manager
         self.node = node
+        self._ref = 1  # lower bound on
+            # reference count
+            #
+            # Assumed invariant:
+            # this instance participates in
+            # computation only as long as
+            # `self._ref > 0`.
+            # The user is responsible for
+            # implementing this invariant.
         Cudd_Ref(node)
 
     def __hash__(self):
@@ -1687,6 +1927,23 @@ cdef class Function(object):
         return self.bdd.support(self)
 
     def __dealloc__(self):
+        # when changing this method,
+        # update also the function
+        # `_test_call_dealloc` below
+        if self._ref < 0:
+            raise AssertionError((
+                "The lower bound `_ref` on the node's "
+                'reference count has value {_ref}, '
+                'which is unexpected and should never happen. '
+                'Was the value of `_ref` changed from outside '
+                'this class?'
+                ).format(_ref=self._ref))
+        assert self._ref >= 0, self._ref
+        if self._ref == 0:
+            return
+        # anticipate multiple calls to `__dealloc__`
+        self._ref -= 1
+        # deref
         Cudd_RecursiveDeref(self.manager, self.node)
 
     def __int__(self):
@@ -1851,3 +2108,37 @@ cpdef _test_cube_array_to_dict():
     d_ = dict(y=True, z=False)
     assert d == d_, (d, d_)
     PyMem_Free(x)
+
+
+cpdef _test_call_dealloc(Function u):
+    """Duplicates the code of `Function.__dealloc__`.
+
+    The main purpose of this function is to test the
+    exceptions raised in the method `Function.__dealloc__`.
+
+    Exceptions raised in `__dealloc__` are ignored
+    (they become messages), and it seems impossible to
+    call `__dealloc__` directly (unlike `__del__`),
+    so there is no way to assert what exceptions
+    are raised in `__dealloc__`.
+
+    This function is the closest thing to testing
+    those exceptions.
+    """
+    self = u
+    # the code of `Function.__dealloc__` follows:
+    if self._ref < 0:
+        raise AssertionError((
+            "The lower bound `_ref` on the node's "
+            'reference count has value {_ref}, '
+            'which is unexpected and should never happen. '
+            'Was the value of `_ref` changed from outside '
+            'this class?'
+            ).format(_ref=self._ref))
+    assert self._ref >= 0, self._ref
+    if self._ref == 0:
+        return
+    # anticipate multiple calls to `__dealloc__`
+    self._ref -= 1
+    # deref
+    Cudd_RecursiveDeref(self.manager, self.node)

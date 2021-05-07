@@ -54,6 +54,7 @@ import warnings
 
 from dd import _copy
 from dd import _parser
+from dd import _utils
 from dd import bdd as _bdd
 from libcpp cimport bool
 from libc.stdio cimport FILE, fdopen, fopen, fclose
@@ -547,16 +548,47 @@ cdef class ZDD(object):
         return i, v, w
 
     cpdef incref(self, Function u):
-        """Increment reference count of `u`."""
+        """Increment the reference count of `u`.
+
+        For details read the docstring of the
+        method `dd.cudd.BDD.incref`.
+        """
+        if u._ref <= 0:
+            _utils._raise_runtimerror_about_ref_count(
+                u._ref, 'method `dd.cudd_zdd.ZDD.incref`',
+                '`dd.cudd_zdd.Function`')
+        assert u._ref > 0, u._ref
+        u._ref += 1
         self._incref(u.node)
 
-    cpdef decref(self, Function u, recursive=False):
-        """Decrement reference count of `u`.
+    cpdef decref(
+            self, Function u, recursive=False,
+            _direct=False):
+        """Decrement the reference count of `u`.
+
+        For details read the docstring of the
+        method `dd.cudd.BDD.decref`.
 
         @param recursive: if `True`, then call
             `Cudd_RecursiveDerefZdd`,
             else call `Cudd_Deref`
+        @param _direct: use this parameter only after
+            reading the source code of the
+            Cython file `dd/cudd_zdd.pyx`.
+            When `_direct == True`, some of the above
+            description does not apply.
         """
+        # bypass checks and leave `u._ref` unchanged,
+        # directly call `_decref`
+        if _direct:
+            self._decref(u.node, recursive)
+            return
+        if u._ref <= 0:
+            _utils._raise_runtimerror_about_ref_count(
+                u._ref, 'method `dd.cudd_zdd.ZDD.decref`',
+                '`dd.cudd_zdd.Function`')
+        assert u._ref > 0, u._ref
+        u._ref -= 1
         self._decref(u.node, recursive)
 
     cdef _incref(self, DdNode *u):
@@ -1698,13 +1730,18 @@ cdef Function wrap(ZDD bdd, DdNode *node):
 
 
 cdef class Function(object):
-    """Wrapper of ZDD `DdNode` from CUDD."""
+    """Wrapper of ZDD `DdNode` from CUDD.
+
+    For details, read the docstring of the
+    class `dd.cudd.Function`.
+    """
 
     cdef object __weakref__
     cdef public ZDD bdd
     cdef public ZDD zdd
     cdef DdManager *manager
     cdef DdNode *node
+    cdef public int _ref
 
     cdef init(self, DdNode *node, ZDD bdd):
         assert node != NULL, '`DdNode *node` is `NULL` pointer.'
@@ -1714,6 +1751,7 @@ cdef class Function(object):
             # common algorithms for BDDs and ZDDs where possible
         self.manager = bdd.manager
         self.node = node
+        self._ref = 1  # lower bound on reference count
         Cudd_Ref(node)
 
     def __hash__(self):
@@ -1792,6 +1830,23 @@ cdef class Function(object):
         return self.bdd.support(self)
 
     def __dealloc__(self):
+        # when changing this method,
+        # update also the function
+        # `_test_call_dealloc` below
+        if self._ref < 0:
+            raise AssertionError((
+                "The lower bound `_ref` on the node's "
+                'reference count has value {_ref}, '
+                'which is unexpected and should never happen. '
+                'Was the value of `_ref` changed from outside '
+                'this class?'
+                ).format(_ref=self._ref))
+        assert self._ref >= 0, self._ref
+        if self._ref == 0:
+            return
+        # anticipate multiple calls to `__dealloc__`
+        self._ref -= 1
+        # deref
         Cudd_RecursiveDerefZdd(self.manager, self.node)
 
     def __int__(self):
@@ -2622,3 +2677,28 @@ cdef void _clear_markers(DdNode *u):
     v, w = Cudd_Regular(cuddE(u)), cuddT(u)
     _clear_markers(v)
     _clear_markers(w)
+
+
+cpdef _test_call_dealloc(Function u):
+    """Duplicates the code of `Function.__dealloc__`.
+
+    For details read the docstring of the function
+    `dd.cudd._test_call_dealloc`.
+    """
+    self = u
+    # the code of `Function.__dealloc__` follows:
+    if self._ref < 0:
+        raise AssertionError((
+            "The lower bound `_ref` on the node's "
+            'reference count has value {_ref}, '
+            'which is unexpected and should never happen. '
+            'Was the value of `_ref` changed from outside '
+            'this class?'
+            ).format(_ref=self._ref))
+    assert self._ref >= 0, self._ref
+    if self._ref == 0:
+        return
+    # anticipate multiple calls to `__dealloc__`
+    self._ref -= 1
+    # deref
+    Cudd_RecursiveDerefZdd(self.manager, self.node)

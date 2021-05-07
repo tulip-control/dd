@@ -642,6 +642,60 @@ but does not default to invoking automated reordering.
 Typical use of CUDD enables dynamic reordering.
 
 
+### Checking for reference counting errors
+
+When a BDD manager `dd.cudd.BDD` is deallocated, it asserts that no BDD nodes
+have nonzero reference count in CUDD. By default, this assertion should never
+fail, because automated reference counting makes it impossible.
+
+If the assertion fails, then the exception is ignored and a message is printed
+instead, and Python continues execution (see also the Cython documentation of
+[`__dealloc__`](
+    https://cython.readthedocs.io/en/latest/src/userguide/special_methods.html#finalization-method-dealloc),
+the Python documentation of
+["Finalization and De-allocation"](
+    https://docs.python.org/3/extending/newtypes.html#finalization-and-de-allocation),
+and of [`tp_dealloc`](
+    https://docs.python.org/3/c-api/typeobj.html#c.PyTypeObject.tp_dealloc)).
+
+In case the user decides to explicitly modify the reference counts,
+ignoring exceptions can make it easier for reference counting errors
+to go unnoticed. To make Python exit when reference counting errors exist
+before a BDD manager is deallocated, use:
+
+```python
+from dd import cudd
+
+bdd = cudd.BDD()
+# ... statements ...
+# raise `AssertionError` if any nodes have nonzero reference count
+# just before deallocating the BDD manager
+assert len(bdd) == 0, len(bdd)
+```
+
+Note that the meaning of `len` for the class `dd.autoref.BDD` is slightly
+different. As a result, the code for checking that no BDD nodes have nonzero
+reference count in `dd.autoref` is:
+
+```python
+from dd import autoref
+
+bdd = autoref.BDD()
+# ... statements ...
+# raise `AssertionError` if any nodes have nonzero reference count
+# just before deallocating the BDD manager
+bdd._bdd.__del__()  # directly calling `__del__` does raise
+    # any exception raised inside `__del__`
+```
+
+Note that if an assertion fails inside `__del__`, then
+[the exception is ignored and a message is printed to `sys.stderr` instead](
+    https://docs.python.org/3/reference/datamodel.html#object.__del__),
+and Python continues execution. This is similar to what happens with
+exceptions raised inside `__dealloc__` of extension types in Cython.
+When `__del__` is called directly, exceptions raised inside it are not ignored.
+
+
 ## Lower level: `dd.bdd`
 
 We discuss now some more details about the pure Python implementation

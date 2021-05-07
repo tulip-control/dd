@@ -232,7 +232,11 @@ def _load_json(f, bdd, load_order, cache):
             #     (thus referenced in `roots` above)
             # +1 ref due to the `_node_from_int`
             #   call for `u`
-        bdd.decref(u)
+        bdd.decref(u, _direct=True)
+            # this module is unusual,
+            # in that `incref` and `decref` need
+            # to be called on different `Function`
+            # instances for the same node
     bdd.assert_consistent()
     return roots
 

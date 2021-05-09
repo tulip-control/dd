@@ -192,6 +192,37 @@ class BDD(_abc.BDD):
 
     def dump(self, filename, roots=None,
              filetype=None, **kw):
+        """Write BDDs to `filename`.
+
+        The file type is inferred from the
+        extension (case insensitive),
+        unless a `filetype` is explicitly given.
+
+        `filetype` can have the values:
+
+          - `'p'` for Pickle
+          - `'pdf'` for PDF
+          - `'png'` for PNG
+          - `'svg'` for SVG
+          - `'json'` for JSON
+
+        If `filetype is None`, then `filename`
+        must have an extension that matches
+        one of the file types listed above.
+
+        Dump nodes reachable from `roots`.
+        If `roots is None`,
+        then all nodes in the manager are dumped.
+
+        Dumping a JSON file requires that `roots`
+        be nonempty.
+
+        @type filename: `str`
+        @type filetype: `str`, e.g., `"pdf"`
+        @type roots: container of nodes
+        """
+        # The method's docstring is a slight modification
+        # of the docstring of the method `dd._abc.BDD.dump`.
         if filetype is None:
             name = filename.lower()
             if name.endswith('.pdf'):
@@ -217,6 +248,23 @@ class BDD(_abc.BDD):
                            filetype=filetype)
 
     def load(self, filename, levels=True):
+        """Load nodes from Pickle or JSON file `filename`.
+
+        If `levels is True`,
+        then load variables at the same levels.
+        Otherwise, add missing variables.
+
+        @type filename: `str`
+        @return: roots of the loaded BDDs
+        @rtype: depends on the contents of the file,
+            either:
+            - `dict` that maps names (as `str`)
+              to nodes, or
+            - `list` of nodes
+        """
+        # This method's docstring is a slight
+        # modification of the docstring of
+        # the method `dd._abc.BDD.dump`.
         name = filename.lower()
         if name.endswith('.p'):
             return self._load_pickle(

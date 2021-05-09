@@ -241,7 +241,7 @@ class BDD(object):
     # revise this method to return roots as `list` or
     # named nodes as `dict`
     def load(self, filename, levels=True):
-        """Load nodes from pickle file `filename`.
+        """Load nodes from Pickle file `filename`.
 
         If `levels is True`,
         then load variables at the same levels.

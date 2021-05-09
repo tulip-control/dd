@@ -976,13 +976,24 @@ def test_dump_load_manager():
     # h.dump(prefix + '.pdf')
 
 
-def test_dump_pdf():
+def test_dump_using_graphviz():
     bdd = BDD()
     bdd.declare('x', 'y', 'z')
     u = bdd.add_expr(r'x /\ y')
     v = bdd.add_expr(r'y /\ ~ z')
-    fname = 'bdd.pdf'
     roots = [u, v]
+    filename_noext = 'bdd'
+    filetypes = ['pdf', 'png', 'svg']
+    for filetype in filetypes:
+        _dump_bdd_roots_as_filetype(
+            roots, bdd, filename_noext, filetype)
+
+
+def _dump_bdd_roots_as_filetype(
+        roots, bdd, filename_noext, filetype):
+    fname = '{name}.{ext}'.format(
+        name=filename_noext,
+        ext=filetype)
     if os.path.isfile(fname):
         os.remove(fname)
     bdd.dump(fname, roots)

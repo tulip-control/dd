@@ -218,12 +218,16 @@ class BDD(object):
         extension (case insensitive),
         unless a `filetype` is explicitly given.
 
-        File types:
+        `filetype` can have the values:
 
-          - pickle: `'.p'`
-          - PDF: `'.pdf'`
-          - PNG: `'.png'`
-          - SVG: `'.svg'`
+          - `'p'` for Pickle
+          - `'pdf'` for PDF
+          - `'png'` for PNG
+          - `'svg'` for SVG
+
+        If `filetype is None`, then `filename`
+        must have an extension that matches
+        one of the file types listed above.
 
         Dump nodes reachable from `roots`.
         If `roots is None`,

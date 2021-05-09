@@ -1146,8 +1146,7 @@ s = mdd.to_expr(v)
     elif (y = 2): 0)
 
 # plot MDD with graphviz
-pd = _mdd.to_pydot(mdd)
-pd.write_pdf('mdd.pdf')
+mdd.dump('mdd.pdf')
 ```
 
 Note that the `MDD` node `v` is complemented (-3 < 0), so the predicate

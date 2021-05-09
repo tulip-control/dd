@@ -38,7 +38,7 @@ VERSION = '{major}.{minor}.{micro}'.format(
 VERSION_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")
-if sys.version_info.major == 3:
+if sys.version_info.major >= 3:
     networkx_versions = 'networkx >= 1.9.1'
 else:
     networkx_versions = 'networkx >= 1.9.1, <= 2.2'

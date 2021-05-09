@@ -1603,6 +1603,23 @@ cdef class ZDD(object):
         return s
 
     cpdef dump(self, filename, roots, filetype=None):
+        """Write ZDD as a diagram to PDF file `filename`.
+
+        @param filename: file name.
+            If `filetype is None`, then `filename` must
+            end with the substring `.pdf`.
+        @type filename: `str`
+
+        @param filetype: `'pdf'` or `None`
+
+        Only the ZDD manager nodes that are reachable from the
+        ZDD references in `roots` are included in the diagram.
+        Currently, `roots` must contain a single ZDD reference.
+
+        Currently, the only `filetype` value supported
+        is `'pdf`'. If `filetype` is omitted, then the
+        `filename` must end with the substring `'.pdf'`.
+        """
         u, = roots
         if filetype is None:
             name = filename.lower()

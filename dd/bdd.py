@@ -49,14 +49,13 @@ import pickle
 import sys
 import warnings
 
-import pydot
-
 from dd import _abc
 from dd import _parser
 from dd import _compat
 from dd._compat import items
 # inline:
 # import networkx
+# import pydot
 
 
 logger = logging.getLogger(__name__)
@@ -1903,6 +1902,7 @@ def to_pydot(roots, bdd):
     @type roots: container of BDD nodes
     @type bdd: `BDD`
     """
+    import pydot
     # all nodes ?
     if roots is None:
         nodes = bdd._succ

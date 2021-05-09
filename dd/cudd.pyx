@@ -1156,6 +1156,36 @@ cdef class BDD(object):
         return s
 
     cpdef dump(self, filename, roots, filetype=None):
+        """Write BDDs to `filename`.
+
+        The file type is inferred from the
+        extension (case insensitive),
+        unless a `filetype` is explicitly given.
+
+        `filetype` can have the values:
+
+          - `'pdf'` for PDF
+          - `'png'` for PNG
+          - `'svg'` for SVG
+          - `'json'` for JSON
+          - `'dddmp'` for DDDMP (of CUDD)
+
+        If `filetype is None`, then `filename`
+        must have an extension that matches
+        one of the file types listed above.
+
+        Dump nodes reachable from `roots`.
+
+        Dumping a JSON file requires that `roots`
+        be nonempty.
+
+        Dumping a DDDMP file requires that `roots`
+        contain a single node.
+
+        @type filename: `str`
+        @type filetype: `str`, e.g., `"pdf"`
+        @type roots: container of nodes
+        """
         if (
                 filename.lower().endswith('.dddmp') or
                 filetype == 'dddmp'):

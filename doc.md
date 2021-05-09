@@ -310,7 +310,8 @@ v = bdd.add_expr('x /\ ~ y /\ z')
 assert u == v, (u, v)
 ```
 
-The interface is specified in the module `dd._abc`. Although internal,
+The interface is specified in the module `dd._abc`. Although [internal](
+    https://www.python.org/dev/peps/pep-0008/#descriptive-naming-styles),
 you may want to take a look at the `_abc` module.
 
 Above we discussed semantics from a [proof-theoretic viewpoint](

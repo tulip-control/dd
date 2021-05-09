@@ -157,7 +157,7 @@ Locally:
 pip install .
 ```
 
-For graph layout with `pydot`, install also [graphviz](http://graphviz.org/).
+For graph layout, install also [graphviz](http://graphviz.org/).
 
 
 ## Cython bindings

@@ -359,8 +359,6 @@ def test_reduce_combined():
 
     (u, ) = h.roots
     compare(u, h, r)
-    # r.write('r.pdf')
-    # h.write('h.pdf')
 
 
 def test_reduction_complemented_edges():

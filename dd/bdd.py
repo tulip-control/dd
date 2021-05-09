@@ -1271,9 +1271,11 @@ class BDD(_abc.BDD):
             elif name.endswith('.p'):
                 filetype = 'pickle'
             else:
-                raise Exception(
+                raise Exception((
                     'cannot infer file type '
-                    'from extension')
+                    'from extension of file '
+                    'name "{f}"').format(
+                        f=filename))
         if filetype in ('pdf', 'png', 'svg'):
             self._dump_figure(roots, filename,
                               filetype, **kw)

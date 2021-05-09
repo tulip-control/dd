@@ -1626,9 +1626,11 @@ cdef class ZDD(object):
             if name.endswith('.pdf'):
                 filetype = 'pdf'
             else:
-                raise Exception(
+                raise Exception((
                     'cannot infer file type '
-                    'from file name extension')
+                    'from extension of file '
+                    'name "{f}"').format(
+                        f=filename))
         assert filetype == 'pdf', filetype
         g = to_nx(u)
         import networkx as nx

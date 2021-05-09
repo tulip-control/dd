@@ -236,9 +236,11 @@ class BDD(_abc.BDD):
             elif name.endswith('.json'):
                 filetype = 'json'
             else:
-                raise Exception(
+                raise Exception((
                     'cannot infer file type '
-                    'from extension')
+                    'from extension of file '
+                    'name "{f}"').format(
+                        f=filename))
         if filetype == 'json':
             _copy.dump_json(roots, filename)
         else:

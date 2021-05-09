@@ -273,6 +273,14 @@ class MDD(object):
         return s
 
     def dump(self, fname):
+        """Write MDD as a diagram to PDF file `fname`.
+
+        @param fname: file name, ending with the substring `.pdf`.
+        @type fname: `str`
+
+        The diagram includes all nodes in the MDD.
+        The diagram is created using GraphViz.
+        """
         if fname.endswith('.pdf'):
             pd = to_pydot(self)
             pd.write_pdf(fname)

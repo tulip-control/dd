@@ -40,6 +40,7 @@ VERSION = '{major}.{minor}.{micro}'.format(
 VERSION_FILE_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")
+PYTHON_REQUIRES = '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*'
 if sys.version_info.major >= 3:
     networkx_versions = 'networkx >= 1.9.1'
 else:
@@ -161,6 +162,7 @@ def run_setup():
         author_email='tulip@tulip-control.org',
         url=PACKAGE_URL,
         license='BSD',
+        python_requires=PYTHON_REQUIRES,
         install_requires=install_requires,
         tests_require=TESTS_REQUIRE,
         packages=[PACKAGE_NAME],

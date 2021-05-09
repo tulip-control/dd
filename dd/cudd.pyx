@@ -1186,14 +1186,32 @@ cdef class BDD(object):
         @type filetype: `str`, e.g., `"pdf"`
         @type roots: container of nodes
         """
-        if (
-                filename.lower().endswith('.dddmp') or
-                filetype == 'dddmp'):
+        if filetype is None:
+            name = filename.lower()
+            if name.endswith('.pdf'):
+                filetype = 'pdf'
+            elif name.endswith('.png'):
+                filetype = 'png'
+            elif name.endswith('.svg'):
+                filetype = 'svg'
+            elif name.endswith('.p'):
+                raise ValueError(
+                    'pickling unsupported '
+                    'by this class, use JSON')
+            elif name.endswith('.json'):
+                filetype = 'json'
+            elif name.endswith('.dddmp'):
+                filetype = 'dddmp'
+            else:
+                raise ValueError((
+                    'cannot infer file type '
+                    'from extension of file '
+                    'name "{f}"').format(
+                        f=filename))
+        if filetype == 'dddmp':
             u, = roots  # single root supported for now
             return self._dump_dddmp(u, filename)
-        elif (
-                filename.lower().endswith('.json') or
-                filetype == 'json'):
+        elif filetype == 'json':
             return _copy.dump_json(roots, filename)
         else:
             bdd = autoref.BDD()

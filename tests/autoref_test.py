@@ -16,6 +16,12 @@ Tests.DD = _bdd.BDD
 BDDTests.DD = _bdd.BDD
 
 
+def test_str():
+    bdd = _bdd.BDD()
+    s = str(bdd)
+    s + 'must be a string'
+
+
 def test_find_or_add():
     bdd = _bdd.BDD()
     bdd.declare('x', 'y')

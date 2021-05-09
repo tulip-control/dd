@@ -83,11 +83,6 @@ class Tests(object):
         with assert_raises(AssertionError):
             other_true in bdd
 
-    def test_str(self):
-        bdd = self.DD()
-        s = str(bdd)
-        s + 'must be a string'
-
     def test_var_levels(self):
         bdd = self.DD()
         # single variable

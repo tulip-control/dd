@@ -4,6 +4,7 @@ import os
 from dd import cudd
 from dd import cudd_zdd
 from dd import _copy
+from nose.tools import assert_warns
 
 from common import Tests as Tests
 from common_cudd import Tests as CuddTests
@@ -12,6 +13,13 @@ from common_cudd import Tests as CuddTests
 Tests.DD = cudd_zdd.ZDD
 CuddTests.DD = cudd_zdd.ZDD
 CuddTests.MODULE = cudd_zdd
+
+
+def test_str():
+    bdd =  cudd_zdd.ZDD()
+    with assert_warns(UserWarning):
+        s = str(bdd)
+    s + 'must be a string'
 
 
 def test_false():

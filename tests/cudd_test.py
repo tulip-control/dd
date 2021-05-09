@@ -2,7 +2,7 @@
 import logging
 
 from dd import cudd
-from nose.tools import assert_raises
+from nose.tools import assert_raises, assert_warns
 
 from common import Tests
 from common_bdd import Tests as BDDTests
@@ -16,6 +16,13 @@ Tests.DD = cudd.BDD
 BDDTests.DD = cudd.BDD
 CuddTests.DD = cudd.BDD
 CuddTests.MODULE = cudd
+
+
+def test_str():
+    bdd = cudd.BDD()
+    with assert_warns(UserWarning):
+        s = str(bdd)
+    s + 'must be a string'
 
 
 def test_insert_var():

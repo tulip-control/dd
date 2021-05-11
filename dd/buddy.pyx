@@ -226,7 +226,7 @@ cdef class Function(object):
 
     Use as:
 
-    ```
+    ```cython
     bdd = BDD()
     u = bdd_true()
     f = Function(u)

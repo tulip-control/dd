@@ -552,8 +552,11 @@ cdef class Function(object):
       - `high`
 
     In Python, use as:
-    ```
-    bdd = BDD()
+
+    ```python
+    from dd import sylvan
+
+    bdd = sylvan.BDD()
     u = bdd.true
     v = bdd.false
     w = u | ~ v
@@ -561,7 +564,7 @@ cdef class Function(object):
 
     In Cython, use as:
 
-    ```
+    ```cython
     bdd = BDD()
     cdef sy.BDD u
     u = sylvan_true

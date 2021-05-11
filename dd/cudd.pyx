@@ -463,7 +463,7 @@ cdef class BDD(object):
         For more details, see `cuddAPI.c`.
         Example usage:
 
-        ```
+        ```python
         import dd.cudd
 
         bdd = dd.cudd.BDD()
@@ -1533,7 +1533,10 @@ cdef class Function(object):
       - `negated`
 
     In Python, use as:
-    ```
+
+    ```python
+    from dd.cudd import BDD
+
     bdd = BDD()
     u = bdd.true
     v = bdd.false
@@ -1542,7 +1545,7 @@ cdef class Function(object):
 
     In Cython, use as:
 
-    ```
+    ```cython
     bdd = BDD()
     cdef DdNode *u
     u = Cudd_ReadOne(bdd.manager)

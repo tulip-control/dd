@@ -1532,6 +1532,8 @@ cdef class Function(object):
       - `low`
       - `high`
       - `negated`
+      - `support`
+      - `dag_size`
 
     In Python, use as:
 

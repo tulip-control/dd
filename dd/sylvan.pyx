@@ -548,8 +548,12 @@ cdef class Function(object):
     described in their docstrings):
 
       - `_index`
+      - `var`
       - `low`
       - `high`
+      - `negated`
+      - `support`
+      - `dag_size`
 
     In Python, use as:
 

@@ -323,6 +323,15 @@ cdef class BDD(object):
                 'Still {n} nodes '
                 'referenced upon shutdown.'
                 ).format(n=n))
+        # Exceptions raised inside `__dealloc__` will be
+        # ignored. So if the `AssertionError` above is
+        # raised, then Python will continue execution
+        # without calling `Cudd_Quit`.
+        #
+        # Even though this can cause a memory leak,
+        # incorrect reference counts imply that there
+        # already is some issue, and that calling
+        # `Cudd_Quit` might be unsafe.
         Cudd_Quit(self.manager)
 
     def __richcmp__(BDD self, BDD other, op):

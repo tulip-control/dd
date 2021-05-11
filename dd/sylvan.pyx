@@ -660,6 +660,12 @@ cdef class Function(object):
 
     @property
     def dag_size(self):
+        """Return number of BDD nodes.
+
+        This is the number of BDD nodes that
+        are reachable from this BDD reference,
+        i.e., with `self` as root.
+        """
         return len(self)
 
     def __richcmp__(Function self, Function other, op):

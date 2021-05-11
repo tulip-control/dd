@@ -1795,6 +1795,12 @@ cdef class Function(object):
 
     @property
     def dag_size(self):
+        """Return number of ZDD nodes.
+
+        This is the number of ZDD nodes that
+        are reachable from this ZDD reference,
+        i.e., with `self` as root.
+        """
         return len(self)
 
     def __richcmp__(Function self, Function other, op):

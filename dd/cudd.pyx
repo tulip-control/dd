@@ -318,9 +318,11 @@ cdef class BDD(object):
 
     def __dealloc__(self):
         n = len(self)
-        assert n == 0, (
-            'Still {n} nodes '
-            'referenced upon shutdown.').format(n=n)
+        if n != 0:
+            raise AssertionError((
+                'Still {n} nodes '
+                'referenced upon shutdown.'
+                ).format(n=n))
         Cudd_Quit(self.manager)
 
     def __richcmp__(BDD self, BDD other, op):

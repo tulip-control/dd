@@ -182,7 +182,11 @@ class BDD(_abc.BDD):
         """Assert that all remaining nodes are garbage."""
         self.decref(1)  # free ref from `self._init_terminal`
         self.collect_garbage()
-        assert all(v == 0 for v in self._ref.values()), self._ref
+        if not all(v == 0 for v in self._ref.values()):
+            raise AssertionError((
+                'There are nodes still referenced '
+                'upon shutdown. Details:\n'
+                '{_ref}').format(_ref=self._ref))
 
     def __len__(self):
         return len(self._succ)

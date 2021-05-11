@@ -548,7 +548,6 @@ cdef class Function(object):
     described in their docstrings):
 
       - `_index`
-      - `ref`
       - `low`
       - `high`
 

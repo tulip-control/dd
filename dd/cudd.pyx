@@ -1538,6 +1538,7 @@ cdef class Function(object):
     u = bdd.true
     v = bdd.false
     w = u | ~ v
+    ```
 
     In Cython, use as:
 

@@ -544,7 +544,8 @@ cdef wrap(BDD bdd, sy.BDD node):
 cdef class Function(object):
     """Wrapper of `BDD` from Sylvan.
 
-    Attributes:
+    Attributes (those that are properties are
+    described in their docstrings):
 
       - `index`
       - `ref`

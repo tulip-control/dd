@@ -1522,7 +1522,8 @@ cdef wrap(BDD bdd, DdNode *node):
 cdef class Function(object):
     """Wrapper of `DdNode` from CUDD.
 
-    Attributes:
+    Attributes (those that are properties are
+    described in their docstrings):
 
       - `_index`
       - `var`

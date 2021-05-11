@@ -547,7 +547,7 @@ cdef class Function(object):
     Attributes (those that are properties are
     described in their docstrings):
 
-      - `index`
+      - `_index`
       - `ref`
       - `low`
       - `high`

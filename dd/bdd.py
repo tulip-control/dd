@@ -255,8 +255,17 @@ class BDD(_abc.BDD):
 
     def decref(self, u):
         """Decrement reference count of node `u`, with 0 as min."""
-        if self._ref[abs(u)] > 0:
-            self._ref[abs(u)] -= 1
+        if self._ref[abs(u)] <= 0:
+            warnings.warn((
+                'The method `dd.bdd.BDD.decref` was called '
+                'for BDD node {u} with reference count {n}. '
+                'This call has no effect. Calling `decref` '
+                'for a node with nonpositive reference count '
+                'may indicate a programming error.'
+                ).format(u=u, n=self._ref[abs(u)]),
+                UserWarning)
+            return
+        self._ref[abs(u)] -= 1
 
     def ref(self, u):
         """Return reference count of edge `u`."""

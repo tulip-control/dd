@@ -276,12 +276,18 @@ def copy_bdd(u, target):
 
 
 class Function(_abc.Operator):
-    """Convenience wrapper for edges returned by `BDD`.
+    r"""Convenience wrapper for edges returned by `BDD`.
 
-    ```
-    bdd = BDD(dict(x=0, y=1))
-    u = bdd.add_expr('x & y')
-    f = Function(u, bdd)
+    ```python
+    import dd.autoref
+
+    bdd = dd.autoref.BDD()
+    bdd.declare('x', 'y')
+    nd = bdd._bdd.add_expr(r'x /\ y')
+        # `nd` is an integer
+        # `bdd._bdd` is an instance of the
+        # class `dd.bdd.BDD`
+    u = _bdd.Function(nd, bdd)
     ```
 
     Attributes:

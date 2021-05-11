@@ -1791,6 +1791,9 @@ cdef class Function(object):
         return '@' + str(int(self))
 
     def __len__(self):
+        # The function `Cudd_zddDagSize`
+        # is deprecated because it duplicates
+        # the function `Cudd_DagSize`.
         return Cudd_zddDagSize(self.node)
 
     @property

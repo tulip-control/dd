@@ -220,8 +220,19 @@ def _load_json(f, bdd, load_order, cache):
     # rm refs to cached nodes
     for uid in cache:
         u = _node_from_int(int(uid), bdd, cache)
+        assert u.ref >= 2, u.ref
+            # +1 ref due to `incref` in `_make_node`
+            # +1 ref due to the `_node_from_int`
+            #   call for `u`
+        assert not load_order or u.ref >= 3, u.ref
+            # +1 ref due to `incref` in `_make_node`
+            # +1 ref due to either:
+            #   - being a successor node
+            #   - being a root node
+            #     (thus referenced in `roots` above)
+            # +1 ref due to the `_node_from_int`
+            #   call for `u`
         bdd.decref(u)
-        assert not load_order or u.ref > 1
     bdd.assert_consistent()
     return roots
 

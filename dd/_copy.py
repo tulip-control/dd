@@ -212,6 +212,15 @@ def load_json(file_name, bdd, load_order=False):
 def _load_json(f, bdd, load_order, cache):
     """Load BDDs from JSON file `f` to manager `bdd`."""
     context = dict(load_order=load_order)
+    # if the variable order is going to be loaded,
+    # then turn off dynamic reordering,
+    # because it can change the order midway,
+    # which would not return the loaded order,
+    # and can also cause failure of
+    # the assertion below
+    if load_order:
+        old_reordering = bdd.configure(
+            reordering=False)
     for line in f:
         d = _parse_line(line)
         _store_line(d, bdd, context, cache)
@@ -238,6 +247,9 @@ def _load_json(f, bdd, load_order, cache):
             # to be called on different `Function`
             # instances for the same node
     bdd.assert_consistent()
+    if load_order:
+        bdd.configure(
+            reordering=old_reordering)
     return roots
 
 

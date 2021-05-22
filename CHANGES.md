@@ -4,6 +4,8 @@
 ## 0.5.7
 
 - require `pytest >= 4.6.11`, instead of `nose`, for Python 3.10 compatibility
+- support for dumping and loading BDDs to and from JSON files
+  now requires Python 3
 - test using GitHub Actions
 
 API:

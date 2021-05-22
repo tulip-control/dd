@@ -1,4 +1,7 @@
 """Tests of the module `dd._copy`."""
+import sys
+import unittest
+
 from dd import autoref
 from dd import cudd
 from dd import _copy
@@ -70,6 +73,10 @@ def _setup(mod):
     return bdd_1, bdd_2
 
 
+@unittest.skipIf(
+    sys.version_info.major < 3 or
+    (sys.version_info.major == 3 and sys.version_info.minor < 4),
+    'JSON file support for BDDs requires Python >= 3.4')
 def test_dump_load_same_order():
     _test_dump_load_same_order(autoref)
     _test_dump_load_same_order(cudd)
@@ -97,6 +104,10 @@ def _test_dump_load_same_order(mod):
     assert u == u_, (u, u_)
 
 
+@unittest.skipIf(
+    sys.version_info.major < 3 or
+    (sys.version_info.major == 3 and sys.version_info.minor < 4),
+    'JSON file support for BDDs requires Python >= 3.4')
 def test_dump_load_different_order():
     _test_dump_load_different_order(autoref)
     _test_dump_load_different_order(cudd)

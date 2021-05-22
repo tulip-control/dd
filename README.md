@@ -167,6 +167,9 @@ pip install .
 
 For graph layout, install also [graphviz](https://graphviz.org).
 
+The `dd` package remains compatible with Python 2.7,
+except for few places where Python 3 is required.
+
 
 ## Cython bindings
 

@@ -130,10 +130,9 @@ def dump_json(nodes, file_name):
     tmp_fname = os.path.join(SHELVE_DIR, 'temporary_shelf')
     os.makedirs(SHELVE_DIR)
     try:
-        cache = shelve.open(tmp_fname)
-        with open(file_name, 'w') as f:
+        with shelve.open(tmp_fname) as cache,\
+                open(file_name, 'w') as f:
             _dump_json(nodes, f, cache)
-        cache.close()
     finally:
         # `shelve` file naming depends on context
         shutil.rmtree(SHELVE_DIR)
@@ -200,10 +199,9 @@ def load_json(file_name, bdd, load_order=False):
         SHELVE_DIR, 'temporary_shelf')
     os.makedirs(SHELVE_DIR)
     try:
-        cache = shelve.open(tmp_fname)
-        with open(file_name, 'r') as f:
+        with shelve.open(tmp_fname) as cache,\
+                open(file_name, 'r') as f:
             nodes = _load_json(f, bdd, load_order, cache)
-        cache.close()
     finally:
         shutil.rmtree(SHELVE_DIR)
     return nodes

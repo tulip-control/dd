@@ -139,5 +139,5 @@ if __name__ == '__main__':
     for n in range(n_max + 1):
         t = benchmark(n)
         times[n] = t
-    f = open(fname, 'wb')
-    pickle.dump(times, f)
+    with open(fname, 'wb') as f:
+        pickle.dump(times, f)

@@ -22,11 +22,11 @@ def copy_variable_order():
     source = autoref.BDD()
     target = autoref.BDD()
     # declare variables in the source BDD manager
-    source.declare(['a', 'b'])
+    source.declare('a', 'b')
     # create a BDD with root `u`
     u = source.add_expr('a /\ b')
     # copy the variables, and the variable order
-    target.declare(source.vars)
+    target.declare(*source.vars)
     target.reorder(source.var_levels)
     # copy the BDD `u` to the BDD manager `target`
     u_ = source.copy(u, target)

@@ -1,4 +1,4 @@
-"""Test multi-valued decision diagrams."""
+"""Tests of the module `dd.mdd`."""
 import logging
 import dd.mdd
 

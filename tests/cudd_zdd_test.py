@@ -1,4 +1,4 @@
-"""Tests for `dd.cudd_zdd`."""
+"""Tests of the module `dd.cudd_zdd`."""
 import os
 
 from dd import cudd

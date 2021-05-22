@@ -1,3 +1,4 @@
+"""Tests of the module `dd.cudd`."""
 import logging
 
 from dd import cudd

@@ -1,3 +1,4 @@
+"""Tests of the module `dd.dddmp`."""
 import logging
 import os
 

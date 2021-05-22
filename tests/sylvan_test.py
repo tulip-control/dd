@@ -1,3 +1,4 @@
+"""Tests of the module `dd.sylvan`."""
 import logging
 from dd import sylvan
 

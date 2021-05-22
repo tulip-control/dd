@@ -1,4 +1,4 @@
-"""Test module `dd._copy`."""
+"""Tests of the module `dd._copy`."""
 from dd import autoref
 from dd import cudd
 from dd import _copy

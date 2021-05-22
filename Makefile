@@ -74,6 +74,14 @@ test:
 test_abc:
 	python -X dev tests/inspect_cython_signatures.py
 
+run_examples:
+	cd examples/; \
+	for script in `ls *.py`;  \
+	do \
+	    echo "Running: $$script"; \
+	    python -X dev $$script; \
+	done;
+
 show_deprecated:
 	python -X dev -Wall -c "from dd import bdd"
 

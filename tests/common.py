@@ -108,6 +108,14 @@ class Tests(object):
         assert x_level >= 0, x_level
         assert y_level >= 0, y_level
 
+    def test_var_levels_attr(self):
+        bdd = self.DD()
+        bdd.declare('x', 'y')
+        var_levels = bdd.var_levels
+        assert len(var_levels) == 2, var_levels
+        assert {'x', 'y'} == set(var_levels), var_levels
+        assert {0, 1} == set(var_levels.values()), var_levels
+
     def test_levels(self):
         bdd = self.DD()
         bdd.add_var('x')

@@ -95,7 +95,7 @@ class BDD(_abc.BDD):
 
     @property
     def var_levels(self):
-        return self.bdd.var_levels
+        return self._bdd.var_levels
 
     def reorder(self, var_order=None):
         reorder(self, var_order)

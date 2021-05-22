@@ -123,6 +123,15 @@ def test_level_to_variable():
         g.var_at_level(10)
 
 
+def test_var_levels_attr():
+    bdd = BDD()
+    bdd.declare('x', 'y')
+    var_levels = bdd.var_levels
+    assert len(var_levels) == 2, var_levels
+    assert {'x', 'y'} == set(var_levels), var_levels
+    assert {0, 1} == set(var_levels.values()), var_levels
+
+
 def test_descendants():
     ordering = dict(x=0, y=1)
     b = BDD(ordering)

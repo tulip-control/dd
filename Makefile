@@ -72,10 +72,10 @@ test:
 	nosetests -v
 
 test_abc:
-	python tests/inspect_cython_signatures.py
+	python -X dev tests/inspect_cython_signatures.py
 
 show_deprecated:
-	python -Wall -c "from dd import bdd"
+	python -X dev -Wall -c "from dd import bdd"
 
 cudd:
 	cd cudd-*; \

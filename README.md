@@ -64,6 +64,10 @@ Documentation
 In the [Markdown](https://en.wikipedia.org/wiki/Markdown) file
 [`doc.md`](https://github.com/tulip-control/dd/blob/master/doc.md).
 
+The [changelog](https://en.wiktionary.org/wiki/changelog) is in
+the file [`CHANGES.md`](
+    https://github.com/tulip-control/dd/blob/master/CHANGES.md).
+
 
 Examples
 ========

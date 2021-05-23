@@ -1553,7 +1553,6 @@ cdef class ZDD(object):
     def _quantify_optimized(
             self, level, u, qvars, forall, cache):
         """Recurse to quantify variables."""
-        assert not forall
         # terminal ?
         if u == self.false or level == len(self.vars):
             return u

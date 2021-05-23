@@ -2477,14 +2477,24 @@ cpdef Function _c_compose(
             g = dvars[var]
         else:
             g = zdd.var(var)
+        cuddRef(g.node)
+        assert g.ref > 0, (var, g.ref)
         vector[i] = g.node
     # compose
+    r = NULL
     try:
-        r = _compose_root(
-            mgr, u.node, vector)
-        assert r != NULL
+        r = _compose_root(mgr, u.node, vector)
     finally:
+        if r is not NULL:
+            cuddRef(r)
+            assert r.ref > 0, r.ref
+        for i in range(n):
+            Cudd_RecursiveDerefZdd(mgr, vector[i])
+        if r is not NULL:
+            cuddDeref(r)
         PyMem_Free(vector)
+    if r is NULL:
+        raise AssertionError('r is NULL')
     return wrap(u.bdd, r)
 
 
@@ -2503,9 +2513,15 @@ cdef DdNode *_compose_root(
         # if table == NULL:
         #     return NULL
         r = _compose(mgr, level, table, u, vector)
+        # if mgr.reordered == 1:
+        #     assert r == NULL, r
         if r != NULL:
             cuddRef(r)
+            assert r.ref > 0, r.ref
         # cuddHashTableQuitZdd(table)
+        for nd in table.values():
+            Cudd_RecursiveDerefZdd(mgr,
+                <DdNode *><stdint.uintptr_t>nd)
         if r != NULL:
             cuddDeref(r)
     return r
@@ -2523,10 +2539,9 @@ cdef DdNode *_compose(
     The composition is defined in the
     array `vector`.
     """
-    index = Cudd_ReadInvPermZdd(mgr, level)
     if u == DD_ZERO(mgr):
         return u
-    if index == -1:
+    if u == DD_ONE(mgr):
         return Cudd_ReadZddOne(mgr, 0)
     t = (<stdint.uintptr_t>u, level)
     if t in table:
@@ -2536,47 +2551,59 @@ cdef DdNode *_compose(
     #     return r
     u_index = Cudd_NodeReadIndex(u)
     u_level = Cudd_ReadPermZdd(mgr, u_index)
-    assert level <= u_level
+    assert level <= u_level, (level, u_level)
+    index = Cudd_ReadInvPermZdd(mgr, level)
     g = vector[index]
+    if g is NULL:
+        raise AssertionError('`g is NULL`')
+    assert g.ref > 0, (index, g.ref)
     if level < u_level:
-        assert level + 1 <= u_level
+        assert level + 1 <= u_level, (level, u_level)
         c = _compose(
             mgr, level + 1, table, u, vector)
         if c == NULL:
             return NULL
         cuddRef(c)
+        assert c.ref > 0, c.ref
         r = cuddZddIte(mgr, g, DD_ZERO(mgr), c)
         if r == NULL:
             Cudd_RecursiveDerefZdd(mgr, c)
             return NULL
         cuddRef(r)
+        assert r.ref > 0, r.ref
         Cudd_RecursiveDerefZdd(mgr, c)
     else:
-        assert level == u_level
+        assert level == u_level, (level, u_level)
         v, w = cuddE(u), cuddT(u)
+        assert v.ref > 0, v.ref
+        assert w.ref > 0, w.ref
         p = _compose(
             mgr, level + 1, table, v, vector)
         if p == NULL:
             return NULL
         cuddRef(p)
+        assert p.ref > 0, p.ref
         q = _compose(
             mgr, level + 1, table, w, vector)
         if q == NULL:
             Cudd_RecursiveDerefZdd(mgr, p)
             return NULL
         cuddRef(q)
+        assert q.ref > 0, q.ref
         r = cuddZddIte(mgr, g, q, p)
         if r == NULL:
-            Cudd_RecursiveDerefZdd(mgr, p)
             Cudd_RecursiveDerefZdd(mgr, q)
+            Cudd_RecursiveDerefZdd(mgr, p)
             return NULL
         cuddRef(r)
+        assert r.ref > 0, r.ref
         Cudd_RecursiveDerefZdd(mgr, p)
         Cudd_RecursiveDerefZdd(mgr, q)
+    # insert in the hash table
+    cuddRef(r)
     table[t] = <stdint.uintptr_t>r
     # fanout = <ptrint> u.ref
-    # tr = cuddHashTableInsert1(
-    #     table, u, r, fanout)
+    # tr = cuddHashTableInsert1(table, u, r, fanout)
     # if tr == 0:
     #     Cudd_RecursiveDerefZdd(mgr, r)
     #     return NULL

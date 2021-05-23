@@ -45,7 +45,8 @@ class BDD(_abc.BDD):
         return len(self._bdd)
 
     def __contains__(self, u):
-        assert self is u.bdd
+        if self is not u.bdd:
+            raise ValueError('`self is not u.bdd`')
         return u.node in self._bdd
 
     def __str__(self):

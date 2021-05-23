@@ -81,7 +81,7 @@ class Tests(object):
         # undefined `__contains__`
         other_bdd = self.DD()
         other_true = other_bdd.true
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             other_true in bdd
 
     def test_var_levels(self):
@@ -261,7 +261,7 @@ class Tests(object):
         # x
         b.declare('x')
         u = b.add_expr('x')
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             b.count(u, 0)
         n = b.count(u, 1)
         assert n == 1, n
@@ -274,9 +274,9 @@ class Tests(object):
         # x /\ y
         b.declare('y')
         u = b.add_expr(r'x /\ y')
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             b.count(u, 0)
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             b.count(u, 1)
         n = b.count(u, 2)
         assert n == 1, n
@@ -288,9 +288,9 @@ class Tests(object):
         assert n == 1, n
         # x \/ ~ y
         u = b.add_expr(r'x \/ ~ y')
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             b.count(u, 0)
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             b.count(u, 1)
         n = b.count(u, 2)
         assert n == 3, n

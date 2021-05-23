@@ -280,7 +280,7 @@ cdef class BDD(object):
         if memory_estimate is None:
             memory_estimate = default_memory
         if memory_estimate >= total_memory:
-            print((
+            msg = (
                 'Error in `dd.cudd`: '
                 'total physical memory is {t} bytes, '
                 'but requested {r} bytes. '
@@ -290,9 +290,13 @@ cdef class BDD(object):
                 'the `BDD` manager as `BDD({q})`.').format(
                     t=total_memory,
                     r=memory_estimate,
-                    q=round(total_memory / 2)))
-        assert memory_estimate < total_memory, (
-            memory_estimate, total_memory)
+                    q=round(total_memory / 2))
+            # The motivation of both printing and
+            # raising an exception was that Cython
+            # failed with a segmentation fault,
+            # without showing the exception message.
+            print(msg)
+            raise ValueError(msg)
         if initial_cache_size is None:
             initial_cache_size = CUDD_CACHE_SLOTS
         initial_subtable_size = CUDD_UNIQUE_SLOTS
@@ -304,7 +308,9 @@ cdef class BDD(object):
             initial_subtable_size,
             initial_cache_size,
             memory_estimate)
-        assert mgr != NULL, 'failed to init CUDD DdManager'
+        if mgr is NULL:
+            raise RuntimeError(
+                'failed to initialize CUDD DdManager')
         self.manager = mgr
 
     def __init__(self,
@@ -345,14 +351,17 @@ cdef class BDD(object):
         elif op == 3:
             return not eq
         else:
-            raise Exception('Only `__eq__` and `__ne__` defined')
+            raise ValueError('Only `__eq__` and `__ne__` defined')
 
     def __len__(self):
         """Return number of nodes with non-zero references."""
         return Cudd_CheckZeroRef(self.manager)
 
     def __contains__(self, Function u):
-        assert u.manager == self.manager, 'undefined containment'
+        if u.manager != self.manager:
+            raise ValueError(
+                'undefined containment, because '
+                '`u.manager != self.manager`')
         try:
             Cudd_NodeReadIndex(u.node)
             return True
@@ -557,13 +566,15 @@ cdef class BDD(object):
             elif k == 'max_cache_soft':
                 logger.warning('"max_cache_soft" not settable.')
             else:
-                raise Exception(
+                raise ValueError(
                     'Unknown parameter "{k}"'.format(k=k))
         return d
 
     cpdef succ(self, Function u):
         """Return `(level, low, high)` for `u`."""
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError(
+                '`u.manager != self.manager`')
         i = u.level
         v = u.low
         w = u.high
@@ -679,7 +690,8 @@ cdef class BDD(object):
         # var already exists ?
         j = self._index_of_var.get(var)
         if j is not None:
-            assert j == index or index is None, (j, index)
+            if index is not None and j != index:
+                raise AssertionError(j, index)
             return j
         # new var
         if index is None:
@@ -687,7 +699,9 @@ cdef class BDD(object):
         else:
             j = index
         u = Cudd_bddIthVar(self.manager, j)
-        assert u != NULL, 'failed to add var "{v}"'.format(v=var)
+        if u is NULL:
+            raise RuntimeError(
+                'failed to add var "{v}"'.format(v=var))
         self._add_var(var, j)
         return j
 
@@ -695,28 +709,45 @@ cdef class BDD(object):
         """Create a new variable named `var`, at `level`."""
         cdef DdNode *r
         r = Cudd_bddNewVarAtLevel(self.manager, level)
-        assert r != NULL, 'failed to create var "{v}"'.format(v=var)
+        if r is NULL:
+            raise RuntimeError(
+                'failed to create var "{v}"'.format(v=var))
         j = r.index
         self._add_var(var, j)
         return j
 
     cdef _add_var(self, str var, int index):
         """Add to `self` a *new* variable named `var`."""
-        assert var not in self.vars
-        assert var not in self._index_of_var
-        assert index not in self._var_with_index
+        if var in self.vars:
+            raise ValueError(
+                'existing variable: {var}'.format(var=var))
+        if var in self._index_of_var:
+            raise ValueError(
+                'variable already has index: {i}'.format(
+                    i=self._index_of_var[var]))
+        if index in self._var_with_index:
+            raise ValueError((
+                'index already corresponds '
+                'to a variable: {v}').format(
+                    v=self._var_with_index[index]))
         self.vars.add(var)
         self._index_of_var[var] = index
         self._var_with_index[index] = var
-        assert (len(self._index_of_var) ==
-            len(self._var_with_index))
+        if (len(self._index_of_var) !=
+                len(self._var_with_index)):
+            raise AssertionError(
+                'the attributes '
+                '`_index_of_var` and '
+                '`_var_with_index` '
+                'have different length')
 
     cpdef Function var(self, var):
         """Return node for variable named `var`."""
-        assert var in self._index_of_var, (
-            'undefined variable "{v}", '
-            'known variables are:\n {d}').format(
-                v=var, d=self._index_of_var)
+        if var not in self._index_of_var:
+            raise ValueError((
+                'undefined variable "{v}", '
+                'known variables are:\n {d}').format(
+                    v=var, d=self._index_of_var))
         j = self._index_of_var[var]
         r = Cudd_bddIthVar(self.manager, j)
         return wrap(self, r)
@@ -740,7 +771,9 @@ cdef class BDD(object):
                 v=var, d=self._index_of_var)
         j = self._index_of_var[var]
         level = Cudd_ReadPerm(self.manager, j)
-        assert level != -1, 'index {j} out of bounds'.format(j=j)
+        if level == -1:
+            raise AssertionError(
+                'index {j} out of bounds'.format(j=j))
         return level
 
     @property
@@ -773,7 +806,10 @@ cdef class BDD(object):
         cdef unsigned int group_low
         cdef unsigned int group_size
         for var, group_size in vrs.items():
-            assert group_size > 1, 'singleton as group has no effect'
+            if group_size <= 1:
+                raise ValueError(
+                    'singleton as group '
+                    'has no effect')
             group_low = self._index_of_var[var]
             Cudd_MakeTreeNode(
                 self.manager, group_low, group_size, MTR_DEFAULT)
@@ -825,28 +861,37 @@ cdef class BDD(object):
             return f
         if n > 1:
             return self._vector_compose(f, var_sub)
-        assert n == 1, n
+        if n != 1:
+            raise ValueError(n)
         for var, g in _compat.items(var_sub):
             return self._unary_compose(f, var, g)
 
     cdef Function _unary_compose(self, Function f, var, Function g):
         """Return single composition."""
-        assert f.manager == self.manager
-        assert g.manager == self.manager
+        if f.manager != self.manager:
+            raise ValueError(
+                '`f.manager != self.manager`')
+        if g.manager != self.manager:
+            raise ValueError(
+                '`g.manager != self.manager`')
         cdef DdNode *r
         index = self._index_of_var[var]
         r = Cudd_bddCompose(self.manager, f.node, g.node, index)
-        assert r != NULL, 'compose failed'
+        if r is NULL:
+            raise RuntimeError('compose failed')
         return wrap(self, r)
 
     cdef Function _vector_compose(self, Function f, var_sub):
         """Return vector composition."""
-        assert f.manager == self.manager
+        if f.manager != self.manager:
+            raise ValueError(
+                '`f.manager != self.manager`')
         cdef DdNode *r
         cdef DdNode **x
         cdef Function g
         n = len(self.vars)
-        assert n > 0, n
+        if n <= 0:
+            raise AssertionError(n)
         x = <DdNode **> PyMem_Malloc(n *sizeof(DdNode *))
         for var in self.vars:
             j = self._index_of_var[var]
@@ -871,7 +916,9 @@ cdef class BDD(object):
         cdef Function cube
         cube = self.cube(values)
         r = Cudd_Cofactor(self.manager, f.node, cube.node)
-        assert r != NULL, 'cofactor failed'
+        if r is NULL:
+            raise RuntimeError(
+                'cofactor failed')
         return wrap(self, r)
 
     cpdef Function _rename(self, Function u, dvars):
@@ -904,10 +951,12 @@ cdef class BDD(object):
         # key-value pair of the dictionary `dvars`:
         # 1) assert keys and values of `dvars` are disjoint sets
         common = {var for var in dvars.values() if var in dvars}
-        assert not common, common
+        if common:
+            raise ValueError(common)
         # 2) assert each value is unique
         values = set(dvars.values())
-        assert len(dvars) == len(values), dvars
+        if len(dvars) != len(values):
+            raise ValueError(dvars)
         #
         # call swapping
         n = len(dvars)
@@ -925,7 +974,9 @@ cdef class BDD(object):
         try:
             r = Cudd_bddSwapVariables(
                 mgr, u.node, x, y, n)
-            assert r != NULL, 'variable swap failed'
+            if r is NULL:
+                raise RuntimeError(
+                    'variable swap failed')
         finally:
             PyMem_Free(x)
             PyMem_Free(y)
@@ -933,9 +984,15 @@ cdef class BDD(object):
 
     cpdef Function ite(self, Function g, Function u, Function v):
         """Ternary conditional `IF g THEN u ELSE v`."""
-        assert g.manager == self.manager
-        assert u.manager == self.manager
-        assert v.manager == self.manager
+        if g.manager != self.manager:
+            raise ValueError(
+                '`g.manager != self.manager`')
+        if u.manager != self.manager:
+            raise ValueError(
+                '`u.manager != self.manager`')
+        if v.manager != self.manager:
+            raise ValueError(
+                '`v.manager != self.manager`')
         cdef DdNode *r
         r = Cudd_bddIte(self.manager, g.node, u.node, v.node)
         return wrap(self, r)
@@ -943,12 +1000,24 @@ cdef class BDD(object):
     cpdef Function find_or_add(
             self, str var, Function low, Function high):
         """Return node `IF var THEN high ELSE low`."""
-        assert low.manager == self.manager
-        assert high.manager == self.manager
-        assert var in self.vars, (var, self.vars)
+        if low.manager != self.manager:
+            raise ValueError(
+                '`low.manager != self.manager`')
+        if high.manager != self.manager:
+            raise ValueError(
+                '`high.manager != self.manager`')
+        if var not in self.vars:
+            raise ValueError((
+                'unknown variable: {var}, '
+                'known variables are: {vrs}').format(
+                    var=var, vrs=self.vars))
         level = self.level_of_var(var)
-        assert level < low.level, (level, low.level, 'low.level')
-        assert level < high.level, (level, high.level, 'high.level')
+        if level >= low.level:
+            raise ValueError(
+                level, low.level, 'low.level')
+        if level >= high.level:
+            raise ValueError(
+                level, high.level, 'high.level')
         cdef DdNode *r
         index = self._index_of_var[var]
         r = cuddUniqueInter(self.manager, index, high.node, low.node)
@@ -962,14 +1031,22 @@ cdef class BDD(object):
 
             If omitted, then assume those in `support(u)`.
         """
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError(
+                '`u.manager != self.manager`')
         n = len(self.support(u))
         if nvars is None:
             nvars = n
-        assert nvars >= n, (nvars, n)
+        if nvars < n:
+            raise ValueError(nvars, n)
         r = Cudd_CountMinterm(self.manager, u.node, nvars)
-        assert r != CUDD_OUT_OF_MEM
-        assert r != float('inf'), 'overflow of integer  type double'
+        if r == CUDD_OUT_OF_MEM:
+            raise RuntimeError(
+                'CUDD out of memory')
+        if r == float('inf'):
+            raise RuntimeError(
+                'overflow of integer '
+                'type double')
         return r
 
     def pick(self, Function u, care_vars=None):
@@ -978,7 +1055,9 @@ cdef class BDD(object):
 
     def _pick_iter(self, Function u, care_vars=None):
         """Return generator over assignments."""
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError(
+                '`u.manager != self.manager`')
         cdef DdGen *gen
         cdef int *cube
         cdef double value
@@ -993,11 +1072,16 @@ cdef class BDD(object):
                     missing=missing))
         config = self.configure(reordering=False)
         gen = Cudd_FirstCube(self.manager, u.node, &cube, &value)
-        assert gen != NULL, 'first cube failed'
+        if gen is NULL:
+            raise RuntimeError(
+                'first cube failed')
         try:
             r = 1
             while Cudd_IsGenEmpty(gen) == 0:
-                assert r == 1, ('gen not empty but no next cube', r)
+                if r != 1:
+                    raise RuntimeError(
+                        'gen not empty but '
+                        'no next cube', r)
                 d = _cube_array_to_dict(cube, self._index_of_var)
                 assert set(d).issubset(support), set(d).difference(support)
                 for m in _bdd._enumerate_minterms(d, care_vars):
@@ -1008,7 +1092,9 @@ cdef class BDD(object):
         self.configure(reordering=config['reordering'])
 
     def pick_iter(self, Function u, care_vars=None):
-        assert self.manager == u.manager
+        if self.manager != u.manager:
+            raise ValueError(
+                '`u.manager != self.manager`')
         support = self.support(u)
         if care_vars is None:
             care_vars = support
@@ -1033,8 +1119,9 @@ cdef class BDD(object):
         # terminal ?
         if u.var is None:
             if value:
-                assert set(cube).issubset(support), set(
-                    cube).difference(support)
+                if not set(cube).issubset(support):
+                    raise ValueError(set(
+                        cube).difference(support))
                 yield cube
             return
         # non-terminal
@@ -1056,61 +1143,89 @@ cdef class BDD(object):
             Function v=None,
             Function w=None):
         """Return as `Function` the result of applying `op`."""
-        assert self.manager == u.manager
-        if v is not None:
-            assert self.manager == v.manager
-        if w is not None:
-            assert self.manager == w.manager
+        if self.manager != u.manager:
+            raise ValueError(
+                '`u.manager != self.manager`')
+        if v is not None and self.manager != v.manager:
+            raise ValueError(
+                '`v.manager != self.manager`')
+        if w is not None and self.manager != w.manager:
+            raise ValueError(
+                '`w.manager != self.manager`')
         cdef DdNode *r
         cdef DdManager *mgr
         mgr = u.manager
         # unary
         r = NULL
         if op in ('~', 'not', '!'):
-            assert v is None, v
-            assert w is None, w
+            if v is not None:
+                raise ValueError(
+                    '`v is not None`, but: {v}'.format(v=v))
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_Not(u.node)
         # binary
         elif op in ('and', '/\\', '&', '&&'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_bddAnd(mgr, u.node, v.node)
         elif op in ('or', r'\/', '|', '||'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_bddOr(mgr, u.node, v.node)
         elif op in ('xor', '^'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_bddXor(mgr, u.node, v.node)
         elif op in ('=>', '->', 'implies'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_ReadOne(mgr))
         elif op in ('<=>', '<->', 'equiv'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_Not(v.node))
         elif op in ('diff', '-'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_bddIte(mgr, u.node, Cudd_Not(v.node),
                             Cudd_ReadLogicZero(mgr))
         elif op in (r'\A', 'forall'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             sig_on()
             r = Cudd_bddUnivAbstract(mgr, v.node, u.node)
             sig_off()
         elif op in (r'\E', 'exists'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             sig_on()
             r = Cudd_bddExistAbstract(mgr, v.node, u.node)
             sig_off()
         # ternary
         elif op == 'ite':
-            assert v is not None
-            assert w is not None
+            if v is None:
+                raise ValueError(
+                    '`v is None`')
+            if w is None:
+                raise ValueError(
+                    '`w is None`')
             r = Cudd_bddIte(mgr, u.node, v.node, w.node)
         else:
-            raise Exception(
+            raise ValueError(
                 'unknown operator: "{op}"'.format(op=op))
         if r == NULL:
             config = self.configure()
-            raise Exception((
+            raise RuntimeError((
                 'CUDD appears to have run out of memory.\n'
                 'Current settings for upper bounds:\n'
                 '    max memory = {max_memory} bytes\n'
@@ -1122,7 +1237,8 @@ cdef class BDD(object):
     cpdef _add_int(self, i):
         """Return node from integer `i`."""
         cdef DdNode *u
-        assert i not in (0, 1), i
+        if i in (0, 1):
+            raise ValueError(i)
         # invert `Function.__int__`
         if 2 <= i:
             i -= 2
@@ -1167,7 +1283,9 @@ cdef class BDD(object):
 
     cpdef _cube_to_dict(self, Function f):
         """Recurse to collect indices of support variables."""
-        assert f.manager == self.manager
+        if f.manager != self.manager:
+            raise ValueError(
+                '`f.manager != self.manager`')
         n = len(self.vars)
         cdef int *x
         x = <int *> PyMem_Malloc(n * sizeof(DdNode *))
@@ -1181,7 +1299,9 @@ cdef class BDD(object):
     cpdef Function quantify(self, Function u,
                             qvars, forall=False):
         """Abstract variables `qvars` from node `u`."""
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError(
+                '`u.manager != self.manager`')
         cdef DdManager *mgr = u.manager
         c = set(qvars)
         cube = self.cube(c)
@@ -1212,12 +1332,16 @@ cdef class BDD(object):
 
     cpdef assert_consistent(self):
         """Raise `AssertionError` if not consistent."""
-        assert Cudd_DebugCheck(self.manager) == 0
+        if Cudd_DebugCheck(self.manager) != 0:
+            raise AssertionError(
+                '`Cudd_DebugCheck` errored')
         n = len(self.vars)
         m = len(self._var_with_index)
         k = len(self._index_of_var)
-        assert n == m, (n, m)
-        assert m == k, (m, k)
+        if n != m:
+            raise AssertionError(n, m)
+        if m != k:
+            raise AssertionError(m, k)
 
     def add_expr(self, expr):
         """Return node for `str` expression `e`."""
@@ -1225,7 +1349,9 @@ cdef class BDD(object):
 
     cpdef str to_expr(self, Function u):
         """Return a Boolean expression for node `u`."""
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError(
+                '`u.manager != self.manager`')
         return self._to_expr(u.node)
 
     cdef str _to_expr(self, DdNode *u):
@@ -1316,7 +1442,9 @@ cdef class BDD(object):
 
     cpdef _dump_dddmp(self, Function u, fname):
         """Dump BDD as DDDMP file `fname`."""
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError(
+                '`u.manager != self.manager`')
         n = len(self._index_of_var)
         cdef FILE *f
         cdef char **names
@@ -1342,7 +1470,9 @@ cdef class BDD(object):
         finally:
             fclose(f)
             PyMem_Free(names)
-        assert i == DDDMP_SUCCESS, 'failed to write to DDDMP file'
+        if i != DDDMP_SUCCESS:
+            raise RuntimeError(
+                'failed to write to DDDMP file')
 
     cpdef load(self, filename):
         """Return `Function` loaded from file `filename`."""
@@ -1386,7 +1516,9 @@ cdef class BDD(object):
         finally:
             fclose(f)
             PyMem_Free(names)
-        assert r != NULL, 'failed to load DDDMP file.'
+        if r is NULL:
+            raise RuntimeError(
+                'failed to load DDDMP file.')
         h = wrap(self, r)
         # `Dddmp_cuddBddArrayLoad` references `r`
         Cudd_RecursiveDeref(self.manager, r)
@@ -1414,7 +1546,9 @@ cdef class BDD(object):
 
 cpdef Function restrict(Function u, Function care_set):
     """Restrict `u` to `care_set` (1990 Coudert ICCAD)."""
-    assert u.manager == care_set.manager
+    if u.manager != care_set.manager:
+        raise ValueError(
+            '`u.manager != care_set.manager`')
     cdef DdNode *r
     r = Cudd_bddRestrict(u.manager, u.node, care_set.node)
     return wrap(u.bdd, r)
@@ -1422,7 +1556,9 @@ cpdef Function restrict(Function u, Function care_set):
 
 cpdef Function and_exists(Function u, Function v, qvars):
     """Return `? qvars. u & v`."""
-    assert u.manager == v.manager
+    if u.manager != v.manager:
+        raise ValueError(
+            '`u.manager != v.manager`')
     cube = u.bdd.cube(qvars)
     r = Cudd_bddAndAbstract(u.manager, u.node, v.node, cube.node)
     return wrap(u.bdd, r)
@@ -1430,7 +1566,9 @@ cpdef Function and_exists(Function u, Function v, qvars):
 
 cpdef Function or_forall(Function u, Function v, qvars):
     """Return `! qvars. u | v`."""
-    assert u.manager == v.manager
+    if u.manager != v.manager:
+        raise ValueError(
+            '`u.manager != v.manager`')
     cube = u.bdd.cube(qvars)
     r = Cudd_bddAndAbstract(
         u.manager, Cudd_Not(u.node), Cudd_Not(v.node), cube.node)
@@ -1448,11 +1586,12 @@ cpdef reorder(BDD bdd, dvars=None):
         Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_GROUP_SIFT, 1)
         return
     # partial reorderings not supported for now
-    assert len(dvars) == len(bdd.vars), (
-        'Mismatch of variable numbers:\n'
-        'declared variables: {n}\n'
-        'new variable order: {m}').format(
-            n=len(bdd.vars), m=len(dvars))
+    if len(dvars) != len(bdd.vars):
+        raise ValueError((
+            'Mismatch of variable numbers:\n'
+            'declared variables: {n}\n'
+            'new variable order: {m}').format(
+                n=len(bdd.vars), m=len(dvars)))
     cdef int *p
     n = len(dvars)
     p = <int *> PyMem_Malloc(n * sizeof(int *))
@@ -1465,10 +1604,11 @@ cpdef reorder(BDD bdd, dvars=None):
         r = Cudd_ShuffleHeap(bdd.manager, p)
     finally:
         PyMem_Free(p)
-    assert r == 1, (
-        'Failed to reorder. '
-        'Variable groups that are incompatible to '
-        'the given order can cause this.')
+    if r != 1:
+        raise RuntimeError(
+            'Failed to reorder. '
+            'Variable groups that are incompatible to '
+            'the given order can cause this.')
 
 
 def copy_vars(BDD source, BDD target):
@@ -1499,13 +1639,14 @@ cpdef copy_bdd(Function u, BDD target):
     supp = source.support(u)
     source.configure(reordering=cfg['reordering'])
     missing = {var for var in supp if var not in target.vars}
-    assert not missing, (
-        'target BDD is missing the variables:\n'
-        '{missing}\n'
-        'known variables in target are:\n'
-        '{target.vars}\n').format(
-            missing=missing,
-            target=target)
+    if missing:
+        raise ValueError(
+            'target BDD is missing the variables:\n'
+            '{missing}\n'
+            'known variables in target are:\n'
+            '{target.vars}\n').format(
+                missing=missing,
+                target=target)
     # mapping of indices
     n = len(source.vars)
     cdef int *renaming
@@ -1861,7 +2002,9 @@ cdef class Function(object):
     cdef public int _ref
 
     cdef init(self, DdNode *node, BDD bdd):
-        assert node != NULL, '`DdNode *node` is `NULL` pointer.'
+        if node is NULL:
+            raise ValueError(
+                '`DdNode *node` is `NULL` pointer.')
         self.bdd = bdd
         self.manager = bdd.manager
         self.node = node
@@ -1959,12 +2102,15 @@ cdef class Function(object):
 
     def __int__(self):
         # inverse is `BDD._add_int`
-        assert sizeof(stdint.uintptr_t) == sizeof(DdNode *)
+        if sizeof(stdint.uintptr_t) != sizeof(DdNode *):
+            raise AssertionError(
+                'mismatch of sizes')
         i = <stdint.uintptr_t>self.node
         # 0, 1 are true and false in logic syntax
         if 0 <= i:
             i += 2
-        assert i not in (0, 1), i
+        if i in (0, 1):
+            raise AssertionError(i)
         return i
 
     def __repr__(self):
@@ -2000,7 +2146,8 @@ cdef class Function(object):
             eq = False
         else:
             # guard against mixing managers
-            assert self.manager == other.manager
+            if self.manager != other.manager:
+                raise ValueError('`self.manager != other.manager`')
             eq = (self.node == other.node)
         if op == 2:  # ==
             return eq
@@ -2024,24 +2171,32 @@ cdef class Function(object):
         return wrap(self.bdd, r)
 
     def __and__(Function self, Function other):
-        assert self.manager == other.manager
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
         r = Cudd_bddAnd(self.manager, self.node, other.node)
         return wrap(self.bdd, r)
 
     def __or__(Function self, Function other):
-        assert self.manager == other.manager
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
         r = Cudd_bddOr(self.manager, self.node, other.node)
         return wrap(self.bdd, r)
 
     def implies(Function self, Function other):
-        assert self.manager == other.manager
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
         r = Cudd_bddIte(
             self.manager, self.node,
             other.node, Cudd_ReadOne(self.manager))
         return wrap(self.bdd, r)
 
     def equiv(Function self, Function other):
-        assert self.manager == other.manager
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
         r = Cudd_bddIte(
             self.manager, self.node,
             other.node, Cudd_Not(other.node))

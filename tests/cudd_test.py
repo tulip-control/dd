@@ -152,7 +152,7 @@ def test_swap():
     # not checked for overlapping key-value pairs.
     u = bdd.apply('and', x, ~ y)
     d = dict(x='y', y='x')
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         f = bdd._swap(u, d)
     # f_ = bdd.apply('and', ~ x, y)
     # assert f == f_, (f, f_)
@@ -180,7 +180,7 @@ def test_swap():
     z = bdd.var('z')
     u = bdd.apply('and', x, ~ y)
     d = dict(x='y', y='z')
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         f = bdd._swap(u, d)
     # The following result is obtained if the
     # assertions are removed from `BDD._swap`.
@@ -190,7 +190,7 @@ def test_swap():
     # 2) each value appears once among values
     u = bdd.apply('and', x, ~ y)
     d = dict(x='y', z='y')
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         f = bdd._swap(u, d)
     # The following result is obtained if the
     # assertions are removed from `BDD._swap`.

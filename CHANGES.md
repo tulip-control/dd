@@ -18,6 +18,8 @@ API:
 - remove the now obsolete constants `dd.cudd.GB`, `dd.cudd_zdd.GB`
 - remove the unused constant `dd.sylvan.GB`
 - add method `apply` to the class `dd.mdd.MDD`
+- several `assert` statements replaced by `raise` with
+  exceptions more specific than `AssertionError`
 
 
 ## 0.5.6

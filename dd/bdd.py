@@ -1058,7 +1058,8 @@ class BDD(_abc.BDD):
 
     def count(self, u, nvars=None):
         n = nvars
-        assert abs(u) in self, u
+        if abs(u) not in self:
+            raise ValueError(u)
         # index those levels in support separately
         levels = {
             self.level_of_var(var)
@@ -1067,7 +1068,8 @@ class BDD(_abc.BDD):
         if n is None:
             n = k
         slack = n - k
-        assert slack >= 0, slack
+        if slack < 0:
+            raise ValueError(slack)
         map_level = dict()
         for new, old in enumerate(sorted(levels)):
             map_level[old] = new + slack

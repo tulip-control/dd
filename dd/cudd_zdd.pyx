@@ -318,14 +318,16 @@ cdef class ZDD(object):
         if memory_estimate is None:
             memory_estimate = default_memory
         if memory_estimate >= total_memory:
-            print((
+            msg = (
                 'Error in `dd.cudd`: '
                 'total physical memory is {t} bytes, '
                 'but requested {r} bytes').format(
                     t=total_memory,
-                    r=memory_estimate))
-        assert memory_estimate < total_memory, (
-            memory_estimate, total_memory)
+                    r=memory_estimate)
+            # Motivation is described in
+            # comments inside `dd.cudd.BDD.__cinit__`.
+            print(msg)
+            raise ValueError(msg)
         if initial_cache_size is None:
             initial_cache_size = CUDD_CACHE_SLOTS
         initial_subtable_size = CUDD_UNIQUE_SLOTS
@@ -337,7 +339,9 @@ cdef class ZDD(object):
             initial_subtable_size,
             initial_cache_size,
             memory_estimate)
-        assert mgr != NULL, 'failed to init CUDD DdManager'
+        if mgr is NULL:
+            raise RuntimeError(
+                'failed to initialize CUDD DdManager')
         self.manager = mgr
 
     def __init__(self,
@@ -369,7 +373,7 @@ cdef class ZDD(object):
         elif op == 3:
             return not eq
         else:
-            raise Exception('Only `__eq__` and `__ne__` defined')
+            raise ValueError('Only `__eq__` and `__ne__` are defined')
 
     def __len__(self):
         """Return number of nodes with non-zero references."""
@@ -377,7 +381,10 @@ cdef class ZDD(object):
 
     def __contains__(self, Function u):
         """Return `True` if `u.node` in `self.manager`."""
-        assert u.manager == self.manager, 'undefined containment'
+        if u.manager != self.manager:
+            raise ValueError(
+                'undefined containment, because '
+                '`u.manager != self.manager`')
         try:
             Cudd_NodeReadIndex(u.node)
             return True
@@ -533,20 +540,21 @@ cdef class ZDD(object):
             elif k == 'max_cache_soft':
                 logger.warning('"max_cache_soft" not settable.')
             else:
-                raise Exception(
+                raise ValueError(
                     'Unknown parameter "{k}"'.format(k=k))
         return d
 
     cpdef succ(self, Function u):
         """Return `(level, low, high)` for `u`."""
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError('`u.manager != self.manager`')
         i = u.level
         v = u.low
         w = u.high
-        if v is not None:
-            assert i < v.level, 'v.level'
-        if w is not None:
-            assert i < w.level, 'w.level'
+        if v is not None and i >= v.level:
+            raise AssertionError('v.level')
+        if w is not None and i >= w.level:
+            raise AssertionError('w.level')
         return i, v, w
 
     cpdef incref(self, Function u):
@@ -622,7 +630,8 @@ cdef class ZDD(object):
         # var already exists ?
         j = self._index_of_var.get(var)
         if j is not None:
-            assert j == index or index is None, (j, index)
+            if index is not None and j != index:
+                raise AssertionError(j, index)
             return j
         # new var
         if index is None:
@@ -631,27 +640,42 @@ cdef class ZDD(object):
             j = index
         u = Cudd_zddIthVar(self.manager, j)
         wrap(self, u)  # ref and recursive deref, to cancel ref out
-        assert u != NULL, 'failed to add var "{v}"'.format(v=var)
+        if u is NULL:
+            raise RuntimeError(
+                'failed to add var "{v}"'.format(v=var))
         self._add_var(var, j)
         return j
 
     cdef _add_var(self, str var, int index):
         """Add to `self` a *new* variable named `var`."""
-        assert var not in self.vars
-        assert var not in self._index_of_var
-        assert index not in self._var_with_index
+        if var in self.vars:
+            raise ValueError(
+                'existing variable: {var}'.format(var=var))
+        if var in self._index_of_var:
+            raise ValueError(
+                'variable already has index: {i}'.format(
+                    i=self._index_of_var[var]))
+        if index in self._var_with_index:
+            raise ValueError((
+                'index already corresponds '
+                'to a variable: {v}').format(
+                    v=self._var_with_index[index]))
         self.vars.add(var)
         self._index_of_var[var] = index
         self._var_with_index[index] = var
-        assert (len(self._index_of_var) ==
-            len(self._var_with_index))
+        if (len(self._index_of_var) !=
+                len(self._var_with_index)):
+            raise AssertionError(
+                'the attributes `_index_of_var` and '
+                '`_var_with_index` have different length')
 
     cpdef Function var(self, var):
         """Return node for variable named `var`."""
-        assert var in self._index_of_var, (
-            'undefined variable "{v}", '
-            'known variables are:\n {d}').format(
-                v=var, d=self._index_of_var)
+        if var not in self._index_of_var:
+            raise ValueError((
+                'undefined variable "{v}", '
+                'known variables are:\n {d}').format(
+                    v=var, d=self._index_of_var))
         j = self._index_of_var[var]
         r = _ith_var(var, self)
         return r
@@ -659,10 +683,11 @@ cdef class ZDD(object):
     # CUDD implementation of `var`
     cpdef Function _var_cudd(self, var):
         """Return node for variable named `var`."""
-        assert var in self._index_of_var, (
-            'undefined variable "{v}", '
-            'known variables are:\n {d}').format(
-                v=var, d=self._index_of_var)
+        if var not in self._index_of_var:
+            raise ValueError((
+                'undefined variable "{v}", '
+                'known variables are:\n {d}').format(
+                    v=var, d=self._index_of_var))
         j = self._index_of_var[var]
         r = Cudd_zddIthVar(self.manager, j)
         return wrap(self, r)
@@ -684,13 +709,16 @@ cdef class ZDD(object):
 
     def level_of_var(self, var):
         """Return level of variable named `var`."""
-        assert var in self._index_of_var, (
-            'undefined variable "{v}", '
-            'known variables are:\n {d}').format(
-                v=var, d=self._index_of_var)
+        if var not in self._index_of_var:
+            raise ValueError((
+                'undefined variable "{v}", '
+                'known variables are:\n {d}').format(
+                    v=var, d=self._index_of_var))
         j = self._index_of_var[var]
         level = Cudd_ReadPermZdd(self.manager, j)
-        assert level != -1, 'index {j} out of bounds'.format(j=j)
+        if level == -1:
+            raise AssertionError(
+                'index {j} out of bounds'.format(j=j))
         return level
 
     @property
@@ -708,11 +736,12 @@ cdef class ZDD(object):
             Cudd_zddReduceHeap(self.manager, CUDD_REORDER_SIFT, 1)
             return
         n = len(var_order)
-        assert n == len(self.vars), (
-            'Mismatch of variable numbers:\n'
-            'declared variables: {n}\n'
-            'new variable order: {m}').format(
-                n=len(self.vars), m=n)
+        if n != len(self.vars):
+            raise ValueError((
+                'Mismatch of variable numbers:\n'
+                'declared variables: {n}\n'
+                'new variable order: {m}').format(
+                    n=len(self.vars), m=n))
         cdef int *p
         p = <int *> PyMem_Malloc(n * sizeof(int))
         for var, level in var_order.iteritems():
@@ -722,7 +751,8 @@ cdef class ZDD(object):
             r = Cudd_zddShuffleHeap(self.manager, p)
         finally:
             PyMem_Free(p)
-        assert r == 1, 'Failed to reorder.'
+        if r != 1:
+            raise RuntimeError('Failed to reorder.')
 
     def _enable_reordering(self):
         """Enable dynamic reordering of ZDDs."""
@@ -739,13 +769,15 @@ cdef class ZDD(object):
         represented by the ZDD with root `u` depends on.
         """
         logger.debug('support')
-        assert self.manager == u.manager
+        if self.manager != u.manager:
+            raise ValueError('`u.manager != self.manager`')
         return _c_support(u)
 
     cpdef _support_py(self, Function u):
         # Python implementation
         logger.debug('support')
-        assert self.manager == u.manager, u
+        if self.manager != u.manager:
+            raise ValueError('`u.manager != self.manager`')
         visited = set()
         support = set()
         level = 0
@@ -761,7 +793,8 @@ cdef class ZDD(object):
             return
         var = self.var_at_level(level)
         u_level, v, w = self.succ(u)
-        assert level <= u_level, (level, u_level)
+        if level > u_level:
+            raise ValueError(level, u_level)
         if level < u_level:
             support.add(var)
             self._support(level + 1, u, support, visited)
@@ -775,7 +808,8 @@ cdef class ZDD(object):
 
     cpdef _support_cudd(self, Function f):
         """Return `set` of variables that node `f` depends on."""
-        assert self.manager == f.manager, f
+        if self.manager != f.manager:
+            raise ValueError('`f.manager != self.manager`')
         cdef DdNode *r
         r = Cudd_zddSupport(self.manager, f.node)
         f = wrap(self, r)
@@ -784,7 +818,8 @@ cdef class ZDD(object):
         if not supp:
             return set()
         # must be positive unate
-        assert set(supp.values()) == {True}, supp
+        if set(supp.values()) != {True}:
+            raise AssertionError(supp)
         return set(supp)
 
     def _copy_bdd_vars(self, bdd):
@@ -830,7 +865,8 @@ cdef class ZDD(object):
         @rtype: `Function`
         """
         logger.debug('let')
-        assert self.manager == u.manager
+        if self.manager != u.manager:
+            raise ValueError('`u.manager != self.manager`')
         d = definitions
         if not d:
             logger.warning(
@@ -848,10 +884,10 @@ cdef class ZDD(object):
         try:
             value + 's'
         except TypeError:
-            raise ValueError(
+            raise ValueError((
                 'Value must be variable name as `str`, '
                 'or Boolean value as `bool`, '
-                'or ZDD node as `int`. Got: {value}'.format(
+                'or ZDD node as `int`. Got: {value}').format(
                     value=value))
         return self._rename(u, d)
 
@@ -863,7 +899,8 @@ cdef class ZDD(object):
             to Boolean values (`bool`).
         """
         logger.debug('_cofactor_root')
-        assert self.manager == u.manager
+        if self.manager != u.manager:
+            raise ValueError('`u.manager != self.manager`')
         level = 0
         self.manager.reordered = 1
         while self.manager.reordered == 1:
@@ -917,7 +954,8 @@ cdef class ZDD(object):
     cpdef Function _cofactor_cudd(
             self, Function u, str var, value):
         """CUDD implementation of cofactor."""
-        assert self.manager == u.manager
+        if self.manager != u.manager:
+            raise ValueError('`u.manager != self.manager`')
         cdef DdNode *r
         index = self._index_of_var[var]
         if value:
@@ -934,7 +972,8 @@ cdef class ZDD(object):
             to ZDD nodes (`Function`).
         """
         logger.debug('_compose_root')
-        assert self.manager == u.manager
+        if self.manager != u.manager:
+            raise ValueError('`u.manager != self.manager`')
         self.manager.reordered = 1
         while self.manager.reordered == 1:
             cache = dict()
@@ -984,7 +1023,8 @@ cdef class ZDD(object):
     cpdef Function _rename(self, Function u, d):
         """Return node from renaming in `u` the variables in `d`."""
         logger.debug('_rename')
-        assert self.manager == u.manager
+        if self.manager != u.manager:
+            raise ValueError('`u.manager != self.manager`')
         rename = {k: self.var(v) for k, v in d.items()}
         # return self._compose_root(u, rename)
         return _c_compose(u, rename)
@@ -998,9 +1038,12 @@ cdef class ZDD(object):
         # for calling `cuddZddIte`
         # see the method `_ite_recursive`
         logger.debug('ite')
-        assert g.manager == self.manager
-        assert u.manager == self.manager
-        assert v.manager == self.manager
+        if g.manager != self.manager:
+            raise ValueError('`g.manager != self.manager`')
+        if u.manager != self.manager:
+            raise ValueError('`u.manager != self.manager`')
+        if v.manager != self.manager:
+            raise ValueError('`v.manager != self.manager`')
         cdef DdNode *r
         r = Cudd_zddIte(self.manager, g.node, u.node, v.node)
         if r == NULL:
@@ -1014,9 +1057,12 @@ cdef class ZDD(object):
         Raises `CouldNotCreateNode` if reordering occurred.
         Calls `cuddZddIte`.
         """
-        assert g.manager == self.manager
-        assert u.manager == self.manager
-        assert v.manager == self.manager
+        if g.manager != self.manager:
+            raise ValueError('`g.manager != self.manager`')
+        if u.manager != self.manager:
+            raise ValueError('`u.manager != self.manager`')
+        if v.manager != self.manager:
+            raise ValueError('`v.manager != self.manager`')
         cdef DdNode *r
         r = cuddZddIte(self.manager, g.node, u.node, v.node)
         if r == NULL:
@@ -1026,12 +1072,19 @@ cdef class ZDD(object):
     cpdef find_or_add(
             self, str var, Function low, Function high):
         """Return node `IF var THEN high ELSE low`."""
-        assert low.manager == self.manager, 'low.manager'
-        assert high.manager == self.manager, 'high.manager'
-        assert var in self.vars, (var, self.vars, 'var')
+        if low.manager != self.manager:
+            raise ValueError('`low.manager != self.manager`')
+        if high.manager != self.manager:
+            raise ValueError('`high.manager != self.manager`')
+        if var not in self.vars:
+            raise ValueError(
+                'unknown variable: {var}, not in: {vrs}'.format(
+                    var=var, vrs=self.vars))
         level = self.level_of_var(var)
-        assert level < low.level, (level, low.level, 'low.level')
-        assert level < high.level, (level, high.level, 'high.level')
+        if level >= low.level:
+            raise ValueError(level, low.level, 'low.level')
+        if level >= high.level:
+            raise ValueError(level, high.level, 'high.level')
         cdef DdNode *r
         index = self._index_of_var[var]
         if high == self.false:
@@ -1042,7 +1095,8 @@ cdef class ZDD(object):
             if r == NULL:
                 raise CouldNotCreateNode()
         f = wrap(self, r)
-        assert level <= f.level, (level, f.level, 'f.level')
+        if level > f.level:
+            raise AssertionError(level, f.level, 'f.level')
         return f
 
     cdef DdNode *_find_or_add(
@@ -1053,7 +1107,8 @@ cdef class ZDD(object):
             return low
         r = cuddUniqueInterZdd(
             self.manager, index, high, low)
-        assert r != NULL
+        if r is NULL:
+            raise AssertionError('r is NULL')
         return r
 
     cpdef _top_cofactor(self, u, level):
@@ -1064,12 +1119,15 @@ cdef class ZDD(object):
         @type level: `int`
         """
         u_level = u.level
-        assert level <= u_level, (level, u_level)
+        if level > u_level:
+            raise ValueError((level, u_level))
         if level < u_level:
             return (u, self.false)
         v, w = u.low, u.high
-        assert v is not None
-        assert w is not None
+        if v is None:
+            raise AssertionError('`v is None`')
+        if w is None:
+            raise AssertionError('`w is None`')
         return (v, w)
 
     def count(self, Function u, nvars=None):
@@ -1081,13 +1139,15 @@ cdef class ZDD(object):
             If omitted, then assume those in `support(u)`.
         """
         logger.debug('count')
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError('nodes from different managers')
         support = self.support(u)
         r = self._count(0, u, support, cache=dict())
         n_support = len(support)
         if nvars == None:
             nvars = n_support
-        assert nvars >= n_support, (nvars, n_support)
+        if nvars < n_support:
+            raise ValueError((nvars, n_support))
         return r * 2**(nvars - n_support)
 
     def _count(
@@ -1113,13 +1173,16 @@ cdef class ZDD(object):
     def _count_cudd(self, Function u, int nvars):
         """CUDD implementation of `self.count`."""
         # returns different results
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError('nodes from different managers')
         n = len(self.support(u))
-        assert nvars >= n, (nvars, n)
+        if nvars < n:
+            raise ValueError((nvars, n))
         r = Cudd_zddCountMinterm(self.manager, u.node, nvars)
-        assert r != CUDD_OUT_OF_MEM
-        assert r != float('inf'), (
-            'overflow of integer type double')
+        if r == CUDD_OUT_OF_MEM:
+            raise RuntimeError('CUDD out of memory')
+        if r == float('inf'):
+            raise RuntimeError('overflow of integer type double')
         return r
 
     def pick(self, Function u, care_vars=None):
@@ -1130,7 +1193,8 @@ cdef class ZDD(object):
     def pick_iter(self, Function u, care_vars=None):
         """Return generator over satisfying assignments."""
         logger.debug('pick_iter')
-        assert self.manager == u.manager
+        if self.manager != u.manager:
+            raise ValueError('nodes from different managers')
         support = self.support(u)
         if care_vars is None:
             care_vars = support
@@ -1152,7 +1216,8 @@ cdef class ZDD(object):
     def _pick_iter_cudd(self, Function u, care_vars=None):
         """CUDD implementation of `self.pick_iter`."""
         # assigns also to variables outside the support
-        assert self.manager == u.manager
+        if self.manager != u.manager:
+            raise ValueError('nodes from different ZDD managers')
         cdef DdGen *gen
         cdef int *path
         cdef double value
@@ -1228,11 +1293,15 @@ cdef class ZDD(object):
             Function w=None):
         """Return as `Function` the result of applying `op`."""
         logger.debug('apply')
-        assert self.manager == u.manager
-        if v is not None:
-            assert self.manager == v.manager
-        if w is not None:
-            assert self.manager == w.manager
+        if self.manager != u.manager:
+            raise ValueError(
+                'node `u` is from different ZDD manager')
+        if v is not None and self.manager != v.manager:
+            raise ValueError(
+                'node `v` is from different ZDD manager')
+        if w is not None and self.manager != w.manager:
+            raise ValueError(
+                'node `w` is from different ZDD manager')
         cdef DdNode *r
         cdef DdNode *neg_node
         cdef Function t
@@ -1241,55 +1310,77 @@ cdef class ZDD(object):
         # unary
         r = NULL
         if op in ('~', 'not', '!'):
-            assert v is None, v
-            assert w is None, w
+            if v is not None:
+                raise ValueError(
+                    '`v is not None`, but: {v}'.format(v=v))
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_zddDiff(mgr, Cudd_ReadZddOne(mgr, 0), u.node)
         # binary
         elif op in ('and', '/\\', '&', '&&'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_zddIntersect(mgr, u.node, v.node)
         elif op in ('or', r'\/', '|', '||'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_zddUnion(mgr, u.node, v.node)
         elif op in ('xor', '^'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             neg_node = Cudd_zddDiff(mgr, Cudd_ReadZddOne(mgr, 0), v.node)
             neg = wrap(self, neg_node)
             r = Cudd_zddIte(mgr, u.node, neg.node, v.node)
         elif op in ('=>', '->', 'implies'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_zddIte(mgr, u.node, v.node, Cudd_ReadZddOne(mgr, 0))
         elif op in ('<=>', '<->', 'equiv'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             neg_node = Cudd_zddDiff(mgr, Cudd_ReadZddOne(mgr, 0), v.node)
             neg = wrap(self, neg_node)
             r = Cudd_zddIte(mgr, u.node, v.node, neg.node)
         elif op in ('diff', '-'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             r = Cudd_zddDiff(mgr, u.node, v.node)
         elif op in (r'\A', 'forall'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             qvars = self.support(u)
             res = self.forall(qvars, v)
             Cudd_Ref(res.node)
             r = res.node
         elif op in (r'\E', 'exists'):
-            assert w is None, w
+            if w is not None:
+                raise ValueError(
+                    '`w is not None`, but: {w}'.format(w=w))
             qvars = self.support(u)
             res = self.exist(qvars, v)
             Cudd_Ref(res.node)
             r = res.node
         # ternary
         elif op == 'ite':
-            assert v is not None
-            assert w is not None
+            if v is None:
+                raise ValueError('`v is None`')
+            if w is None:
+                raise ValueError('`w is None`')
             r = Cudd_zddIte(mgr, u.node, v.node, w.node)
         else:
-            raise Exception(
+            raise ValueError(
                 'unknown operator: "{op}"'.format(op=op))
         if r == NULL:
             config = self.configure()
-            raise Exception((
+            raise RuntimeError((
                 'CUDD appears to have run out of memory.\n'
                 'Computing the operator {op}\n.'
                 'Current settings for upper bounds:\n'
@@ -1306,7 +1397,9 @@ cdef class ZDD(object):
     cpdef _add_int(self, i):
         """Return node from integer `i`."""
         cdef DdNode *u
-        assert i not in (0, 1), i
+        if i in (0, 1):
+            raise ValueError(
+                r'{i} \in {{0, 1}}'.format(i=i))
         # invert `Function.__int__`
         if 2 <= i:
             i -= 2
@@ -1430,6 +1523,8 @@ cdef class ZDD(object):
             self, Function u, qvars, forall=False):
         """Abstract variables `qvars` from node `u`."""
         logger.debug('quantify')
+        if u.manager != self.manager:
+            raise ValueError('`u.manager != self.manager`')
         # similar to the C implementation
         # return self._quantify_using_cube_root(
         #     u, qvars, forall)
@@ -1600,15 +1695,45 @@ cdef class ZDD(object):
 
     cpdef assert_consistent(self):
         """Raise `AssertionError` if not consistent."""
-        assert Cudd_DebugCheck(self.manager) == 0
+        if Cudd_DebugCheck(self.manager) != 0:
+            raise AssertionError('`Cudd_DebugCheck` errored')
         n = len(self.vars)
         m = len(self._var_with_index)
         k = len(self._index_of_var)
-        assert n == m, (n, m)
+        if n != m:
+            raise AssertionError((
+                '`len(self.vars) == {n}` '
+                'but '
+                '`len(self._var_with_index) == {m}`\n'
+                'self.vars = {self.vars}\n'
+                'self._var_with_index = {self._var_with_index}'
+                ).format(
+                    n=n, m=m, self=self))
         assert m == k, (m, k)
-        assert set(self.vars) == set(self._index_of_var)
-        assert set(self._var_with_index) == set(
-            self._index_of_var.values())
+        if m != k:
+            raise AssertionError((
+                '`len(self._var_with_index) == {m}` '
+                'but '
+                '`len(self._index_of_var) == {k}`\n'
+                'self._var_with_index = {self._var_with_index}\n'
+                'self._index_of_var = {self._index_of_var}'
+                ).format(
+                    m=m, k=k, self=self))
+        if set(self.vars) != set(self._index_of_var):
+            raise AssertionError((
+                '`set(self.vars) != '
+                'set(self._index_of_var)`\n'
+                'self.vars = {self.vars}\n'
+                'self._index_of_var = {self._index_of_var}'
+                ).format(self=self))
+        if set(self._var_with_index) != set(
+                self._index_of_var.values()):
+            raise AssertionError((
+                '`set(self._var_with_index) != '
+                'set(self._index_of_var.values())`\n'
+                'self._var_with_index = {self._var_with_index}'
+                'self._index_of_var = {self._index_of_var}'
+                ).format(self=self))
 
     def add_expr(self, expr):
         """Return node for `str` expression `e`."""
@@ -1616,7 +1741,8 @@ cdef class ZDD(object):
 
     cpdef str to_expr(self, Function u):
         """Return a Boolean expression for node `u`."""
-        assert u.manager == self.manager
+        if u.manager != self.manager:
+            raise ValueError('`u.manager != self.manager`')
         cache = dict()
         level = 0
         return self._to_expr(level, u, cache)
@@ -1667,12 +1793,15 @@ cdef class ZDD(object):
             if name.endswith('.pdf'):
                 filetype = 'pdf'
             else:
-                raise Exception((
+                raise ValueError((
                     'cannot infer file type '
                     'from extension of file '
                     'name "{f}"').format(
                         f=filename))
-        assert filetype == 'pdf', filetype
+        if filetype != 'pdf':
+            raise ValueError(
+                "`filetype` is not `'pdf'`, but:  {f}".format(
+                    f=filetype))
         g = to_nx(u)
         import networkx as nx
         pd = nx.drawing.nx_pydot.to_pydot(g)
@@ -1684,7 +1813,8 @@ cdef class ZDD(object):
     # Same with the method `dd.cudd.BDD._cube_to_dict`.
     cpdef _cube_to_dict(self, Function f):
         """Recurse to collect indices of support variables."""
-        assert f.manager == self.manager
+        if f.manager != self.manager:
+            raise ValueError('`f.manager != self.manager`')
         n = len(self.vars)
         cdef int *x
         x = <int *> PyMem_Malloc(n * sizeof(DdNode *))
@@ -1745,7 +1875,8 @@ cdef class Function(object):
     cdef public int _ref
 
     cdef init(self, DdNode *node, ZDD bdd):
-        assert node != NULL, '`DdNode *node` is `NULL` pointer.'
+        if node is NULL:
+            raise ValueError('`DdNode *node` is `NULL` pointer.')
         self.zdd = bdd
         # TODO: rename this attribute to `zdd` in the class
         self.bdd = bdd  # keep this attribute for writing
@@ -1894,7 +2025,8 @@ cdef class Function(object):
             eq = False
         else:
             # guard against mixing managers
-            assert self.manager == other.manager
+            if self.manager != other.manager:
+                raise ValueError('`self.manager != other.manager`')
             eq = (self.node == other.node)
         if op == 2:  # ==
             return eq
@@ -1921,17 +2053,20 @@ cdef class Function(object):
         return wrap(self.bdd, r)
 
     def __and__(Function self, Function other):
-        assert self.manager == other.manager
+        if self.manager != other.manager:
+            raise ValueError('`self.manager != other.manager`')
         r = Cudd_zddIntersect(self.manager, self.node, other.node)
         return wrap(self.bdd, r)
 
     def __or__(Function self, Function other):
-        assert self.manager == other.manager
+        if self.manager != other.manager:
+            raise ValueError('`self.manager != other.manager`')
         r = Cudd_zddUnion(self.manager, self.node, other.node)
         return wrap(self.bdd, r)
 
     def implies(Function self, Function other):
-        assert self.manager == other.manager
+        if self.manager != other.manager:
+            raise ValueError('`self.manager != other.manager`')
         r = Cudd_zddIte(
             self.manager, self.node,
             other.node, Cudd_ReadZddOne(self.manager, 0))
@@ -1969,7 +2104,7 @@ cdef dict _path_array_to_dict(int *x, dict index_of_var):
         elif b == 0:  # "else" arc
             d[var] = False
         else:
-            raise Exception(
+            raise ValueError(
                 'unknown polarity: {b}, '
                 'for variable "{var}"'.format(
                     b=b, var=var))
@@ -1993,7 +2128,7 @@ cdef dict _cube_array_to_dict(int *x, dict index_of_var):
         elif b == 0:
             d[var] = False
         else:
-            raise Exception(
+            raise ValueError(
                 'unknown polarity: {b}, '
                 'for variable "{var}"'.format(
                     b=b, var=var))

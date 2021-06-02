@@ -6,12 +6,18 @@ About
 
 A pure-Python (3 and 2) package for manipulating:
 
-- [Binary decision diagrams](https://en.wikipedia.org/wiki/Binary_decision_diagram) (BDDs).
-- [Multi-valued decision diagrams](http://dx.doi.org/10.1109/ICCAD.1990.129849) (MDDs).
+- [Binary decision diagrams](
+    https://en.wikipedia.org/wiki/Binary_decision_diagram) (BDDs).
+- [Multi-valued decision diagrams](
+    https://dx.doi.org/10.1109/ICCAD.1990.129849) (MDDs).
 
-as well as [Cython](http://cython.org/) bindings to the C libraries:
+as well as [Cython](https://cython.org) bindings to the C libraries:
 
-- [CUDD](https://web.archive.org/web/20180127051756/http://vlsi.colorado.edu/~fabio/CUDD/html/index.html) (also read [the introduction](https://web.archive.org/web/20150317121927/http://vlsi.colorado.edu/~fabio/CUDD/node1.html), and note that the original link for CUDD is <http://vlsi.colorado.edu/~fabio/CUDD/>)
+- [CUDD](
+    https://web.archive.org/web/20180127051756/http://vlsi.colorado.edu/~fabio/CUDD/html/index.html)
+  (also read [the introduction](
+    https://web.archive.org/web/20150317121927/http://vlsi.colorado.edu/~fabio/CUDD/node1.html),
+  and note that the original link for CUDD is <http://vlsi.colorado.edu/~fabio/CUDD/>)
 - [Sylvan](https://github.com/utwente-fmt/sylvan) (multi-core parallelization)
 - [BuDDy](https://sourceforge.net/projects/buddy/)
 
@@ -28,7 +34,8 @@ Contains:
 
 - All the standard functions defined, e.g.,
   by [Bryant](https://www.cs.cmu.edu/~bryant/pubdir/ieeetc86.pdf).
-- Dynamic variable reordering using [Rudell's sifting algorithm](http://www.eecg.toronto.edu/~ece1767/project/rud.pdf).
+- Dynamic variable reordering using [Rudell's sifting algorithm](
+    http://www.eecg.toronto.edu/~ece1767/project/rud.pdf).
 - Reordering to obtain a given order.
 - Parser of quantified Boolean expressions in either
   [TLA+](https://en.wikipedia.org/wiki/TLA%2B) or
@@ -37,8 +44,8 @@ Contains:
 - Renaming variables.
 - Zero-suppressed binary decision diagrams (ZDDs) in CUDD
 - Conversion from BDDs to MDDs.
-- Conversion functions to [`networkx`](https://networkx.github.io/) and
-  [`pydot`](https://pypi.python.org/pypi/pydot) graphs.
+- Conversion functions to [`networkx`](https://networkx.org) and
+  [`pydot`](https://pypi.org/project/pydot) graphs.
 - BDDs have methods to `dump` and `load` them using `pickle`.
 - BDDs dumped by CUDD's DDDMP can be loaded using fast iterative parser.
 - Garbage collection using reference counting
@@ -47,9 +54,9 @@ Contains:
 If you prefer to work with integer variables instead of Booleans, and have
 BDD computations occur underneath, then use the module
 [`omega.symbolic.fol`](
-    https://github.com/tulip-control/omega/blob/master/omega/symbolic/fol.py)
+    https://github.com/tulip-control/omega/blob/main/omega/symbolic/fol.py)
 from the [`omega` package](
-    https://github.com/tulip-control/omega/blob/master/doc/doc.md).
+    https://github.com/tulip-control/omega/blob/main/doc/doc.md).
 
 If you are interested in computing minimal covers (two-level logic minimization)
 then use the module `omega.symbolic.cover` of the `omega` package.
@@ -61,11 +68,11 @@ Documentation
 =============
 
 In the [Markdown](https://en.wikipedia.org/wiki/Markdown) file
-[`doc.md`](https://github.com/tulip-control/dd/blob/master/doc.md).
+[`doc.md`](https://github.com/tulip-control/dd/blob/main/doc.md).
 
 The [changelog](https://en.wiktionary.org/wiki/changelog) is in
 the file [`CHANGES.md`](
-    https://github.com/tulip-control/dd/blob/master/CHANGES.md).
+    https://github.com/tulip-control/dd/blob/main/CHANGES.md).
 
 
 Examples
@@ -158,7 +165,7 @@ Locally:
 pip install .
 ```
 
-For graph layout, install also [graphviz](http://graphviz.org/).
+For graph layout, install also [graphviz](https://graphviz.org).
 
 
 ## Cython bindings
@@ -206,7 +213,7 @@ python setup.py install --cudd="/home/user/cudd"
 ```
 
 If you prefer defining installation directories, then follow [Cython's instructions](
-    http://cython.readthedocs.io/en/latest/src/tutorial/clibraries.html#compiling-and-linking)
+    https://cython.readthedocs.io/en/latest/src/tutorial/clibraries.html#compiling-and-linking)
 to define `CFLAGS` and `LDFLAGS` before running `setup.py`.
 You need to have copied `CuddInt.h` to the installation's include location
 (CUDD omits it).
@@ -221,7 +228,7 @@ python setup.py install --fetch --cudd
 ```
 
 The above options can be passed to `pip` too, using the [`--install-option`](
-    https://pip.pypa.io/en/latest/reference/pip_install.html#per-requirement-overrides)
+    https://pip.pypa.io/en/latest/cli/pip_install/#per-requirement-overrides)
 in a requirements file, for example:
 
 ```
@@ -246,7 +253,8 @@ If you build and install CUDD, Sylvan, or BuDDy yourself, then ensure that:
 - suitable compiler, include, linking, and library flags are passed,
 either by setting [environment variables](
     https://en.wikipedia.org/wiki/Environment_variable)
-prior to calling `pip`, or by editing the file [`download.py`](https://github.com/tulip-control/dd/blob/master/download.py).
+prior to calling `pip`, or by editing the file [`download.py`](
+    https://github.com/tulip-control/dd/blob/main/download.py).
 
 Currently, `download.py` expects to find Sylvan under `dd/sylvan` and built with [Autotools](https://en.wikipedia.org/wiki/GNU_Build_System)
 (for an example, see `.github/workflows/main.yml`).
@@ -336,7 +344,7 @@ The code is covered well by tests.
 
 License
 =======
-[BSD-3](http://opensource.org/licenses/BSD-3-Clause), see file `LICENSE`.
+[BSD-3](https://opensource.org/licenses/BSD-3-Clause), see file `LICENSE`.
 
 
 [build_img]: https://github.com/tulip-control/dd/actions/workflows/main.yml/badge.svg?branch=main

@@ -365,7 +365,7 @@ constructing the BDD for the Boolean function `(x /\ y) \/ ~ z`.
 The BDD rooted at node `x-2` represents the Boolean function `x`, and the
 BDD rooted at node `x-4` represents the Boolean function `x /\ y`.
 
-![example_bdd](https://rawgithub.com/johnyf/binaries/master/dd/awesome.png)
+![example_bdd](https://rawgithub.com/johnyf/binaries/main/dd/awesome.png)
 
 An external reference to a BDD is an arc that points to a node.
 For example, `u` above is an external reference. An external reference can be
@@ -388,7 +388,7 @@ bdd.dump('rooted.pdf', roots=[v])
 The result is the following diagram, where the node `@-7` is the external
 reference `v`, which is a complemented arc.
 
-![example_bdd](https://rawgithub.com/johnyf/binaries/master/dd/rooted.png)
+![example_bdd](https://rawgithub.com/johnyf/binaries/main/dd/rooted.png)
 
 
 It is instructive to dump the `bdd` with and without collecting garbage.
@@ -580,7 +580,7 @@ Regarding the first question, `dd.cudd` requires to:
 
 The `setup.py` of `dd` can do these for you, as described in the file
 [`README.md`](
-    https://github.com/tulip-control/dd/blob/master/README.md#cython-bindings).
+    https://github.com/tulip-control/dd/blob/main/README.md#cython-bindings).
 However, this may require more attention than appropriate for the occassion.
 An example is teaching BDDs in a class on data structures, with the objective
 for students to play with BDDs, not with [`gcc`](
@@ -595,7 +595,7 @@ problem demands it due to its size), then use:
 
 - `BDD.statistics` to obtain the information described in
   [CUDD Programmer's manual / Gathering and interpreting statistics](
-      http://www.cs.rice.edu/~lm30/RSynth/CUDD/cudd/doc/node4.html#SECTION00048000000000000000).
+    https://www.cs.rice.edu/~lm30/RSynth/CUDD/cudd/doc/node4.html#SECTION00048000000000000000).
 - `BDD.configure` to read and set the parameters “max memory”, “loose up to”,
   “max cache hard”, “min hit”, and “max growth”.
 
@@ -702,12 +702,12 @@ We discuss now some more details about the pure Python implementation
 in `dd.bdd`. Two interfaces are available:
 
 - convenience: the module
-  [`dd.autoref`](https://github.com/tulip-control/dd/blob/master/dd/autoref.py) wraps
+  [`dd.autoref`](https://github.com/tulip-control/dd/blob/main/dd/autoref.py) wraps
   `dd.bdd` and takes care of reference counting
   using [`__del__`](https://docs.python.org/3/reference/datamodel.html#object.__del__).
 
 - "low level": the module
-  [`dd.bdd`](https://github.com/tulip-control/dd/blob/master/dd/bdd.py) requires that
+  [`dd.bdd`](https://github.com/tulip-control/dd/blob/main/dd/bdd.py) requires that
   the user in/decrement the reference counters associated with nodes that
   are used outside of a `BDD`.
 
@@ -902,7 +902,7 @@ then collecting those (mark-and-sweep).
 
 The function `dd.bdd.to_nx(bdd, roots)` converts the subgraph of `bdd` rooted
 at `roots` to a [`networkx.MultiDiGraph`](
-    http://networkx.readthedocs.io/en/stable/tutorial/tutorial.html#multigraphs).
+    https://networkx.org/documentation/stable/tutorial.html#multigraphs).
 
 The function `dd.bdd.to_pydot(roots, bdd)` converts the BDD manager nodes
 that are reachable from the BDD references in `roots` in manager `bdd` to an
@@ -984,7 +984,8 @@ Finally, `BDD.reduction` is of only academic interest.
 It takes a binary decision diagram that contains redundancy in its graph
 representation, and *reduces* it to the non-redundant, canonical form that
 corresponds to the chosen variable order.
-This is the function described originally [by Bryant](https://dx.doi.org/10.1109/TC.1986.1676819).
+This is the function described originally [by Bryant](
+    https://dx.doi.org/10.1109/TC.1986.1676819).
 
 It is never used, because all BDD graphs are *constructed* bottom-up
 to be reduced. To observe `reduction` in action, you have to manually
@@ -1067,7 +1068,7 @@ evaluate to `! ite(True, True, False)` which equals `! True`, so `False`).
 
 More about building symbolic algorithms, together with infrastructure for
 arithmetic and automata, and examples, can be found in the package [`omega`](
-    https://github.com/tulip-control/omega/blob/master/doc/doc.md).
+    https://github.com/tulip-control/omega/blob/main/doc/doc.md).
 
 
 ## Syntax for quantified Boolean formulas
@@ -1139,7 +1140,7 @@ parser table. For this purpose, each module that contains a parser,
 also has a function `_rewrite_tables` that deletes and rewrites the tables.
 If the module is run as a script, then the `__main__` stanza calls this
 function to delete and the write the parser tables to the current directory.
-The parsers use [`astutils`](https://pypi.python.org/pypi/astutils).
+The parsers use [`astutils`](https://pypi.org/project/astutils/).
 
 
 ## Multi-valued decision diagrams (MDD)
@@ -1217,7 +1218,7 @@ mdd.dump('mdd.pdf')
 Note that the `MDD` node `v` is complemented (-3 < 0), so the predicate
 in the negated value computed for node `y-3` in the next image.
 
-![example_bdd](https://rawgithub.com/johnyf/binaries/master/dd/mdd.png)
+![example_bdd](https://rawgithub.com/johnyf/binaries/main/dd/mdd.png)
 
 
 ## Footnotes
@@ -1233,7 +1234,7 @@ in the negated value computed for node `y-3` in the next image.
 
 - If you are interested in exploring other decision diagram packages,
   you can find [a list at `github.com/johnyf/tool_lists/`](
-    https://github.com/johnyf/tool_lists/blob/master/bdd.md).
+    https://github.com/johnyf/tool_lists/blob/main/bdd.md).
 
 
 ## Copying

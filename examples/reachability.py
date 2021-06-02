@@ -8,7 +8,7 @@ then take a look at the package `omega`.
 
 
 [1](https://github.com/tulip-control/dd/blob/
-    master/doc.md#example-reachability-analysis)
+    main/doc.md#example-reachability-analysis)
 """
 from dd import autoref as _bdd
 # uncomment if you have compiled `dd.cudd`

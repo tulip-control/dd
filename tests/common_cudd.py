@@ -171,10 +171,7 @@ class Tests(object):
         assert u.ref == 1, u.ref
         assert u._ref == 1, u._ref
         bdd.decref(u, recursive=True)
-        # safe to access the CUDD BDD/ZDD node's
-        # reference count because garbage collection
-        # has been turned off above
-        assert u.ref == 0, u.ref
+        # CAUTION: `u.node is NULL` hereafter
         assert u._ref == 0, u._ref
         # Ensure that `decref` decrements
         # only positive reference counts.
@@ -183,10 +180,6 @@ class Tests(object):
         # no effect at all.
         with pytest.raises(RuntimeError):
             bdd.decref(u)
-        # safe to access the CUDD BDD/ZDD node's
-        # reference count because garbage collection
-        # has been turned off above
-        assert u.ref == 0, u.ref
         assert u._ref == 0, u._ref
         assert len(bdd) == 0, len(bdd)
 

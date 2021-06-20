@@ -595,6 +595,9 @@ cdef class BDD(object):
         Calling this method is unnecessary,
         because reference counting is automated.
         """
+        if u.node is NULL:
+            raise RuntimeError(
+                '`u.node` is `NULL` pointer.')
         if u._ref <= 0:
             _utils._raise_runtimerror_about_ref_count(
                 u._ref, 'method `dd.cudd.BDD.incref`',
@@ -608,7 +611,8 @@ cdef class BDD(object):
             recursive=False, _direct=False):
         """Decrement the reference count of `u`.
 
-        Raise `RuntimeError` if `u._ref <= 0`.
+        Raise `RuntimeError` if `u._ref <= 0`
+        or `u.node is NULL`.
         For more details about avoiding this
         read the docstring of the class `Function`.
 
@@ -616,6 +620,8 @@ cdef class BDD(object):
         that `u` points to is decremented.
 
         Also, the attribute `u._ref` is decremented.
+        If after this decrement, `u._ref == 0`,
+        then the pointer `u.node` is set to `NULL`.
 
         Calling this method is unnecessary,
         because reference counting is automated.
@@ -634,6 +640,9 @@ cdef class BDD(object):
             When `_direct == True`, some of the above
             description does not apply.
         """
+        if u.node is NULL:
+            raise RuntimeError(
+                '`u.node` is `NULL` pointer.')
         # bypass checks and leave `u._ref` unchanged,
         # directly call `_decref`
         if _direct:
@@ -646,6 +655,8 @@ cdef class BDD(object):
         assert u._ref > 0, u._ref
         u._ref -= 1
         self._decref(u.node, recursive)
+        if u._ref == 0:
+            u.node = NULL
 
     cdef _incref(self, DdNode *u):
         Cudd_Ref(u)
@@ -1882,7 +1893,8 @@ cdef class Function(object):
     taking into account that:
 
     - `dd.cudd.BDD.incref(u)` increments `u._ref`
-    - `dd.cudd.BDD.decref(u)` decrements `u._ref`
+    - `dd.cudd.BDD.decref(u)` decrements `u._ref` and
+      sets `u.node` to `NULL` when `u._ref` becomes `0`.
 
     The attribute `u._ref` is *not* the
     reference count of the BDD node in CUDD
@@ -1960,11 +1972,21 @@ cdef class Function(object):
     that corresponds to `v`. The reason is
     described next.
 
-    The object with `id(v)` should *not* be used
-    after this point, because `v._ref == 0`.
+    The object with `id(v)` *cannot* be used after
+    this point, because the call to the method `decref`
+    resulted in `v._ref == 0`, so it also set the
+    pointer `v.node` to `NULL`.
 
-    In this specific example, using `v` beyond
-    this point would actually not cause problems,
+    Setting `v.node` to `NULL` guards from further
+    use of the object with `id(v)` to
+    access CUDD BDD nodes.
+    The object with `id(v)` should *not* be used
+    after this point.
+
+    In this specific example,
+    if the method `decref` did not
+    set `v.node` to `NULL`, then using `v` beyond
+    this point would actually not have caused problems,
     because the CUDD BDD node's reference count
     is still positive (due to the increment
     when the object with `id(u)` was instantiated).
@@ -1981,14 +2003,15 @@ cdef class Function(object):
     From the perspective of the object with `id(v)`,
     further access to that CUDD BDD node is unsafe.
 
-    If we continue by doing:
+    Had the method `decref` not set `u.node` to `NULL`,
+    then if we had continued by doing:
 
     ```python
     bdd.decref(u, recursive=True)
     ```
 
     then both variables `u` and `w`
-    should *not* be used any further.
+    should *not* had been used any further.
     These variables refer to the
     same Python object, and `u._ref == 0`
     (thus `w._ref == 0`). So the same observations
@@ -2095,10 +2118,22 @@ cdef class Function(object):
         assert self._ref >= 0, self._ref
         if self._ref == 0:
             return
+        if self.node is NULL:
+            raise AssertionError(
+                'The attribute `node` is '
+                'a `NULL` pointer. '
+                'This is unexpected and '
+                'should never happen. '
+                'Was the value of `_ref` '
+                'changed from outside '
+                'this class?')
         # anticipate multiple calls to `__dealloc__`
         self._ref -= 1
         # deref
         Cudd_RecursiveDeref(self.manager, self.node)
+        # avoid future access
+        # to deallocated memory
+        self.node = NULL
 
     def __int__(self):
         # inverse is `BDD._add_int`
@@ -2304,7 +2339,15 @@ cpdef _test_call_dealloc(Function u):
     assert self._ref >= 0, self._ref
     if self._ref == 0:
         return
+    if self.node is NULL:
+        raise AssertionError(
+            'The attribute `node` is a `NULL` pointer. '
+            'This is unexpected and should never happen. '
+            'Was the value of `_ref` changed from outside '
+            'this class?')
     # anticipate multiple calls to `__dealloc__`
     self._ref -= 1
     # deref
     Cudd_RecursiveDeref(self.manager, self.node)
+    # avoid future access to deallocated memory
+    self.node = NULL

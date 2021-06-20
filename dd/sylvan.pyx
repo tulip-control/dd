@@ -643,6 +643,7 @@ cdef class Function(object):
 
     def __dealloc__(self):
         sy.sylvan_deref(self.node)
+        self.node = 0
 
     def __str__(self):
         return (

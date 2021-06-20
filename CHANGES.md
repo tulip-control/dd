@@ -20,6 +20,8 @@ API:
 - add method `apply` to the class `dd.mdd.MDD`
 - several `assert` statements replaced by `raise` with
   exceptions more specific than `AssertionError`
+- set `dd.cudd.Function.node` and `dd.cudd_zdd.Function.node`
+  to `NULL` when the (local) reference count becomes zero
 
 
 ## 0.5.6

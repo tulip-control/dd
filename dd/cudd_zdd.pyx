@@ -563,6 +563,8 @@ cdef class ZDD(object):
         For details read the docstring of the
         method `dd.cudd.BDD.incref`.
         """
+        if u.node is NULL:
+            raise RuntimeError('`u.node` is `NULL` pointer.')
         if u._ref <= 0:
             _utils._raise_runtimerror_about_ref_count(
                 u._ref, 'method `dd.cudd_zdd.ZDD.incref`',
@@ -588,6 +590,8 @@ cdef class ZDD(object):
             When `_direct == True`, some of the above
             description does not apply.
         """
+        if u.node is NULL:
+            raise RuntimeError('`u.node` is `NULL` pointer.')
         # bypass checks and leave `u._ref` unchanged,
         # directly call `_decref`
         if _direct:
@@ -600,6 +604,8 @@ cdef class ZDD(object):
         assert u._ref > 0, u._ref
         u._ref -= 1
         self._decref(u.node, recursive)
+        if u._ref == 0:
+            u.node = NULL
 
     cdef _incref(self, DdNode *u):
         Cudd_Ref(u)
@@ -1976,10 +1982,18 @@ cdef class Function(object):
         assert self._ref >= 0, self._ref
         if self._ref == 0:
             return
+        if self.node is NULL:
+            raise AssertionError(
+                'The attribute `node` is a `NULL` pointer. '
+                'This is unexpected and should never happen. '
+                'Was the value of `_ref` changed from outside '
+                'this class?')
         # anticipate multiple calls to `__dealloc__`
         self._ref -= 1
         # deref
         Cudd_RecursiveDerefZdd(self.manager, self.node)
+        # avoid future access to deallocated memory
+        self.node = NULL
 
     def __int__(self):
         # inverse is `ZDD._add_int`
@@ -2861,7 +2875,15 @@ cpdef _test_call_dealloc(Function u):
     assert self._ref >= 0, self._ref
     if self._ref == 0:
         return
+    if self.node is NULL:
+        raise AssertionError(
+            'The attribute `node` is a `NULL` pointer. '
+            'This is unexpected and should never happen. '
+            'Was the value of `_ref` changed from outside '
+            'this class?')
     # anticipate multiple calls to `__dealloc__`
     self._ref -= 1
     # deref
     Cudd_RecursiveDerefZdd(self.manager, self.node)
+    # avoid future access to deallocated memory
+    self.node = NULL

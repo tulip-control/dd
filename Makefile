@@ -55,9 +55,9 @@ install:
 
 reinstall:
 	-pip uninstall -y dd
-	python setup.py install --cudd
+	python setup.py install --cudd --cudd_zdd --sylvan
 
-reinstall_zdd:
+reinstall_cudd:
 	-pip uninstall -y dd
 	python setup.py install --cudd --cudd_zdd
 

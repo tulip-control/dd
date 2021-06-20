@@ -4,6 +4,7 @@
 ## 0.5.7
 
 - require `pytest >= 4.6.11`, instead of `nose`, for Python 3.10 compatibility
+- test using GitHub Actions
 
 API:
 

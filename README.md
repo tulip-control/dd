@@ -1,4 +1,4 @@
-[![Build Status][build_img]][travis]
+[![Build Status][build_img]][ci]
 
 
 About
@@ -249,7 +249,7 @@ either by setting [environment variables](
 prior to calling `pip`, or by editing the file [`download.py`](https://github.com/tulip-control/dd/blob/master/download.py).
 
 Currently, `download.py` expects to find Sylvan under `dd/sylvan` and built with [Autotools](https://en.wikipedia.org/wiki/GNU_Build_System)
-(for an example, see `.travis.yml`).
+(for an example, see `.github/workflows/main.yml`).
 If the path differs in your environment, remember to update it.
 
 BuDDy can be downloaded and compiled as follows:
@@ -339,5 +339,5 @@ License
 [BSD-3](http://opensource.org/licenses/BSD-3-Clause), see file `LICENSE`.
 
 
-[build_img]: https://travis-ci.com/tulip-control/dd.svg?branch=master
-[travis]: https://travis-ci.com/tulip-control/dd
+[build_img]: https://github.com/tulip-control/dd/actions/workflows/main.yml/badge.svg?branch=main
+[ci]: https://github.com/tulip-control/dd/actions

@@ -308,11 +308,13 @@ cdef class ZDD(object):
 
     def __cinit__(self,
                   memory_estimate=None,
-                  initial_cache_size=None):
+                  initial_cache_size=None,
+                  *arg, **kw):
         """Initialize ZDD manager.
 
         @param memory_estimate: maximum allowed memory, in bytes.
         """
+        self.manager = NULL  # prepare for `__dealloc__`
         total_memory = psutil.virtual_memory().total
         default_memory = DEFAULT_MEMORY
         if memory_estimate is None:
@@ -354,6 +356,11 @@ cdef class ZDD(object):
         self._var_with_index = dict()
 
     def __dealloc__(self):
+        if self.manager is NULL:
+            raise RuntimeError(
+                '`self.manager` is `NULL`, which suggests that '
+                'an exception was raised inside the method '
+                '`dd.cudd_zdd.ZDD.__cinit__`.')
         n = len(self)
         if n != 0:
             raise AssertionError((

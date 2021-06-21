@@ -58,6 +58,11 @@ jobs:
                 # would also install packages that
                 # may be absent from where `dd` will be installed
                 pip install cython
+                # ensure a suitable version of `pyparsing`
+                # is installed on Python 2.7
+                if test 2 = `python -c \
+                'import sys; print(sys.version_info.major)'`; \
+                then pip install pyparsing; fi
             - name: Display version of GraphViz `dot`
               run: |
                 dot -V

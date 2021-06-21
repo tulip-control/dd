@@ -2164,35 +2164,35 @@ def to_nx(u):
     """
     import networkx as nx
     g = nx.MultiDiGraph()
-    visited = set()
-    umap = dict()
-    _to_nx(g, u, visited, umap)
+    _to_nx(g, u, umap=dict())
     return g
 
 
-def _to_nx(g, u, visited, umap):
+def _to_nx(g, u, umap):
     """Recursively construct a ZDD graph."""
-    r = int(u)
-    r_nd = umap.setdefault(r, len(g))
-    v, w = u.low, u.high
-    if v is None:
-        label = 'FALSE' if u == u.bdd.false else 'TRUE'
-        g.add_node(r_nd, label=label)
+    u_int = int(u)
+    # visited ?
+    if u_int in umap:
         return
+    u_nd = umap.setdefault(u_int, len(umap))
+    if u.var is None:
+        label = 'FALSE' if u == u.bdd.false else 'TRUE'
+    else:
+        label = u.var
+    g.add_node(u_nd, label=label)
+    if u.var is None:
+        return
+    v, w = u.low, u.high
     assert v is not None
     assert w is not None
-    if r in visited:
-        return
-    visited.add(r)
-    g.add_node(r_nd, label=u.var)
-    p = int(v)
-    q = int(w)
-    p_nd = umap.setdefault(p, len(g))
-    g.add_edge(r_nd, p_nd, taillabel='0', style='dashed')
-    q_nd = umap.setdefault(q, len(g))
-    g.add_edge(r_nd, q_nd, taillabel='1', style='solid')
-    _to_nx(g, v, visited, umap)
-    _to_nx(g, w, visited, umap)
+    v_int = int(v)
+    w_int = int(w)
+    _to_nx(g, v, umap)
+    _to_nx(g, w, umap)
+    v_nd = umap[v_int]
+    w_nd = umap[w_int]
+    g.add_edge(u_nd, v_nd, taillabel='0', style='dashed')
+    g.add_edge(u_nd, w_nd, taillabel='1', style='solid')
 
 
 cpdef Function _dict_to_zdd(qvars, zdd):

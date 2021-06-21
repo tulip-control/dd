@@ -415,7 +415,7 @@ def bdd_to_mdd(bdd, dvars):
     # build layer by layer
     # TODO: use bins, instad of iterating through all nodes
     bdd.assert_consistent()
-    g = to_nx(bdd, roots=[u])
+    g = to_nx(bdd, roots=bdd)
     for u in pred:
         g.add_node(u, color='red')
     for u in g:

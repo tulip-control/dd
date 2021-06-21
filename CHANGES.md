@@ -17,6 +17,9 @@ API:
   `dd.cudd_zdd.ZDD.__str__`
 - remove the now obsolete constants `dd.cudd.GB`, `dd.cudd_zdd.GB`
 - remove the unused constant `dd.sylvan.GB`
+- method `dd.cudd_zdd.ZDD.dump`:
+  - support PNG and SVG formats, in addition to PDF
+  - allow more than one references to ZDD nodes in the argument `roots`
 - add method `apply` to the class `dd.mdd.MDD`
 - several `assert` statements replaced by `raise` with
   exceptions more specific than `AssertionError`

@@ -1,5 +1,7 @@
 """Tests of the module `dd.mdd`."""
 import logging
+
+import dd.bdd
 import dd.mdd
 
 
@@ -16,10 +18,8 @@ def test_find_or_add():
 
 
 def test_bdd_to_mdd():
-    from dd.bdd import BDD
-
     ordering = {'x': 0, 'y': 1}
-    bdd = BDD(ordering)
+    bdd = dd.bdd.BDD(ordering)
     u = bdd.add_expr(r'x /\ ~ y')
     bdd.incref(u)
     # BDD -> MDD

@@ -52,9 +52,12 @@ jobs:
                 print(sys.version_info.major == 3 and \
                 sys.version_info.minor == 6)'`; \
                 then pip install networkx==2.5.1; fi
-            - name: Install test dependencies
+            - name: Install setup dependencies
               run: |
-                pip install -r requirements.txt
+                # note that installing from `requirements.txt`
+                # would also install packages that
+                # may be absent from where `dd` will be installed
+                pip install cython
             - name: Display version of GraphViz `dot`
               run: |
                 dot -V
@@ -87,6 +90,9 @@ jobs:
                 echo "Exported environment variables:"
                 export -p
                 python setup.py install --fetch --cudd --cudd_zdd --sylvan
+            - name: Install test dependencies
+              run: |
+                pip install pytest
             - name: Run `dd` tests
               run: |
                 set -o posix

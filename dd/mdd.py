@@ -26,6 +26,7 @@ from dd import bdd as _bdd
 from dd.bdd import to_nx
 from dd._compat import items
 # inline:
+# import networkx
 # import pydot
 
 
@@ -415,17 +416,7 @@ def bdd_to_mdd(bdd, dvars):
     # build layer by layer
     # TODO: use bins, instad of iterating through all nodes
     bdd.assert_consistent()
-    g = to_nx(bdd, roots=bdd)
-    for u in pred:
-        g.add_node(u, color='red')
-    for u in g:
-        if u == 1:
-            continue
-        i, _, _ = bdd._succ[u]
-        var = bdd.var_at_level(i)
-        label = '{var}-{u}'.format(var=var, u=u)
-        g.add_node(u, label=label)
-    # bdd.dump('bdd.pdf')
+    # _debug_dump(pred, bdd)
     umap = dict()
     umap[1] = 1
     for u, i, v, w in bdd.levels(skip_terminals=True):
@@ -461,6 +452,27 @@ def _enumerate_integer(bits):
         for bit in bits[len(values):]:
             d[bit] = 0
         yield d
+
+
+def _debug_dump(pred, bdd):
+    """Dump nodes of `bdd`, coloring nodes in `pred`."""
+    import networkx as nx
+    g = to_nx(bdd, roots=bdd._succ)
+    color = 'red'
+    for u in pred:
+        assert u >= 1, u
+        g.add_node(u, color=color)
+    for u in g:
+        assert u >= 1, u
+        if u == 1:
+            continue
+        level, _, _ = bdd._succ[u]
+        var = bdd.var_at_level(level)
+        label = '{var}-{u}'.format(var=var, u=u)
+        g.add_node(u, label=label)
+    pd = nx.drawing.nx_pydot.to_pydot(g)
+    pd.write_pdf('bdd_colored.pdf')
+    bdd.dump('bdd.pdf')
 
 
 def to_pydot(mdd):

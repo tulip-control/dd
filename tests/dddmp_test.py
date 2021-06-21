@@ -3,7 +3,6 @@ import logging
 import os
 
 from dd.dddmp import Lexer, Parser, load, _rewrite_tables
-import networkx as nx
 import pytest
 
 
@@ -31,21 +30,23 @@ def test_parser():
 def test_sample0():
     fname = 'sample0.dddmp'
     bdd, n_vars, ordering, roots = parser.parse(fname)
-    h = to_nx(bdd, n_vars, ordering, roots)
-    assert len(h) == 5, len(h)
-    edges = {
-        (5, 3, 0), (5, 4, 0),
-        (4, 1, 0), (4, 2, 0),
-        (3, 1, 0), (3, 2, 0),
-        (2, 1, 0), (2, 1, 1)}
-    assert set(h.edges(keys=True)) == edges
-    # complemented edges
-    assert h[4][2][0]['label'] == '-1'
-    assert h[2][1][0]['label'] == '-1'
+    assert set(bdd) == set(range(1, 6)), sorted(bdd)
+    bdd_ = {
+        1: (None, None),
+        2: (-1, 1),  # -1 is a complemented edge
+        3: (2, 1),
+        4: (-2, 1),  # -2 is a complemented edge
+        5: (4, 3)}
+    for u, (level, v, w) in bdd.items():
+        v_, w_ = bdd_[u]
+        assert v == v_, (u, v, w, v_, w_)
+        assert w == w_, (u, v, w, v_, w_)
     # other attributes
     assert n_vars == 50, n_vars
     assert ordering == {'a': 1, 'b': 2, 'c': 3}, ordering
     assert roots == {-5}
+    # debugging
+    # h = to_nx(bdd, n_vars, ordering, roots)
     # pd = nx.drawing.nx_pydot.to_pydot(h)
     # pd.write_pdf('bdd.pdf')
 
@@ -137,7 +138,13 @@ def test_rewrite_tables():
 
 
 def to_nx(bdd, n_vars, ordering, roots):
-    """Convert result of `Parser.parse` to `networkx.MultiDiGraph`."""
+    """Convert result of `Parser.parse` to `networkx.MultiDiGraph`.
+
+    The arguments `bdd`, `n_vars`, `ordering`, `roots`
+    are those values that are returned from the method
+    `dd.dddmp.Parser.parse`.
+    """
+    import networkx as nx
     level2var = {ordering[k]: k for k in ordering}
     level2var[n_vars + 1] = 'T'
     h = nx.MultiDiGraph()

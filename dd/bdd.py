@@ -128,7 +128,7 @@ class BDD(_abc.BDD):
 
     Attributes:
       - `vars`: `dict` mapping `variables` to `int` levels
-      - `roots`: (optional) edges used by `to_nx`.
+      - `roots`: (optional) edges
       - `max_nodes`: raise `Exception` if this limit is reached.
         The default value is `sys.maxsize` in Python 3 and
         `sys.maxint` in Python 2. Increase it if needed.
@@ -368,7 +368,7 @@ class BDD(_abc.BDD):
     def descendants(self, roots):
         """Return nodes reachable from `roots`.
 
-        Nodes in `roots` are included.
+        Nodes pointed to by references in `roots` are included.
         Nodes are represented as positive integers.
         """
         if not roots:
@@ -1879,7 +1879,7 @@ def _flip(r, u):
 
 
 def to_nx(bdd, roots):
-    """Convert functions in `roots` to `networkx.MultiDiGraph`.
+    """Convert node references in `roots` to `networkx.MultiDiGraph`.
 
     The resulting graph has:
 
@@ -1891,6 +1891,7 @@ def to_nx(bdd, roots):
 
     @type bdd: `BDD`
     @type roots: iterable of edges, each a signed `int`
+    @rtype: `networkx.MultiDiGraph`
     """
     import networkx as nx
     g = nx.MultiDiGraph()

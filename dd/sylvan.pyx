@@ -117,7 +117,11 @@ cdef class BDD(object):
         return s
 
     def configure(self, **kw):
-        """Has no effect, present for compatibility only."""
+        """Has no effect, present for compatibility only.
+
+        Compatibility here refers to `BDD` classes in
+        other modules of the package `dd`.
+        """
         # TODO: use `sy.gc_enabled == 1` when not `static`
         garbage_collection = None
         d = dict(

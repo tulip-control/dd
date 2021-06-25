@@ -180,6 +180,15 @@ def _copy_extern_licenses(args):
 
 
 def _join(paths):
+    """Return `list` of paths, after joining each.
+
+    @param paths: container of pieces of paths,
+        each path is obtained by joining its pieces
+        using `os.path.join`
+    @type paths: `list` of `list` of `str`
+    @return: `list` of paths
+    @rtype: `list` of `str`
+    """
     return [os.path.join(*x) for x in paths]
 
 

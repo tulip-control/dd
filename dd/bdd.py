@@ -144,23 +144,56 @@ class BDD(_abc.BDD):
     or call `update_predecessors` prior to calling `ite`.
     """
     # omitted docstrings are inheritted from `super()`
+    # "nat" below means "natural number",
+    # i.e., int >= 0
 
     def __init__(self, levels=None):
         if levels is None:
             levels = dict()
         _assert_valid_ordering(levels)
-        self._pred = dict()  # (i, low, high) -> u
-        self._succ = dict()  # u -> (i, low, high)
-        self._ref = dict()  # reference counters
-        self._min_free = 2  # all smaller positive integers used
-        self._ite_table = dict()  # (cond, high, low)
-        self.vars = dict()  # var_to_level
+        # (level, low, high) -> node
+        # tuple(nat, int, nat) -> nat
+        self._pred = dict()
+        # node -> (level, low, high)
+        # nat -> tuple(nat, int, nat)
+        self._succ = dict()
+        # reference counters
+        # node -> reference count
+        # nat -> nat
+        self._ref = dict()
+        # all smaller positive integers
+        # are used as node indices, and
+        # no larger integers are used
+        # as node indices
+        # nat
+        self._min_free = 2
+        # cache for ternary conditional
+        # ("ite" is an initialism for
+        #  "if-then-else")
+        # (condition, then, else) -> edge
+        # (int, int, int) -> int
+        self._ite_table = dict()
+        # mapping from variable names to
+        # levels of variables
+        # var name -> level
+        # str -> nat
+        self.vars = dict()
+        # mapping from levels of variables
+        # to variable names,
+        # inverse of `self.vars`
+        # level -> var name
+        # nat -> str
         self._level_to_var = dict()
-        self._init_terminal(len(self.vars))  # handle no vars
-        self._reordering_context = False  # for decorator nesting
-        self._last_len = None  # after last reordering
-        for var, level in items(levels):
+        # handle no vars
+        self._init_terminal(len(self.vars))
+        # for decorator nesting
+        self._reordering_context = False
+        # after last reordering
+        self._last_len = None
+        for var, level in levels.items():
             self.add_var(var, level)
+        # set of edges
+        # optional
         self.roots = set()
         try:
             # Python 2, for xrange
@@ -272,18 +305,32 @@ class BDD(_abc.BDD):
         return self._ref[abs(u)]
 
     def add_var(self, var, level=None):
-        """Add a variable named `var` at `level`.
+        """Declare a variable named `var` at `level`.
 
-        If `level` is absent, then add at bottom.
-        Raise `Exception` if:
-            - `var` exists at different level, or
-            - `level` is occupied.
+        The new variable is Boolean-valued.
 
-        Currently, `add_var` must be called
-        *only* before adding any nodes.
-        In the future, this will change.
+        If `level` is absent, then add the new variable
+        at the bottom level.
 
+        Raise `ValueError` if:
+        - `var` already exists at a level
+          different than the given `level`, or
+        - the given `level` is already used by
+          another variable
+        - `level` is not given and `var` does not exist,
+          and the next level larger than the
+          current bottom level is already used by
+          another variable.
+
+        If `var` already exists, and either `level`
+        is not given, or `var` has `level`,
+        then return without raising exceptions.
+
+        @param var: name of new variable to declare
+        @type var: `str`
+        @param level: level of new variable to declare
         @type level: `int`
+        @return: level of variable `var`
         """
         # var already exists ?
         if var in self.vars:
@@ -799,9 +846,11 @@ class BDD(_abc.BDD):
         return w
 
     def find_or_add(self, i, v, w):
-        """Return a node at level `i` with successors `v, w`.
+        """Return reference to node at level `i` with successors `v, w`.
 
-        If one exists, it is quickly found in the cached table.
+        If such a node exists already,
+        then it is quickly found in the cached table,
+        and the reference returned.
 
         @param i: level in `range(n_vars - 1)`
         @param v: low edge
@@ -1036,7 +1085,18 @@ class BDD(_abc.BDD):
         return (oldsize, newsize)
 
     def _low_high(self, u):
-        """Return low and high, or `u` itself, if terminal."""
+        """Return level, low, and high.
+
+        If node `u` is a leaf,
+        then `u` is returned as low and high.
+
+        This method is similar to the
+        method `succ`, but different.
+
+        @type u: `int`
+        @return: (level, low, high)
+        @rtype: `tuple(int, int, int)`
+        """
         i, v, w = self._succ[abs(u)]
         if abs(u) == 1:
             return (i, u, u)

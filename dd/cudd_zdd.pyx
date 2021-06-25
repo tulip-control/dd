@@ -1871,17 +1871,49 @@ cdef class ZDD(object):
 
     @property
     def false(self):
-        """`Function` for Boolean value FALSE."""
+        """`Function` for Boolean value FALSE.
+
+        Relevant properties:
+            `ZDD.true` and `ZDD.true_node`.
+        """
         return self._bool(False)
 
     @property
     def true(self):
-        """`Function` for Boolean value TRUE."""
+        """`Function` for Boolean value TRUE.
+
+        Read also the docstring of the
+        property `ZDD.true_node`.
+
+        Relevant properties:
+            `ZDD.false`, `ZDD.true_node`
+        """
         return self._bool(True)
 
     @property
     def true_node(self):
-        """Return the constant ZDD node for TRUE."""
+        """Return the constant ZDD node for TRUE.
+
+        Compare with the property `true`,
+        for example the value of `ZDD.true.level`
+        with the value of `ZDD.true_node.level`,
+        after at least one variable has been
+        declared:
+
+        ```python
+        import dd.cudd_zdd as _zdd
+
+        zdd = _zdd.ZDD()
+        zdd.declare('x')
+        a = zdd.true.level
+        b = zdd.true_node.level
+        print(f'level of `zdd.true`:  {a}')
+        print(f'level of `zdd.true_node`:  {b}')
+        ```
+
+        Relevant properties:
+            `ZDD.false`, `ZDD.true`
+        """
         cdef DdNode *r
         r = DD_ONE(self.manager)
         return wrap(self, r)
@@ -2505,7 +2537,12 @@ cdef DdNode *_forall(
         int level,
         DdNode *u,
         DdNode *cube):
-    r"""Recursive \A."""
+    r"""Recursive \A.
+
+    Asserts that:
+    - `level` <= level of `u`
+    - `level` <= level of `cube`
+    """
     index = Cudd_ReadInvPermZdd(mgr, level)
     if u == DD_ZERO(mgr) or index == -1:
         return u
@@ -2590,7 +2627,12 @@ cdef DdNode *_exist(
         int level,
         DdNode *u,
         DdNode *cube):
-    r"""Recursive \E."""
+    r"""Recursive \E.
+
+    Asserts that:
+    - `level` <= level of `u`
+    - `level` <= level of `cube`
+    """
     index = Cudd_ReadInvPermZdd(mgr, level)
     if u == DD_ZERO(mgr) or index == -1:
         return u
@@ -2698,7 +2740,12 @@ cdef DdNode *_disjoin(
         int level,
         DdNode *u,
         DdNode *v):
-    """Recursively disjoin `u` and `v`."""
+    """Recursively disjoin `u` and `v`.
+
+    Asserts that:
+    - `level` <= level of `u`
+    - `level` <= level of `v`
+    """
     index = Cudd_ReadInvPermZdd(mgr, level)
     # TODO: review reference counting
     if u == DD_ZERO(mgr):
@@ -2785,7 +2832,12 @@ cdef DdNode *_conjoin(
         int level,
         DdNode *u,
         DdNode *v):
-    """Recursively conjoin `u` and `v`."""
+    """Recursively conjoin `u` and `v`.
+
+    Asserts that:
+    - `level` <= level of `u`
+    - `level` <= level of `v`
+    """
     index = Cudd_ReadInvPermZdd(mgr, level)
     if u == DD_ZERO(mgr):
         return u
@@ -2921,6 +2973,9 @@ cdef DdNode *_compose(
 
     The composition is defined in the
     array `vector`.
+
+    Asserts that:
+    - `level` <= level of `u`
     """
     if u == DD_ZERO(mgr):
         return u

@@ -21,10 +21,12 @@ def comparing_two_variable_orders():
     bdd.declare(*vrs)
     # equality constraints cause difficulties with BDD size
     expr_1 = r' /\ '.join(
-        " x{i} <=> x{j} ".format(i=i, j=(i + n + 1) % (2*n)) for i in range(n))
+        " x{i} <=> x{j} ".format(i=i, j=(i + n + 1) % (2*n))
+        for i in range(n))
     u = bdd.add_expr(expr_1)
     expr_2 = r' /\ '.join(
-        " x{i} <=> x{j} ".format(i=2 * i, j=(2 * i + 1)) for i in range(n))
+        " x{i} <=> x{j} ".format(i=2 * i, j=(2 * i + 1))
+        for i in range(n))
     v = bdd.add_expr(expr_2)
     bdd.collect_garbage()
     # an order that yields a small BDD for `expr`

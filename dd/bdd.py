@@ -40,10 +40,7 @@ Henrik R. Andersen
 # Copyright 2014 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
-try:
-    from collections.abc import Mapping
-except ImportError:
-    from collections import Mapping
+from collections.abc import Mapping
 import logging
 import pickle
 import sys
@@ -51,8 +48,6 @@ import warnings
 
 from dd import _abc
 from dd import _parser
-from dd import _compat
-from dd._compat import items
 # inline:
 # import networkx
 # import pydot
@@ -62,11 +57,6 @@ logger = logging.getLogger(__name__)
 REORDER_STARTS = 100
 REORDER_FACTOR = 2
 GROWTH_FACTOR = 2
-# for python 3
-try:
-    xrange(0)
-except NameError:
-    xrange = range
 
 
 def _request_reordering(bdd):
@@ -130,8 +120,8 @@ class BDD(_abc.BDD):
       - `vars`: `dict` mapping `variables` to `int` levels
       - `roots`: (optional) edges
       - `max_nodes`: raise `Exception` if this limit is reached.
-        The default value is `sys.maxsize` in Python 3 and
-        `sys.maxint` in Python 2. Increase it if needed.
+        The default value is `sys.maxsize` in Python 3.
+        Increase it if needed.
 
     To ensure that the target node of a returned edge
     is not garbage collected during reordering,
@@ -195,11 +185,7 @@ class BDD(_abc.BDD):
         # set of edges
         # optional
         self.roots = set()
-        try:
-            # Python 2, for xrange
-            self.max_nodes = sys.maxint
-        except AttributeError:
-            self.max_nodes = sys.maxsize
+        self.max_nodes = sys.maxsize
 
     def __copy__(self):
         bdd = BDD(self.vars)
@@ -397,7 +383,7 @@ class BDD(_abc.BDD):
         if isinstance(d, Mapping):
             r = {
                 self.vars[var]: bool(val)
-                for var, val in items(d)}
+                for var, val in d.items()}
         else:
             r = {self.vars[k] for k in d}
         return r
@@ -498,8 +484,8 @@ class BDD(_abc.BDD):
             n = len(self.vars) - 1
         else:
             n = len(self.vars)
-        for i in xrange(n, -1, -1):
-            for u, (j, v, w) in items(self._succ):
+        for i in range(n, -1, -1):
+            for u, (j, v, w) in self._succ.items():
                 if i != j:
                     continue
                 yield u, i, v, w
@@ -507,9 +493,11 @@ class BDD(_abc.BDD):
     def _levels(self):
         """Return `dict` from levels to `set`s of nodes."""
         n = len(self.vars)
-        levels = {i: set() for var, i in items(self.vars)}
+        levels = {
+            i: set()
+            for var, i in self.vars.items()}
         levels[n] = set()
-        for u, (i, v, w) in items(self._succ):
+        for u, (i, v, w) in self._succ.items():
             levels[i].add(u)
         levels.pop(n)
         return levels
@@ -552,7 +540,7 @@ class BDD(_abc.BDD):
         """
         for var in vrs:
             assert var in self.vars, var
-        full_levels = {i for i, _, _ in _compat.values(self._succ)}
+        full_levels = {i for i, _, _ in self._succ.values()}
         # remove only unused variables
         for var in vrs:
             level = self.level_of_var(var)
@@ -560,23 +548,23 @@ class BDD(_abc.BDD):
         # keep unused variables not in `vrs`
         if vrs:
             full_levels |= {
-                level for var, level in items(self.vars)
+                level for var, level in self.vars.items()
                 if var not in vrs}
         # map old to new levels
         n = 1 + len(self.vars)  # include terminal
         new_levels = [i for i in range(n) if i in full_levels]
         new_levels = {i: new for new, i in enumerate(new_levels)}
         # update variables and level declarations
-        rm_vars = {var for var, level in items(self.vars)
+        rm_vars = {var for var, level in self.vars.items()
                    if level not in full_levels}
-        self.vars = {var: new_levels[old] for var, old in items(self.vars)
+        self.vars = {var: new_levels[old] for var, old in self.vars.items()
                      if old in full_levels}
-        self._level_to_var = {k: var for var, k in items(self.vars)}
+        self._level_to_var = {k: var for var, k in self.vars.items()}
         # update node levels
         self._succ = {
             u: (new_levels[i], v, w)
-            for u, (i, v, w) in items(self._succ)}
-        self._pred = {v: k for k, v in items(self._succ)}
+            for u, (i, v, w) in self._succ.items()}
+        self._pred = {v: k for k, v in self._succ.items()}
         # clear cache
         self._ite_table = dict()
         return rm_vars
@@ -891,7 +879,7 @@ class BDD(_abc.BDD):
     def _next_free_int(self, start):
         """Return the smallest unused integer larger than `start`."""
         assert start >= 1, start
-        for i in xrange(start, self.max_nodes):
+        for i in range(start, self.max_nodes):
             if i not in self._succ:
                 return i
         raise Exception('full: reached `self.max_nodes` nodes.')
@@ -938,7 +926,7 @@ class BDD(_abc.BDD):
 
     def update_predecessors(self):
         """Update table that maps (level, low, high) to nodes."""
-        for u, t in items(self._succ):
+        for u, t in self._succ.items():
             if abs(u) == 1:
                 continue
             self._pred[t] = u
@@ -978,7 +966,7 @@ class BDD(_abc.BDD):
                 assert u == u_, (u, u_)
                 levels[j][u] = (v, w)
         # move level y up
-        for u, (v, w) in items(levels[y]):
+        for u, (v, w) in levels[y].items():
             i, _, _ = self._succ[u]
             assert i == y, (i, y)
             r = (x, v, w)
@@ -988,7 +976,7 @@ class BDD(_abc.BDD):
         # move level x down
         # first x nodes independent of y
         done = set()
-        for u, (v, w) in items(levels[x]):
+        for u, (v, w) in levels[x].items():
             i, _, _ = self._succ[u]
             assert i == x, (i, x)
             iv, v0, v1 = self._low_high(v)
@@ -1005,7 +993,7 @@ class BDD(_abc.BDD):
         # x nodes dependent on y
         garbage = set()
         xfresh = set()
-        for u, (v, w) in items(levels[x]):
+        for u, (v, w) in levels[x].items():
             if u in done:
                 continue
             i, _, _ = self._succ[u]
@@ -1199,7 +1187,7 @@ class BDD(_abc.BDD):
             if value:
                 cube = {
                     self._level_to_var[i]: v
-                    for i, v in items(cube)}
+                    for i, v in cube.items()}
                 yield cube
             return
         # non-terminal
@@ -1230,7 +1218,7 @@ class BDD(_abc.BDD):
         n = len(succ_keys)
         n_ = len(succ_values)
         assert n == n_, (n - n_)
-        for u, (i, v, w) in items(self._succ):
+        for u, (i, v, w) in self._succ.items():
             assert isinstance(i, int), i
             # terminal ?
             if v is None:
@@ -1343,7 +1331,7 @@ class BDD(_abc.BDD):
             dvars = {k: True for k in dvars}
         # `dvars` keys can be var names or levels
         r = self.true
-        for var, val in items(dvars):
+        for var, val in dvars.items():
             u = self.var(var)
             u = u if val else -u
             r = self.apply('and', u, r)
@@ -1424,7 +1412,7 @@ class BDD(_abc.BDD):
         n = len(var2level)
         level_map = dict()
         # level_map[n] = len(self.vars)
-        for var, i in items(var2level):
+        for var, i in var2level.items():
             assert 0 <= i < n, (i, n)
             if var not in self.vars:
                 logger.warning(
@@ -1518,7 +1506,7 @@ def _enumerate_minterms(cube, bits):
     # fix order
     bits = list(bits)
     n = len(bits)
-    for i in xrange(2**n):
+    for i in range(2**n):
         values = bin(i).lstrip('-0b').zfill(n)
         model = {k: bool(int(v)) for k, v in zip(bits, values)}
         model.update(cube)
@@ -1536,8 +1524,8 @@ def _assert_isomorphic_orders(old, new, support):
     """
     _assert_valid_ordering(old)
     _assert_valid_ordering(new)
-    s = {k: v for k, v in items(old) if k in support}
-    t = {k: v for k, v in items(new) if k in support}
+    s = {k: v for k, v in old.items() if k in support}
+    t = {k: v for k, v in new.items() if k in support}
     old = sorted(s, key=s.get)
     new = sorted(t, key=t.get)
     assert old == new, (old, new)
@@ -1553,8 +1541,8 @@ def _assert_valid_ordering(levels):
     assert isinstance(levels, Mapping), levels
     # levels are contiguous integers ?
     n = len(levels)
-    numbers = set(_compat.values(levels))
-    numbers_ = set(xrange(n))
+    numbers = set(levels.values())
+    numbers_ = set(range(n))
     assert numbers == numbers_, (n, numbers)
 
 
@@ -1591,7 +1579,7 @@ def _assert_valid_rename(u, bdd, dvars):
 
 def _all_adjacent(dvars, bdd):
     """Return `True` if all levels in `dvars` are adjacent."""
-    for v, vp in items(dvars):
+    for v, vp in dvars.items():
         if not _adjacent(v, vp, bdd):
             return False
     return True
@@ -1613,7 +1601,7 @@ def _adjacent(i, j, bdd):
 
 def _assert_no_overlap(d):
     """Raise `AssertionError` if keys and values overlap."""
-    assert not any((k in d) for k in _compat.values(d))
+    assert not any((k in d) for k in d.values())
 
 
 def image(trans, source, rename, qvars, bdd, forall=False):
@@ -1634,7 +1622,7 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     qvars = bdd._map_to_level(qvars)
     rename = {
         bdd.vars.get(k, k): bdd.vars.get(v, v)
-        for k, v in items(rename)}
+        for k, v in rename.items()}
     # init
     cache = dict()
     rename_u = rename
@@ -1647,7 +1635,7 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     s = bdd.support(trans, as_levels=True)
     s.update(bdd.support(source, as_levels=True))
     s.difference_update(qvars)
-    s.intersection_update(_compat.values(rename))
+    s.intersection_update(rename.values())
     assert not s, s
     return _image(trans, source, rename_u, rename_v,
                   qvars, bdd, forall, cache)
@@ -1674,7 +1662,7 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     qvars = bdd._map_to_level(qvars)
     rename = {
         bdd.vars.get(k, k): bdd.vars.get(v, v)
-        for k, v in items(rename)}
+        for k, v in rename.items()}
     # init
     cache = dict()
     rename_u = None
@@ -1813,7 +1801,7 @@ def _shift(bdd, start, end, levels):
     assert 0 <= end < m, (end, m)
     sizes = dict()
     d = 1 if start < end else -1
-    for i in xrange(start, end, d):
+    for i in range(start, end, d):
         j = i + d
         oldn, n = bdd.swap(i, j, levels)
         sizes[i] = oldn
@@ -1831,8 +1819,8 @@ def _sort_to_order(bdd, order):
     m = 0
     levels = bdd._levels()
     n = len(order)
-    for k in xrange(n):
-        for i in xrange(n - 1):
+    for k in range(n):
+        for i in range(n - 1):
             for root in bdd.roots:
                 assert root in bdd
             x = bdd.var_at_level(i)
@@ -1856,7 +1844,7 @@ def reorder_to_pairs(bdd, pairs):
     """
     m = 0
     levels = bdd._levels()
-    for x, y in items(pairs):
+    for x, y in pairs.items():
         jx = bdd.level_of_var(x)
         jy = bdd.level_of_var(y)
         k = abs(jx - jy)
@@ -2034,7 +2022,7 @@ def to_pydot(roots, bdd):
         e = pydot.Edge(str(u), str(v), style='invis')
         g.add_edge(e)
     # add nodes
-    idx2var = {k: v for v, k in items(bdd.vars)}
+    idx2var = {k: v for v, k in bdd.vars.items()}
     # BDD nodes
     def f(x):
         return str(abs(x))

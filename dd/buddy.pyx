@@ -19,7 +19,7 @@ import sys
 from libcpp cimport bool
 from libc.stdio cimport fdopen, fopen
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
-cimport buddy_ as buddy
+from dd cimport buddy_ as buddy
 APPLY_MAP = {
     'and': 0, 'xor': 1, 'or': 2, 'nand': 3, 'nor': 4,
     'imp': 5, 'biimp': 6, 'diff': 7, 'less': 8, 'invimp': 9}
@@ -132,7 +132,7 @@ cdef class BDD(object):
     cpdef int at_level(self, int level):
         level = buddy.bdd_level2var(level)
         index_to_var = {
-            v: k for k, v in self.var_to_index.iteritems()}
+            v: k for k, v in self.var_to_index.items()}
         j = index_to_var[level]
         return j
 
@@ -202,7 +202,7 @@ def rename(u, bdd, dvars):
     cdef int *newvars
     oldvars = <int *> PyMem_Malloc(n * sizeof(int))
     newvars = <int *> PyMem_Malloc(n * sizeof(int))
-    for i, (a, b) in enumerate(dvars.iteritems()):
+    for i, (a, b) in enumerate(dvars.items()):
         ja = bdd.add_var(a)
         jb = bdd.add_var(b)
         oldvars[i] = ja

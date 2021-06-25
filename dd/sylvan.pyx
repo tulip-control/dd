@@ -283,7 +283,7 @@ cdef class BDD(object):
         cdef sy.BDD r
         cdef Function g
         map = sy.sylvan_map_empty()
-        for var, g in var_sub.iteritems():
+        for var, g in var_sub.items():
             j = self._index_of_var[var]
             map = sy.sylvan_map_add(map, j, g.node)
         r = sy.sylvan_compose(u.node, map)
@@ -293,14 +293,14 @@ cdef class BDD(object):
         """Return the cofactor f|_g."""
         var_sub = {
             var: self.true if value else self.false
-            for var, value in values.iteritems()}
+            for var, value in values.items()}
         return self._compose(u, var_sub)
 
     cpdef Function _rename(self, Function u, dvars):
         """Return node `u` after renaming variables in `dvars`."""
         assert self is u.bdd
         var_sub = {
-            var: self.var(sub) for var, sub in dvars.iteritems()}
+            var: self.var(sub) for var, sub in dvars.items()}
         r = self._compose(u, var_sub)
         return r
 
@@ -407,7 +407,7 @@ cdef class BDD(object):
             for var in dvars:
                 u &= self.var(var)
             return u
-        for var, sign in dvars.iteritems():
+        for var, sign in dvars.items():
             v = self.var(var)
             if sign is False:
                 v = ~v
@@ -533,7 +533,7 @@ def copy_vars(BDD source, BDD target):
 
     @type source, target: `BDD`
     """
-    for var, index in source._index_of_var.iteritems():
+    for var, index in source._index_of_var.items():
         target.add_var(var, index=index)
 
 

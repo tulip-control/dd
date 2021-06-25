@@ -759,7 +759,7 @@ cdef class ZDD(object):
                     n=len(self.vars), m=n))
         cdef int *p
         p = <int *> PyMem_Malloc(n * sizeof(int))
-        for var, level in var_order.iteritems():
+        for var, level in var_order.items():
             index = self._index_of_var[var]
             p[level] = index
         try:
@@ -2179,7 +2179,7 @@ cdef class Function(object):
 cdef dict _path_array_to_dict(int *x, dict index_of_var):
     """Return assignment from array of literals `x`."""
     d = dict()
-    for var, j in index_of_var.iteritems():
+    for var, j in index_of_var.items():
         b = x[j]
         if b == 2:  # absence of ZDD node
             d[var] = False
@@ -2203,7 +2203,7 @@ cdef dict _cube_array_to_dict(int *x, dict index_of_var):
     @param x: see `dd.cudd._dict_to_cube_array`
     """
     d = dict()
-    for var, j in index_of_var.iteritems():
+    for var, j in index_of_var.items():
         b = x[j]
         if b == 2:
             continue

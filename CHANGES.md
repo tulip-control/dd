@@ -2,6 +2,7 @@
 
 
 - require Python >= 3.8
+- DEP: deprecate hidden module `dd._compat`
 
 
 ## 0.5.7

@@ -1,4 +1,13 @@
-"""Python 2 to 3 version compatibility."""
+"""Python 2 to 3 version compatibility.
+
+Deprecated: This module will be removed.
+"""
+import warnings
+
+
+warnings.warn(
+    'This module is deprecated, and will be removed.',
+    DeprecationWarning)
 
 
 def items(d):

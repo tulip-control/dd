@@ -33,7 +33,6 @@ import ply.lex
 import ply.yacc
 
 from dd.bdd import BDD
-from dd._compat import items
 
 
 logger = logging.getLogger(__name__)
@@ -66,7 +65,7 @@ class Lexer(object):
         # 'nodes': 'NODES',
         # 'end': 'END'
         }
-    reserved = {'.{k}'.format(k=k): v for k, v in items(reserved)}
+    reserved = {'.{k}'.format(k=k): v for k, v in reserved.items()}
     misc = ['MINUS', 'DOT', 'NAME', 'NUMBER']
     # token rules
     t_MINUS = r'-'
@@ -440,15 +439,15 @@ def load(fname):
     parser = Parser()
     bdd_succ, n_vars, levels, roots = parser.parse(fname)
     # reindex to ensure no blanks
-    perm = {k: var for var, k in items(levels)}
+    perm = {k: var for var, k in levels.items()}
     perm = {i: perm[k] for i, k in enumerate(sorted(perm))}
-    new_levels = {var: k for k, var in items(perm)}
+    new_levels = {var: k for k, var in perm.items()}
     old2new = {levels[var]: new_levels[var] for var in levels}
     # convert
     bdd = BDD(new_levels)
     umap = {-1: -1, 1: 1}
     for j in range(len(new_levels) - 1, -1, -1):
-        for u, (k, v, w) in items(bdd_succ):
+        for u, (k, v, w) in bdd_succ.items():
             # terminal ?
             if v is None:
                 assert w is None, w

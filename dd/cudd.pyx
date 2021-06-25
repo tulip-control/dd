@@ -23,7 +23,6 @@ import warnings
 
 from dd import _copy
 from dd import _parser
-from dd import _compat
 from dd import _utils
 from dd import autoref
 from dd import bdd as _bdd
@@ -833,7 +832,7 @@ cdef class BDD(object):
         if not supp:
             return set()
         # must be positive unate
-        assert set(_compat.values(supp)) == {True}, supp
+        assert set(supp.values()) == {True}, supp
         return set(supp)
 
     def group(self, vrs):
@@ -898,7 +897,7 @@ cdef class BDD(object):
             return self._vector_compose(f, var_sub)
         if n != 1:
             raise ValueError(n)
-        for var, g in _compat.items(var_sub):
+        for var, g in var_sub.items():
             return self._unary_compose(f, var, g)
 
     cdef Function _unary_compose(self, Function f, var, Function g):
@@ -1486,7 +1485,7 @@ cdef class BDD(object):
         cdef bytes py_bytes
         names = <char **> PyMem_Malloc(n * sizeof(char *))
         str_mem = list()
-        for index, var in self._var_with_index.iteritems():
+        for index, var in self._var_with_index.items():
             py_bytes = var.encode()
             str_mem.append(py_bytes)  # prevent garbage collection
             names[index] = py_bytes
@@ -1529,7 +1528,7 @@ cdef class BDD(object):
         cdef bytes py_bytes
         names = <char **> PyMem_Malloc(n * sizeof(char *))
         str_mem = list()
-        for index, var in self._var_with_index.iteritems():
+        for index, var in self._var_with_index.items():
             py_bytes = var.encode()
             str_mem.append(py_bytes)
             names[index] = py_bytes
@@ -1630,8 +1629,8 @@ cpdef reorder(BDD bdd, dvars=None):
     cdef int *p
     n = len(dvars)
     p = <int *> PyMem_Malloc(n * sizeof(int *))
-    level_to_var = {v: k for k, v in dvars.iteritems()}
-    for level in xrange(n):
+    level_to_var = {v: k for k, v in dvars.items()}
+    for level in range(n):
         var = level_to_var[level]
         index = bdd._index_of_var[var]
         p[level] = index
@@ -1651,7 +1650,7 @@ def copy_vars(BDD source, BDD target):
 
     @type source, target: `BDD`
     """
-    for var, index in source._index_of_var.iteritems():
+    for var, index in source._index_of_var.items():
         target.add_var(var, index=index)
 
 
@@ -1790,7 +1789,7 @@ cdef _dict_to_cube_array(d, int *x, dict index_of_var):
     """
     for var in d:
         assert var in index_of_var, var
-    for var, j in index_of_var.iteritems():
+    for var, j in index_of_var.items():
         if var not in d:
             x[j] = 2
             continue
@@ -1814,7 +1813,7 @@ cdef dict _cube_array_to_dict(int *x, dict index_of_var):
     @param x: see `_dict_to_cube_array`
     """
     d = dict()
-    for var, j in index_of_var.iteritems():
+    for var, j in index_of_var.items():
         b = x[j]
         if b == 2:
             continue

@@ -6,11 +6,8 @@ import shutil
 import subprocess
 import sys
 import tarfile
-try:
-    import urllib2
-except ImportError:
-    import urllib.request, urllib.error, urllib.parse
-    urllib2 = urllib.request
+import urllib.request
+
 
 try:
     import cysignals
@@ -79,7 +76,7 @@ def extensions(args):
     @param args: known args from `argparse.parse_known_args`
     """
     directives = dict(
-        language_level=2,
+        language_level=3,
         embedsignature=True)
     cudd_cflags = list(CUDD_CFLAGS)
     sylvan_cflags = list()
@@ -194,7 +191,7 @@ def _join(paths):
 
 def fetch(url, sha256, fname=None):
     print('++ download: {url}'.format(url=url))
-    u = urllib2.urlopen(url)
+    u = urllib.request.urlopen(url)
     if fname is None:
         fname = CUDD_TARBALL
     with open(fname, 'wb') as f:

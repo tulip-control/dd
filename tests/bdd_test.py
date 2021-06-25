@@ -82,7 +82,7 @@ def test_add_var():
 
 def test_var():
     b = BDD()
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         b.var('x')
     j = b.add_var('x')
     u = b.var('x')
@@ -120,7 +120,7 @@ def test_level_to_variable():
     g = BDD(ordering)
     assert g.var_at_level(0) == 'x'
     assert g.var_at_level(1) == 'y'
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         g.var_at_level(10)
 
 
@@ -472,10 +472,10 @@ def test_find_or_add():
     assert refv == refv_, (refv, refv_)
     assert refw == refw_, (refw, refw_)
     # only non-terminals can be added
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         g.find_or_add(2, -1, 1)
     # low and high must already exist
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         g.find_or_add(0, 3, 4)
     # canonicity of complemented edges
     # v < 0, w > 0
@@ -663,7 +663,7 @@ def test_cofactor():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)
     # u not in g
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         g.let({'x': False, 'y': True, 'z': False}, 5)
     # x /\ y
     e = g.add_expr(r'x /\ y')
@@ -944,7 +944,7 @@ def test_undeclare_vars():
     bdd = BDD()
     bdd.declare('x', 'y', 'z', 'w')
     u = bdd.add_expr(r'y /\ w')
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         bdd.undeclare_vars('z', 'y')
 
 
@@ -1100,7 +1100,7 @@ def test_rename():
     assert r == r_, (r, r_)
     # u not in bdd
     dvars = {'x': 'xp'}
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         g.let(dvars, 1000)
     # y essential for u
     dvars = {'x': 'y'}

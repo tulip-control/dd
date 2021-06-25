@@ -228,7 +228,8 @@ def add_ast(t, bdd):
             qvars, expr = t.operands
             u = add_ast(expr, bdd)
             qvars = {x.value for x in qvars}
-            assert t.operator in (r'\A', r'\E'), t.operator
+            if t.operator not in (r'\A', r'\E'):
+                raise ValueError(t.operator)
             forall = (t.operator == r'\A')
             return bdd.quantify(u, qvars, forall=forall)
         elif t.operator == r'\S':
@@ -249,8 +250,8 @@ def add_ast(t, bdd):
         u = bdd._add_int(i)
         return u
     else:
-        raise Exception(
-            'unknown node type "{t}"'.format(t=t.type))
+        raise ValueError(
+            f'unknown node type:  {t.type = }')
 
 
 def _rewrite_tables(outputdir='./'):

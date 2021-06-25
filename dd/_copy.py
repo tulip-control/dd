@@ -65,12 +65,15 @@ def _copy_bdd(u, bdd, cache):
     low = _copy_bdd(u.low, bdd, cache)
     high = _copy_bdd(u.high, bdd, cache)
     # canonicity
-    # assert low.negated == u.low.negated, (low, u.low)
-    # assert not high.negated, high
+    # if low.negated != u.low.negated:
+    #     raise AssertionError((low, u.low))
+    # if high.negated:
+    #     raise AssertionError(high)
     # add node
     g = bdd.var(u.var)
     r = bdd.ite(g, high, low)
-    # assert not r.negated, r
+    # if r.negated:
+    #     raise AssertionError(r)
     # memoize
     cache[k] = r
     return _flip(r, u)
@@ -227,11 +230,13 @@ def _load_json(f, bdd, load_order, cache):
     # rm refs to cached nodes
     for uid in cache:
         u = _node_from_int(int(uid), bdd, cache)
-        assert u.ref >= 2, u.ref
+        if u.ref < 2:
+            raise AssertionError(u.ref)
             # +1 ref due to `incref` in `_make_node`
             # +1 ref due to the `_node_from_int`
             #   call for `u`
-        assert not load_order or u.ref >= 3, u.ref
+        if load_order and u.ref < 3:
+            raise AssertionError(u.ref)
             # +1 ref due to `incref` in `_make_node`
             # +1 ref due to either:
             #   - being a successor node
@@ -286,8 +291,10 @@ def _make_node(d, bdd, context, cache):
     """Create a new node in `bdd` from `d`."""
     (uid, (level, low_id, high_id)), = d.items()
     k, level = map(int, (uid, level))
-    assert k > 0, k
-    assert level >= 0, level
+    if k <= 0:
+        raise AssertionError(k)
+    if level < 0:
+        raise AssertionError(level)
     low_id = _decode_node(low_id)
     high_id = _decode_node(high_id)
     if str(k) in cache:
@@ -300,7 +307,8 @@ def _make_node(d, bdd, context, cache):
     else:
         g = bdd.var(var)
         u = bdd.ite(g, high, low)
-    assert not u.negated
+    if u.negated:
+        raise AssertionError(u)
     # memoize
     cache[str(k)] = int(u)
     bdd.incref(u)

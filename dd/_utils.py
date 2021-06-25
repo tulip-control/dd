@@ -86,7 +86,8 @@ def _raise_runtimerror_about_ref_count(
         '`dd.cudd.Function`'
         ```
     """
-    assert ref_count_lb <= 0, ref_count_lb
+    if ref_count_lb > 0:
+        raise ValueError(ref_count_lb)
     raise RuntimeError((
         'The {name} requires '
         'that `u._ref > 0` '

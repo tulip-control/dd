@@ -7,15 +7,6 @@
 
 API:
 
-- raise `ValueError`, instead of `AssertionError`,
-  from the methods:
-  - `dd.autoref.BDD.declare()`
-  - `dd.autoref.BDD.add_var()`
-  - `dd.bdd.BDD.declare()`
-  - `dd.bdd.BDD.add_var()`
-  - `dd.cudd.BDD.var_at_level()`
-  - `dd.cudd_zdd.ZDD.var_at_level()`
-  whenever unknown values are given as arguments
 - raise `ValueError` from:
   - `dd.autoref.BDD.level_of_var()`
   - `dd.bdd.BDD.level_of_var()`
@@ -29,6 +20,9 @@ API:
   - `dd.buddy.BDD.var_at_level()`
   whenever unknown values are given as arguments,
   as done in other `dd` modules too
+- several `assert` statements replaced by `raise`,
+  with more specific exceptions, e.g.,
+  `ValueError`, `TypeError`, `RuntimeError`
 
 
 ## 0.5.7

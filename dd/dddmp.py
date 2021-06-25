@@ -201,7 +201,9 @@ class Parser:
 
         # support_var_ord_ids = {
         #     d['var_index'] for u, d in g.nodes(data=True)}
-        # assert len(support_var_ord_ids) == self.n_support_vars
+        # if len(support_var_ord_ids) != self.n_support_vars:
+        #     raise AssertionError((
+        #         support_var_ord_ids, self.n_support_vars))
         # prepare levels
         if self.ordered_vars is not None:
             levels = {var: k for k, var in enumerate(self.ordered_vars)}
@@ -233,10 +235,12 @@ class Parser:
                     info = int(info)
                 except ValueError:
                     pass  # info == 'T' or `str` var name
-                assert info in self.info2permid, (
-                    info, self.info2permid)
+                if info not in self.info2permid:
+                    raise AssertionError(
+                        (info, self.info2permid))
                 self._add_node(u, info, index, v, w)
-        assert len(self.bdd) == self.n_nodes
+        if len(self.bdd) != self.n_nodes:
+            raise AssertionError((len(self.bdd), self.n_nodes))
 
     def _add_node(self, u, info, index, v, w):
         """Add new node to BDD.
@@ -246,8 +250,10 @@ class Parser:
         """
         if v == 0:
             v = None
-        else:
-            assert v >= 0, 'only "else" edges can be complemented'
+        elif v < 0:
+            raise ValueError(
+                'only "else" edges '
+                f'can be complemented ({v = })')
         if w == 0:
             w = None
         # map fixed var index to level among all vars
@@ -277,14 +283,38 @@ class Parser:
     def _assert_consistent(self):
         """Check that the loaded attributes are reasonable."""
         if self.support_vars is not None:
-            assert len(self.support_vars) == self.n_support_vars
+            if len(self.support_vars) != self.n_support_vars:
+                raise AssertionError((
+                    len(self.support_vars),
+                    self.n_support_vars,
+                    self.support_vars))
         if self.ordered_vars is not None:
-            assert len(self.ordered_vars) == self.n_vars
-        assert len(self.var_ids) == self.n_support_vars
-        assert len(self.permuted_var_ids) == self.n_support_vars
+            if len(self.ordered_vars) != self.n_vars:
+                raise AssertionError((
+                    len(self.ordered_vars),
+                    self.n_vars,
+                    self.ordered_vars))
+        if len(self.var_ids) != self.n_support_vars:
+            raise AssertionError((
+                len(self.var_ids),
+                self.n_support_vars,
+                self.var_ids))
+        if len(self.permuted_var_ids) != self.n_support_vars:
+            raise AssertionError((
+                len(self.permuted_var_ids),
+                self.n_support_vars,
+                self.permuted_var_ids))
         if self.aux_var_ids is not None:
-            assert len(self.aux_var_ids) == self.n_support_vars
-        assert len(self.rootids) == self.n_roots, self.rootids
+            if len(self.aux_var_ids) != self.n_support_vars:
+                raise AssertionError((
+                    len(self.aux_var_ids),
+                    self.n_support_vars,
+                    self.aux_var_ids))
+        if len(self.rootids) != self.n_roots:
+            raise AssertionError((
+                len(self.rootids),
+                self.n_roots,
+                self.rootids))
 
     def p_file(self, p):
         """file : lines"""
@@ -450,7 +480,8 @@ def load(fname):
         for u, (k, v, w) in bdd_succ.items():
             # terminal ?
             if v is None:
-                assert w is None, w
+                if w is not None:
+                    raise AssertionError(w)
                 continue
             # non-terminal
             i = old2new[k]

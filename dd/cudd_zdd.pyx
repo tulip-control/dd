@@ -1104,7 +1104,8 @@ cdef class ZDD:
             return cache[t]
         var = self.var_at_level(level)
         i = u.level
-        assert level <= i, (level, i)
+        if level > i:
+            raise ValueError((level, i))
         if level < i:
             if var in d:
                 value = d[var]
@@ -1116,7 +1117,8 @@ cdef class ZDD:
             else:
                 r = self._cofactor(level + 1, u, d, cache)
         else:
-            assert level == i, (level, i)
+            if level != i:
+                raise AssertionError((level, i))
             _, v, w = self.succ(u)
             if var in d:
                 value = d[var]
@@ -1168,8 +1170,10 @@ cdef class ZDD:
     cpdef Function _compose(
             self, int level, Function u, d, cache):
         """Recursively compute composition of `u`."""
-        assert level <= u.level, (
-            level, u.level, 'level <= u.level')
+        if level > u.level:
+            raise ValueError(
+                'requires `level <= u.level`, but: '
+                f'{level = } > {u.level = }')
         # terminal ?
         if u == self.false:
             return u
@@ -1185,17 +1189,36 @@ cdef class ZDD:
         else:
             g = self.var(var)
         if level < u_level:
-            assert level + 1 <= u.level, (
-                'level + 1 <= u.level')
+            if level + 1 > u.level:
+                raise ValueError(
+                    'expected `level + 1 <= u.level`, but '
+                    f'{level + 1} = level + 1 > '
+                    f'u.level = {u.level}')
             r = self._compose(level + 1, u, d, cache)
             r = self._ite_recursive(g, self.false, r)
         else:
-            assert level == u_level, (level, u_level)
+            if level != u.level:
+                raise AssertionError(
+                    'expected `level == u.level`, but '
+                    f'{level} = level != '
+                    f'u.level = {u.level}')
             _, v, w = self.succ(u)
-            assert level + 1 <= v.level, 'v.level'
-            assert level + 1 <= w.level, 'w.level'
+            if level + 1 > v.level:
+                raise AssertionError(
+                    'expected `level + 1 <= v.level`, but '
+                    f'{level + 1} = level + 1 > '
+                    f'v.level = {v.level}')
+            if level + 1 > w.level:
+                raise AssertionError(
+                    'expected `level + 1 <= w.level`, but '
+                    f'{level + 1} = level + 1 > '
+                    f'w.level = {w.level}')
             p = self._compose(level + 1, v, d, cache)
-            assert level + 1 <= w.level, 'w.level 2'
+            if level + 1 > w.level:
+                raise AssertionError(
+                    'expected `level + 1 <= w.level`, but '
+                    f'{level + 1} = level + 1 > '
+                    f'w.level = {w.level}')
             q = self._compose(level + 1, w, d, cache)
             r = self._ite_recursive(g, q, p)
         cache[t] = r
@@ -1418,13 +1441,18 @@ cdef class ZDD:
                     missing=missing))
         config = self.configure(reordering=False)
         gen = Cudd_zddFirstPath(self.manager, u.node, &path)
-        assert gen != NULL, 'first path failed'
+        if gen is NULL:
+            raise RuntimeError('first path failed')
         try:
             r = 1
             while Cudd_IsGenEmpty(gen) == 0:
-                assert r == 1, ('gen not empty but no next path', r)
+                if r != 1:
+                    raise RuntimeError(
+                        f'gen not empty but no next path: {r}')
                 d = _path_array_to_dict(path, self._index_of_var)
-                assert set(d).issubset(support), set(d).difference(support)
+                if not set(d).issubset(support):
+                    raise AssertionError(
+                        set(d).difference(support))
                 for m in _bdd._enumerate_minterms(d, care_vars):
                     yield m
                 r = Cudd_zddNextPath(gen, &path)
@@ -1437,23 +1465,28 @@ cdef class ZDD:
         # terminal ?
         if u == self.false or self._gt_var_levels(level):
             if u != self.false:
-                assert set(cube).issubset(support), set(
-                    cube).difference(support)
+                if not set(cube).issubset(support):
+                    raise ValueError(
+                        set(cube).difference(support))
                 yield cube
             return
         # non-terminal
         i, v, w = self.succ(u)
         var = self.var_at_level(level)
-        assert level <= i, (level, i)
+        if level > i:
+            raise ValueError((level, i))
         if level < i:
             cube[var] = False
-            assert var in support, (var, support, '<')
+            if var not in support:
+                raise ValueError((var, support, '<'))
             for x in self._sat_iter(
                     level + 1, u, cube, value, support):
                 yield x
         elif v != w:
-            assert level == i, (level, i)
-            assert var in support, (var, support, '==')
+            if level != i:
+                raise AssertionError((level, i))
+            if var not in support:
+                raise ValueError((var, support, '=='))
             d0 = dict(cube)
             d0[var] = False
             d1 = dict(cube)
@@ -1465,8 +1498,10 @@ cdef class ZDD:
                     level + 1, w, d1, value, support):
                 yield x
         else:
-            assert level == i, (level, i)
-            assert v == w, (v, w)
+            if level != i:
+                raise AssertionError((level, i))
+            if not (v == w):
+                raise AssertionError((v, w))
             for x in self._sat_iter(
                     level + 1, v, cube, value, support):
                 yield x
@@ -1784,12 +1819,14 @@ cdef class ZDD:
         if t in cache:
             return cache[t]
         v, w = self._top_cofactor(u, level)
-        assert cube.low == cube.high
+        if cube.low != cube.high:
+            raise ValueError((cube, cube.low, cube.high))
         new_cube, _ = self._top_cofactor(cube, level)
         p = self._quantify_using_cube(level + 1, v, new_cube, forall, cache)
         q = self._quantify_using_cube(level + 1, w, new_cube, forall, cache)
         var = self.var_at_level(level)
-        assert level <= cube.level, (level, cube.level)
+        if level > cube.level:
+            raise ValueError((level, cube, cube.level))
         if level == cube.level:
             if forall:
                 r = self._conjoin(
@@ -1806,22 +1843,30 @@ cdef class ZDD:
     def _quantify(
             self, level, u, qvars, forall, cache):
         """Recurse to quantify variables."""
-        assert level <= u.level, (level, u.level, 'u')
+        if (level > u.level):
+            raise ValueError(
+                (level, u.level, u))
         # terminal ?
         if u == self.false or self._gt_var_levels(level):
             return u
         t = (u, level)
         if t in cache:
             r = cache[t]
-            assert level <= r.level, (level, r.level, 'cache')
+            if level > r.level:
+                raise AssertionError(
+                    (level, r.level, r, '= cache[(u, level)]'))
             return r
         v, w = self._top_cofactor(u, level)
-        assert level < v.level, (level, v.level, 'v')
-        assert level < w.level, (level, w.level, 'w')
+        if level >= v.level:
+            raise AssertionError((level, v.level, v))
+        if level >= w.level:
+            raise AssertionError((level, w.level, w))
         p = self._quantify(level + 1, v, qvars, forall, cache)
         q = self._quantify(level + 1, w, qvars, forall, cache)
-        assert level < p.level, (level, p.level, 'p')
-        assert level < q.level, (level, q.level, 'q')
+        if level >= p.level:
+            raise AssertionError((level, p.level, p))
+        if level >= q.level:
+            raise AssertionError((level, q.level, q))
         var = self.var_at_level(level)
         if var in qvars:
             if forall:
@@ -1833,10 +1878,12 @@ cdef class ZDD:
             r = self.find_or_add(var, r, r)
         else:
             r = self.find_or_add(var, p, q)
-        assert min(level, u.level) <= r.level, (
-            level, u.level, r.level, 'u, r')
+        if min(level, u.level) > r.level:
+            raise AssertionError(
+                (level, u.level, r.level, 'u, r'))
         cache[t] = r
-        assert level <= r.level, (level, r.level, 'r')
+        if level > r.level:
+            raise AssertionError((level, r.level, 'r'))
         return r
 
     def _quantify_optimized(
@@ -1903,7 +1950,6 @@ cdef class ZDD:
                 'self._var_with_index = {self._var_with_index}'
                 ).format(
                     n=n, m=m, self=self))
-        assert m == k, (m, k)
         if m != k:
             raise AssertionError((
                 '`len(self._var_with_index) == {m}` '
@@ -2246,12 +2292,15 @@ cdef class Function:
 
     def __int__(self):
         # inverse is `ZDD._add_int`
-        assert sizeof(stdint.uintptr_t) == sizeof(DdNode *)
+        if sizeof(stdint.uintptr_t) != sizeof(DdNode *):
+            raise RuntimeError(
+                'expected equal pointer sizes')
         i = <stdint.uintptr_t>self.node
         # 0, 1 are true and false in logic syntax
         if 0 <= i:
             i += 2
-        assert i not in (0, 1), i
+        if i in (0, 1):
+            raise AssertionError(i)
         return i
 
     def __repr__(self):
@@ -2425,8 +2474,10 @@ def _to_nx(g, u, umap):
     if u.var is None:
         return
     v, w = u.low, u.high
-    assert v is not None
-    assert w is not None
+    if v is None:
+        raise AssertionError(v)
+    if w is None:
+        raise AssertionError(w)
     v_int = int(v)
     w_int = int(w)
     _to_nx(g, v, umap)
@@ -2538,8 +2589,10 @@ def _to_pydot_recurse(
     if u.var is None:
         return
     v, w = u.low, u.high
-    assert v is not None
-    assert w is not None
+    if v is None:
+        raise AssertionError(v)
+    if w is None:
+        raise AssertionError(w)
     v_int = int(v)
     w_int = int(w)
     _to_pydot_recurse(g, v, umap, subgraphs)
@@ -2562,7 +2615,8 @@ def _add_nodes_for_external_references(
     @type h: `pydot.Dot`
     """
     for u in roots:
-        assert u is not None
+        if u is None:
+            raise ValueError(u)
         u_int = int(u)
         u_nd = umap[u_int]
         # add node to subgraph at level -1
@@ -2628,8 +2682,10 @@ def _collect_var_levels_recurse(u, level_to_var, visited):
     if u.var is None:
         return
     v, w = u.low, u.high
-    assert v is not None
-    assert w is not None
+    if v is None:
+        raise AssertionError(v)
+    if w is None:
+        raise AssertionError(w)
     _collect_var_levels_recurse(v, level_to_var, visited)
     _collect_var_levels_recurse(w, level_to_var, visited)
 
@@ -2653,7 +2709,8 @@ cpdef set _cube_to_universe_root(Function cube, zdd):
     qvars = set()
     _cube_to_universe(cube, qvars, zdd)
     qvars_ = zdd.support(cube)
-    assert qvars == qvars_, (qvars, qvars_)
+    if qvars != qvars_:
+        raise AssertionError((qvars, qvars_))
     return qvars
 
 
@@ -2666,7 +2723,8 @@ cpdef _cube_to_universe(Function cube, qvars, zdd):
     if cube.low != cube.high:
         var = cube.var
         qvars.add(var)
-        assert cube.low == zdd.false, len(cube.low)
+        if cube.low != zdd.false:
+            raise ValueError((cube, cube.low, len(cube.low)))
     _cube_to_universe(cube.high, qvars, zdd)
 
 
@@ -2790,8 +2848,10 @@ cdef DdNode *_forall(
     u_level = Cudd_ReadPermZdd(mgr, u_index)
     cube_index = Cudd_NodeReadIndex(cube)
     cube_level = Cudd_ReadPermZdd(mgr, cube_index)
-    assert level <= u_level, (level, u_level)
-    assert level <= cube_level, (level, cube_level)
+    if level > u_level:
+        raise AssertionError((level, u_level))
+    if level > cube_level:
+        raise AssertionError((level, cube_level))
     # top cofactor
     if level < u_level:
         v, w = u, DD_ZERO(mgr)
@@ -2800,7 +2860,8 @@ cdef DdNode *_forall(
     if level < cube_level:
         new_cube = cube
     else:
-        assert cuddE(cube) == cuddT(cube)
+        if cuddE(cube) != cuddT(cube):
+            raise AssertionError(<int>cube)
         new_cube = cuddE(cube)
     p = _forall(mgr, level + 1, v, new_cube)
     if p is NULL:
@@ -2911,8 +2972,10 @@ cdef DdNode *_exist(
     u_level = Cudd_ReadPermZdd(mgr, u_index)
     cube_index = Cudd_NodeReadIndex(cube)
     cube_level = Cudd_ReadPermZdd(mgr, cube_index)
-    assert level <= u_level, (level, u_level)
-    assert level <= cube_level, (level, cube_level)
+    if level > u_level:
+        raise AssertionError((level, u_level))
+    if level > cube_level:
+        raise AssertionError((level, cube_level))
     # top cofactor
     if level < u_level:
         v, w = u, DD_ZERO(mgr)
@@ -2921,7 +2984,8 @@ cdef DdNode *_exist(
     if level < cube_level:
         new_cube = cube
     else:
-        assert cuddE(cube) == cuddT(cube), 'E == T'
+        if cuddE(cube) != cuddT(cube):
+            raise AssertionError('expected:  E == T')
         new_cube = cuddE(cube)
     p = _exist(mgr, level + 1, v, new_cube)
     if p is NULL:
@@ -2932,7 +2996,8 @@ cdef DdNode *_exist(
         Cudd_RecursiveDerefZdd(mgr, p)
         return NULL
     cuddRef(q)
-    assert level <= cube_level, (level, cube_level)
+    if level > cube_level:
+        raise AssertionError((level, cube_level))
     if level == cube_level:
         disj = _disjoin(mgr, level + 1, p, q)
         if disj is NULL:
@@ -3108,8 +3173,10 @@ cdef DdNode *_disjoin(
     u_level = Cudd_ReadPermZdd(mgr, u_index)
     v_index = Cudd_NodeReadIndex(v)
     v_level = Cudd_ReadPermZdd(mgr, v_index)
-    assert level <= u_level
-    assert level <= v_level
+    if level > u_level:
+        raise AssertionError((level, u_level))
+    if level > v_level:
+        raise AssertionError((level, v_level))
     if level < u_level:
         pu, qu = u, DD_ZERO(mgr)
     else:
@@ -3237,8 +3304,10 @@ cdef DdNode *_conjoin(
     u_level = Cudd_ReadPermZdd(mgr, u_index)
     v_index = Cudd_NodeReadIndex(v)
     v_level = Cudd_ReadPermZdd(mgr, v_index)
-    assert level <= u_level
-    assert level <= v_level
+    if level > u_level:
+        raise AssertionError((level, u_level))
+    if level > v_level:
+        raise AssertionError((level, v_level))
     if level < u_level:
         pu, qu = u, DD_ZERO(mgr)
     else:
@@ -3302,7 +3371,8 @@ cpdef Function _c_compose(
         else:
             g = zdd.var(var)
         cuddRef(g.node)
-        assert g.ref > 0, (var, g.ref)
+        if g.ref <= 0:
+            raise AssertionError((var, g.ref))
         vector[i] = g.node
     # compose
     r = NULL
@@ -3311,7 +3381,8 @@ cpdef Function _c_compose(
     finally:
         if r is not NULL:
             cuddRef(r)
-            assert r.ref > 0, r.ref
+            if r.ref <= 0:
+                raise AssertionError(r.ref)
         for i in range(n_cudd_vars):
             Cudd_RecursiveDerefZdd(mgr, vector[i])
         if r is not NULL:
@@ -3344,10 +3415,12 @@ cdef DdNode *_compose_root(
         #     return NULL
         r = _compose(mgr, level, table, u, vector)
         # if mgr.reordered == 1:
-        #     assert r is NULL, r
+        #     if r is not NULL:
+        #         raise AssertionError(r)
         if r is not NULL:
             cuddRef(r)
-            assert r.ref > 0, r.ref
+            if r.ref <= 0:
+                raise AssertionError(r.ref)
         # cuddHashTableQuitZdd(table)
         for nd in table.values():
             Cudd_RecursiveDerefZdd(mgr,
@@ -3397,52 +3470,63 @@ cdef DdNode *_compose(
     #     return r
     u_index = Cudd_NodeReadIndex(u)
     u_level = Cudd_ReadPermZdd(mgr, u_index)
-    assert level <= u_level, (level, u_level)
+    if level > u_level:
+        raise AssertionError((level, u_level))
     index = Cudd_ReadInvPermZdd(mgr, level)
     g = vector[index]
     if g is NULL:
         raise AssertionError('`g is NULL`')
-    assert g.ref > 0, (index, g.ref)
+    if g.ref <= 0:
+        raise AssertionError((index, g.ref))
     if level < u_level:
-        assert level + 1 <= u_level, (level, u_level)
+        if level + 1 > u_level:
+            raise AssertionError((level, u_level))
         c = _compose(
             mgr, level + 1, table, u, vector)
         if c is NULL:
             return NULL
         cuddRef(c)
-        assert c.ref > 0, c.ref
+        if c.ref <= 0:
+            raise AssertionError(c.ref)
         r = cuddZddIte(mgr, g, DD_ZERO(mgr), c)
         if r is NULL:
             Cudd_RecursiveDerefZdd(mgr, c)
             return NULL
         cuddRef(r)
-        assert r.ref > 0, r.ref
+        if r.ref <= 0:
+            raise AssertionError(r.ref)
         Cudd_RecursiveDerefZdd(mgr, c)
     else:
-        assert level == u_level, (level, u_level)
+        if level != u_level:
+            raise AssertionError((level, u_level))
         v, w = cuddE(u), cuddT(u)
-        assert v.ref > 0, v.ref
-        assert w.ref > 0, w.ref
+        if v.ref <= 0:
+            raise AssertionError(v.ref)
+        if w.ref <= 0:
+            raise AssertionError(w.ref)
         p = _compose(
             mgr, level + 1, table, v, vector)
         if p is NULL:
             return NULL
         cuddRef(p)
-        assert p.ref > 0, p.ref
+        if p.ref <= 0:
+            raise AssertionError(p.ref)
         q = _compose(
             mgr, level + 1, table, w, vector)
         if q is NULL:
             Cudd_RecursiveDerefZdd(mgr, p)
             return NULL
         cuddRef(q)
-        assert q.ref > 0, q.ref
+        if q.ref <= 0:
+            raise AssertionError(q.ref)
         r = cuddZddIte(mgr, g, q, p)
         if r is NULL:
             Cudd_RecursiveDerefZdd(mgr, q)
             Cudd_RecursiveDerefZdd(mgr, p)
             return NULL
         cuddRef(r)
-        assert r.ref > 0, r.ref
+        if r.ref <= 0:
+            raise AssertionError(r.ref)
         Cudd_RecursiveDerefZdd(mgr, p)
         Cudd_RecursiveDerefZdd(mgr, q)
     # insert in the hash table
@@ -3542,7 +3626,8 @@ cdef bint _support(
         return True
     u_index = Cudd_NodeReadIndex(u)
     u_level = Cudd_ReadPermZdd(mgr, u_index)
-    assert level <= u_level
+    if level > u_level:
+        raise AssertionError((level, u_level))
     v, w = Cudd_Regular(cuddE(u)), cuddT(u)
     if level < u_level:
         support[index] = 1

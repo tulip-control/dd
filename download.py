@@ -200,7 +200,8 @@ def fetch(url, sha256, fname=None):
         s = f.read()
     h = hashlib.sha256(s)
     x = h.hexdigest()
-    assert x == sha256, (x, sha256)
+    if x != sha256:
+        raise AssertionError((x, sha256))
     print('-- done downloading.')
     return fname
 

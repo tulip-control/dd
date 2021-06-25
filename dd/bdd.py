@@ -241,7 +241,7 @@ class BDD(_abc.BDD):
                 else:
                     self._last_len = None
             else:
-                raise Exception(
+                raise ValueError(
                     'Unknown parameter "{k}"'.format(k=k))
         return d
 
@@ -404,17 +404,17 @@ class BDD(_abc.BDD):
 
     @_try_to_reorder
     def var(self, var):
-        assert var in self.vars, (
-            'undefined variable "{v}", '
-            'known variables are:\n {d}').format(
-                v=var, d=self.vars)
+        if var not in self.vars:
+            raise ValueError(
+                f'undeclared variable "{var}", '
+                f'the declared variables are:\n {self.vars}')
         j = self.vars[var]
         u = self.find_or_add(j, -1, 1)
         return u
 
     def var_at_level(self, level):
         if level not in self._level_to_var:
-            raise AssertionError(
+            raise ValueError(
                 'level {j} does not exist'.format(j=level))
         return self._level_to_var[level]
 
@@ -444,7 +444,10 @@ class BDD(_abc.BDD):
         u = next(iter(d))
         if u not in self.vars:
             for level in d:
-                assert level in self._level_to_var, level
+                if level not in self._level_to_var:
+                    raise AssertionError(
+                        f'level {level} is not in '
+                        f'{self._level_to_var = }')
             return d
         if isinstance(d, Mapping):
             r = {
@@ -476,7 +479,8 @@ class BDD(_abc.BDD):
         for u in roots:
             self._descendants(u, visited)
         abs_roots = set(abs(u) for u in roots)
-        assert abs_roots.issubset(visited), (abs_roots, visited)
+        if not abs_roots.issubset(visited):
+            raise AssertionError((abs_roots, visited))
         return visited
 
     def _descendants(self, u, visited):
@@ -579,12 +583,14 @@ class BDD(_abc.BDD):
         umap = {1: 1}
         # non-terminals
         for u, i, v, w in self.levels(skip_terminals=True):
-            assert u > 0, u
+            if u <= 0:
+                raise AssertionError(u)
             p, q = umap[abs(v)], umap[abs(w)]
             p = _flip(p, v)
             q = _flip(q, w)
             r = bdd.find_or_add(i, p, q)
-            assert r > 0, r
+            if r <= 0:
+                raise AssertionError(r)
             umap[u] = r
         for v in self.roots:
             p = umap[abs(v)]
@@ -605,12 +611,22 @@ class BDD(_abc.BDD):
         unreferenced nodes to obtain empty levels.
         """
         for var in vrs:
-            assert var in self.vars, var
+            if var not in self.vars:
+                raise ValueError(
+                    f'name "{var}" is not '
+                    'a declared variable. '
+                    'The declared variables are:\n'
+                    f'{self.vars}')
         full_levels = {i for i, _, _ in self._succ.values()}
         # remove only unused variables
         for var in vrs:
             level = self.level_of_var(var)
-            assert level not in full_levels, (var, level)
+            if level in full_levels:
+                raise ValueError(
+                    f'the given variable "{var}" is not '
+                    'at an empty level (i.e., there still '
+                    f'exist BDD nodes at level {level}, '
+                    f'where variable "{var}" is)')
         # keep unused variables not in `vrs`
         if vrs:
             full_levels |= {
@@ -694,7 +710,8 @@ class BDD(_abc.BDD):
             if f < 0:
                 r = -r
         else:
-            assert i < j, (i, j)
+            if i >= j:
+                raise AssertionError((i, j))
             k, _, _ = self._succ[abs(g)]
             z = min(i, k)
             f0, f1 = self._top_cofactor(f, z)
@@ -712,7 +729,8 @@ class BDD(_abc.BDD):
         # cached ?
         r = cache.get(abs(f))
         if r is not None:
-            assert r > 0, r
+            if r <= 0:
+                raise AssertionError(r)
             # complement ?
             if f < 0:
                 r = -r
@@ -755,7 +773,10 @@ class BDD(_abc.BDD):
         # u independent of var ?
         if i < iu:
             return (u, u)
-        assert iu == i, 'for i > iu, call cofactor instead'
+        if iu != i:
+            raise AssertionError(
+                'for i > iu, call cofactor instead '
+                f'({i = }, {iu = })')
         # u labeled with var
         # complement ?
         if u < 0:
@@ -773,7 +794,9 @@ class BDD(_abc.BDD):
         cache = dict()
         ordvar = sorted(values)
         j = 0
-        assert abs(u) in self, u
+        if abs(u) not in self:
+            raise ValueError(
+                f'node {u} not in `self`')
         return self._cofactor(u, j, ordvar, values, cache)
 
     def _cofactor(self, u, j, ordvar, values, cache):
@@ -795,7 +818,8 @@ class BDD(_abc.BDD):
         if j == n:
             # exhausted valuation
             return u
-        assert j < n, (j, n)
+        if j >= n:
+            raise AssertionError((j, n))
         # recurse
         if i in values:
             val = values[i]
@@ -911,9 +935,23 @@ class BDD(_abc.BDD):
         @param w: high edge
         """
         _request_reordering(self)
-        assert 0 <= i < len(self.vars), i
-        assert abs(v) in self, v
-        assert abs(w) in self, w
+        if i < 0:
+            raise ValueError(
+                f'The given level: {i = } < 0')
+        if i >= len(self.vars):
+            raise ValueError(
+                f'The given level: {i = } is not < of '
+                f'the number of declared variables ({len(self.vars)}) '
+                '(the set of levels is expected to '
+                'comprise of contiguous numbers)')
+        if abs(v) not in self._succ:
+            raise ValueError(
+                f'argument: {v = } is not '
+                'a reference to an existing BDD node')
+        if abs(w) not in self._succ:
+            raise ValueError(
+                f'argument: {w = } is not '
+                'a reference to an existing BDD node')
         # ensure canonicity of complemented edges
         if w < 0:
             v, w = -v, -w
@@ -930,8 +968,15 @@ class BDD(_abc.BDD):
             return r * u
         # find a free integer
         u = self._min_free
-        assert u > 1, u
-        assert u not in self, (self._succ, u)
+        if u <= 1:
+            raise AssertionError(
+                f'min free index is {u}, '
+                'which is <= 1')
+        if u in self._succ:
+            raise AssertionError(
+                f'node index {u} '
+                'is already used. '
+                f'{self._succ = }')
         # add node
         self._pred[t] = u
         self._succ[u] = t
@@ -944,11 +989,15 @@ class BDD(_abc.BDD):
 
     def _next_free_int(self, start):
         """Return the smallest unused integer larger than `start`."""
-        assert start >= 1, start
+        if start < 1:
+            raise ValueError(
+                f'{start} = start < 1')
         for i in range(start, self.max_nodes):
             if i not in self._succ:
                 return i
-        raise Exception('full: reached `self.max_nodes` nodes.')
+        raise RuntimeError(
+            'full: reached `self.max_nodes` nodes '
+            f'({self.max_nodes = }).')
 
     def collect_garbage(self, roots=None):
         """Recursively remove nodes with zero reference count.
@@ -968,15 +1017,19 @@ class BDD(_abc.BDD):
             dead.remove(1)
         while dead:
             u = dead.pop()
-            assert u != 1, u
+            if u == 1:
+                raise AssertionError(u)
             # remove
             i, v, w = self._succ.pop(u)
             u_ = self._pred.pop((i, v, w))
             uref = self._ref.pop(u)
             self._min_free = min(u, self._min_free)
-            assert u == u_, (u, u_)
-            assert not uref, uref
-            assert self._min_free > 1, self._min_free
+            if u != u_:
+                raise AssertionError((u, u_))
+            if uref:
+                raise AssertionError(uref)
+            if self._min_free <= 1:
+                raise AssertionError(self._min_free)
             # decrement reference counters
             self.decref(v)
             self.decref(w)
@@ -988,7 +1041,8 @@ class BDD(_abc.BDD):
         self._ite_table = dict()
         m = len(self)
         k = n - m
-        assert k >= 0, (n, m)
+        if k < 0:
+            raise AssertionError((n, m))
 
     def update_predecessors(self):
         """Update table that maps (level, low, high) to nodes."""
@@ -1013,13 +1067,17 @@ class BDD(_abc.BDD):
             'swap variables "{x}" and "{y}"'.format(x=x, y=y))
         x = self.vars.get(x, x)
         y = self.vars.get(y, y)
-        assert 0 <= x < len(self.vars), x
-        assert 0 <= y < len(self.vars), y
+        if not (0 <= x < len(self.vars)):
+            raise ValueError(x)
+        if not (0 <= y < len(self.vars)):
+            raise ValueError(y)
         # ensure x < y
         if x > y:
             x, y = y, x
-        assert x < y, (x, y)
-        assert abs(x - y) == 1, (x, y)
+        if x >= y:
+            raise ValueError((x, y))
+        if abs(x - y) != 1:
+            raise ValueError((x, y))
         # count nodes
         oldsize = len(self._succ)
         # collect levels x and y
@@ -1027,24 +1085,29 @@ class BDD(_abc.BDD):
         for j in (x, y):
             for u in all_levels[j]:
                 i, v, w = self._succ[abs(u)]
-                assert i == j, (i, x, y)
+                if i != j:
+                    raise AssertionError((i, x, y))
                 u_ = self._pred.pop((i, v, w))
-                assert u == u_, (u, u_)
+                if u != u_:
+                    raise AssertionError((u, u_))
                 levels[j][u] = (v, w)
         # move level y up
         for u, (v, w) in levels[y].items():
             i, _, _ = self._succ[u]
-            assert i == y, (i, y)
+            if i != y:
+                raise AssertionError((i, y))
             r = (x, v, w)
             self._succ[u] = r
-            assert r not in self._pred, r
+            if r in self._pred:
+                raise AssertionError(r)
             self._pred[r] = u
         # move level x down
         # first x nodes independent of y
         done = set()
         for u, (v, w) in levels[x].items():
             i, _, _ = self._succ[u]
-            assert i == x, (i, x)
+            if i != x:
+                raise AssertionError((i, x))
             iv, v0, v1 = self._low_high(v)
             iw, w0, w1 = self._low_high(w)
             # dependeds on y ?
@@ -1053,7 +1116,8 @@ class BDD(_abc.BDD):
             # independent of y
             r = (y, v, w)
             self._succ[u] = r
-            assert r not in self._pred, r
+            if r in self._pred:
+                raise AssertionError(r)
             self._pred[r] = u
             done.add(u)
         # x nodes dependent on y
@@ -1063,7 +1127,8 @@ class BDD(_abc.BDD):
             if u in done:
                 continue
             i, _, _ = self._succ[u]
-            assert i == x, (i, x)
+            if i != x:
+                raise AssertionError((i, x))
             self.decref(v)
             self.decref(w)
             # possibly dead
@@ -1073,23 +1138,28 @@ class BDD(_abc.BDD):
             iv, v0, v1 = self._swap_cofactor(v, y)
             iw, w0, w1 = self._swap_cofactor(w, y)
             # x node depends on y
-            assert y <= iv and y <= iw, (iv, iw, y)
-            assert y == iv or y == iw, (iv, iw, y)
+            if not (y <= iv and y <= iw):
+                raise AssertionError((iv, iw, y))
+            if not (y == iv or y == iw):
+                raise AssertionError((iv, iw, y))
             # complemented edge ?
             if v < 0 and y == iv:
                 v0, v1 = -v0, -v1
             p = self.find_or_add(y, v0, w0)
             q = self.find_or_add(y, v1, w1)
-            assert q >= 0, q
-            assert p != q, (
-                'No elimination: node depends on both x and y')
+            if q < 0:
+                raise AssertionError(q)
+            if p == q:
+                raise AssertionError(
+                    'No elimination: node depends on both x and y')
             if self._succ[abs(p)][0] == y:
                 xfresh.add(abs(p))
             if self._succ[q][0] == y:
                 xfresh.add(q)
             r = (x, p, q)
             self._succ[u] = r
-            assert r not in self._pred, (u, r, levels, self._pred)
+            if r in self._pred:
+                raise AssertionError((u, r, levels, self._pred))
             self._pred[r] = u
             self.incref(p)
             self.incref(q)
@@ -1122,13 +1192,15 @@ class BDD(_abc.BDD):
                 raise AssertionError((u, i, x, y))
         for u in xfresh:
             i, _, _ = self._succ[u]
-            assert i == y, (u, i, x, y)
+            if i != y:
+                raise AssertionError((u, i, x, y))
             newx.add(u)
         for u in levels[y]:
             if u not in self._succ:
                 continue
             i, _, _ = self._succ[u]
-            assert i == x, (u, i, x, y)
+            if i != x:
+                raise AssertionError((u, i, x, y))
             newy.add(u)
         all_levels[x] = newy
         all_levels[y] = newx
@@ -1228,7 +1300,11 @@ class BDD(_abc.BDD):
         if not self._succ:
             return
         # non-empty
-        assert abs(u) in self._succ, u
+        if abs(u) not in self._succ:
+            raise ValueError(
+                f'{u} is not a reference to '
+                'a BDD node in the BDD manager '
+                f'`self` ({self!r})')
         cube = dict()
         value = True
         support = self.support(u)
@@ -1270,44 +1346,60 @@ class BDD(_abc.BDD):
     def assert_consistent(self):
         """Raise `AssertionError` if not a valid BDD."""
         for root in self.roots:
-            assert abs(root) in self._succ, root
+            if abs(root) not in self._succ:
+                raise AssertionError(root)
         # inverses
         succ_keys = set(self._succ)
         succ_values = set(self._succ.values())
         pred_keys = set(self._pred)
         pred_values = set(self._pred.values())
-        assert succ_keys == pred_values, (
-            succ_keys.symmetric_difference(pred_values))
-        assert pred_keys == succ_values, (
-            pred_keys.symmetric_difference(succ_values))
+        if succ_keys != pred_values:
+            raise AssertionError(
+                succ_keys.symmetric_difference(pred_values))
+        if pred_keys != succ_values:
+            raise AssertionError(
+                pred_keys.symmetric_difference(succ_values))
         # uniqueness
         n = len(succ_keys)
         n_ = len(succ_values)
-        assert n == n_, (n - n_)
+        if n != n_:
+            raise AssertionError(n - n_)
         for u, (i, v, w) in self._succ.items():
-            assert isinstance(i, int), i
+            if not isinstance(i, int):
+                raise TypeError(i)
             # terminal ?
             if v is None:
-                assert w is None, w
+                if w is not None:
+                    raise AssertionError(w)
                 continue
             else:
-                assert abs(v) in self._succ, v
+                if abs(v) not in self._succ:
+                    raise AssertionError(v)
             if w is None:
-                assert v is None, v
+                if v is not None:
+                    raise AssertionError(v)
                 continue
             else:
-                assert w >= 0, w  # "high" is regular edge
-                assert w in self._succ, w
+                # "high" is regular edge
+                if w < 0:
+                    raise AssertionError(w)
+                if w not in self._succ:
+                    raise AssertionError(w)
             # var order should increase
             for x in (v, w):
                 ix, _, _ = self._succ[abs(x)]
-                assert i < ix, (u, i)
+                if not (i < ix):
+                    raise AssertionError((u, i))
             # `_pred` contains inverse of `_succ`
-            assert (i, v, w) in self._pred, (i, v, w)
-            assert self._pred[(i, v, w)] == u, u
+            if (i, v, w) not in self._pred:
+                raise AssertionError((i, v, w))
+            if self._pred[(i, v, w)] != u:
+                raise AssertionError(u)
             # reference count
-            assert u in self._ref, u
-            assert self._ref[u] >= 0, self._ref[u]
+            if u not in self._ref:
+                raise AssertionError(u)
+            if self._ref[u] < 0:
+                raise AssertionError(self._ref[u])
         return True
 
     @_try_to_reorder
@@ -1315,7 +1407,11 @@ class BDD(_abc.BDD):
         return _parser.add_expr(e, self)
 
     def to_expr(self, u):
-        assert u in self, u
+        if u not in self:
+            raise ValueError(
+                f'{u} is not a reference to '
+                'a BDD node in the BDD manager '
+                f'`self` ({self!r})')
         return self._to_expr(u)
 
     def _to_expr(self, u):
@@ -1338,57 +1434,84 @@ class BDD(_abc.BDD):
         return s
 
     def apply(self, op, u, v=None, w=None):
-        assert abs(u) in self, u
-        assert v is None or abs(v) in self, v
-        assert w is None or abs(w) in self, w
+        if abs(u) not in self:
+            raise ValueError(u)
+        if not (v is None or abs(v) in self):
+            raise ValueError(v)
+        if not (w is None or abs(w) in self):
+            raise ValueError(w)
         if op in ('~', 'not', '!'):
-            assert v is None, v
-            assert w is None, w
+            if v is not None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return -u
         elif op in ('or', r'\/', '|', '||'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, 1, v)
         elif op in ('and', '/\\', '&', '&&'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, v, -1)
         elif op in ('xor', '^'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, -v, v)
         elif op in ('=>', '->', 'implies'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, v, 1)
         elif op in ('<=>', '<->', 'equiv'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, -v, -1)
         elif op in (r'\A', 'forall'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             qvars = self.support(u)
             return self.quantify(v, qvars, forall=True)
         elif op in (r'\E', 'exists'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             qvars = self.support(u)
             return self.quantify(v, qvars, forall=False)
         elif op == 'ite':
-            assert v is not None, v
-            assert w is not None, w
+            if v is None:
+                raise ValueError(v)
+            if w is None:
+                raise ValueError(w)
             return self.ite(u, v, w)
         else:
-            raise Exception(
+            raise ValueError(
                 'unknown operator "{op}"'.format(op=op))
 
     def _add_int(self, i):
-        assert i in self, i
+        if i not in self:
+            raise ValueError(
+                f'{i = } is not a reference '
+                'to a BDD node in the BDD manager '
+                f'`self` ({self!r})')
         return i
 
     @_try_to_reorder
@@ -1416,7 +1539,7 @@ class BDD(_abc.BDD):
             elif name.endswith('.p'):
                 filetype = 'pickle'
             else:
-                raise Exception((
+                raise ValueError((
                     'cannot infer file type '
                     'from extension of file '
                     'name "{f}"').format(
@@ -1427,7 +1550,7 @@ class BDD(_abc.BDD):
         elif filetype == 'pickle':
             self._dump_bdd(roots, filename, **kw)
         else:
-            raise Exception(
+            raise ValueError(
                 'unknown file type "{t}"'.format(
                     t=filetype))
 
@@ -1442,7 +1565,7 @@ class BDD(_abc.BDD):
         elif filetype == 'svg':
             g.write_svg(filename, **kw)
         else:
-            raise Exception(
+            raise ValueError(
                 'Unknown file type of "{f}"'.format(
                     f=filename))
 
@@ -1479,7 +1602,8 @@ class BDD(_abc.BDD):
         level_map = dict()
         # level_map[n] = len(self.vars)
         for var, i in var2level.items():
-            assert 0 <= i < n, (i, n)
+            if not (0 <= i < n):
+                raise AssertionError((i, n))
             if var not in self.vars:
                 logger.warning(
                     'variable "{var}" added'.format(
@@ -1506,7 +1630,8 @@ class BDD(_abc.BDD):
         # memoized ?
         if u in umap:
             r = umap[abs(u)]
-            assert r > 0, r
+            if r <= 0:
+                raise AssertionError(r)
             if u < 0:
                 r = -r
             return r
@@ -1515,7 +1640,8 @@ class BDD(_abc.BDD):
         p = self._load(v, succ, umap, level_map)
         q = self._load(w, succ, umap, level_map)
         r = self.find_or_add(j, p, q)
-        assert r > 0, r
+        if r <= 0:
+            raise AssertionError(r)
         umap[abs(u)] = r
         if u < 0:
             r = -r
@@ -1566,8 +1692,10 @@ def _enumerate_minterms(cube, bits):
     @type bits: `set`
     @rtype: generator of `dict(str: bool)`
     """
-    assert cube is not None
-    assert bits is not None
+    if cube is None:
+        raise ValueError(cube)
+    if bits is None:
+        raise ValueError(bits)
     bits = set(bits).difference(cube)
     # fix order
     bits = list(bits)
@@ -1576,8 +1704,10 @@ def _enumerate_minterms(cube, bits):
         values = bin(i).lstrip('-0b').zfill(n)
         model = {k: bool(int(v)) for k, v in zip(bits, values)}
         model.update(cube)
-        assert len(model) >= len(bits), (model, bits)
-        assert len(model) >= len(cube), (model, cube)
+        if len(model) < len(bits):
+            raise AssertionError((model, bits))
+        if len(model) < len(cube):
+            raise AssertionError((model, cube))
         yield model
 
 
@@ -1594,7 +1724,8 @@ def _assert_isomorphic_orders(old, new, support):
     t = {k: v for k, v in new.items() if k in support}
     old = sorted(s, key=s.get)
     new = sorted(t, key=t.get)
-    assert old == new, (old, new)
+    if old != new:
+        raise AssertionError((old, new))
 
 
 def _assert_valid_ordering(levels):
@@ -1604,12 +1735,14 @@ def _assert_valid_ordering(levels):
     - contiguous levels
     """
     # `levels` is a mapping -> each var : single level
-    assert isinstance(levels, Mapping), levels
+    if not isinstance(levels, Mapping):
+        raise TypeError(levels)
     # levels are contiguous integers ?
     n = len(levels)
     numbers = set(levels.values())
     numbers_ = set(range(n))
-    assert numbers == numbers_, (n, numbers)
+    if numbers != numbers_:
+        raise AssertionError(n, numbers)
 
 
 def rename(u, bdd, dvars):
@@ -1617,7 +1750,11 @@ def rename(u, bdd, dvars):
 
     @param dvars: `dict` from variabe names to variable names
     """
-    assert abs(u) in bdd, u
+    if abs(u) not in bdd:
+        raise ValueError(
+            f'{u} (given as `u`) is not a reference to '
+            'a BDD node in the given BDD manager '
+            f'`bdd` ({bdd!r})')
     # nothing to rename ?
     if not dvars:
         return u
@@ -1667,7 +1804,9 @@ def _adjacent(i, j, bdd):
 
 def _assert_no_overlap(d):
     """Raise `AssertionError` if keys and values overlap."""
-    assert not any((k in d) for k in d.values())
+    if any((k in d) for k in d.values()):
+        raise AssertionError(
+            f'keys and values overlap: {d}')
 
 
 def image(trans, source, rename, qvars, bdd, forall=False):
@@ -1702,7 +1841,8 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     s.update(bdd.support(source, as_levels=True))
     s.difference_update(qvars)
     s.intersection_update(rename.values())
-    assert not s, s
+    if s:
+        raise AssertionError(s)
     return _image(trans, source, rename_u, rename_v,
                   qvars, bdd, forall, cache)
 
@@ -1826,7 +1966,9 @@ def _apply_sifting(bdd):
         logger.info(
             '{m} nodes for variable "{v}" at level {k}'.format(
                 m=m, v=var, k=k))
-    assert m <= n, (m, n)
+    if m > n:
+        raise AssertionError(
+            f'expected: m <= n, but {m = } > {n = }')
     logger.info('final variable order:\b{v}'.format(v=bdd.vars))
 
 
@@ -1836,10 +1978,12 @@ def _reorder_var(bdd, var, levels):
     @type bdd: `BDD`
     @type var: `str`
     """
-    assert var in bdd.vars, (var, bdd.vars)
+    if var not in bdd.vars:
+        raise ValueError((var, bdd.vars))
     m = len(bdd)
     n = len(bdd.vars) - 1
-    assert n >= 0, n
+    if n < 0:
+        raise AssertionError(n)
     start = 0
     end = n
     level = bdd.level_of_var(var)
@@ -1851,8 +1995,10 @@ def _reorder_var(bdd, var, levels):
     k = min(sizes, key=sizes.get)
     _shift(bdd, end, k, levels)
     m_ = len(bdd)
-    assert sizes[k] == m_, (sizes[k], m_)
-    assert m_ <= m, (m_, m)
+    if sizes[k] != m_:
+        raise AssertionError((sizes[k], m_))
+    if m_ > m:
+        raise AssertionError((m_, m))
     return k
 
 
@@ -1863,8 +2009,10 @@ def _shift(bdd, start, end, levels):
     @type start, end: `0 <= int < len(bdd.vars)`
     """
     m = len(bdd.vars)
-    assert 0 <= start < m, (start, m)
-    assert 0 <= end < m, (end, m)
+    if not (0 <= start < m):
+        raise AssertionError((start, m))
+    if not (0 <= end < m):
+        raise AssertionError((end, m))
     sizes = dict()
     d = 1 if start < end else -1
     for i in range(start, end, d):
@@ -1881,14 +2029,23 @@ def _sort_to_order(bdd, order):
     @type order: `dict`
     """
     # TODO: use min number of swaps
-    assert len(bdd.vars) == len(order)
+    if len(bdd.vars) != len(order):
+        raise ValueError(
+            'The number of BDD variables: '
+            f'{len(bdd.vars) = } is not equal to: '
+            f'{len(order) = }')
     m = 0
     levels = bdd._levels()
     n = len(order)
     for k in range(n):
         for i in range(n - 1):
             for root in bdd.roots:
-                assert root in bdd
+                if root not in bdd:
+                    raise ValueError(
+                        f'{root} in `bdd.roots` is not '
+                        'a reference to a BDD node in '
+                        'the given BDD manager `bdd` '
+                        f'({bdd!r})')
             x = bdd.var_at_level(i)
             y = bdd.var_at_level(i + 1)
             p = order[x]
@@ -1914,7 +2071,8 @@ def reorder_to_pairs(bdd, pairs):
         jx = bdd.level_of_var(x)
         jy = bdd.level_of_var(y)
         k = abs(jx - jy)
-        assert k > 0, (jx, jy)
+        if k <= 0:
+            raise AssertionError((jx, jy))
         # already adjacent ?
         if k == 1:
             continue
@@ -1960,7 +2118,8 @@ def _copy_bdd(u, level_map, old_bdd, bdd, cache):
     # memoized ?
     r = cache.get(abs(u))
     if r is not None:
-        assert r > 0, r
+        if r <= 0:
+            raise AssertionError(r)
         # complement ?
         if u < 0:
             r = -r
@@ -1969,14 +2128,17 @@ def _copy_bdd(u, level_map, old_bdd, bdd, cache):
     jold, v, w = old_bdd._succ[abs(u)]
     p = _copy_bdd(v, level_map, old_bdd, bdd, cache)
     q = _copy_bdd(w, level_map, old_bdd, bdd, cache)
-    assert p * v > 0, (p, v)
-    assert q > 0, q
+    if p * v <= 0:
+        raise AssertionError((p, v))
+    if q <= 0:
+        raise AssertionError(q)
     # map this level
     jnew = level_map[jold]
     g = bdd.find_or_add(jnew, -1, 1)
     r = bdd.ite(g, q, p)
     # memoize
-    assert r > 0, r
+    if r <= 0:
+        raise AssertionError(r)
     cache[abs(u)] = r
     # complement ?
     if u < 0:
@@ -2007,18 +2169,22 @@ def to_nx(bdd, roots):
     import networkx as nx
     g = nx.MultiDiGraph()
     for root in roots:
-        assert abs(root) in bdd, root
+        if abs(root) not in bdd:
+            raise ValueError(root)
         Q = {root}
         while Q:
             u = Q.pop()
             u = abs(u)
             i, v, w = bdd._succ[u]
-            assert u > 0, u
+            if u <= 0:
+                raise AssertionError(u)
             g.add_node(u, level=i)
             # terminal ?
             if v is None or w is None:
-                assert w is None, w
-                assert v is None, v
+                if v is not None:
+                    raise AssertionError(v)
+                if w is not None:
+                    raise AssertionError(w)
                 continue
             # non-terminal
             r = (v < 0)
@@ -2028,8 +2194,10 @@ def to_nx(bdd, roots):
                 Q.add(v)
             if w not in g:
                 Q.add(w)
-            assert v > 0, v
-            assert w > 0, w
+            if v <= 0:
+                raise AssertionError(v)
+            if w <= 0:
+                raise AssertionError(w)
             g.add_edge(u, v, value=False, complement=r)
             g.add_edge(u, w, value=True, complement=False)
     return g
@@ -2060,7 +2228,10 @@ def to_pydot(roots, bdd):
         nodes = bdd.descendants(roots)
     # show only levels in aggregate support
     levels = {bdd._succ[abs(u)][0] for u in nodes}
-    assert bdd._succ[1][0] in levels
+    if bdd._succ[1][0] not in levels:
+        raise AssertionError(
+            'level of node 1 is missing from computed '
+            'set of BDD nodes reachable from `roots`')
     g = pydot.Dot('bdd', graph_type='digraph')
     skeleton = list()
     subgraphs = dict()
@@ -2125,7 +2296,8 @@ def to_pydot(roots, bdd):
         h = subgraphs[-1]
         h.add_node(nd)
         # add edge from external reference to BDD node
-        assert u is not None
+        if u is None:
+            raise ValueError(f'{u} in `roots`')
         sv = str(abs(u))
         vlabel = '-1' if u < 0 else ' '
         e = pydot.Edge(su, sv, style='dashed', taillabel=vlabel)

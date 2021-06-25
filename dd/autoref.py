@@ -63,7 +63,8 @@ class BDD(_abc.BDD):
         @param u: node in `self._bdd`
         @type u: `int`
         """
-        assert u in self._bdd
+        if u not in self._bdd:
+            raise ValueError(u)
         return Function(u, self)
 
     def configure(self, **kw):
@@ -102,7 +103,8 @@ class BDD(_abc.BDD):
         reorder(self, var_order)
 
     def copy(self, u, other):
-        assert u in self, u
+        if u not in self:
+            raise ValueError(u)
         if self is other:
             log.warning('copying node to same manager')
             return u
@@ -110,11 +112,13 @@ class BDD(_abc.BDD):
         return other._wrap(r)
 
     def support(self, u, as_levels=False):
-        assert u in self, u
+        if u not in self:
+            raise ValueError(u)
         return self._bdd.support(u.node, as_levels)
 
     def let(self, definitions, u):
-        assert u in self, u
+        if u not in self:
+            raise ValueError(u)
         if not definitions:
             return u
         d = definitions
@@ -128,7 +132,8 @@ class BDD(_abc.BDD):
         return self._wrap(r)
 
     def quantify(self, u, qvars, forall=False):
-        assert u in self, u
+        if u not in self:
+            raise ValueError(u)
         r = self._bdd.quantify(u.node, qvars, forall)
         return self._wrap(r)
 
@@ -139,9 +144,12 @@ class BDD(_abc.BDD):
         return self.quantify(u, qvars, forall=False)
 
     def ite(self, g, u, v):
-        assert g in self, g
-        assert u in self, u
-        assert v in self, v
+        if g not in self:
+            raise ValueError(g)
+        if u not in self:
+            raise ValueError(u)
+        if v not in self:
+            raise ValueError(v)
         r = self._bdd.ite(g.node, u.node, v.node)
         return self._wrap(r)
 
@@ -152,11 +160,13 @@ class BDD(_abc.BDD):
         return self._wrap(r)
 
     def count(self, u, nvars=None):
-        assert u in self, u
+        if u not in self:
+            raise ValueError(u)
         return self._bdd.count(u.node, nvars)
 
     def pick_iter(self, u, care_vars=None):
-        assert u in self, u
+        if u not in self:
+            raise ValueError(u)
         return self._bdd.pick_iter(u.node, care_vars)
 
     def add_expr(self, e):
@@ -164,21 +174,28 @@ class BDD(_abc.BDD):
         return self._wrap(r)
 
     def to_expr(self, u):
-        assert u in self, u
+        if u not in self:
+            raise ValueError(u)
         return self._bdd.to_expr(u.node)
 
     def apply(self, op, u, v=None, w=None):
-        assert u in self, u
+        if u not in self:
+            raise ValueError(u)
         if v is None:
-            assert w is None, w
+            if w is not None:
+                raise ValueError(w)
             r = self._bdd.apply(op, u.node)
         elif w is None:
-            assert v in self, v
-            assert w is None, w
+            if v not in self:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             r = self._bdd.apply(op, u.node, v.node)
         else:
-            assert v in self, v
-            assert w in self, w
+            if v not in self:
+                raise ValueError(v)
+            if w not in self:
+                raise ValueError(w)
             r = self._bdd.apply(op, u.node, v.node, w.node)
         return self._wrap(r)
 
@@ -302,14 +319,16 @@ class BDD(_abc.BDD):
 
 
 def image(trans, source, rename, qvars, forall=False):
-    assert trans.bdd is source.bdd
+    if trans.bdd is not source.bdd:
+        raise ValueError((trans.bdd, source.bdd))
     u = _bdd.image(trans.node, source.node, rename,
                    qvars, trans.manager, forall)
     return trans.bdd._wrap(u)
 
 
 def preimage(trans, target, rename, qvars, forall=False):
-    assert trans.bdd is target.bdd
+    if trans.bdd is not target.bdd:
+        raise ValueError((trans.bdd, target.bdd))
     u = _bdd.preimage(trans.node, target.node, rename,
                       qvars, trans.manager, forall)
     return trans.bdd._wrap(u)
@@ -361,7 +380,8 @@ class Function(_abc.Operator):
     """
 
     def __init__(self, node, bdd):
-        assert node in bdd._bdd, node
+        if node not in bdd._bdd:
+            raise ValueError(node)
         self.bdd = bdd
         self.manager = bdd._bdd
         self.node = node
@@ -391,13 +411,15 @@ class Function(_abc.Operator):
     def __eq__(self, other):
         if other is None:
             return False
-        assert self.bdd is other.bdd, (self.bdd, other.bdd)
+        if self.bdd is not other.bdd:
+            raise ValueError((self.bdd, other.bdd))
         return self.node == other.node
 
     def __ne__(self, other):
         if other is None:
             return True
-        assert self.bdd is other.bdd, (self.bdd, other.bdd)
+        if self.bdd is not other.bdd:
+            raise ValueError((self.bdd, other.bdd))
         return not (self == other)
 
     def __le__(self, other):
@@ -427,7 +449,8 @@ class Function(_abc.Operator):
         if other is None:
             u = self.manager.apply(op, self.node)
         else:
-            assert self.bdd is other.bdd, (self.bdd, other.bdd)
+            if self.bdd is not other.bdd:
+                raise ValueError((self.bdd, other.bdd))
             u = self.manager.apply(op, self.node, other.node)
         return Function(u, self.bdd)
 

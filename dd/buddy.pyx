@@ -115,11 +115,14 @@ cdef class BDD:
 
     cpdef Function var(self, str var):
         """Return BDD for variable `var`."""
-        assert var in self.var_to_index, (
-            var, self.var_to_index)
+        if var not in self.var_to_index:
+            raise ValueError(
+                f'"{var}" is not a variable (key) in '
+                f'{self.var_to_index = }')
         j = self.var_to_index[var]
         r = buddy.bdd_ithvar(j)
-        assert r != self.false.node, 'failed'
+        if r == self.false.node:
+            raise RuntimeError('failed')
         buddy.bdd_intaddvarblock(j, j, 0)
         return Function(r)
 
@@ -165,10 +168,11 @@ cdef class BDD:
         """Return as `Function` the result of applying `op`."""
         # unary
         if op in ('!', 'not'):
-            assert v is None
+            if v is not None:
+                raise ValueError((op, u, v))
             r = buddy.bdd_not(u.node)
-        else:
-            assert v is not None
+        elif v is None:
+            raise ValueError((op, u, v))
         # binary
         if op in ('&', 'and'):
             r = buddy.bdd_and(u.node, v.node)

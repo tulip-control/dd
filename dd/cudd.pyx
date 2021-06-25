@@ -809,10 +809,11 @@ cdef class BDD:
         Raise `ValueError` if `var` is not
         a variable in `self.vars`.
         """
-        assert var in self._index_of_var, (
-            'undefined variable "{v}", '
-            'known variables are:\n {d}').format(
-                v=var, d=self._index_of_var)
+        if var not in self._index_of_var:
+            raise ValueError(
+                f'undeclared variable "{var}", '
+                'the declared variables are:\n'
+                f'{self._index_of_var}')
         j = self._index_of_var[var]
         level = Cudd_ReadPerm(self.manager, j)
         if level == -1:
@@ -852,7 +853,8 @@ cdef class BDD:
 
     cpdef support(self, Function f):
         """Return `set` of variables that node `f` depends on."""
-        assert self.manager == f.manager, f
+        if self.manager != f.manager:
+            raise ValueError(f)
         cdef DdNode *r
         r = Cudd_Support(self.manager, f.node)
         f = wrap(self, r)
@@ -861,7 +863,8 @@ cdef class BDD:
         if not supp:
             return set()
         # must be positive unate
-        assert set(supp.values()) == {True}, supp
+        if set(supp.values()) != {True}:
+            raise AssertionError(supp)
         return set(supp)
 
     def group(self, vrs):
@@ -962,7 +965,8 @@ cdef class BDD:
             if var in var_sub:
                 # substitute
                 g = var_sub[var]
-                assert g.manager == self.manager
+                if g.manager != self.manager:
+                    raise ValueError((var, g))
                 x[j] = g.node
             else:
                 # leave var same
@@ -975,7 +979,8 @@ cdef class BDD:
 
     cpdef Function _cofactor(self, Function f, values):
         """Return the cofactor f|_g."""
-        assert self.manager == f.manager
+        if self.manager != f.manager:
+            raise ValueError(f)
         cdef DdNode *r
         cdef Function cube
         cube = self.cube(values)
@@ -1147,7 +1152,9 @@ cdef class BDD:
                         'gen not empty but '
                         'no next cube', r)
                 d = _cube_array_to_dict(cube, self._index_of_var)
-                assert set(d).issubset(support), set(d).difference(support)
+                if not set(d).issubset(support):
+                    raise AssertionError(
+                        set(d).difference(support))
                 for m in _bdd._enumerate_minterms(d, care_vars):
                     yield m
                 r = Cudd_NextCube(gen, &cube, &value)
@@ -1844,7 +1851,8 @@ cdef _dict_to_cube_array(d, int *x, dict index_of_var):
         or `set` of variable names.
     """
     for var in d:
-        assert var in index_of_var, var
+        if var not in index_of_var:
+            raise ValueError(var)
     for var, j in index_of_var.items():
         if var not in d:
             x[j] = 2
@@ -2342,7 +2350,8 @@ cpdef _test_incref():
     i = f.ref
     bdd._incref(f.node)
     j = f.ref
-    assert j == i + 1, (j, i)
+    if j != i + 1:
+        raise AssertionError((j, i))
     # avoid errors in `BDD.__dealloc__`
     bdd._decref(f.node, recursive=True)
     del f
@@ -2353,13 +2362,16 @@ cpdef _test_decref():
     cdef Function f
     f = bdd.true
     i = f.ref
-    assert i == 2, i
+    if i != 2:
+        raise AssertionError(i)
     bdd._incref(f.node)
     i = f.ref
-    assert i == 3, i
+    if i != 3:
+        raise AssertionError(i)
     bdd._decref(f.node, recursive=True)
     j = f.ref
-    assert j == i - 1, (j, i)
+    if j != i - 1:
+        raise AssertionError((j, i))
     del f
 
 
@@ -2372,7 +2384,8 @@ cpdef _test_dict_to_cube_array():
     _dict_to_cube_array(d, x, index_of_var)
     r = [j for j in x[:n]]
     r_ = [2, 1, 0]
-    assert r == r_, (r, r_)
+    if r != r_:
+        raise AssertionError((r, r_))
     PyMem_Free(x)
 
 
@@ -2386,7 +2399,8 @@ cpdef _test_cube_array_to_dict():
     index_of_var = dict(x=0, y=1, z=2)
     d = _cube_array_to_dict(x, index_of_var)
     d_ = dict(y=True, z=False)
-    assert d == d_, (d, d_)
+    if d != d_:
+        raise AssertionError((d, d_))
     PyMem_Free(x)
 
 

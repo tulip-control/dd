@@ -275,7 +275,8 @@ class Operator:
     """Convenience wrapper for edges returned by `BDD`."""
 
     def __init__(self, node, bdd):
-        assert node in bdd._bdd, node
+        if node not in bdd._bdd:
+            raise ValueError(node)
         self.bdd = bdd
         self.manager = bdd._bdd
         self.node = node

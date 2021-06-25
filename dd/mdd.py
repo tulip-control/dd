@@ -99,11 +99,16 @@ class MDD:
 
     def _release(self, u):
         """Unmark integer from used ones."""
-        assert u <= self._max, u
-        assert u not in self._free, u
-        assert u not in self._succ, u
-        assert u not in self._pred, u
-        assert u not in self._ref, u
+        if u > self._max:
+            raise AssertionError(u)
+        if u in self._free:
+            raise AssertionError(u)
+        if u in self._succ:
+            raise AssertionError(u)
+        if u in self._pred:
+            raise AssertionError(u)
+        if u in self._ref:
+            raise AssertionError(u)
         self._free.add(u)
 
     def incref(self, u):
@@ -167,13 +172,17 @@ class MDD:
         @param i: level in `range(len(vars))`
         @type i: int
         """
-        assert 0 <= i < len(self.vars), i
+        if not (0 <= i < len(self.vars)):
+            raise ValueError(i)
         var = self.var_at_level(i)
-        assert len(nodes) == self.vars[var]['len'], (
-            var, len(nodes), self.vars[var]['len'])
-        assert nodes  # in case max == 0
+        if len(nodes) != self.vars[var]['len']:
+            raise ValueError(
+                (var, len(nodes), self.vars[var]['len']))
+        if not nodes:  # in case max == 0
+            raise ValueError(nodes)
         for u in nodes:
-            assert abs(u) in self, u
+            if abs(u) not in self:
+                raise ValueError(u)
         # canonicity of complemented edges
         if nodes[0] < 0:
             nodes = tuple(-u for u in nodes)
@@ -189,7 +198,8 @@ class MDD:
         if u is not None:
             return r * u
         u = self._allocate()
-        assert u not in self, (self._succ, u, t)
+        if u in self:
+            raise AssertionError((self._succ, u, t))
         # add node
         self._pred[t] = u
         self._succ[u] = t
@@ -209,15 +219,19 @@ class MDD:
             dead.remove(1)
         while dead:
             u = dead.pop()
-            assert u != 1, u
+            if u == 1:
+                raise AssertionError(u)
             # remove
             t = self._succ.pop(u)
             u_ = self._pred.pop(t)
             uref = self._ref.pop(u)
             self._release(u)
-            assert u == u_, (u, u_)
-            assert uref == 0, uref
-            assert u in self._free, (u, self._free)
+            if u != u_:
+                raise AssertionError((u, u_))
+            if uref != 0:
+                raise AssertionError(uref)
+            if u not in self._free:
+                raise AssertionError((u, self._free))
             # recurse
             # decrement reference counters
             nodes = t[1:]
@@ -264,53 +278,76 @@ class MDD:
         return s
 
     def apply(self, op, u, v=None, w=None):
-        assert u in self, u
-        assert v is None or v in self, v
-        assert w is None or w in self, w
+        if u not in self:
+            raise ValueError(u)
+        if not (v is None or v in self):
+            raise ValueError(v)
+        if not (w is None or w in self):
+            raise ValueError(w)
         if op in ('~', 'not', '!'):
-            assert v is None, v
-            assert w is None, w
+            if v is not None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return -u
         elif op in ('or', r'\/', '|', '||'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, 1, v)
         elif op in ('and', '/\\', '&', '&&'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, v, -1)
         elif op in ('xor', '^'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, -v, v)
         elif op in ('=>', '->', 'implies'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, v, 1)
         elif op in ('<=>', '<->', 'equiv'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             return self.ite(u, -v, -1)
         elif op in (r'\A', 'forall'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             raise NotImplementedError(
                 'quantification is not implemented for MDDs.')
         elif op in (r'\E', 'exists'):
-            assert v is not None, v
-            assert w is None, w
+            if v is None:
+                raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             raise NotImplementedError(
                 'quantification is not implemented for MDDs.')
         elif op == 'ite':
-            assert v is not None, v
-            assert w is not None, w
+            if v is None:
+                raise ValueError(v)
+            if w is None:
+                raise ValueError(w)
             return self.ite(u, v, w)
         else:
-            raise Exception(
+            raise ValueError(
                 'unknown operator "{op}"'.format(op=op))
 
     def dump(self, fname):
@@ -376,7 +413,8 @@ def bdd_to_mdd(bdd, dvars):
     # reverse edges
     pred = {u: set() for u in bdd}
     for u, (_, v, w) in bdd._succ.items():
-        assert u > 0, u
+        if u <= 0:
+            raise AssertionError(u)
         # terminal ?
         if u == 1:
             continue
@@ -450,10 +488,12 @@ def _debug_dump(pred, bdd):
     g = to_nx(bdd, roots=bdd._succ)
     color = 'red'
     for u in pred:
-        assert u >= 1, u
+        if u < 1:
+            raise ValueError(u)
         g.add_node(u, color=color)
     for u in g:
-        assert u >= 1, u
+        if u < 1:
+            raise AssertionError(u)
         if u == 1:
             continue
         level, _, _ = bdd._succ[u]
@@ -487,7 +527,8 @@ def to_pydot(mdd):
         g.add_edge(e)
     # add nodes
     for u, t in mdd._succ.items():
-        assert u > 0, u
+        if u <= 0:
+            raise AssertionError(u)
         i = t[0]
         nodes = t[1:]
         # terminal ?

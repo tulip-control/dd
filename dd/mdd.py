@@ -262,9 +262,9 @@ class MDD:
         for k, v in cond.items():
             if len(v) == 1:
                 (j,) = v
-                cond_str[k] = '= {j}'.format(j=j)
+                cond_str[k] = f'= {j}'
             else:
-                cond_str[k] = 'in {v}'.format(v=v)
+                cond_str[k] = f'in {v}'
         x = c[0]
         s = 'if ({var} {j}): {p}, '.format(
             var=var, j=cond_str[x], p=e[x])
@@ -273,8 +273,8 @@ class MDD:
                 var=var, j=cond_str[x], p=e[x])
             for x in c[1:])
         if u < 0:
-            s = '! {s}'.format(s=s)
-        s = '({s})'.format(s=s)
+            s = f'! {s}'
+        s = f'({s})'
         return s
 
     def apply(self, op, u, v=None, w=None):
@@ -348,7 +348,7 @@ class MDD:
             return self.ite(u, v, w)
         else:
             raise ValueError(
-                'unknown operator "{op}"'.format(op=op))
+                f'unknown operator "{op}"')
 
     def dump(self, fname):
         """Write MDD as a diagram to PDF file `fname`.
@@ -364,7 +364,7 @@ class MDD:
             pd.write_pdf(fname)
         else:
             raise Exception(
-                'unknown file extension: {f}'.format(f=fname))
+                f'unknown file extension: {fname}')
 
 
 def bdd_to_mdd(bdd, dvars):
@@ -498,7 +498,7 @@ def _debug_dump(pred, bdd):
             continue
         level, _, _ = bdd._succ[u]
         var = bdd.var_at_level(level)
-        label = '{var}-{u}'.format(var=var, u=u)
+        label = f'{var}-{u}'
         g.add_node(u, label=label)
     pd = nx.drawing.nx_pydot.to_pydot(g)
     pd.write_pdf('bdd_colored.pdf')
@@ -516,7 +516,7 @@ def to_pydot(mdd):
         g.add_subgraph(h)
         subgraphs[i] = h
         # add phantom node
-        u = '-{i}'.format(i=i)
+        u = f'-{i}'
         skeleton.append(u)
         nd = pydot.Node(name=u, label=str(i), shape='none')
         h.add_node(nd)
@@ -537,7 +537,7 @@ def to_pydot(mdd):
         else:
             var = mdd.var_at_level(i)
         # add node
-        label = '{var}-{u}'.format(var=var, u=u)
+        label = f'{var}-{u}'
         nd = pydot.Node(name=str(u), label=label)
         h = subgraphs[i]  # level i
         h.add_node(nd)

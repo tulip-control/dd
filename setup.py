@@ -28,8 +28,7 @@ LONG_DESCRIPTION = (
     'and a parser of quantified Boolean expressions. '
     'More details can be found in the README at: '
     'https://github.com/tulip-control/dd')
-PACKAGE_URL = 'https://github.com/tulip-control/{name}'.format(
-    name=PACKAGE_NAME)
+PACKAGE_URL = f'https://github.com/tulip-control/{PACKAGE_NAME}'
 PROJECT_URLS = {
     'Bug Tracker':
         'https://github.com/tulip-control/dd/issues',
@@ -37,13 +36,11 @@ PROJECT_URLS = {
         'https://github.com/tulip-control/dd/blob/main/doc.md',
     'Source Code':
         'https://github.com/tulip-control/dd'}
-VERSION_FILE = '{name}/_version.py'.format(
-    name=PACKAGE_NAME)
+VERSION_FILE = f'{PACKAGE_NAME}/_version.py'
 MAJOR = 0
 MINOR = 6
 MICRO = 0
-VERSION = '{major}.{minor}.{micro}'.format(
-    major=MAJOR, minor=MINOR, micro=MICRO)
+VERSION = f'{MAJOR}.{MINOR}.{MICRO}'
 VERSION_FILE_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")
@@ -88,8 +85,7 @@ def git_version(version):
             (latest_tag, version))
     sha = repo.head.commit.hexsha
     if repo.is_dirty():
-        return '{v}.dev0+{sha}.dirty'.format(
-            v=version, sha=sha)
+        return f'{version}.dev0+{sha}.dirty'
     # commit is clean
     # is it release of `version` ?
     try:
@@ -97,8 +93,7 @@ def git_version(version):
             match='v[0-9]*', exact_match=True,
             tags=True, dirty=True)
     except git.GitCommandError:
-        return '{v}.dev0+{sha}'.format(
-            v=version, sha=sha)
+        return f'{version}.dev0+{sha}'
     if tag != f'v{version}':
         raise AssertionError((tag, version))
     return version
@@ -115,9 +110,9 @@ def parse_args():
         help='use line tracing for Cython extensions')
     for opt in download.EXTENSIONS:
         parser.add_argument(
-            '--{s}'.format(s=opt), default=None,
+            f'--{opt}', default=None,
             const='', type=str, nargs='?',
-            help='build Cython extension {s}'.format(s=opt))
+            help=f'build Cython extension {opt}')
     args, unknown = parser.parse_known_args()
     args.sdist = 'sdist' in unknown
     args.bdist_wheel = 'bdist_wheel' in unknown

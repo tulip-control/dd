@@ -298,15 +298,14 @@ cdef class BDD:
         if memory_estimate >= total_memory:
             msg = (
                 'Error in `dd.cudd`: '
-                'total physical memory is {t} bytes, '
-                'but requested {r} bytes. '
+                'total physical memory '
+                f'is {total_memory} bytes, '
+                f'but requested {memory_estimate} bytes. '
                 'Please pass an amount of memory to '
                 'the `BDD` constructor to avoid this error. '
                 'For example, by instantiating '
-                'the `BDD` manager as `BDD({q})`.').format(
-                    t=total_memory,
-                    r=memory_estimate,
-                    q=round(total_memory / 2))
+                'the `BDD` manager as '
+                f'`BDD({round(total_memory / 2)})`.')
             # The motivation of both printing and
             # raising an exception was that Cython
             # failed with a segmentation fault,
@@ -332,7 +331,7 @@ cdef class BDD:
     def __init__(self,
                  memory_estimate=None,
                  initial_cache_size=None):
-        logger.info('Using CUDD v{n}'.format(n=__version__))
+        logger.info(f'Using CUDD v{__version__}')
         self.configure(reordering=True, max_cache_hard=MAX_CACHE)
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int
@@ -348,10 +347,9 @@ cdef class BDD:
                 '`dd.cudd.BDD.__cinit__`.')
         n = Cudd_CheckZeroRef(self.manager)
         if n != 0:
-            raise AssertionError((
-                'Still {n} nodes '
-                'referenced upon shutdown.'
-                ).format(n=n))
+            raise AssertionError(
+                f'Still {n} nodes '
+                'referenced upon shutdown.')
         # Exceptions raised inside `__dealloc__` will be
         # ignored. So if the `AssertionError` above is
         # raised, then Python will continue execution
@@ -590,7 +588,7 @@ cdef class BDD:
                 logger.warning('"max_cache_soft" not settable.')
             else:
                 raise ValueError(
-                    'Unknown parameter "{k}"'.format(k=k))
+                    f'Unknown parameter "{k}"')
         return d
 
     cpdef succ(self, Function u):
@@ -735,7 +733,7 @@ cdef class BDD:
         u = Cudd_bddIthVar(self.manager, j)
         if u is NULL:
             raise RuntimeError(
-                'failed to add var "{v}"'.format(v=var))
+                f'failed to add var "{var}"')
         self._add_var(var, j)
         return j
 
@@ -745,7 +743,7 @@ cdef class BDD:
         r = Cudd_bddNewVarAtLevel(self.manager, level)
         if r is NULL:
             raise RuntimeError(
-                'failed to create var "{v}"'.format(v=var))
+                f'failed to create var "{var}"')
         j = r.index
         self._add_var(var, j)
         return j
@@ -754,7 +752,7 @@ cdef class BDD:
         """Add to `self` a *new* variable named `var`."""
         if var in self.vars:
             raise ValueError(
-                'existing variable: {var}'.format(var=var))
+                f'existing variable: "{var}"')
         if var in self._index_of_var:
             raise ValueError(
                 'variable already has index: {i}'.format(
@@ -778,10 +776,10 @@ cdef class BDD:
     cpdef Function var(self, var):
         """Return node for variable named `var`."""
         if var not in self._index_of_var:
-            raise ValueError((
-                'undefined variable "{v}", '
-                'known variables are:\n {d}').format(
-                    v=var, d=self._index_of_var))
+            raise ValueError(
+                f'undeclared variable "{var}", '
+                'the declared variables are:\n'
+                f'{self._index_of_var}')
         j = self._index_of_var[var]
         r = Cudd_bddIthVar(self.manager, j)
         return wrap(self, r)
@@ -818,7 +816,7 @@ cdef class BDD:
         level = Cudd_ReadPerm(self.manager, j)
         if level == -1:
             raise AssertionError(
-                'index {j} out of bounds'.format(j=j))
+                f'index {j} out of bounds')
         return level
 
     @property
@@ -912,8 +910,8 @@ cdef class BDD:
             raise ValueError(
                 'Value must be variable name as `str`, '
                 'or Boolean value as `bool`, '
-                'or BDD node as `int`. Got: {value}'.format(
-                    value=value))
+                'or BDD node as `int`. '
+                f'Got: {value}')
         return self._rename(u, d)
 
     cpdef Function _compose(self, Function f, var_sub):
@@ -1076,10 +1074,10 @@ cdef class BDD:
             raise ValueError(
                 '`high.manager != self.manager`')
         if var not in self.vars:
-            raise ValueError((
-                'unknown variable: {var}, '
-                'known variables are: {vrs}').format(
-                    var=var, vrs=self.vars))
+            raise ValueError(
+                f'undeclared variable: {var}, '
+                'the declared variables '
+                f'are: {self.vars}')
         level = self.level_of_var(var)
         if level >= low.level:
             raise ValueError(
@@ -1135,10 +1133,9 @@ cdef class BDD:
             care_vars = support
         missing = {v for v in support if v not in care_vars}
         if missing:
-            logger.warning((
+            logger.warning(
                 'Missing bits:  '
-                'support - care_vars = {missing}').format(
-                    missing=missing))
+                f'support - care_vars = {missing}')
         config = self.configure(reordering=False)
         gen = Cudd_FirstCube(self.manager, u.node, &cube, &value)
         if gen is NULL:
@@ -1171,10 +1168,9 @@ cdef class BDD:
             care_vars = support
         missing = {v for v in support if v not in care_vars}
         if missing:
-            logger.warning((
+            logger.warning(
                 'Missing bits:  '
-                'support - care_vars = {missing}').format(
-                    missing=missing))
+                f'support - care_vars = {missing}')
         cube = dict()
         value = True
         config = self.configure(reordering=False)
@@ -1231,54 +1227,54 @@ cdef class BDD:
         if op in ('~', 'not', '!'):
             if v is not None:
                 raise ValueError(
-                    '`v is not None`, but: {v}'.format(v=v))
+                    f'`v is not None`, but: {v}')
             if w is not None:
                 raise ValueError(
-                    '`w is not None`, but: {w}'.format(w=w))
+                    f'`w is not None`, but: {w}')
             r = Cudd_Not(u.node)
         # binary
         elif op in ('and', '/\\', '&', '&&'):
             if w is not None:
                 raise ValueError(
-                    '`w is not None`, but: {w}'.format(w=w))
+                    f'`w is not None`, but: {w}')
             r = Cudd_bddAnd(mgr, u.node, v.node)
         elif op in ('or', r'\/', '|', '||'):
             if w is not None:
                 raise ValueError(
-                    '`w is not None`, but: {w}'.format(w=w))
+                    f'`w is not None`, but: {w}')
             r = Cudd_bddOr(mgr, u.node, v.node)
         elif op in ('xor', '^'):
             if w is not None:
                 raise ValueError(
-                    '`w is not None`, but: {w}'.format(w=w))
+                    f'`w is not None`, but: {w}')
             r = Cudd_bddXor(mgr, u.node, v.node)
         elif op in ('=>', '->', 'implies'):
             if w is not None:
                 raise ValueError(
-                    '`w is not None`, but: {w}'.format(w=w))
+                    f'`w is not None`, but: {w}')
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_ReadOne(mgr))
         elif op in ('<=>', '<->', 'equiv'):
             if w is not None:
                 raise ValueError(
-                    '`w is not None`, but: {w}'.format(w=w))
+                    f'`w is not None`, but: {w}')
             r = Cudd_bddIte(mgr, u.node, v.node, Cudd_Not(v.node))
         elif op in ('diff', '-'):
             if w is not None:
                 raise ValueError(
-                    '`w is not None`, but: {w}'.format(w=w))
+                    f'`w is not None`, but: {w}')
             r = Cudd_bddIte(mgr, u.node, Cudd_Not(v.node),
                             Cudd_ReadLogicZero(mgr))
         elif op in (r'\A', 'forall'):
             if w is not None:
                 raise ValueError(
-                    '`w is not None`, but: {w}'.format(w=w))
+                    f'`w is not None`, but: {w}')
             sig_on()
             r = Cudd_bddUnivAbstract(mgr, v.node, u.node)
             sig_off()
         elif op in (r'\E', 'exists'):
             if w is not None:
                 raise ValueError(
-                    '`w is not None`, but: {w}'.format(w=w))
+                    f'`w is not None`, but: {w}')
             sig_on()
             r = Cudd_bddExistAbstract(mgr, v.node, u.node)
             sig_off()
@@ -1293,7 +1289,7 @@ cdef class BDD:
             r = Cudd_bddIte(mgr, u.node, v.node, w.node)
         else:
             raise ValueError(
-                'unknown operator: "{op}"'.format(op=op))
+                f'unknown operator: "{op}"')
         if r is NULL:
             config = self.configure()
             raise RuntimeError((
@@ -1443,10 +1439,10 @@ cdef class BDD:
         if p == 'FALSE' and q == 'TRUE':
             s = var
         else:
-            s = 'ite({var}, {q}, {p})'.format(var=var, p=p, q=q)
+            s = f'ite({var}, {q}, {p})'
         # complemented ?
         if Cudd_IsComplement(u):
-            s = '(~ {s})'.format(s=s)
+            s = f'(~ {s})'
         return s
 
     cpdef dump(self, filename, roots, filetype=None):
@@ -1497,11 +1493,10 @@ cdef class BDD:
             elif name.endswith('.dddmp'):
                 filetype = 'dddmp'
             else:
-                raise ValueError((
+                raise ValueError(
                     'cannot infer file type '
                     'from extension of file '
-                    'name "{f}"').format(
-                        f=filename))
+                    f'name "{filename}"')
         if filetype == 'dddmp':
             u, = roots  # single root supported for now
             return self._dump_dddmp(u, filename)
@@ -1564,8 +1559,7 @@ cdef class BDD:
             return _copy.load_json(filename, self)
         else:
             raise ValueError(
-                'Unknown file type "{s}"'.format(
-                    s=filename))
+                f'Unknown file type "{filename}"')
 
     cpdef _load_dddmp(self, filename):
         n_declared_vars = len(self._var_with_index)
@@ -1737,12 +1731,10 @@ cpdef copy_bdd(Function u, BDD target):
     missing = {var for var in supp if var not in target.vars}
     if missing:
         raise ValueError(
-            'target BDD is missing the variables:\n'
-            '{missing}\n'
-            'known variables in target are:\n'
-            '{target.vars}\n').format(
-                missing=missing,
-                target=target)
+            '`target` BDD is missing the variables:\n'
+            f'{missing}\n'
+            'the declared variables in `target` are:\n'
+            f'{target.vars}\n')
     # mapping of indices
     n_cudd_vars = source._number_of_cudd_vars()
     cdef int *renaming
@@ -1796,8 +1788,8 @@ cpdef count_nodes_per_level(BDD bdd):
 def dump(u, file_name):
     """Pickle variable order and dump dddmp file."""
     bdd = u.bdd
-    pickle_fname = '{s}.pickle'.format(s=file_name)
-    dddmp_fname = '{s}.dddmp'.format(s=file_name)
+    pickle_fname = f'{file_name}.pickle'
+    dddmp_fname = f'{file_name}.dddmp'
     order = {var: bdd.level_of_var(var)
              for var in bdd.vars}
     d = dict(variable_order=order)
@@ -1824,8 +1816,8 @@ def load(file_name, BDD bdd, reordering=False):
         then enable reordering during DDDMP load.
     """
     t0 = time.time()
-    pickle_fname = '{s}.pickle'.format(s=file_name)
-    dddmp_fname = '{s}.dddmp'.format(s=file_name)
+    pickle_fname = f'{file_name}.pickle'
+    dddmp_fname = f'{file_name}.dddmp'
     with open(pickle_fname, 'rb') as f:
         d = pickle.load(f)
     order = d['variable_order']
@@ -1837,7 +1829,8 @@ def load(file_name, BDD bdd, reordering=False):
     bdd.configure(reordering=cfg['reordering'])
     t1 = time.time()
     dt = t1 - t0
-    logger.info('BDD load time from file: {dt}'.format(dt=dt))
+    logger.info(
+        f'BDD load time from file: {dt}')
     return u
 
 
@@ -1868,7 +1861,7 @@ cdef _dict_to_cube_array(d, int *x, dict index_of_var):
             x[j] = 1
         else:
             raise ValueError(
-                'unknown value: {b}'.format(b=b))
+                f'unknown value: {b}')
 
 
 cdef dict _cube_array_to_dict(int *x, dict index_of_var):
@@ -1887,9 +1880,8 @@ cdef dict _cube_array_to_dict(int *x, dict index_of_var):
             d[var] = False
         else:
             raise Exception(
-                'unknown polarity: {b}, '
-                'for variable "{var}"'.format(
-                    b=b, var=var))
+                f'unknown polarity: {b}, '
+                f'for variable "{var}"')
     return d
 
 
@@ -2195,13 +2187,16 @@ cdef class Function:
         # update also the function
         # `_test_call_dealloc` below
         if self._ref < 0:
-            raise AssertionError((
-                "The lower bound `_ref` on the node's "
-                'reference count has value {_ref}, '
-                'which is unexpected and should never happen. '
-                'Was the value of `_ref` changed from outside '
-                'this class?'
-                ).format(_ref=self._ref))
+            raise AssertionError(
+                "The lower bound `_ref` "
+                "on the node's "
+                'reference count has '
+                f'value {self._ref}, '
+                'which is unexpected and '
+                'should never happen. '
+                'Was the value of `_ref` '
+                'changed from outside '
+                'this instance?')
         assert self._ref >= 0, self._ref
         if self._ref == 0:
             return
@@ -2213,7 +2208,7 @@ cdef class Function:
                 'should never happen. '
                 'Was the value of `_ref` '
                 'changed from outside '
-                'this class?')
+                'this instance?')
         # anticipate multiple calls to `__dealloc__`
         self._ref -= 1
         # deref
@@ -2248,7 +2243,7 @@ cdef class Function:
                 i=int(self))
 
     def __str__(self):
-        return '@' + str(int(self))
+        return f'@{int(self)}'
 
     def __len__(self):
         return Cudd_DagSize(self.node)
@@ -2285,7 +2280,7 @@ cdef class Function:
             return (self | ~ other) == self.bdd.true
         else:
             raise ValueError(
-                'unexpected `op` value: {op}'.format(op=op))
+                f'unexpected value: {op = }')
 
     def __invert__(self):
         cdef DdNode *r
@@ -2422,13 +2417,12 @@ cpdef _test_call_dealloc(Function u):
     self = u
     # the code of `Function.__dealloc__` follows:
     if self._ref < 0:
-        raise AssertionError((
+        raise AssertionError(
             "The lower bound `_ref` on the node's "
-            'reference count has value {_ref}, '
+            'reference count has value {self._ref}, '
             'which is unexpected and should never happen. '
             'Was the value of `_ref` changed from outside '
-            'this class?'
-            ).format(_ref=self._ref))
+            'this instance?')
     assert self._ref >= 0, self._ref
     if self._ref == 0:
         return
@@ -2437,7 +2431,7 @@ cpdef _test_call_dealloc(Function u):
             'The attribute `node` is a `NULL` pointer. '
             'This is unexpected and should never happen. '
             'Was the value of `_ref` changed from outside '
-            'this class?')
+            'this instance?')
     # anticipate multiple calls to `__dealloc__`
     self._ref -= 1
     # deref

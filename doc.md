@@ -169,7 +169,7 @@ in formulas, without the need to expand them as formulas. For example:
 
 ```python
 u = bdd.add_expr(r'y \/ z')
-s = r'x /\ {u}'.format(u=u)
+s = rf'x /\ {u}'
 v = bdd.add_expr(s)
 v_ = bdd.add_expr(r'x /\ (y \/ z)')
 assert v == v_
@@ -536,7 +536,7 @@ you cannot write `w = u & v` to get the correct result.
 You have to use either:
 
 - `BDD.apply('and', u, v)` or
-- `BDD.add_expr(r'{u} /\ {v}'.format(u=u, v=v))`.
+- `BDD.add_expr(rf'{u} /\ {v}')`.
 
 Unlike `dd.bdd`, the nodes in `autoref` and `cudd` are of class `Function`.
 This abstracts away the underlying node representation, so that you can run
@@ -865,8 +865,8 @@ invocation. For example:
 from dd import bdd as _bdd
 
 bdd = _bdd.BDD()
-vrs = ['x{i}'.format(i=i) for i in range(3)]
-vrs.extend('y{i}'.format(i=i) for i in range(3))
+vrs = [f'x{i}' for i in range(3)]
+vrs.extend(f'y{i}' for i in range(3))
 bdd.declare(*vrs)
 >>> bdd.vars
 {'x0': 0, 'x1': 1, 'x2': 2, 'y0': 3, 'y1': 4, 'y2': 5}

@@ -950,7 +950,7 @@ def test_undeclare_vars():
 
 def test_dump_load():
     prefix = 'test_dump_load'
-    fname = prefix + '.p'
+    fname = f'{prefix}.p'
     dvars = dict(x=0, y=1)
     # dump
     b = BDD(dvars)
@@ -977,13 +977,13 @@ def test_dump_load_manager():
     e = r'x /\ ~ y'
     u = g.add_expr(e)
     g.incref(u)
-    fname = prefix + '.p'
+    fname = f'{prefix}.p'
     g._dump_manager(fname)
     h = g._load_manager(fname)
     assert g.assert_consistent()
     u_ = h.add_expr(e)
     assert u == u_, (u, u_)
-    # h.dump(prefix + '.pdf')
+    # h.dump(f'{prefix}.pdf')
 
 
 def test_dump_using_graphviz():
@@ -1001,9 +1001,7 @@ def test_dump_using_graphviz():
 
 def _dump_bdd_roots_as_filetype(
         roots, bdd, filename_noext, filetype):
-    fname = '{name}.{ext}'.format(
-        name=filename_noext,
-        ext=filetype)
+    fname = f'{filename_noext}.{filetype}'
     if os.path.isfile(fname):
         os.remove(fname)
     bdd.dump(fname, roots)

@@ -70,10 +70,9 @@ cdef class BDD:
         n_vars = buddy.bdd_varnum()
         s = (
             'Binary decision diagram (BuDDy wrapper) with:\n'
-            '\t {n} live nodes now\n'
-            '\t {n_alloc} total nodes allocated\n'
-            '\t {n_vars} BDD variables\n').format(
-                n=n, n_alloc=n_alloc, n_vars=n_vars)
+            f'\t {n} live nodes now\n'
+            f'\t {n_alloc} total nodes allocated\n'
+            f'\t {n_vars} BDD variables\n')
         return s
 
     def __len__(self):
@@ -276,8 +275,7 @@ cdef class Function:
 
     def __str__(self):
         n = len(self)
-        return 'Function({u}, {n})'.format(
-            u=self.node, n=n)
+        return f'Function({self.node}, {n})'
 
     def __len__(self):
         return buddy.bdd_nodecount(self.node)

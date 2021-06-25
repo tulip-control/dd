@@ -11,10 +11,9 @@ def print_var_levels(bdd):
     levels = [
         bdd.var_at_level(level)
         for level in range(n)]
-    print((
+    print(
         'Variable order (starting at level 0):\n'
-        '{levels}').format(
-            levels=levels))
+        f'{levels}')
 
 
 def var_counts(
@@ -88,16 +87,12 @@ def _raise_runtimerror_about_ref_count(
     """
     if ref_count_lb > 0:
         raise ValueError(ref_count_lb)
-    raise RuntimeError((
-        'The {name} requires '
+    raise RuntimeError(
+        f'The {name} requires '
         'that `u._ref > 0` '
-        '(where `u` is an instance of {cls_name}). '
+        f'(where `u` is an instance of {class_name}). '
         'This ensures that deallocated memory '
         'in CUDD will not be accessed. The current '
-        'value of attribute `_ref` is:\n{_ref}\n'
+        f'value of attribute `_ref` is:\n{ref_count_lb}\n'
         'For more information read the docstring of '
-        'the class {cls_name}.'
-        ).format(
-            name=name,
-            cls_name=class_name,
-            _ref=ref_count_lb))
+        f'the class {class_name}.')

@@ -202,10 +202,10 @@ class BDD(_abc.BDD):
         self.decref(1)  # free ref from `self._init_terminal`
         self.collect_garbage()
         if not all(v == 0 for v in self._ref.values()):
-            raise AssertionError((
+            raise AssertionError(
                 'There are nodes still referenced '
                 'upon shutdown. Details:\n'
-                '{_ref}').format(_ref=self._ref))
+                f'{self._ref}')
 
     def __len__(self):
         return len(self._succ)
@@ -220,8 +220,8 @@ class BDD(_abc.BDD):
         return (
             'Binary decision diagram:\n'
             '------------------------\n'
-            'var levels: {self.vars}\n'
-            'roots: {self.roots}\n').format(self=self)
+            f'var levels: {self.vars}\n'
+            f'roots: {self.roots}\n')
 
     def configure(self, **kw):
         """Read and apply parameter values.
@@ -242,7 +242,7 @@ class BDD(_abc.BDD):
                     self._last_len = None
             else:
                 raise ValueError(
-                    'Unknown parameter "{k}"'.format(k=k))
+                    f'Unknown parameter "{k}"')
         return d
 
     @property
@@ -275,13 +275,13 @@ class BDD(_abc.BDD):
     def decref(self, u):
         """Decrement reference count of node `u`, with 0 as min."""
         if self._ref[abs(u)] <= 0:
-            warnings.warn((
+            n = self._ref[abs(u)]
+            warnings.warn(
                 'The method `dd.bdd.BDD.decref` was called '
-                'for BDD node {u} with reference count {n}. '
+                f'for BDD node {u} with reference count {n}. '
                 'This call has no effect. Calling `decref` '
                 'for a node with nonpositive reference count '
-                'may indicate a programming error.'
-                ).format(u=u, n=self._ref[abs(u)]),
+                'may indicate a programming error.',
                 UserWarning)
             return
         self._ref[abs(u)] -= 1
@@ -407,7 +407,8 @@ class BDD(_abc.BDD):
         if var not in self.vars:
             raise ValueError(
                 f'undeclared variable "{var}", '
-                f'the declared variables are:\n {self.vars}')
+                'the declared variables are:\n'
+                f' {self.vars}')
         j = self.vars[var]
         u = self.find_or_add(j, -1, 1)
         return u
@@ -415,7 +416,9 @@ class BDD(_abc.BDD):
     def var_at_level(self, level):
         if level not in self._level_to_var:
             raise ValueError(
-                'level {j} does not exist'.format(j=level))
+                f'no variable has level:  {level}, '
+                'the current levels of all variables '
+                f'are:  {self.vars}')
         return self._level_to_var[level]
 
     def level_of_var(self, var):
@@ -423,7 +426,8 @@ class BDD(_abc.BDD):
             raise ValueError(
                 f'name "{var}" is not '
                 'a declared variable, '
-                f'the declared variables are: {self.vars}')
+                'the declared variables are:'
+                f' {self.vars}')
         return self.vars[var]
 
     @property
@@ -941,7 +945,8 @@ class BDD(_abc.BDD):
         if i >= len(self.vars):
             raise ValueError(
                 f'The given level: {i = } is not < of '
-                f'the number of declared variables ({len(self.vars)}) '
+                'the number of '
+                f'declared variables ({len(self.vars)}) '
                 '(the set of levels is expected to '
                 'comprise of contiguous numbers)')
         if abs(v) not in self._succ:
@@ -1064,7 +1069,7 @@ class BDD(_abc.BDD):
             self.collect_garbage()
             all_levels = self._levels()
         logger.debug(
-            'swap variables "{x}" and "{y}"'.format(x=x, y=y))
+            f'swap variables "{x}" and "{y}"')
         x = self.vars.get(x, x)
         y = self.vars.get(y, y)
         if not (0 <= x < len(self.vars)):
@@ -1312,10 +1317,9 @@ class BDD(_abc.BDD):
             care_vars = support
         missing = {v for v in support if v not in care_vars}
         if missing:
-            logger.warning((
+            logger.warning(
                 'Missing bits:  '
-                'support - care_vars = {missing}').format(
-                    missing=missing))
+                f'support - care_vars = {missing}')
         for cube in self._sat_iter(u, cube, value):
             for m in _enumerate_minterms(cube, care_vars):
                 yield m
@@ -1427,10 +1431,10 @@ class BDD(_abc.BDD):
         if p == 'FALSE' and q == 'TRUE':
             s = var
         else:
-            s = 'ite({var}, {q}, {p})'.format(var=var, p=p, q=q)
+            s = f'ite({var}, {q}, {p})'
         # complemented ?
         if u < 0:
-            s = '(~ {s})'.format(s=s)
+            s = f'(~ {s})'
         return s
 
     def apply(self, op, u, v=None, w=None):
@@ -1504,7 +1508,7 @@ class BDD(_abc.BDD):
             return self.ite(u, v, w)
         else:
             raise ValueError(
-                'unknown operator "{op}"'.format(op=op))
+                f'unknown operator "{op}"')
 
     def _add_int(self, i):
         if i not in self:
@@ -1539,11 +1543,10 @@ class BDD(_abc.BDD):
             elif name.endswith('.p'):
                 filetype = 'pickle'
             else:
-                raise ValueError((
+                raise ValueError(
                     'cannot infer file type '
                     'from extension of file '
-                    'name "{f}"').format(
-                        f=filename))
+                    f'name "{filename}"')
         if filetype in ('pdf', 'png', 'svg'):
             self._dump_figure(roots, filename,
                               filetype, **kw)
@@ -1551,8 +1554,7 @@ class BDD(_abc.BDD):
             self._dump_bdd(roots, filename, **kw)
         else:
             raise ValueError(
-                'unknown file type "{t}"'.format(
-                    t=filetype))
+                f'unknown file type "{filetype}"')
 
     def _dump_figure(self, roots, filename,
                      filetype, **kw):
@@ -1566,8 +1568,7 @@ class BDD(_abc.BDD):
             g.write_svg(filename, **kw)
         else:
             raise ValueError(
-                'Unknown file type of "{f}"'.format(
-                    f=filename))
+                f'Unknown file type of "{filename}"')
 
     def _dump_bdd(self, roots, filename, **kw):
         """Write BDDs to `filename` as pickle."""
@@ -1590,8 +1591,7 @@ class BDD(_abc.BDD):
                 filename, levels=levels)
         else:
             raise ValueError(
-                'Unknown file type of "{f}"'.format(
-                    f=filename))
+                f'Unknown file type of "{filename}"')
 
     def _load_pickle(self, filename, levels=True):
         with open(filename, 'rb') as f:
@@ -1606,8 +1606,7 @@ class BDD(_abc.BDD):
                 raise AssertionError((i, n))
             if var not in self.vars:
                 logger.warning(
-                    'variable "{var}" added'.format(
-                        var=var))
+                    f'variable "{var}" added')
             if levels:
                 j = self.add_var(var, i)
             else:
@@ -1949,8 +1948,7 @@ def reorder(bdd, order=None):
     len_after = len(bdd)
     logger.info(
         'Reordering changed `BDD` manager size '
-        'from {a} to {b} nodes.'.format(
-            a=len_before, b=len_after))
+        f'from {len_before} to {len_after} nodes.')
 
 
 def _apply_sifting(bdd):
@@ -1964,8 +1962,8 @@ def _apply_sifting(bdd):
         k = _reorder_var(bdd, var, levels)
         m = len(bdd)
         logger.info(
-            '{m} nodes for variable "{v}" at level {k}'.format(
-                m=m, v=var, k=k))
+            f'{m} nodes for variable '
+            f'"{var}" at level {k}')
     if m > n:
         raise AssertionError(
             f'expected: m <= n, but {m = } > {n = }')
@@ -2054,10 +2052,10 @@ def _sort_to_order(bdd, order):
                 bdd.swap(i, i + 1, levels)
                 m += 1
                 logger.debug(
-                    'swap: {p} with {q}, {i}'.format(p=p, q=q, i=i))
+                    f'swap: {p} with {q}, {i}')
             if logger.getEffectiveLevel() < logging.DEBUG:
                 bdd.assert_consistent()
-    logger.info('total swaps: {m}'.format(m=m))
+    logger.info(f'total swaps: {m}')
 
 
 def reorder_to_pairs(bdd, pairs):
@@ -2081,8 +2079,8 @@ def reorder_to_pairs(bdd, pairs):
             jx, jy = jy, jx
         _shift(bdd, start=jx, end=jy - 1, levels=levels)
         m += k
-        logger.debug('shift by {k}'.format(k=k))
-    logger.info('total swaps: {m}'.format(m=m))
+        logger.debug(f'shift by {k}')
+    logger.info(f'total swaps: {m}')
 
 
 def copy_bdd(u, from_bdd, to_bdd):
@@ -2243,7 +2241,7 @@ def to_pydot(roots, bdd):
         g.add_subgraph(h)
         subgraphs[i] = h
         # add phantom node
-        u = 'L{i}'.format(i=i)
+        u = f'L{i}'
         skeleton.append(u)
         if i == -1:
             # layer for external BDD references
@@ -2271,7 +2269,7 @@ def to_pydot(roots, bdd):
         else:
             var = idx2var[i]
         su = f(u)
-        label = '{var}-{u}'.format(var=var, u=su)
+        label = f'{var}-{su}'
         nd = pydot.Node(name=su, label=label)
         # add node to subgraph for level i
         h = subgraphs[i]
@@ -2289,8 +2287,8 @@ def to_pydot(roots, bdd):
     # external references to BDD nodes
     for u in roots:
         i, _, _ = bdd._succ[abs(u)]
-        su = 'ref' + str(u)
-        label = '@' + str(u)
+        su = f'ref{u}'
+        label = f'@{u}'
         nd = pydot.Node(name=su, label=label)
         # add node to subgraph for level -1
         h = subgraphs[-1]

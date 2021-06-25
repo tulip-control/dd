@@ -714,8 +714,8 @@ class Tests:
         # variables at adjacent levels
         # levels = {var: bdd.level_of_var(var) for var in vrs}
         # for i in range(1, 4):
-        #     a = levels['z{i}'.format(i=i)]
-        #     b = levels['y{i}'.format(i=i)]
+        #     a = levels[f'z{i}']
+        #     b = levels[f'y{i}']
         #     assert abs(a - b) == 1, levels
 
     def _confirm_var_order(self, vrs, bdd):
@@ -797,5 +797,5 @@ class Tests:
         assert node_id == id2, (node_id, id2)
         # test string form
         node_str = str(u)
-        s = '@{nid}'.format(nid=node_id)
+        s = f'@{node_id}'
         assert node_str == s, (node_str, s)

@@ -53,9 +53,8 @@ class BDD(_abc.BDD):
         return (
             'Binary decision diagram (`dd.bdd.BDD` wrapper):\n'
             '------------------------\n'
-            '\t {n_vars} BDD variables\n'
-            '\t {n} nodes\n').format(
-                n_vars=len(self.vars), n=len(self))
+            f'\t {len(self.vars)} BDD variables\n'
+            f'\t {len(self)} nodes\n')
 
     def _wrap(self, u):
         """Return `Function` for node `u`.
@@ -257,11 +256,10 @@ class BDD(_abc.BDD):
             elif name.endswith('.json'):
                 filetype = 'json'
             else:
-                raise Exception((
+                raise Exception(
                     'cannot infer file type '
                     'from extension of file '
-                    'name "{f}"').format(
-                        f=filename))
+                    f'name "{filename}"')
         if filetype == 'json':
             _copy.dump_json(roots, filename)
         else:
@@ -296,8 +294,7 @@ class BDD(_abc.BDD):
             return _copy.load_json(filename, self)
         else:
             raise ValueError(
-                'Unknown file type of "{f}"'.format(
-                    f=filename))
+                f'Unknown file type of "{filename}"')
 
     def _load_pickle(self, filename, levels=True):
         umap = self._bdd.load(filename, levels=levels)

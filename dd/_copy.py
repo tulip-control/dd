@@ -184,8 +184,7 @@ def _dump_bdd(u, f, cache):
     low = _dump_bdd(u.low, f, cache)
     high = _dump_bdd(u.high, f, cache)
     # dump node
-    s = ',\n"{k}": [{level}, {low}, {high}]'.format(
-        k=k, level=u.level, low=low, high=high)
+    s = f',\n"{k}": [{u.level}, {low}, {high}]'
     f.write(s)
     # record as dumped
     cache[str(k)] = True

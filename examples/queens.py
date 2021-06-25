@@ -104,14 +104,14 @@ def mutex(v):
     c = list()
     for x in v:
         rest = disj(y for y in v if y != x)
-        s = '{x} => ~ ({rest})'.format(x=x, rest=rest)
+        s = f'{x} => ~ ({rest})'
         c.append(s)
     return conj(c)
 
 
 def _var_str(i, j):
     """Return variable for occupancy of cell at {row: i, column: j}."""
-    return 'x{i}{j}'.format(i=i, j=j)
+    return f'x{i}{j}'
 
 
 def benchmark(n):
@@ -122,12 +122,11 @@ def benchmark(n):
     dt = t1 - t0
     s = (
         '------\n'
-        'queens: {n}\n'
-        'time: {dt} (sec)\n'
-        'node: {u}\n'
-        'total nodes: {k}\n'
-        '------\n').format(
-            n=n, dt=dt, u=u, k=len(bdd))
+        f'queens: {n}\n'
+        f'time: {dt} (sec)\n'
+        f'node: {u}\n'
+        f'total nodes: {len(bdd)}\n'
+        '------\n')
     print(s)
     return dt
 

@@ -574,8 +574,7 @@ def test_dict_to_zdd():
 
 def print_size(u, msg):
     n = len(u)
-    print('Dag size of {msg}: {n}'.format(
-        msg=msg, n=n))
+    print(f'Dag size of {msg}: {n}')
 
 
 if __name__ == '__main__':

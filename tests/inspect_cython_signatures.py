@@ -36,8 +36,8 @@ def inspect_signatures(spec, imp):
     @param spec: the specification
     @param imp: the implementation
     """
-    print('Specification class: {t}'.format(t=type(spec)))
-    print('Implementation class: {t}'.format(t=type(imp)))
+    print(f'Specification class: {type(spec)}')
+    print(f'Implementation class: {type(imp)}')
     print('Checking whether all spec methods are implemented:\n')
     spec_dir = dir(spec)
     imp_dir = dir(imp)
@@ -47,10 +47,9 @@ def inspect_signatures(spec, imp):
         method = getattr(spec, method_name)
         if not callable(method):
             continue
-        log.info('"{name}" is callable'.format(name=method_name))
+        log.info(f'"{method_name}" is callable')
         if method_name not in imp_dir:
-            print('MISSING implementation for "{name}"\n'.format(
-                name=method_name))
+            print(f'MISSING implementation for "{method_name}"\n')
             continue
         assert method_name in spec_dir, method_name
         assert method_name in imp_dir, method_name
@@ -63,13 +62,10 @@ def inspect_signatures(spec, imp):
         spec_args = spec_sig.parameters.keys()
         imp_args = imp_sig.parameters.keys()
         if spec_args != imp_args:
-            print((
-                'MISMATCH: method "{name}"\n'
-                '    spec args: {spec_args}\n'
-                '    imp args: {imp_args}\n').format(
-                    name=method_name,
-                    spec_args=spec_args,
-                    imp_args=imp_args))
+            print(
+                f'MISMATCH: method "{method_name}"\n'
+                f'    spec args: {spec_args}\n'
+                f'    imp args: {imp_args}\n')
     print('\nExtra methods:\n')
     for method_name in imp_dir:
         if is_hidden(method_name):
@@ -91,9 +87,9 @@ def get_signature(func):
     try:
         sig = inspect.signature(func)
     except ValueError:
-        warnings.warn((
+        warnings.warn(
             'Compile `cudd` with the compiler directive `binding`'
-            ' for the function "{func}"').format(func=func))
+            f' for the function "{func}"')
         sig = None
     return sig
 

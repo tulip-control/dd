@@ -294,8 +294,7 @@ cdef class BDD:
             raise ValueError(
                 'Key must be variable name as `str`, '
                 'or Boolean value as `bool`, '
-                'or BDD node as `int`. Got: {value}'.format(
-                    value=value))
+                f'or BDD node as `int`. Got: {value}')
         return self._rename(u, d)
 
     cpdef Function _compose(self, Function u, var_sub):
@@ -340,10 +339,9 @@ cdef class BDD:
             care_vars = support
         missing = {v for v in support if v not in care_vars}
         if missing:
-            logger.warning((
+            logger.warning(
                 'Missing bits:  '
-                'support - care_vars = {missing}').format(
-                    missing=missing))
+                f'support - care_vars = {missing}')
         cube = dict()
         value = True
         config = self.configure(reordering=False)
@@ -424,7 +422,7 @@ cdef class BDD:
             r = sy.sylvan_exists(u.node, v.node)
         if r == sy.sylvan_invalid:
             raise ValueError(
-                'unknown operator: "{op}"'.format(op=op))
+                f'unknown operator: "{op}"')
         return wrap(self, r)
 
     cpdef Function cube(self, dvars):
@@ -695,12 +693,9 @@ cdef class Function:
     def __str__(self):
         return (
             'Function(DdNode with: '
-            'node={node}, '
-            'var_index={idx}, '
-            'ref_count={ref})').format(
-                node=self.node,
-                idx=self._index,
-                ref=None)
+            f'node={self.node}, '
+            f'var_index={self._index}, '
+            f'ref_count={None})')
 
     def __len__(self):
         return sy.sylvan_nodecount(self.node)

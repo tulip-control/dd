@@ -16,13 +16,13 @@ from dd import autoref as _bdd
 def comparing_two_variable_orders():
     n = 6
     # declare variables
-    vrs = ['x{i}'.format(i=i) for i in range(n)]
+    vrs = [f'x{i}' for i in range(n)]
     primed_vars = [prime(var) for var in vrs]
     bdd = _bdd.BDD()
     bdd.declare(*(vrs + primed_vars))
     # equality constraints cause difficulties with BDD size
     expr = r' /\ '.join(
-        " {var} <=> {var}' ".format(var=var) for var in vrs)
+        f" {var} <=> {var}' " for var in vrs)
     u = bdd.add_expr(expr)
     bdd.collect_garbage()
     # an order that yields a small BDD for `expr`

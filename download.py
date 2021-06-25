@@ -25,10 +25,10 @@ from setuptools.extension import Extension
 EXTENSIONS = ['cudd', 'cudd_zdd', 'buddy', 'sylvan']
 # CUDD
 CUDD_VERSION = '3.0.0'
-CUDD_TARBALL = 'cudd-{v}.tar.gz'.format(v=CUDD_VERSION)
+CUDD_TARBALL = f'cudd-{CUDD_VERSION}.tar.gz'
 CUDD_URL = (
     'https://sourceforge.net/projects/cudd-mirror/files/'
-    'cudd-{v}.tar.gz/download').format(v=CUDD_VERSION)
+    f'cudd-{CUDD_VERSION}.tar.gz/download')
 CUDD_SHA256 = (
     'b8e966b4562c96a03e7fbea239729587'
     'd7b395d53cadcc39a7203b49cf7eeb69')
@@ -36,7 +36,7 @@ CC = 'gcc'
 FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 CUDD_PATH = os.path.join(
     FILE_PATH,
-    'cudd-{v}'.format(v=CUDD_VERSION))
+    f'cudd-{CUDD_VERSION}')
 CUDD_DIRS = ['cudd', 'dddmp', 'epd', 'mtr', 'st', 'util']
 CUDD_INCLUDE = ['.'] + CUDD_DIRS
 CUDD_LINK = ['cudd/.libs', 'dddmp/.libs']
@@ -53,13 +53,13 @@ CUDD_CFLAGS = [
 sizeof_long = ctypes.sizeof(ctypes.c_long)
 sizeof_void_p = ctypes.sizeof(ctypes.c_void_p)
 CUDD_CFLAGS.extend([
-    '-DSIZEOF_LONG={long}'.format(long=sizeof_long),
-    '-DSIZEOF_VOID_P={void}'.format(void=sizeof_void_p)])
+    f'-DSIZEOF_LONG={sizeof_long}',
+    f'-DSIZEOF_VOID_P={sizeof_void_p}'])
 # add -fPIC
 XCFLAGS = (
     'XCFLAGS=-fPIC -mtune=native -DHAVE_IEEE_754 -DBSD '
-    '-DSIZEOF_VOID_P={void} -DSIZEOF_LONG={long}'.format(
-        long=sizeof_long, void=sizeof_void_p))
+    f'-DSIZEOF_VOID_P={sizeof_void_p} '
+    f'-DSIZEOF_LONG={sizeof_long}')
 # Sylvan
 SYLVAN_PATH = os.path.join(
     FILE_PATH,
@@ -101,25 +101,25 @@ def extensions(args):
     extensions = dict(
         cudd=Extension(
             'dd.cudd',
-            sources=['dd/cudd' + pyx],
+            sources=[f'dd/cudd{pyx}'],
             include_dirs=_join(cudd_include),
             library_dirs=_join(cudd_link),
             libraries=CUDD_LIB,
             extra_compile_args=cudd_cflags),
         cudd_zdd=Extension(
             'dd.cudd_zdd',
-            sources=['dd/cudd_zdd' + pyx],
+            sources=[f'dd/cudd_zdd{pyx}'],
             include_dirs=_join(cudd_include),
             library_dirs=_join(cudd_link),
             libraries=CUDD_LIB,
             extra_compile_args=cudd_cflags),
         buddy=Extension(
             'dd.buddy',
-            sources=['dd/buddy' + pyx],
+            sources=[f'dd/buddy{pyx}'],
             libraries=['bdd']),
         sylvan=Extension(
             'dd.sylvan',
-            sources=['dd/sylvan' + pyx],
+            sources=[f'dd/sylvan{pyx}'],
             include_dirs=_join(SYLVAN_INCLUDE),
             library_dirs=_join(SYLVAN_LINK),
             libraries=['sylvan'],
@@ -190,7 +190,7 @@ def _join(paths):
 
 
 def fetch(url, sha256, fname=None):
-    print('++ download: {url}'.format(url=url))
+    print(f'++ download: {url}')
     u = urllib.request.urlopen(url)
     if fname is None:
         fname = CUDD_TARBALL
@@ -208,7 +208,7 @@ def fetch(url, sha256, fname=None):
 
 def untar(fname):
     """Extract contents of tar file `fname`."""
-    print('++ unpack: {f}'.format(f=fname))
+    print(f'++ unpack: {fname}')
     with tarfile.open(fname) as tar:
         tar.extractall()
     print('-- done unpacking.')

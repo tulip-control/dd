@@ -39,7 +39,7 @@ def show_logging():
 def create_manager():
     """Return a BDD manager with plenty of variables declared."""
     bdd = _bdd.BDD()
-    vrs = ['x{i}'.format(i=i) for i in range(100)]
+    vrs = [f'x{i}' for i in range(100)]
     bdd.declare(*vrs)
     return bdd
 
@@ -73,10 +73,9 @@ def print_var_levels(bdd):
     levels = [
         bdd.var_at_level(level)
         for level in range(n)]
-    print((
+    print(
         'Variable order (starting at level 0):\n'
-        '{levels}').format(
-            levels=levels))
+        f'{levels}')
 
 
 def demo_static_reordering():
@@ -113,8 +112,7 @@ def demo_specific_var_order():
 
 
 def print_manager_size(bdd):
-    msg = 'Nodes in manager: {n}'.format(n=len(bdd))
-    print(msg)
+    print(f'Nodes in manager: {len(bdd)}')
 
 
 if __name__ == '__main__':

@@ -130,11 +130,11 @@ def test_load_dddmp():
 def test_rewrite_tables():
     prefix = 'dddmp_parsetab'
     for ext in ('.py', '.pyc'):
-        fname = prefix + ext
+        fname = f'{prefix}{ext}'
         if os.path.isfile(fname):
             os.remove(fname)
     _rewrite_tables()
-    assert os.path.isfile(prefix + '.py')
+    assert os.path.isfile(f'{prefix}.py')
 
 
 def to_nx(bdd, n_vars, ordering, roots):

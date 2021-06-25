@@ -65,7 +65,7 @@ class Lexer:
         # 'nodes': 'NODES',
         # 'end': 'END'
         }
-    reserved = {'.{k}'.format(k=k): v for k, v in reserved.items()}
+    reserved = {f'.{k}': v for k, v in reserved.items()}
     misc = ['MINUS', 'DOT', 'NAME', 'NUMBER']
     # token rules
     t_MINUS = r'\-'
@@ -96,7 +96,7 @@ class Lexer:
         t.lexer.lineno += t.value.count('\n')
 
     def t_error(self, t):
-        raise Exception('Illegal character "{t}"'.format(t=t.value[0]))
+        raise Exception(f'Illegal character "{t.value[0]}"')
 
     def build(self, debug=False, debuglog=None, **kwargs):
         """Create a lexer.
@@ -357,7 +357,7 @@ class Parser:
             logger.debug('binary mode')
             raise Exception('This parser supports only text DDDMP format.')
         else:
-            raise Exception('unknown DDDMP format: {f}'.format(f=f))
+            raise Exception(f'unknown DDDMP format: {f}')
 
     def p_varinfo(self, p):
         """varinfo : VARINFO number"""
@@ -452,7 +452,7 @@ class Parser:
         p[0] = p[1]
 
     def p_error(self, p):
-        raise Exception('Syntax error at "{p}"'.format(p=p))
+        raise Exception(f'Syntax error at "{p}"')
 
 
 def load(fname):

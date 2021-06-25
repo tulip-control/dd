@@ -305,7 +305,7 @@ class Operator:
         `BDD._add_int` of the same manager that the
         node belongs to.
         """
-        return '@' + str(int(self))
+        return f'@{int(self)}'
 
     def __len__(self):
         """Number of nodes reachable from this node."""

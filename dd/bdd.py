@@ -1967,7 +1967,7 @@ def _apply_sifting(bdd):
     if m > n:
         raise AssertionError(
             f'expected: m <= n, but {m = } > {n = }')
-    logger.info('final variable order:\b{v}'.format(v=bdd.vars))
+    logger.info(f'final variable order:\n{bdd.vars}')
 
 
 def _reorder_var(bdd, var, levels):

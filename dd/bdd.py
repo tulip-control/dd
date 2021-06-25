@@ -264,14 +264,14 @@ class BDD(_abc.BDD):
         raise DeprecationWarning(
             'use `dd.bdd.BDD.vars` instead of `.ordering`')
 
-    def _init_terminal(self, i):
+    def _init_terminal(self, level):
         """Place constant node `1`.
 
         Used for initialization and to shift node `1` to
         lower levels, as fresh variables are being added.
         """
         u = 1
-        t = (i, None, None)
+        t = (level, None, None)
         told = self._succ.setdefault(u, t)
         self._pred.pop(told, None)
         self._succ[u] = t

@@ -1,6 +1,9 @@
 # dd changelog
 
 
+- require Python >= 3.8
+
+
 ## 0.5.7
 
 - require `pytest >= 4.6.11`, instead of `nose`, for Python 3.10 compatibility

@@ -13,9 +13,6 @@ jobs:
         strategy:
             matrix:
                 python-version: [
-                    '2.7',
-                    '3.6',
-                    '3.7',
                     '3.8',
                     '3.9',
                     '3.10',
@@ -33,36 +30,12 @@ jobs:
             - name: Update Python environment
               run: |
                 pip install --upgrade pip setuptools
-            - name: "Install suitable Python dependencies for \
-                older Python versions"
-              run: |
-                # install `networkx` for Python 2.7
-                if test 2 = `python -c \
-                'import sys; print(sys.version_info.major)'`; \
-                then pip install networkx==2.2; fi
-                # install `networkx` for Python 3.5
-                if test True = `python -c \
-                'import sys; \
-                print(sys.version_info.major == 3 and \
-                sys.version_info.minor == 5)'`; \
-                then pip install networkx==2.4; fi
-                # install `networkx` for Python 3.6
-                if test True = `python -c \
-                'import sys; \
-                print(sys.version_info.major == 3 and \
-                sys.version_info.minor == 6)'`; \
-                then pip install networkx==2.5.1; fi
             - name: Install setup dependencies
               run: |
                 # note that installing from `requirements.txt`
                 # would also install packages that
                 # may be absent from where `dd` will be installed
                 pip install cython
-                # ensure a suitable version of `pyparsing`
-                # is installed on Python 2.7
-                if test 2 = `python -c \
-                'import sys; print(sys.version_info.major)'`; \
-                then pip install pyparsing; fi
             - name: Display version of GraphViz `dot`
               run: |
                 dot -V

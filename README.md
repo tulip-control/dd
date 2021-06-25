@@ -4,7 +4,7 @@
 About
 =====
 
-A pure-Python (3 and 2) package for manipulating:
+A pure-Python (Python >= 3.8) package for manipulating:
 
 - [Binary decision diagrams](
     https://en.wikipedia.org/wiki/Binary_decision_diagram) (BDDs).
@@ -184,8 +184,8 @@ pip install .
 
 For graph layout, install also [graphviz](https://graphviz.org).
 
-The `dd` package remains compatible with Python 2.7,
-except for few places where Python 3 is required.
+The `dd` package requires Python 3.8 or later.
+For Python 2.7, use `dd == 0.5.7`.
 
 
 ## Cython bindings

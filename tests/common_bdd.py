@@ -1,7 +1,5 @@
 """Common tests for `autoref`, `cudd`."""
 import os
-import sys
-import unittest
 
 
 class Tests(object):
@@ -109,10 +107,6 @@ class Tests(object):
         bdd.dump(fname, roots)
         assert os.path.isfile(fname)
 
-    @unittest.skipIf(
-        sys.version_info.major < 3 or
-        (sys.version_info.major == 3 and sys.version_info.minor < 4),
-        'JSON file support for BDDs requires Python >= 3.4')
     def test_dump_load_json(self):
         bdd = self.DD()
         bdd.declare('x', 'y', 'z')

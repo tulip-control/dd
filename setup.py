@@ -47,14 +47,10 @@ VERSION = '{major}.{minor}.{micro}'.format(
 VERSION_FILE_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")
-PYTHON_REQUIRES = '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*'
-if sys.version_info.major >= 3:
-    networkx_versions = 'networkx >= 1.9.1'
-else:
-    networkx_versions = 'networkx >= 1.9.1, <= 2.2'
+PYTHON_REQUIRES = '>=3.8'
 install_requires = [
     'astutils >= 0.0.1',
-    networkx_versions,
+    'networkx >= 2.4',
     'ply >= 3.4, <= 3.10',
     'psutil >= 3.2.2',
     'pydot >= 1.2.2',
@@ -68,12 +64,7 @@ CLASSIFIERS = [
     'License :: OSI Approved :: BSD License',
     'Operating System :: OS Independent',
     'Programming Language :: Cython',
-    'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3 :: Only',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',

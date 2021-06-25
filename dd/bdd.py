@@ -1099,7 +1099,7 @@ class BDD(_abc.BDD):
         """
         i, v, w = self._succ[abs(u)]
         if abs(u) == 1:
-            return (i, u, u)
+            return i, u, u
         return i, v, w
 
     def _swap_cofactor(self, u, y):

@@ -60,9 +60,9 @@ def test_add_var():
     assert b.vars['y'] == 5, b.vars
     assert j == 5, j
     # attempt to add var at an existing level
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         b.add_var('z', level=35)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         b.add_var('z', level=5)
     #
     # mixing automated and
@@ -75,7 +75,7 @@ def test_add_var():
     assert 'y' in b.vars, b.vars
     assert b.vars['x'] == 2, b.vars
     assert b.vars['y'] == 1, b.vars
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         b.add_var('z')
     b.add_var('z', level=0)
 

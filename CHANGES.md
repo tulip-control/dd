@@ -4,6 +4,16 @@
 - require Python >= 3.8
 - DEP: deprecate hidden module `dd._compat`
 
+API:
+
+- raise `ValueError`, instead of `AssertionError`,
+  from the methods:
+  - `dd.autoref.BDD.declare()`
+  - `dd.autoref.BDD.add_var()`
+  - `dd.bdd.BDD.declare()`
+  - `dd.bdd.BDD.add_var()`
+  whenever unknown values are given as arguments
+
 
 ## 0.5.7
 

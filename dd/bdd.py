@@ -320,26 +320,87 @@ class BDD(_abc.BDD):
         """
         # var already exists ?
         if var in self.vars:
-            k = self.vars[var]
-            if level is not None:
-                assert level == k, (var, k, level)
-            return k
+            return self._check_var(var, level)
+        # level already used ?
+        level = self._next_free_level(var, level)
+        # update the mappings between vars and levels
+        self.vars[var] = level
+        self._level_to_var[level] = var
+        # move the leaf node to the new bottom level
+        self._init_terminal(len(self.vars))
+        return level
+
+    def _check_var(self, var, level):
+        """Assert that `var` has `level`.
+
+        Return the level of `var`.
+
+        Exceptions:
+        - raise `ValueError` if:
+          - `var` is not a declared variable, or
+          - `level is not None` and
+            `level` is not the level of variable `var`
+        - raise `RuntimeError` if an unexpected
+          value of level is found in `self.vars[var]`
+
+        @param var: name of variable
+        @type var: `str`
+        @param level: integer to check as
+            level of `var`, or `None`
+        @type level: `int` >= 0
+        @return: level of `var`
+        @rtype: `int` >= 0
+        """
+        if var not in self.vars:
+            raise ValueError(
+                f'"{var}" is not the name of '
+                'a declared variable')
+        var_level = self.vars[var]
+        if var_level is None or var_level < 0:
+            raise RuntimeError(
+                f'`{self.vars[var] = }` '
+                '(expected integer >= 0)')
+        if level is None or level == var_level:
+            return var_level
+        raise ValueError(
+            f'for variable "{var}": '
+            f'{level} = level != '
+            f'level of "{var}" = {var_level}')
+
+    def _next_free_level(self, var, level):
+        """Return a free level.
+
+        Raise `ValueError`:
+        - if the given `level` is already used by
+          a variable, or
+        - if `level is None` and the next level is
+          used by a variable.
+
+        If `level is None`, then return the
+        next level after the current largest level.
+        Otherwise, return the given `level`.
+
+        @param var: name of intended new variable,
+            used only to form the `ValueError` message
+        @param level: level of intended new variable
+        @type level: `int`
+        @rtype: `int`
+        """
         # assume next level is unoccupied
         if level is None:
             level = len(self.vars)
-        # level occupied ?
-        try:
-            other = self.var_at_level(level)
-        except AssertionError:
-            other = None
-        assert other is None, (
-            ('level {level} occupied by {var}, '
-             'choose another level').format(
-                level=level, var=other))
-        self.vars[var] = level
-        self._level_to_var[level] = var
-        self._init_terminal(len(self.vars))
-        return level
+        if level < 0:
+            raise AssertionError(
+                f'`{level = } < 0')
+        # level already used ?
+        other = self._level_to_var.get(level)
+        if other is None:
+            return level
+        raise ValueError(
+            f'level {level} is already '
+            f'used by variable "{other}", '
+            'choose another level for the '
+            f'new variable "{var}"')
 
     @_try_to_reorder
     def var(self, var):

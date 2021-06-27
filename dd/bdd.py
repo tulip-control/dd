@@ -262,7 +262,7 @@ class BDD(_abc.BDD):
     @property
     def ordering(self):
         raise DeprecationWarning(
-            'use `dd.BDD.vars` instead of `.ordering`')
+            'use `dd.bdd.BDD.vars` instead of `.ordering`')
 
     def _init_terminal(self, i):
         """Place constant node `1`.

@@ -509,6 +509,26 @@ def test_c_disjoin_conjoin():
         cudd_zdd._call_conjoin(level, true, u)
 
 
+def test_c_disjoin_conjoin_leaf_check():
+    zdd = cudd_zdd.ZDD()
+    leaf_level = zdd.false.level
+    u = zdd.true_node
+    r = cudd_zdd._call_disjoin(
+        leaf_level, u, u)
+    assert r == u, (r.level, u.level)
+    zdd.declare('x')
+    v = zdd.var('x')
+    with pytest.raises(AssertionError):
+        cudd_zdd._call_disjoin(
+            leaf_level, v, v)
+    r = cudd_zdd._call_conjoin(
+        leaf_level, u, u)
+    assert r == u, (r.level, u.level)
+    with pytest.raises(AssertionError):
+        cudd_zdd._call_conjoin(
+            leaf_level, v, v)
+
+
 def test_c_exist():
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')

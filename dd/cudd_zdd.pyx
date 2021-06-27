@@ -2768,7 +2768,9 @@ cdef DdNode *_forall(
     if cube is NULL:
         raise AssertionError('`cube is NULL`')
     index = Cudd_ReadInvPermZdd(mgr, level)
-    if u == DD_ZERO(mgr) or index == -1:
+    if (u == DD_ZERO(mgr) or
+            index == -1 or
+            index == CUDD_CONST_INDEX):
         return u
     r = cuddCacheLookup2Zdd(
         mgr, _forall_cache_id, u, cube)
@@ -2887,7 +2889,9 @@ cdef DdNode *_exist(
     if cube is NULL:
         raise AssertionError('`cube is NULL`')
     index = Cudd_ReadInvPermZdd(mgr, level)
-    if u == DD_ZERO(mgr) or index == -1:
+    if (u == DD_ZERO(mgr) or
+            index == -1 or
+            index == CUDD_CONST_INDEX):
         return u
     r = cuddCacheLookup2Zdd(
         mgr, _exist_cache_id, u, cube)
@@ -3074,7 +3078,7 @@ cdef DdNode *_disjoin(
         return v
     if v == DD_ZERO(mgr):
         return u
-    if index == -1:
+    if index == -1 or index == CUDD_CONST_INDEX:
         if u != DD_ONE(mgr):
             raise AssertionError(
                 'nonconstant node `u` given, '
@@ -3203,7 +3207,7 @@ cdef DdNode *_conjoin(
         return u
     if v == DD_ZERO(mgr):
         return v
-    if index == -1:
+    if index == -1 or index == CUDD_CONST_INDEX:
         if u != DD_ONE(mgr):
             raise AssertionError(
                 'nonconstant node `u` given, '
@@ -3519,7 +3523,9 @@ cdef bint _support(
         raise AssertionError('`support is NULL`')
     index = Cudd_ReadInvPermZdd(mgr, level)
     # terminal ?
-    if u == DD_ZERO(mgr) or index == -1:
+    if (u == DD_ZERO(mgr) or
+            index == -1 or
+            index == CUDD_CONST_INDEX):
         return True
     # visited ?
     if Cudd_IsComplement(u.next):

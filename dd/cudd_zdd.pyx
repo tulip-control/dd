@@ -2019,7 +2019,7 @@ cdef class Function(object):
         # See the lines:
         #
         # } else if (top_var == level) {
-    	# res = cuddT(P);
+        # res = cuddT(P);
         #
         # inside the function `zdd_subset1_aux`,
         # in file `cudd/cuddZddSetop.c`.

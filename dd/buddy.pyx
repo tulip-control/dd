@@ -123,18 +123,43 @@ cdef class BDD:
         buddy.bdd_intaddvarblock(j, j, 0)
         return Function(r)
 
-    cpdef int level(self, str var):
+    cpdef int level_of_var(self, str var):
         """Return level of variable `var`."""
-        j = self.add_var(var)
+        if var not in self.var_to_index:
+            raise ValueError(
+                f'undeclared variable "{var}", '
+                'known variables are:\n'
+                f'{self.var_to_index}')
+        j = self.var_to_index[var]
         level = buddy.bdd_var2level(j)
         return level
 
-    cpdef int at_level(self, int level):
-        level = buddy.bdd_level2var(level)
+    cpdef str var_at_level(self, int level):
+        """Return variable at `level`."""
+        index = buddy.bdd_level2var(level)
+        # unknown variable error ?
+        if index == buddy.BDD_VAR:
+            levels = {
+                var: self.level_of_var(var)
+                for var in self.var_to_index}
+            raise ValueError(
+                f'no variable has level:  {level}, '
+                'the current levels of all variables '
+                f'are:  {levels}')
         index_to_var = {
             v: k for k, v in self.var_to_index.items()}
-        j = index_to_var[level]
-        return j
+        var = index_to_var[index]
+        return var
+
+    def level(self, var):
+        raise DeprecationWarning(
+            'use the method `dd.buddy.BDD.level_of_var` '
+            'instead of the method `dd.buddy.BDD.level`')
+
+    def at_level(self, level):
+        raise DeprecationWarning(
+            'use the method `dd.buddy.BDD.var_at_level` '
+            'instead of the method `dd.buddy.BDD.at_level`')
 
     cpdef apply(self, op, u, v=None):
         """Return as `Function` the result of applying `op`."""

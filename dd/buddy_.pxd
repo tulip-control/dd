@@ -17,6 +17,7 @@ from libc.stdio cimport FILE
 
 
 cdef extern from 'bdd.h':
+    cdef int BDD_VAR
     # BDD
     ctypedef int BDD
     # renaming pair

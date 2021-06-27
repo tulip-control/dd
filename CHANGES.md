@@ -17,6 +17,15 @@ API:
   - `dd.autoref.BDD.level_of_var()`
   - `dd.bdd.BDD.level_of_var()`
   whenever unknown values are given as arguments
+- rename:
+  - method `dd.buddy.BDD.level()` to `dd.buddy.BDD.level_of_var()`
+  - method `dd.buddy.BDD.at_level()` to `dd.buddy.BDD.var_at_level()`
+  as the naming convention in other `dd` modules
+- raise `ValueError` from:
+  - `dd.buddy.BDD.level_of_var()`
+  - `dd.buddy.BDD.var_at_level()`
+  whenever unknown values are given as arguments,
+  as done in other `dd` modules too
 
 
 ## 0.5.7

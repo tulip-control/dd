@@ -406,6 +406,40 @@ def test_methods_disjoin_conjoin_gaps():
             zdd, level, ~ u, u, cache=dict())
 
 
+def test_method_disjoin():
+    zdd = cudd_zdd.ZDD()
+    zdd.declare('x')
+    v = zdd.var('x')
+    level = 1
+    with pytest.raises(ValueError):
+        cudd_zdd._call_method_disjoin(
+            zdd, level, v, v, dict())
+
+
+def test_methods_disjoin_conjoin_with_opt():
+    run_python_with_optimization(
+        test_methods_disjoin_conjoin)
+
+
+def test_methods_disjoin_conjoin():
+    import dd.cudd_zdd as _zdd
+    import pytest
+    zdd = _zdd.ZDD()
+    zdd.declare('x')
+    v = zdd.var('x')
+    true = zdd.true_node
+    level = 1
+    with pytest.raises(ValueError):
+        _zdd._call_method_disjoin(
+            zdd, level, v, true, dict())
+    with pytest.raises(ValueError):
+        _zdd._call_method_conjoin(
+            zdd, level, v, true, dict())
+    with pytest.raises(ValueError):
+        _zdd._call_method_conjoin(
+            zdd, level, v, ~ v, dict())
+
+
 def run_python_with_optimization(
         function):
     """Run `function` with `python -O`.

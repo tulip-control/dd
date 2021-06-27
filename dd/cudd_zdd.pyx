@@ -1634,11 +1634,16 @@ cdef class ZDD:
         if v == self.false:
             return u
         if self._gt_var_levels(level):
-            assert u.low is None
+            if u.low is not None:
+                raise ValueError(
+                    (u, u.low, level, self.var_levels))
+            if v.low is not None:
+                raise ValueError(
+                    (v, v.low, level, self.var_levels))
+            if u != v:
+                raise AssertionError(
+                    (level, u, v))
             return u
-        if self._gt_var_levels(level):
-            assert v.low is None
-            return v
         t = (u, v)
         if t in cache:
             return cache[t]
@@ -1676,10 +1681,15 @@ cdef class ZDD:
         if v == self.false:
             return v
         if self._gt_var_levels(level):
-            assert u.low is None
-            return v
-        if self._gt_var_levels(level):
-            assert v.low is None
+            if u.low is not None:
+                raise ValueError(
+                    (u, u.low, level, self.var_levels))
+            if v.low is not None:
+                raise ValueError(
+                    (v, v.low, level, self.var_levels))
+            if u != v:
+                raise AssertionError(
+                    (level, u, v))
             return u
         t = (u, v)
         if t in cache:

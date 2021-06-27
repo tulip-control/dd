@@ -419,7 +419,12 @@ class BDD(_abc.BDD):
         return self._level_to_var[level]
 
     def level_of_var(self, var):
-        return self.vars.get(var)
+        if var not in self.vars:
+            raise ValueError(
+                f'name "{var}" is not '
+                'a declared variable, '
+                f'the declared variables are: {self.vars}')
+        return self.vars[var]
 
     @property
     def var_levels(self):

@@ -18,6 +18,7 @@ import logging
 import pickle
 import pprint
 import sys
+import textwrap as _tw
 import time
 import warnings
 
@@ -51,6 +52,7 @@ cdef MTR_DEFAULT = 0
 cdef MTR_FIXED = 4
 cdef extern from 'cuddInt.h':
     cdef char* CUDD_VERSION
+    cdef int CUDD_CONST_INDEX
     # subtable (for a level)
     cdef struct DdSubtable:
         unsigned int slots
@@ -814,6 +816,23 @@ cdef class BDD:
             var: self.level_of_var(var)
             for var in self.vars}
 
+    def _number_of_cudd_vars(
+            self
+            ) -> int:
+        """Return number of CUDD indices.
+
+        Can be `> len(self.vars)`.
+        """
+        n_cudd_vars = Cudd_ReadSize(self.manager)
+        if 0 <= n_cudd_vars <= CUDD_CONST_INDEX:
+            return n_cudd_vars
+        raise RuntimeError(_tw.dedent(f'''
+            Unexpected value: {n_cudd_vars}
+            returned from `Cudd_ReadSize()`
+            (expected <= {CUDD_CONST_INDEX} =
+             CUDD_CONST_INDEX)
+            '''))
+
     def reorder(self, var_order=None):
         """Reorder variables to `var_order`.
 
@@ -923,10 +942,11 @@ cdef class BDD:
         cdef DdNode *r
         cdef DdNode **x
         cdef Function g
-        n = len(self.vars)
-        if n <= 0:
-            raise AssertionError(n)
-        x = <DdNode **> PyMem_Malloc(n *sizeof(DdNode *))
+        n_cudd_vars = self._number_of_cudd_vars()
+        if n_cudd_vars <= 0:
+            raise AssertionError(n_cudd_vars)
+        x = <DdNode **> PyMem_Malloc(
+            n_cudd_vars *sizeof(DdNode *))
         for var in self.vars:
             j = self._index_of_var[var]
             if var in var_sub:
@@ -1284,11 +1304,12 @@ cdef class BDD:
 
         @param dvars: `dict` that maps each variable to a `bool`
         """
-        n = len(self._index_of_var)
+        n_cudd_vars = self._number_of_cudd_vars()
         # make cube
         cdef DdNode *cube
         cdef int *x
-        x = <int *> PyMem_Malloc(n * sizeof(int))
+        x = <int *> PyMem_Malloc(
+            n_cudd_vars * sizeof(int))
         _dict_to_cube_array(dvars, x, self._index_of_var)
         try:
             cube = Cudd_CubeArrayToBdd(self.manager, x)
@@ -1320,9 +1341,10 @@ cdef class BDD:
         if f.manager != self.manager:
             raise ValueError(
                 '`f.manager != self.manager`')
-        n = len(self.vars)
+        n_cudd_vars = self._number_of_cudd_vars()
         cdef int *x
-        x = <int *> PyMem_Malloc(n * sizeof(DdNode *))
+        x = <int *> PyMem_Malloc(
+            n_cudd_vars * sizeof(DdNode *))
         try:
             Cudd_BddToCubeArray(self.manager, f.node, x)
             d = _cube_array_to_dict(x, self._index_of_var)
@@ -1479,11 +1501,19 @@ cdef class BDD:
         if u.manager != self.manager:
             raise ValueError(
                 '`u.manager != self.manager`')
-        n = len(self._index_of_var)
+        n_declared_vars = len(self._var_with_index)
+        n_cudd_vars = self._number_of_cudd_vars()
+        if n_declared_vars != n_cudd_vars:
+            counts = _utils.var_counts(self)
+            contiguous = _utils.contiguous_levels(
+                '_dump_dddmp', self)
+            raise AssertionError(
+                f'{counts}\n{contiguous}')
         cdef FILE *f
         cdef char **names
         cdef bytes py_bytes
-        names = <char **> PyMem_Malloc(n * sizeof(char *))
+        names = <char **> PyMem_Malloc(
+            n_cudd_vars * sizeof(char *))
         str_mem = list()
         for index, var in self._var_with_index.items():
             py_bytes = var.encode()
@@ -1521,12 +1551,19 @@ cdef class BDD:
                     s=filename))
 
     cpdef _load_dddmp(self, filename):
-        n = len(self._index_of_var)
+        n_declared_vars = len(self._var_with_index)
+        n_cudd_vars = self._number_of_cudd_vars()
+        if n_declared_vars != n_cudd_vars:
+            counts = _utils.var_counts(self)
+            contiguous = _utils.contiguous_levels(
+                '_load_dddmp', self)
+            raise AssertionError(f'{counts}\n{contiguous}')
         cdef DdNode *r
         cdef FILE *f
         cdef char **names
         cdef bytes py_bytes
-        names = <char **> PyMem_Malloc(n * sizeof(char *))
+        names = <char **> PyMem_Malloc(
+            n_cudd_vars * sizeof(char *))
         str_mem = list()
         for index, var in self._var_with_index.items():
             py_bytes = var.encode()
@@ -1619,18 +1656,26 @@ cpdef reorder(BDD bdd, dvars=None):
     if dvars is None:
         Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_GROUP_SIFT, 1)
         return
+    n_declared_vars = len(bdd.vars)
+    n_cudd_vars = bdd._number_of_cudd_vars()
+    if n_declared_vars != n_cudd_vars:
+        counts = _utils.var_counts(bdd)
+        contiguous = _utils.contiguous_levels(
+            'reorder', bdd)
+        raise AssertionError(
+            f'{counts}\n{contiguous}')
     # partial reorderings not supported for now
-    if len(dvars) != len(bdd.vars):
-        raise ValueError((
+    if len(dvars) != n_cudd_vars:
+        raise ValueError(
             'Mismatch of variable numbers:\n'
-            'declared variables: {n}\n'
-            'new variable order: {m}').format(
-                n=len(bdd.vars), m=len(dvars)))
+            'the number of declared variables '
+            f'is: {n_cudd_vars}\n'
+            f'new variable order: {len(dvars)}')
     cdef int *p
-    n = len(dvars)
-    p = <int *> PyMem_Malloc(n * sizeof(int *))
+    p = <int *> PyMem_Malloc(
+        n_cudd_vars * sizeof(int *))
     level_to_var = {v: k for k, v in dvars.items()}
-    for level in range(n):
+    for level in range(n_cudd_vars):
         var = level_to_var[level]
         index = bdd._index_of_var[var]
         p[level] = index
@@ -1682,9 +1727,10 @@ cpdef copy_bdd(Function u, BDD target):
                 missing=missing,
                 target=target)
     # mapping of indices
-    n = len(source.vars)
+    n_cudd_vars = source._number_of_cudd_vars()
     cdef int *renaming
-    renaming = <int *> PyMem_Malloc(n * sizeof(int))
+    renaming = <int *> PyMem_Malloc(
+        n_cudd_vars * sizeof(int))
     # only support will show up during BDD traversal
     for var in supp:
         i = source._index_of_var[var]

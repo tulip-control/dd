@@ -51,6 +51,7 @@ Reference
 #
 import itertools
 import logging
+import textwrap as _tw
 import warnings
 
 from dd import _copy
@@ -743,6 +744,160 @@ cdef class ZDD:
         return {var: self.level_of_var(var)
                 for var in self.vars}
 
+    def _index_at_level(
+            self,
+            level:
+                int
+            ) -> (
+                int |
+                None):
+        """Return index of CUDD variable at `level`.
+
+        The presence of such an index does not mean that
+        a variable has been declared for that index.
+
+        Declaring variables with indices over a set of
+        noncontiguous integers creates these intermediate
+        indices. For example:
+
+        ```python
+        import dd.cudd_zdd as _zdd
+        import pytest
+
+        zdd = _zdd.ZDD()
+        zdd.add_var('x', 1)
+        assert zdd.level_of_var('x') == 1
+        # no `ZDD` declared variable at level 0
+        # CUDD does return an index for level 0
+        with pytest.raises(ValueError):
+            zdd.level_of_var(0)
+        # no CUDD variable at level 2
+        with pytest.raises(ValueError):
+            zdd.level_of_var(2)
+        ```
+
+        The usefulness of this method is during
+        recursion over BDDs. If this method returns
+        `None`, then this means that `level`
+        is below the bottommost CUDD variable,
+        therefore also below the bottommost
+        `dd.cudd.ZDD` variable.
+
+        So a return value of `None` means that
+        we have reached the constant nodes
+        (even though it can be
+        `level > CUDD_CONST_INDEX`).
+
+        Checking `len(zdd.vars) == level` is
+        not equivalent, for example:
+
+        ```python
+        import dd.cudd_zdd as _zdd
+
+        zdd = _zdd.ZDD()
+        zdd.add_var('x', 2)
+        n_declared_vars = len(zdd.vars)
+        max_var_level = max(
+            zdd.level_of_var(var)
+            for var in zdd.vars)
+        n_cudd_vars = zdd._number_of_cudd_vars()
+        print(f'''
+            {n_vars = }
+            {max_var_level = }
+            {n_cudd_vars = }
+            ''')
+        ```
+
+        So if the recursion stopped at level `n_vars`,
+        it would not reach the nodes at `max_var_level`.
+
+        Any computation with noncontiguous levels of
+        declared variables is equivalent to a computation
+        with contiguous levels.
+
+        @param level:
+            level >= 0 for which the corresponding
+            CUDD variable index will be returned,
+            if it exists
+        """
+        # `Cudd_ReadInvPermZdd()`:
+        # - returns `CUDD_CONST_INDEX` if
+        #   `level == CUDD_CONST_INDEX`
+        # - returns `invperm[self.manager.level]` if
+        #   `0 <= level < self.manager.sizeZ`
+        # - otherwise returns `-1`
+        j = Cudd_ReadInvPermZdd(self.manager, level)
+        if j == -1:
+            return None
+        if j < 0:
+            raise RuntimeError(
+                f'unexpected value: {j}, returned from '
+                'CUDD function `Cudd_ReadInvPermZdd()`')
+        return j
+
+    cpdef python_bool _gt_var_levels(
+            self,
+            level:
+                int):
+        """Return `True` if `level` > any variable level.
+
+        Raise `ValueError` if `level < 0`.
+        Similar to how `Cudd_ReadInvPermZdd()` works.
+
+        Note that the constant nodes are below all
+        variable levels:
+
+        ```python
+        import dd.cudd_zdd
+
+        zdd = dd.cudd_zdd.ZDD()
+        assert zdd._gt_var_levels(zdd.false.level)
+        ```
+
+        Read also `_index_at_level()`
+
+        @param level:
+            >= 0
+        @return:
+            `True` if any CUDD variable has
+            level < of given `level`
+        """
+        if level < 0:
+            raise ValueError(
+                f'requires `level >= 0`, got:  {level}')
+        n_cudd_vars = Cudd_ReadZddSize(self.manager)
+        if 0 <= n_cudd_vars <= CUDD_CONST_INDEX:
+            return level >= n_cudd_vars
+        raise RuntimeError(_tw.dedent(f'''
+            Unexpected value: {n_cudd_vars} returned
+            from CUDD function `Cudd_ReadZddSize()`
+            (0 <= expected <= {CUDD_CONST_INDEX} =
+             CUDD_CONST_INDEX)
+            '''))
+
+    cpdef int _number_of_cudd_vars(
+            self):
+        """Return number of CUDD indices.
+
+        Can be `> len(self.vars)`, because CUDD creates
+        variable indices also for levels in between
+        those of variables declared using `ZDD.declare()`.
+
+        Read also `_index_at_level()`.
+
+        @rtype:
+            `int` >= 0
+        """
+        n_cudd_vars = Cudd_ReadZddSize(self.manager)
+        if 0 <= n_cudd_vars <= CUDD_CONST_INDEX:
+            return n_cudd_vars
+        raise RuntimeError(_tw.dedent(f'''
+            Unexpected value: {n_cudd_vars} returned
+            from CUDD function `Cudd_ReadZddSize()`
+            (0 <= expected <= {CUDD_CONST_INDEX} =
+             CUDD_CONST_INDEX)
+            '''))
+
     def reorder(self, var_order=None):
         """Reorder variables to `var_order`.
 
@@ -803,7 +958,7 @@ cdef class ZDD:
     cdef _support(self, level, Function u, support, visited):
         """Recurse to compute the support of `u`."""
         # terminal ?
-        if u == self.false or level == len(self.vars):
+        if u == self.false or self._gt_var_levels(level):
             return
         if u in visited:
             return
@@ -932,7 +1087,7 @@ cdef class ZDD:
             self, int level, Function u, d, cache):
         """Recursively compute the cofactor of `u`."""
         # terminal ?
-        if u == self.false or level == len(self.vars):
+        if u == self.false or self._gt_var_levels(level):
             return u
         t = (u, level)
         if t in cache:
@@ -1008,7 +1163,7 @@ cdef class ZDD:
         # terminal ?
         if u == self.false:
             return u
-        if level == len(self.vars):
+        if self._gt_var_levels(level):
             return self.true  # full ZDDs at output
         t = (u, level)
         if t in cache:
@@ -1176,7 +1331,7 @@ cdef class ZDD:
         """Recurse to count satisfying assignments."""
         if u == self.false:
             return 0
-        if level == len(self.vars):
+        if self._gt_var_levels(level):
             return 1
         if u in cache:
             return cache[u]
@@ -1270,7 +1425,7 @@ cdef class ZDD:
     def _sat_iter(self, level, u, cube, value, support):
         """Recurse to enumerate models."""
         # terminal ?
-        if u == self.false or level == len(self.vars):
+        if u == self.false or self._gt_var_levels(level):
             if u != self.false:
                 assert set(cube).issubset(support), set(
                     cube).difference(support)
@@ -1478,13 +1633,12 @@ cdef class ZDD:
             return v
         if v == self.false:
             return u
-        if level == len(self.vars):
+        if self._gt_var_levels(level):
             assert u.low is None
             return u
-        if level == len(self.vars):
+        if self._gt_var_levels(level):
             assert v.low is None
             return v
-        assert level < len(self.vars), (level, len(self.vars))
         t = (u, v)
         if t in cache:
             return cache[t]
@@ -1521,13 +1675,12 @@ cdef class ZDD:
             return u
         if v == self.false:
             return v
-        if level == len(self.vars):
+        if self._gt_var_levels(level):
             assert u.low is None
             return v
-        if level == len(self.vars):
+        if self._gt_var_levels(level):
             assert v.low is None
             return u
-        assert level < len(self.vars), (level, len(self.vars))
         t = (u, v)
         if t in cache:
             return cache[t]
@@ -1605,7 +1758,7 @@ cdef class ZDD:
         This implementation uses a ZDD to represent
         the set of variables to quantify.
         """
-        if u == self.false or level == len(self.vars):
+        if u == self.false or self._gt_var_levels(level):
             return u
         t = (u, level)
         if t in cache:
@@ -1635,7 +1788,7 @@ cdef class ZDD:
         """Recurse to quantify variables."""
         assert level <= u.level, (level, u.level, 'u')
         # terminal ?
-        if u == self.false or level == len(self.vars):
+        if u == self.false or self._gt_var_levels(level):
             return u
         t = (u, level)
         if t in cache:
@@ -1670,7 +1823,7 @@ cdef class ZDD:
             self, level, u, qvars, forall, cache):
         """Recurse to quantify variables."""
         # terminal ?
-        if u == self.false or level == len(self.vars):
+        if u == self.false or self._gt_var_levels(level):
             return u
         if u in cache:
             return cache[u]
@@ -1772,7 +1925,7 @@ cdef class ZDD:
         """Recursively compute an expression."""
         if u == self.false:
             return 'FALSE'
-        if level == len(self.vars):
+        if self._gt_var_levels(level):
             return 'TRUE'
         if u in cache:
             return cache[u]
@@ -1865,7 +2018,7 @@ cdef class ZDD:
         """Recurse to collect indices of support variables."""
         if f.manager != self.manager:
             raise ValueError('`f.manager != self.manager`')
-        n = len(self.vars)
+        n = self._number_of_cudd_vars()
         cdef int *x
         x = <int *> PyMem_Malloc(n * sizeof(DdNode *))
         try:
@@ -2498,7 +2651,33 @@ cpdef _cube_to_universe(Function cube, qvars, zdd):
 
 
 cpdef Function _ith_var(var, zdd):
-    """Return ZDD of variable `var`."""
+    """Return ZDD of variable `var`.
+
+    This function requires that declared variables
+    have a contiguous range of levels.
+    """
+    n_declared_vars = len(zdd.vars)
+    n_cudd_vars = zdd._number_of_cudd_vars()
+    if n_declared_vars > n_cudd_vars:
+        # note that `zdd.var_levels()` cannot
+        # be called here, because not all declared
+        # variables have levels in CUDD, given
+        # that `n_declared_vars > n_cudd_vars`
+        raise AssertionError(_tw.dedent(f'''
+            Found unexpected number of declared variables
+            ({n_declared_vars}),
+            compared to number of CUDD variable indices
+            ({n_cudd_vars}).
+            Expected number of declared variables
+            <= number of CUDD variable indices.
+            The declared variables and their indices are:
+                {zdd._index_of_var}
+            '''))
+    if n_declared_vars != n_cudd_vars:
+        counts = _utils.var_counts(zdd)
+        contiguous = _utils.contiguous_levels(
+            '_ith_var', zdd)
+        raise AssertionError(f'{counts}\n{contiguous}')
     level = zdd.level_of_var(var)
     r = zdd.true_node
     for j in range(len(zdd.vars) - 1, -1, -1):
@@ -3065,10 +3244,17 @@ cpdef Function _c_compose(
     cdef Function g
     mgr = u.manager
     zdd = u.bdd
+    n_declared_vars = len(zdd.vars)
+    n_cudd_vars = zdd._number_of_cudd_vars()
+    if n_declared_vars != n_cudd_vars:
+        counts = _utils.var_counts(zdd)
+        contiguous = _utils.contiguous_levels(
+            '_c_compose', zdd)
+        raise AssertionError(f'{counts}\n{contiguous}')
     # convert `dvars` to `DdNode **`
-    n = len(zdd.vars)
     cdef DdNode **vector
-    vector = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
+    vector = <DdNode **> PyMem_Malloc(
+        n_cudd_vars * sizeof(DdNode *))
     for var in zdd.vars:
         i = zdd._index_of_var[var]
         if var in dvars:
@@ -3086,7 +3272,7 @@ cpdef Function _c_compose(
         if r is not NULL:
             cuddRef(r)
             assert r.ref > 0, r.ref
-        for i in range(n):
+        for i in range(n_cudd_vars):
             Cudd_RecursiveDerefZdd(mgr, vector[i])
         if r is not NULL:
             cuddDeref(r)
@@ -3375,3 +3561,37 @@ cpdef _test_call_dealloc(Function u):
     Cudd_RecursiveDerefZdd(self.manager, self.node)
     # avoid future access to deallocated memory
     self.node = NULL
+
+
+cpdef _call_method_disjoin(
+        zdd:
+            ZDD,
+        level:
+            int,
+        u:
+            Function,
+        v:
+            Function,
+        cache):
+    """Wrapper of method `ZDD._disjoin()`.
+
+    To enable testing the `cdef` method from Python.
+    """
+    return zdd._disjoin(level, u, v, cache)
+
+
+cpdef _call_method_conjoin(
+        zdd:
+            ZDD,
+        level:
+            int,
+        u:
+            Function,
+        v:
+            Function,
+        cache):
+    """Wrapper of method `ZDD._conjoin()`.
+
+    Similar to `_call_method_disjoin()`.
+    """
+    return zdd._conjoin(level, u, v, cache)

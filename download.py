@@ -1,4 +1,5 @@
 """Retrieve and build dependencies of C extensions."""
+import collections.abc as _abc
 import ctypes
 import hashlib
 import os
@@ -6,6 +7,9 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import textwrap as _tw
+import typing as _ty
+import urllib.error
 import urllib.request
 
 
@@ -176,40 +180,184 @@ def _copy_extern_licenses(args):
             os.remove(included)
 
 
-def _join(paths):
-    """Return `list` of paths, after joining each.
+def _join(
+        paths:
+            _abc.Iterable[
+                _abc.Iterable[str]]
+        ) -> list[str]:
+    """Return paths, after joining each.
 
-    @param paths: container of pieces of paths,
-        each path is obtained by joining its pieces
-        using `os.path.join`
-    @type paths: `list` of `list` of `str`
-    @return: `list` of paths
-    @rtype: `list` of `str`
+    Flattens a list-of-lists to a list.
     """
     return [os.path.join(*x) for x in paths]
 
 
-def fetch(url, sha256, fname=None):
-    print(f'++ download: {url}')
-    u = urllib.request.urlopen(url)
-    if fname is None:
-        fname = CUDD_TARBALL
-    with open(fname, 'wb') as f:
-        f.write(u.read())
-    with open(fname, 'rb') as f:
-        s = f.read()
-    h = hashlib.sha256(s)
+def fetch(
+        url:
+            str,
+        sha256:
+            str,
+        filename:
+            str
+        ) -> None:
+    """Download file from `url`, and check its hashes.
+
+    @param sha256:
+        SHA-256 hash value of file that
+        will be downloaded
+    """
+    if os.path.isfile(filename):
+        print(
+            f'File `{filename}` already present, '
+            'checking hash.')
+        _check_file_hash(filename, sha256)
+        return
+    print(f'Attempting to download file from URL:  {url}')
+    try:
+        response = urllib.request.urlopen(url)
+        if response is None:
+            raise urllib.error.URLError(
+                '`urllib.request.urlopen` returned `None` '
+                'when attempting to open the URL:  '
+                f'{url}')
+    except urllib.error.URLError as url_error:
+        raise RuntimeError(_tw.dedent(f'''
+            An exception was raised when attempting
+            to open the URL:
+                {url}
+
+            In case the error message from `urllib` is
+            about SSL certificates, please confirm that
+            your installation of Python has the required
+            SSL certificates. How to ensure this can differ,
+            depending on how Python is installed
+            (building from source or using an installer).
+
+            CPython's `--with-openssl` (of `configure`)
+            is relevant when building CPython from source.
+
+            When using an installer of CPython, a separate
+            post-installation step may be needed,
+            as described in CPython's documentation.
+
+            Relevant information:
+                <https://www.python.org/downloads/>
+
+            For downloading CUDD, an alternative is to
+            download by other means the file at the URL:
+                {url}
+            unpack it, and then run:
+
+            ```python
+            import download
+
+            download.make_cudd()
+            ```
+
+            Once CUDD compilation has completed, run:
+
+            ```
+            export DD_CUDD=1 DD_CUDD_ZDD=1;
+            pip install .
+            ```
+
+            i.e., without the option `DD_FETCH`.
+            ''')) from url_error
+    with response, open(filename, 'wb') as f:
+        f.write(response.read())
+    print(
+        'Completed downloading from URL '
+        '(may have resulted from redirection):  '
+        f'{response.url}\n'
+        'Wrote the downloaded data to file:  '
+        f'`{filename}`\n'
+        'Will now check the hash value (SHA-256) of '
+        f'the file:  `{filename}`')
+    _check_file_hash(filename, sha256)
+
+
+def _check_file_hash(
+        filename:
+            str,
+        sha256:
+            str
+        ) -> None:
+    """Assert `filename` has given hash."""
+    with open(filename, 'rb') as f:
+        data = f.read()
+    _assert_sha(data, sha256, 256, filename)
+    print(
+        'Checked hash value (SHA-256) of '
+        f'file `{filename}`, and is as expected.')
+
+
+def _assert_sha(
+        data:
+            bytes,
+        expected_sha_value:
+            str,
+        algo:
+            _ty.Literal[
+                256,
+                512],
+        filename:
+            str |
+            None=None
+        ) -> None:
+    """Assert `data` hash is `expected_sha_value`.
+
+    If the hash of `data`, as computed using the algorithm
+    specified in `algo`, is not `expected_sha_value`,
+    then raise an `AssertionError`.
+
+    The hash value is computed using the functions:
+    - `hashlib.sha256()` if `algo == 256`
+    - `hashlib.sha512()` if `algo == 512`
+
+    @param data:
+        bytes, to compute the hash of them
+        (as accepted by `hashlib.sha512()`)
+    @param expected_sha_value:
+        hash value (SHA-256 or SHA-512),
+        must correspond to `algo`
+    @param algo:
+        hashing algorithm
+    @param filename:
+        name of file whose hash
+        is being checked, optional argument,
+        if present then it will be used
+        in message of the `AssertionError`
+    """
+    match algo:
+        case 256:
+            h = hashlib.sha256(data)
+        case 512:
+            h = hashlib.sha512(data)
+        case _:
+            raise ValueError(
+                f'unknown algorithm:  {algo = }')
     x = h.hexdigest()
-    if x != sha256:
-        raise AssertionError((x, sha256))
-    print('-- done downloading.')
-    return fname
+    if x == expected_sha_value:
+        return
+    if filename is None:
+        fs = ''
+    else:
+        fs = f'`{filename}` '
+    raise AssertionError(
+        f'The computed SHA-{algo} hash value '
+        f'of the downloaded file {fs}does not match '
+        'the expected hash value.'
+        f'\nComputed SHA-{algo}:  {x}'
+        f'\nExpected SHA-{algo}:  {expected_sha_value}')
 
 
-def untar(fname):
-    """Extract contents of tar file `fname`."""
-    print(f'++ unpack: {fname}')
-    with tarfile.open(fname) as tar:
+def untar(
+        filename:
+            str
+        ) -> None:
+    """Extract contents of tar file `filename`."""
+    print(f'++ unpack: {filename}')
+    with tarfile.open(filename) as tar:
         tar.extractall()
     print('-- done unpacking.')
 
@@ -222,10 +370,12 @@ def make_cudd():
     subprocess.call(['make', '-j4'], cwd=path)
 
 
-def fetch_cudd():
+def fetch_cudd(
+        ) -> None:
     """Retrieve, unpack, patch, and compile CUDD."""
-    fname = fetch(CUDD_URL, CUDD_SHA256)
-    untar(fname)
+    filename = CUDD_TARBALL
+    fetch(CUDD_URL, CUDD_SHA256, filename)
+    untar(filename)
     make_cudd()
 
 

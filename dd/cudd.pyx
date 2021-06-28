@@ -787,18 +787,28 @@ cdef class BDD:
         return wrap(self, r)
 
     def var_at_level(self, level):
-        """Return name of variable at `level`."""
+        """Return name of variable at `level`.
+
+        Raise `ValueError` if `level` is not
+        the level of any variable declared in
+        `self.vars`.
+        """
         j = Cudd_ReadInvPerm(self.manager, level)
-        assert j != -1, 'index {j} out of bounds'.format(j=j)
-        # no var there yet ?
-        if j == -1:
-            return None
-        assert j in self._var_with_index, (j, self._var_with_index)
+        if (j == -1 or j == CUDD_CONST_INDEX or
+                j not in self._var_with_index):
+            raise ValueError(_tw.dedent(f'''
+                No declared variable has level: {level}.
+                {_utils.var_counts(self)}
+                '''))
         var = self._var_with_index[j]
         return var
 
     def level_of_var(self, var):
-        """Return level of variable named `var`."""
+        """Return level of variable named `var`.
+
+        Raise `ValueError` if `var` is not
+        a variable in `self.vars`.
+        """
         assert var in self._index_of_var, (
             'undefined variable "{v}", '
             'known variables are:\n {d}').format(

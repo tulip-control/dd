@@ -13,6 +13,8 @@ API:
   - `dd.autoref.BDD.add_var()`
   - `dd.bdd.BDD.declare()`
   - `dd.bdd.BDD.add_var()`
+  - `dd.cudd.BDD.var_at_level()`
+  - `dd.cudd_zdd.ZDD.var_at_level()`
   whenever unknown values are given as arguments
 - raise `ValueError` from:
   - `dd.autoref.BDD.level_of_var()`

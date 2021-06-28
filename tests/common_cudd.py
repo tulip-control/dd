@@ -51,6 +51,39 @@ class Tests:
         assert y == 'y', y
         assert z == 'z', z
 
+    def test_var_at_level_exceptions(self):
+        bdd = self.DD()
+        # no variables
+        with pytest.raises(ValueError):
+            bdd.var_at_level(-1)
+        with pytest.raises(ValueError):
+            bdd.var_at_level(0)
+        with pytest.raises(ValueError):
+            bdd.var_at_level(1)
+        with pytest.raises(ValueError):
+            # no var at level CUDD_CONST_INDEX
+            bdd.var_at_level(bdd.false.level)
+        with pytest.raises(OverflowError):
+            bdd.var_at_level(bdd.false.level + 1)
+        # 1 declared variable
+        bdd.declare('x')
+        level = bdd.level_of_var('x')
+        assert level == 0, level
+        var = bdd.var_at_level(0)
+        assert var == 'x', var
+        with pytest.raises(ValueError):
+            bdd.var_at_level(-1)
+        with pytest.raises(ValueError):
+            bdd.var_at_level(1)
+        with pytest.raises(ValueError):
+            # no var at level CUDD_CONST_INDEX
+            bdd.var_at_level(bdd.false.level)
+        with pytest.raises(OverflowError):
+            bdd.var_at_level(bdd.false.level + 1)
+        bdd._var_with_index = dict()
+        with pytest.raises(ValueError):
+            bdd.var_at_level(0)
+
     def test_incref_decref_locally_inconsistent(self):
         # "Locally inconsistent" here means that
         # from the viewpoint of some `Function` instance,

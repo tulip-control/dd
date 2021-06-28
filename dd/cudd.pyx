@@ -811,7 +811,9 @@ cdef class BDD(object):
 
     @property
     def var_levels(self):
-        return {var: self.level_of_var(var) for var in self.vars}
+        return {
+            var: self.level_of_var(var)
+            for var in self.vars}
 
     def reorder(self, var_order=None):
         """Reorder variables to `var_order`.

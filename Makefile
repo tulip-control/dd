@@ -1,4 +1,5 @@
 wheel_file := $(wildcard dist/*.whl)
+temp_file := _temp.txt
 
 .PHONY: cudd install test
 .PHONY: clean clean_all clean_cudd
@@ -51,16 +52,24 @@ wheel: clean
 install:
 	python setup.py install --cudd
 
-reinstall:
-	-pip uninstall -y dd
+reinstall: uninstall
 	python setup.py install --cudd --cudd_zdd --sylvan
 
-reinstall_cudd:
-	-pip uninstall -y dd
+reinstall_buddy: uninstall
+	echo ". --install-option='--buddy'" \
+	    > $(temp_file)
+	pip install -vvv -r $(temp_file)
+
+reinstall_cudd: uninstall
 	python setup.py install --cudd --cudd_zdd
 
+reinstall_sylvan: uninstall
+	echo ". --install-option='--sylvan'" \
+	    > $(temp_file)
+	pip install -vvv -r $(temp_file)
+
 uninstall:
-	-pip uninstall -y dd
+	pip uninstall -y dd
 
 develop:
 	python setup.py develop

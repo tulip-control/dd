@@ -331,6 +331,46 @@ The modules `dd.cudd` and `dd.cudd_zdd` in the wheel dynamically link to the:
   that is dynamically linked.
 
 
+## Installing the development version
+
+For installing the development version of `dd` from the `git` repository,
+an alternative to cloning the repository and installing from the cloned
+repository is to [use `pip` for doing so](
+    https://pip.pypa.io/en/stable/cli/pip_install/#argument-handling):
+
+```shell
+pip install https://github.com/tulip-control/dd/archive/main.tar.gz
+```
+
+or with [`pip` using `git`](
+    https://pip.pypa.io/en/stable/topics/vcs-support/#git)
+(this alternative requires that `git` be installed):
+
+```shell
+pip install git+https://github.com/tulip-control/dd
+```
+
+A `git` URL can be passed also to [`pip download`](
+    https://pip.pypa.io/en/stable/cli/pip_download/#overview),
+for example:
+
+```shell
+pip download --no-deps https://github.com/tulip-control/dd/archive/main.tar.gz
+```
+
+The extension `.zip` too can be used for the name of the [archive file](
+    https://en.wikipedia.org/wiki/Archive_file)
+in the URL. Analogously, with `pip` using `git`:
+
+```shell
+pip download --no-deps git+https://github.com/tulip-control/dd
+```
+
+Note that the naming of paths *within* the archive file downloaded from
+GitHub in this way will differ, depending on whether `https://` or
+`git+https://` is used.
+
+
 Tests
 =====
 

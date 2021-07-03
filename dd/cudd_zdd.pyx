@@ -324,10 +324,13 @@ cdef class ZDD:
         if memory_estimate is None:
             memory_estimate = default_memory
         if memory_estimate >= total_memory:
+            memory_example = round(total_memory / 2)
             msg = (
                 'Error in `dd.cudd_zdd.ZDD`: '
                 f'total physical memory is {total_memory} bytes, '
-                f'but requested {memory_estimate} bytes.')
+                f'but requested {memory_estimate} bytes. '
+                'To avoid this error, pass an amount of memory, '
+                f'for example: `ZDD({memory_example})`.')
             # Motivation is described in
             # comments inside `dd.cudd.BDD.__cinit__`.
             print(msg)

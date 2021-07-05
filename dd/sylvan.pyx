@@ -64,7 +64,7 @@ cdef class BDD(object):
         But two `BDD` instances cannot coexist in
         the same process.
         """
-        sy.lace_init(0, 1000000)
+        sy.lace_init(0, 10**6)
         sy.lace_startup(0, NULL, NULL)
         sy.LACE_ME_WRAP
         sy.sylvan_init_package(1LL<<25, 1LL<<26, 1LL<<24, 1LL<<25)

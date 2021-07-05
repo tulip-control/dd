@@ -23,6 +23,12 @@ API:
 - several `assert` statements replaced by `raise`,
   with more specific exceptions, e.g.,
   `ValueError`, `TypeError`, `RuntimeError`
+- strings returned by methods:
+  - `dd.cudd.Function.__repr__()`
+  - `dd.cudd_zdd.Function.__repr__()`
+  changed to follow specification of `object.__repr__()`
+  (delimited by `<` and `>`).
+  Now also includes the object `id` as `hex` number.
 
 
 ## 0.5.7

@@ -2284,10 +2284,11 @@ cdef class Function:
 
     def __repr__(self):
         return (
-            'Function (ZDD DdNode) with '
+            f'<dd.cudd_zdd.Function at {hex(id(self))}, '
+            'wrapping a (ZDD) DdNode with '
             f'var index: {self._index}, '
             f'ref count: {self.ref}, '
-            f'int repr: {int(self)}')
+            f'int repr: {int(self)}>')
 
     def __str__(self):
         return f'@{int(self)}'

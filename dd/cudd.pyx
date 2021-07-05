@@ -2234,13 +2234,11 @@ cdef class Function:
         cdef DdNode *u
         u = Cudd_Regular(self.node)
         return (
-            'Function (DdNode) with '
-            'var index: {idx}, '
-            'ref count: {ref}, '
-            'int repr: {i}').format(
-                idx=u.index,
-                ref=u.ref,
-                i=int(self))
+            f'<dd.cudd.Function at {hex(id(self))}, '
+            'wrapping a DdNode with '
+            f'var index: {u.index}, '
+            f'ref count: {u.ref}, '
+            f'int repr: {int(self)}>')
 
     def __str__(self):
         return f'@{int(self)}'

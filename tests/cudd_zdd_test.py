@@ -495,6 +495,20 @@ def test_c_conjunction():
     assert u == u_, len(u)
 
 
+def test_c_disjoin_conjoin():
+    zdd = cudd_zdd.ZDD()
+    zdd.declare('x')
+    u = zdd.var('x')
+    true = zdd.true_node
+    level = 1
+    with pytest.raises(AssertionError):
+        cudd_zdd._call_disjoin(level, u, true)
+    with pytest.raises(AssertionError):
+        cudd_zdd._call_conjoin(level, u, true)
+    with pytest.raises(AssertionError):
+        cudd_zdd._call_conjoin(level, true, u)
+
+
 def test_c_exist():
     zdd = cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')

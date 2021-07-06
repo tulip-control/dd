@@ -3074,10 +3074,18 @@ cdef DdNode *_disjoin(
         return v
     if v == DD_ZERO(mgr):
         return u
-    if u == DD_ONE(mgr) and index == -1:
+    if index == -1:
+        if u != DD_ONE(mgr):
+            raise AssertionError(
+                'nonconstant node `u` given, '
+                f'when given level:  {level}, '
+                f'with index:  {index}')
+        if v != DD_ONE(mgr):
+            raise AssertionError(
+                'nonconstant node `v` given, '
+                f'when given level:  {level}, '
+                f'with index:  {index}')
         return u
-    if v == DD_ONE(mgr) and index == -1:
-        return v
     r = cuddCacheLookup2Zdd(
         mgr, _disjoin_cache_id, u, v)
     if r is not NULL:
@@ -3195,9 +3203,17 @@ cdef DdNode *_conjoin(
         return u
     if v == DD_ZERO(mgr):
         return v
-    if u == DD_ONE(mgr) and index == -1:
-        return v
-    if v == DD_ONE(mgr) and index == -1:
+    if index == -1:
+        if u != DD_ONE(mgr):
+            raise AssertionError(
+                'nonconstant node `u` given, '
+                f'when given level:  {level}, '
+                f'with index:  {index}')
+        if v != DD_ONE(mgr):
+            raise AssertionError(
+                'nonconstant node `v` given, '
+                f'when given level:  {level}, '
+                f'with index:  {index}')
         return u
     r = cuddCacheLookup2Zdd(
         mgr, _conjoin_cache_id, u, v)
@@ -3605,3 +3621,41 @@ cpdef _call_method_conjoin(
     Similar to `_call_method_disjoin()`.
     """
     return zdd._conjoin(level, u, v, cache)
+
+
+cpdef _call_disjoin(
+        level:
+            int,
+        u:
+            Function,
+        v:
+            Function):
+    """Wrapper of function `_disjoin()`.
+
+    To enable testing the `cdef` function from Python.
+    """
+    r = _disjoin(
+        u.bdd.manager,
+        level,
+        u.node,
+        v.node)
+    return wrap(u.bdd, r)
+
+
+cpdef _call_conjoin(
+        level:
+            int,
+        u:
+            Function,
+        v:
+            Function):
+    """Wrapper of function `_conjoin()`.
+
+    Similar to the function `_call_disjoin()`.
+    """
+    r = _conjoin(
+        u.bdd.manager,
+        level,
+        u.node,
+        v.node)
+    return wrap(u.bdd, r)

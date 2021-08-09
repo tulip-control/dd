@@ -474,6 +474,34 @@ b.declare(*a.vars)
 v = a.copy(u, b)
 ```
 
+In each of the modules `dd.autoref` and `dd.cudd`, references to BDD nodes
+are represented with a class named `Function`. When `Function` objects are
+not referenced by any Python variable, CPython deallocates them, thus in
+the next BDD garbage collection, the relevant BDD nodes can be deallocated.
+
+For this reason, it is useful to avoid unnecessary references to nodes.
+This includes the [underscore variable `_`](
+    https://docs.python.org/3/reference/lexical_analysis.html#reserved-classes-of-identifiers),
+for example:
+
+```python
+import dd.autoref
+
+bdd = dd.autoref.BDD()
+bdd.declare('x', 'y')
+c = [bdd.add_expr(r'x /\ y'), bdd.add_expr(r'x \/ ~ y')]
+u, _ = c  # `_` is assigned the `Function` that references
+    # the root of the BDD that represents x \/ ~ y
+c = list()  # Python deallocates the `list` object created above
+# so `u` refers to the root of the BDD that represents x /\ y,
+# as expected,
+# but `_` still refers to the BDD that represents x \/ ~ y
+print(bdd.to_expr(_))
+```
+
+The Python reference by `_` in the previous example can be avoided
+by indexing, i.e., `u = c[0]`.
+
 
 ### Pickle
 

@@ -252,7 +252,7 @@ DEFAULT_MEMORY = 1 * 2**30
 logger = logging.getLogger(__name__)
 
 
-cdef class BDD(object):
+cdef class BDD:
     """Wrapper of CUDD manager.
 
     Interface similar to `dd.bdd.BDD`.
@@ -1837,7 +1837,7 @@ cdef wrap(BDD bdd, DdNode *node):
     return f
 
 
-cdef class Function(object):
+cdef class Function:
     """Wrapper of `DdNode` from CUDD.
 
     Attributes (those that are properties are

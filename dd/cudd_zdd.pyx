@@ -293,7 +293,7 @@ class CouldNotCreateNode(Exception):
     pass
 
 
-cdef class ZDD(object):
+cdef class ZDD:
     """Wrapper of CUDD manager.
 
     Interface similar to `dd._abc.BDD` and `dd.cudd.BDD`.
@@ -1936,7 +1936,7 @@ cdef Function wrap(ZDD bdd, DdNode *node):
     return f
 
 
-cdef class Function(object):
+cdef class Function:
     """Wrapper of ZDD `DdNode` from CUDD.
 
     For details, read the docstring of the

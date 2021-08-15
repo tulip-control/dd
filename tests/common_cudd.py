@@ -2,7 +2,7 @@
 import pytest
 
 
-class Tests(object):
+class Tests:
     def setup_method(self):
         self.DD = None  # `cudd.BDD` or `cudd_zdd.ZDD`
         self.MODULE = None  # `cudd` or `cudd_zdd`

@@ -42,7 +42,7 @@ YACC_LOG = 'dd.dddmp.yacc_logger'
 PARSER_LOG = 'dd.dddmp.parser_logger'
 
 
-class Lexer(object):
+class Lexer:
     """Token rules to build LTL lexer."""
 
     reserved = {
@@ -115,7 +115,7 @@ class Lexer(object):
             **kwargs)
 
 
-class Parser(object):
+class Parser:
     """Production rules to build LTL parser."""
 
     tabmodule = TABMODULE

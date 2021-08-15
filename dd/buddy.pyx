@@ -38,7 +38,7 @@ BDD_REORDER_FIXED = 1
 logger = logging.getLogger(__name__)
 
 
-cdef class BDD(object):
+cdef class BDD:
     """Wrapper of BuDDy.
 
     Interface similar to `dd.bdd.BDD`.
@@ -218,7 +218,7 @@ def rename(u, bdd, dvars):
     return Function(r)
 
 
-cdef class Function(object):
+cdef class Function:
     """Wrapper for nodes of `BDD`.
 
     Takes care of reference counting,

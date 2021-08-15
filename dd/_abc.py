@@ -13,7 +13,7 @@ This specification is implemented by the modules:
 #
 
 
-class BDD(object):
+class BDD:
     """Shared reduced ordered binary decision diagram."""
 
     def __init__(self, levels=None):
@@ -271,7 +271,7 @@ def reorder(bdd, order=None):
     """
 
 
-class Operator(object):
+class Operator:
     """Convenience wrapper for edges returned by `BDD`."""
 
     def __init__(self, node, bdd):

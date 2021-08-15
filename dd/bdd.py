@@ -86,7 +86,7 @@ def _try_to_reorder(func):
     return _wrapper
 
 
-class _ReorderingContext(object):
+class _ReorderingContext:
     """Context manager that tracks decorator nesting."""
 
     def __init__(self, bdd):

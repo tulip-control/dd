@@ -34,7 +34,7 @@ TABMODULE = 'dd.mdd_parsetab'
 PLY_LOG = 'dd.mdd.ply'
 
 
-class MDD(object):
+class MDD:
     """Shared ordered multi-valued decision diagram.
 
     Represents a Boolean function of integer variables.

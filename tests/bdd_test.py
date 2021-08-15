@@ -836,7 +836,7 @@ def test_reordering_context():
     ctx.assert_(True)
 
 
-class Dummy(object):
+class Dummy:
     """To test state machine for nesting context."""
 
     def __init__(self):

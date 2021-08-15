@@ -2,7 +2,7 @@
 import os
 
 
-class Tests(object):
+class Tests:
     def setup_method(self):
         self.DD = None  # `autoref.BDD` or `cudd.BDD`
 

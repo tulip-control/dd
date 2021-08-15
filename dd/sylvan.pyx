@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 # TODO: check for invalid nodes returned by sylvan calls
 
 
-cdef class BDD(object):
+cdef class BDD:
     """Wrapper of Sylvan manager.
 
     Interface similar to `dd.bdd.BDD`.
@@ -544,7 +544,7 @@ cdef wrap(BDD bdd, sy.BDD node):
     return f
 
 
-cdef class Function(object):
+cdef class Function:
     """Wrapper of `BDD` from Sylvan.
 
     Attributes (those that are properties are

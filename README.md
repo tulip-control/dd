@@ -46,9 +46,13 @@ Contains:
 - Conversion from BDDs to MDDs.
 - Conversion functions to [`networkx`](https://networkx.org) and
   [`pydot`](https://pypi.org/project/pydot) graphs.
-- BDDs have methods to `dump` and `load` them using `pickle`.
+- BDDs have methods to `dump` and `load` them using [JSON](
+    https://wikipedia.org/wiki/JSON), or [`pickle`](
+    https://docs.python.org/3/library/pickle.html).
 - BDDs dumped by CUDD's DDDMP can be loaded using fast iterative parser.
-- Garbage collection using reference counting
+- [Garbage collection](
+    https://en.wikipedia.org/wiki/Garbage_collection_(computer_science))
+  that combines reference counting and tracing
 
 
 If you prefer to work with integer variables instead of Booleans, and have
@@ -92,7 +96,7 @@ bdd = BDD()
 bdd.declare('x', 'y', 'z', 'w')
 
 # conjunction (in TLA+ syntax)
-u = bdd.add_expr(r'x /\ y')  # operators `&, |` are supported too
+u = bdd.add_expr(r'x /\ y')  # symbols `&`, `|` are supported too
     # note the "r" before the quote, which signifies a raw string and is
     # needed to allow for the backslash
 print(u.support)
@@ -105,22 +109,35 @@ v = bdd.let(values, u)
 # substitute BDDs for variables (compose)
 d = dict(x=bdd.add_expr(r'z \/ w'))
 v = bdd.let(d, u)
-# infix operators
+# as Python operators
 v = bdd.var('z') & bdd.var('w')
 v = ~ v
-# quantify
+# quantify universally ("forall")
+u = bdd.add_expr(r'\A x, y:  (x /\ y) => y')
+# quantify existentially ("exist")
 u = bdd.add_expr(r'\E x, y:  x \/ y')
-# less readable but faster alternative
+# less readable but faster alternative,
+# (faster because of not calling the parser;
+# this may matter only inside innermost loops)
 u = bdd.var('x') | bdd.var('y')
 u = bdd.exist(['x', 'y'], u)
 assert u == bdd.true, u
 # inline BDD references
 u = bdd.add_expr(r'x /\ {v}'.format(v=v))
-# satisfying assignments (models)
+# satisfying assignments (models):
+# an assignment
 d = bdd.pick(u, care_vars=['x', 'y'])
+# iterate overal all assignments
 for d in bdd.pick_iter(u):
     print(d)
+# how many assignments
 n = bdd.count(u)
+# write to and load from JSON file
+filename = 'bdd.json'
+bdd.dump(filename, roots=[u])
+other_bdd = BDD()
+roots = other_bdd.load(filename)
+print(other_bdd.vars)
 ```
 
 To run the same code with CUDD installed, change the first line to:

@@ -905,7 +905,6 @@ class BDD(_abc.BDD):
 
         @type roots: `set`, Caution: it is modified
         """
-        logger.debug('++ collecting BDD garbage')
         n = len(self)
         if roots is None:
             roots = self._ref
@@ -936,9 +935,6 @@ class BDD(_abc.BDD):
         m = len(self)
         k = n - m
         assert k >= 0, (n, m)
-        logger.debug(
-            '-- done: colected {n} - {m} = {k} nodes.'.format(
-                n=n, m=m, k=k))
 
     def update_predecessors(self):
         """Update table that maps (level, low, high) to nodes."""

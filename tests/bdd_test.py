@@ -897,11 +897,11 @@ class TrackReorderings(BDD):
 
     def __init__(self, *arg, **kw):
         self.n_swaps = 0
-        super(TrackReorderings, self).__init__(*arg, **kw)
+        super().__init__(*arg, **kw)
 
     def swap(self, *arg, **kw):
         self.n_swaps += 1
-        return super(TrackReorderings, self).swap(*arg, **kw)
+        return super().swap(*arg, **kw)
 
     def reordering_is_on(self):
         d = self.configure()

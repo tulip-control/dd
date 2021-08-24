@@ -1884,7 +1884,8 @@ def copy_bdd(u, from_bdd, to_bdd):
     @type from_bdd, to_bdd: `BDD`
     """
     if from_bdd is to_bdd:
-        logger.warning('copying node to same manager')
+        logger.warning(
+            'copying node to same BDD manager')
         return u
     level_map = {
         from_bdd.level_of_var(var): to_bdd.level_of_var(var)

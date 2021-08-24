@@ -280,26 +280,13 @@ Currently, `download.py` expects to find Sylvan under `dd/sylvan` and built with
 (for an example, see `.github/workflows/main.yml`).
 If the path differs in your environment, remember to update it.
 
-BuDDy can be downloaded and compiled as follows:
-
-```shell
-curl -L https://sourceforge.net/projects/buddy/files/buddy/BuDDy%202.4/buddy-2.4.tar.gz/download -o buddy-2.4.tar.gz
-tar -xzf buddy-2.4.tar.gz
-cd buddy-2.4/
-./configure  # as described in the README file of BuDDy
-make
-make install  # installs to `/usr/local/include/` and `/usr/local/lib/`
-# The installation location can be changed with `./configure --prefix=/where/to/install`
-
-pip uninstall -y dd
-python setup.py install --buddy  # passes `-lbdd` to the compiler
-```
-
-and the installation confirmed by invoking in another directory:
-
-```shell
-python -c "import dd.buddy"
-```
+Scripts are available that fetch, build, and install the Cython bindings:
+- [`examples/install_dd_cudd.sh`](
+    https://github.com/tulip-control/dd/blob/main/examples/install_dd_cudd.sh)
+- [`examples/install_dd_sylvan.sh`](
+    https://github.com/tulip-control/dd/blob/main/examples/install_dd_sylvan.sh)
+- [`examples/install_dd_buddy.sh`](
+    https://github.com/tulip-control/dd/blob/main/examples/install_dd_buddy.sh)
 
 
 ### Licensing of the compiled modules `dd.cudd` and `dd.cudd_zdd` in the wheel

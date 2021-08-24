@@ -20,3 +20,25 @@ The examples are:
   allowed to use.
 
 - `cudd_zdd.py`: how to use ZDDs with CUDD.
+
+
+The shell scripts show how to install the Cython modules of `dd`:
+
+- `install_dd_cudd.sh`: how to install the modules:
+  - `dd.cudd` and
+  - `dd.cudd_zdd`
+- `install_dd_sylvan.sh`: how to install the module `dd.sylvan`
+- `install_dd_buddy.sh`: how to install the module `dd.buddy`
+
+To install all the above modules, combine the steps contained in
+the above shell scripts, and pass to `setup.py`
+all the relevant command-line options, i.e.,
+
+```shell
+pip install -r <(echo "dd \
+    --install-option='--buddy' \
+    --install-option='--fetch' \
+    --install-option='--cudd' \
+    --install-option='--cudd_zdd' \
+    --install-option='--sylvan'")
+```

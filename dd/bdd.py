@@ -744,8 +744,9 @@ class BDD(_abc.BDD):
         p = self._vector_compose(v, level_sub, cache)
         q = self._vector_compose(w, level_sub, cache)
         # map this level
-        var = self.var_at_level(i)
-        g = level_sub.get(i, self.var(var))
+        g = level_sub.get(i)
+        if g is None:
+            g = self.find_or_add(i, -1, 1)
         r = self.ite(g, q, p)
         # memoize
         cache[abs(f)] = r

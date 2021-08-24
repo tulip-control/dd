@@ -2,6 +2,10 @@ The examples are:
 
 - `variable_substitution.py`: rename variables that a BDD depends on
 
+- `boolean_satisfiability.py`: solving the
+  [propositional satisfiability problem](
+    https://en.wikipedia.org/wiki/Boolean_satisfiability_problem)
+
 - `reachability.py`: compute the states reachable from some
   starting set of states.
 

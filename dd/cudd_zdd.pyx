@@ -363,7 +363,7 @@ cdef class ZDD:
                 '`self.manager` is `NULL`, which suggests that '
                 'an exception was raised inside the method '
                 '`dd.cudd_zdd.ZDD.__cinit__`.')
-        n = len(self)
+        n = Cudd_CheckZeroRef(self.manager)
         if n != 0:
             raise AssertionError((
                 'Still {n} nodes '

@@ -344,7 +344,7 @@ cdef class BDD:
                 'an exception was raised '
                 'inside the method '
                 '`dd.cudd.BDD.__cinit__`.')
-        n = len(self)
+        n = Cudd_CheckZeroRef(self.manager)
         if n != 0:
             raise AssertionError((
                 'Still {n} nodes '

@@ -135,6 +135,8 @@ class Parser(object):
               debuglog=None):
         if tabmodule is None:
             tabmodule = self.tabmodule
+        if debug and debuglog is None:
+            debuglog = logger
         self.lexer.build(debug=debug)
         self.parser = ply.yacc.yacc(
             module=self,

@@ -2,6 +2,7 @@
 
 
 - require Python >= 3.8
+- REL: require `cython >= 3.0.0`
 - DEP: deprecate hidden module `dd._compat`
 
 API:

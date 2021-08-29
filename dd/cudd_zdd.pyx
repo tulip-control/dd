@@ -79,6 +79,7 @@ ELSE:
 
 cdef extern from 'cuddInt.h':
     cdef char* CUDD_VERSION
+    cdef int CUDD_CONST_INDEX
     # subtable (for a level)
     cdef struct DdSubtable:
         unsigned int slots
@@ -1115,9 +1116,14 @@ cdef class ZDD:
         return f
 
     cdef DdNode *_find_or_add(
-            self, int index, DdNode *low, DdNode *high):
+            self, int index,
+            DdNode *low, DdNode *high) except NULL:
         """Implementation of method `find_or_add` in C."""
         cdef DdNode *r
+        if low is NULL:
+            raise AssertionError('`low is NULL`')
+        if high is NULL:
+            raise AssertionError('`high is NULL`')
         if high == Cudd_ReadZero(self.manager):
             return low
         r = cuddUniqueInterZdd(
@@ -2521,13 +2527,35 @@ cpdef Function _c_forall(
 cdef DdNode *_forall_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode *cube):
+        DdNode *cube) except NULL:
     r"""Root of recursion for \A."""
+    if mgr is NULL:
+        raise AssertionError('`mgr is NULL`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if cube is NULL:
+        raise AssertionError('`cube is NULL`')
     mgr.reordered = 1
     while mgr.reordered == 1:
         mgr.reordered = 0
         r = _forall(mgr, 0, u, cube)
+    if r is NULL:
+        raise AssertionError('`r is NULL`')
     return r
+
+
+cdef DdNode *_forall_cache_id(
+        DdManager *mgr,
+        DdNode *u,
+        DdNode *cube) noexcept:
+    """Used only as cache key.
+
+    Passed inside the function `_forall()`
+    to the C functions:
+
+    - `cuddCacheLookup2Zdd()`
+    - `cuddCacheInsert2()`
+    """
 
 
 # changes to the function `_exist`
@@ -2536,18 +2564,25 @@ cdef DdNode *_forall(
         DdManager *mgr,
         int level,
         DdNode *u,
-        DdNode *cube):
+        DdNode *cube) except? NULL:
     r"""Recursive \A.
 
     Asserts that:
     - `level` <= level of `u`
     - `level` <= level of `cube`
     """
+    if level < 0:
+        raise AssertionError(
+            f'`{level = } < 0`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if cube is NULL:
+        raise AssertionError('`cube is NULL`')
     index = Cudd_ReadInvPermZdd(mgr, level)
     if u == DD_ZERO(mgr) or index == -1:
         return u
     r = cuddCacheLookup2Zdd(
-        mgr, _forall_root, u, cube)
+        mgr, _forall_cache_id, u, cube)
     if r is not NULL:
         return r
     u_index = Cudd_NodeReadIndex(u)
@@ -2594,7 +2629,7 @@ cdef DdNode *_forall(
     Cudd_RecursiveDerefZdd(mgr, p)
     Cudd_RecursiveDerefZdd(mgr, q)
     cuddCacheInsert2(
-        mgr, _forall_root, u, cube, r)
+        mgr, _forall_cache_id, u, cube, r)
     cuddDeref(r)
     return r
 
@@ -2613,31 +2648,60 @@ cpdef Function _c_exist(
 cdef DdNode *_exist_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode *cube):
+        DdNode *cube) except NULL:
     r"""Root of recursion for \E."""
+    if mgr is NULL:
+        raise AssertionError('`mgr is NULL`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if cube is NULL:
+        raise AssertionError('`cube is NULL`')
     mgr.reordered = 1
     while mgr.reordered == 1:
         mgr.reordered = 0
         r = _exist(mgr, 0, u, cube)
+    if r is NULL:
+        raise AssertionError('`r is NULL`')
     return r
+
+
+cdef DdNode *_exist_cache_id(
+        DdManager *mgr,
+        DdNode *u,
+        DdNode *cube) noexcept:
+    """Used only as cache key.
+
+    Passed inside the function `_exist()`
+    to the C functions:
+
+    - `cuddCacheLookup2Zdd()`
+    -  `cuddCacheInsert2()`
+    """
 
 
 cdef DdNode *_exist(
         DdManager *mgr,
         int level,
         DdNode *u,
-        DdNode *cube):
+        DdNode *cube) except? NULL:
     r"""Recursive \E.
 
     Asserts that:
     - `level` <= level of `u`
     - `level` <= level of `cube`
     """
+    if level < 0:
+        raise AssertionError(
+            f'`{level = } < 0`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if cube is NULL:
+        raise AssertionError('`cube is NULL`')
     index = Cudd_ReadInvPermZdd(mgr, level)
     if u == DD_ZERO(mgr) or index == -1:
         return u
     r = cuddCacheLookup2Zdd(
-        mgr, _exist_root, u, cube)
+        mgr, _exist_cache_id, u, cube)
     if r is not NULL:
         return r
     u_index = Cudd_NodeReadIndex(u)
@@ -2685,7 +2749,7 @@ cdef DdNode *_exist(
     Cudd_RecursiveDerefZdd(mgr, p)
     Cudd_RecursiveDerefZdd(mgr, q)
     cuddCacheInsert2(
-        mgr, _exist_root, u, cube, r)
+        mgr, _exist_cache_id, u, cube, r)
     cuddDeref(r)
     return r
 
@@ -2694,12 +2758,30 @@ cdef DdNode *_find_or_add(
         DdManager *mgr,
         int index,
         DdNode *v,
-        DdNode *w):
+        DdNode *w) except? NULL:
     """Find node in table or add new node.
 
     Calls `cuddUniqueInterZdd` and
     ensures canonicity of ZDDs.
+
+    Returns `NULL` when:
+    - memory is exhausted
+    - reordering occurred
+    - a termination request was detected
+    - a timeout expired
+
+    These cases are based on the docstring
+    of the CUDD function `cuddUniqueInterZdd()`.
     """
+    if mgr is NULL:
+        raise AssertionError('`mgr is NULL`')
+    if index < 0 or index > CUDD_CONST_INDEX:
+        raise AssertionError(
+            f'`{index = }`')
+    if v is NULL:
+        raise AssertionError('`v is NULL`')
+    if w is NULL:
+        raise AssertionError('`w is NULL`')
     if w == DD_ZERO(mgr):
         return v
     return cuddUniqueInterZdd(mgr, index, w, v)
@@ -2722,30 +2804,81 @@ cpdef Function _c_disjoin(
     return wrap(u.bdd, r)
 
 
-# This function is used for hash in cache.
 cdef DdNode *_disjoin_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode *v):
+        DdNode *v) except NULL:
     """Return the disjunction of `u` and `v`."""
+    if mgr is NULL:
+        raise AssertionError('`mgr is NULL`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if v is NULL:
+        raise AssertionError('`v is NULL`')
     mgr.reordered = 1
     while mgr.reordered == 1:
         mgr.reordered = 0
         r = _disjoin(mgr, 0, u, v)
+    if r is NULL:
+        raise AssertionError('`r is NULL`')
     return r
 
 
+# This function is used for the hash in cache.
+#
+# This function exists because
+# `except? NULL` cannot be
+# used in the signature of the
+# function `_disjoin_root()`.
+#
+# Doing so changes the signature
+# in a way that passing `_disjoin_root()`
+# to the C function `cuddCacheLookup2Zdd()`
+# raises a Cython compilation error.
+cdef DdNode *_disjoin_cache_id(
+        DdManager *mgr,
+        DdNode *u,
+        DdNode *v) noexcept:
+    """Used only as cache key.
+
+    Passed inside the function `_disjoin()`
+    to the C functions:
+
+    - `cuddCacheLookup2Zdd()`
+    - `cuddCacheInsert2()`
+    """
+
+
+# The function `_disjoin()` returns `NULL`
+# also in cases that are not due to
+# raising an exception.
+#
+# Those cases are due to reaching the point where
+# the tables need to be resized, and reordering
+# invoked.
 cdef DdNode *_disjoin(
         DdManager *mgr,
         int level,
         DdNode *u,
-        DdNode *v):
+        DdNode *v) except? NULL:
     """Recursively disjoin `u` and `v`.
 
     Asserts that:
     - `level` <= level of `u`
     - `level` <= level of `v`
     """
+    # `mgr is not NULL` BY `_disjoin_root()`.
+    # `mgr` remains unchanged throughout
+    # the recursion, and it is impossible
+    # to call `_disjoin()` from Python,
+    # so `mgr` not checked here, for efficiency.
+    if level < 0:
+        raise AssertionError(
+            f'`{level = } < 0`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if v is NULL:
+        raise AssertionError('`v is NULL`')
     index = Cudd_ReadInvPermZdd(mgr, level)
     # TODO: review reference counting
     if u == DD_ZERO(mgr):
@@ -2757,7 +2890,7 @@ cdef DdNode *_disjoin(
     if v == DD_ONE(mgr) and index == -1:
         return v
     r = cuddCacheLookup2Zdd(
-        mgr, _disjoin_root, u, v)
+        mgr, _disjoin_cache_id, u, v)
     if r is not NULL:
         return r
     u_index = Cudd_NodeReadIndex(u)
@@ -2792,7 +2925,7 @@ cdef DdNode *_disjoin(
     Cudd_RecursiveDerefZdd(mgr, p)
     Cudd_RecursiveDerefZdd(mgr, q)
     cuddCacheInsert2(
-        mgr, _disjoin_root, u, v, r)
+        mgr, _disjoin_cache_id, u, v, r)
     cuddDeref(r)
     return r
 
@@ -2814,30 +2947,60 @@ cpdef Function _c_conjoin(
     return wrap(u.bdd, r)
 
 
-# This function is used for hash in cache.
 cdef DdNode *_conjoin_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode *v):
+        DdNode *v) except NULL:
     """Return the conjunction of `u` and `v`."""
+    if mgr is NULL:
+        raise AssertionError('`mgr is NULL`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if v is NULL:
+        raise AssertionError('`v is NULL`')
     mgr.reordered = 1
     while mgr.reordered == 1:
         mgr.reordered = 0
         r = _conjoin(mgr, 0, u, v)
+    if r is NULL:
+        raise AssertionError('`r is NULL`')
     return r
+
+
+# Similar to function `_disjoin_cache_id()`.
+# This function is used for the hash in cache.
+cdef DdNode *_conjoin_cache_id(
+        DdManager *mgr,
+        DdNode *u,
+        DdNode *v) noexcept:
+    """Used only as cache key.
+
+    Passed inside the function `_conjoin()`
+    to the C functions:
+
+    - `cuddCacheLookup2Zdd()`
+    - `cuddCacheInsert2()`
+    """
 
 
 cdef DdNode *_conjoin(
         DdManager *mgr,
         int level,
         DdNode *u,
-        DdNode *v):
+        DdNode *v) except? NULL:
     """Recursively conjoin `u` and `v`.
 
     Asserts that:
     - `level` <= level of `u`
     - `level` <= level of `v`
     """
+    if level < 0:
+        raise AssertionError(
+            f'`{level = } < 0`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if v is NULL:
+        raise AssertionError('`v is NULL`')
     index = Cudd_ReadInvPermZdd(mgr, level)
     if u == DD_ZERO(mgr):
         return u
@@ -2848,7 +3011,7 @@ cdef DdNode *_conjoin(
     if v == DD_ONE(mgr) and index == -1:
         return u
     r = cuddCacheLookup2Zdd(
-        mgr, _conjoin_root, u, v)
+        mgr, _conjoin_cache_id, u, v)
     if r is not NULL:
         return r
     u_index = Cudd_NodeReadIndex(u)
@@ -2883,7 +3046,7 @@ cdef DdNode *_conjoin(
     Cudd_RecursiveDerefZdd(mgr, p)
     Cudd_RecursiveDerefZdd(mgr, q)
     cuddCacheInsert2(
-        mgr, _conjoin_root, u, v, r)
+        mgr, _conjoin_cache_id, u, v, r)
     cuddDeref(r)
     return r
 
@@ -2936,8 +3099,14 @@ cpdef Function _c_compose(
 cdef DdNode *_compose_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode **vector):
+        DdNode **vector) except NULL:
     """Root of recursive composition."""
+    if mgr is NULL:
+        raise AssertionError('`mgr is NULL`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if vector is NULL:
+        raise AssertionError('`vector is NULL`')
     cdef DdNode *r
     level = 0
     mgr.reordered = 1
@@ -2959,6 +3128,8 @@ cdef DdNode *_compose_root(
                 <DdNode *><stdint.uintptr_t>nd)
         if r is not NULL:
             cuddDeref(r)
+    if r is NULL:
+        raise AssertionError('`r is NULL`')
     return r
 
 
@@ -2968,7 +3139,7 @@ cdef DdNode *_compose(
         # DdHashTable *table,
         dict table,
         DdNode *u,
-        DdNode **vector):
+        DdNode **vector) except? NULL:
     """Recursively compute composition.
 
     The composition is defined in the
@@ -2977,10 +3148,21 @@ cdef DdNode *_compose(
     Asserts that:
     - `level` <= level of `u`
     """
+    if level < 0:
+        raise AssertionError(
+            f'`{level = } < 0`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if vector is NULL:
+        raise AssertionError('`vector is NULL`')
     if u == DD_ZERO(mgr):
         return u
     if u == DD_ONE(mgr):
-        return Cudd_ReadZddOne(mgr, 0)
+        r = Cudd_ReadZddOne(mgr, 0)
+        if r is NULL:
+            raise AssertionError(
+                '`Cudd_ReadZddOne()` returned `NULL`.')
+        return r
     t = (<stdint.uintptr_t>u, level)
     if t in table:
         return <DdNode *><stdint.uintptr_t>table[t]
@@ -3050,14 +3232,16 @@ cdef DdNode *_compose(
 
 
 # This function is similar to `cuddHashTableQuit`.
-cdef void cuddHashTableQuitZdd(
-        DdHashTable * hash):
+cdef bint cuddHashTableQuitZdd(
+        DdHashTable * hash) except False:
     """Shutdown a hash table.
 
-    This function calls `Cudd_RecursiveDerefZdd`.
-    The function `cuddHashTableQuit` calls
-    `Cudd_RecursiveDeref`.
+    This function calls `Cudd_RecursiveDerefZdd()`.
+    The function `cuddHashTableQuit()` calls
+    `Cudd_RecursiveDeref()`.
     """
+    if hash is NULL:
+        raise AssertionError('`hash is NULL`')
     cdef unsigned int i;
     cdef DdManager *dd = hash.manager;
     cdef DdHashItem *bucket;
@@ -3076,6 +3260,7 @@ cdef void cuddHashTableQuitZdd(
         memlist = nextmem
     FREE(hash.bucket)
     FREE(hash)
+    return True
 
 
 cpdef set _c_support(Function u):
@@ -3093,6 +3278,8 @@ cpdef set _c_support(Function u):
         support[i] = 0
     try:
         level = 0
+        if u.manager is NULL:
+            raise AssertionError('`u.manager is NULL`')
         _support(u.manager, level, Cudd_Regular(u.node), support)
         _clear_markers(Cudd_Regular(u.node))
         support_vars = set()
@@ -3105,19 +3292,26 @@ cpdef set _c_support(Function u):
     return support_vars
 
 
-cdef void _support(
+cdef bint _support(
         DdManager *mgr,
         int level,
         DdNode *u,
-        int *support):
+        int *support) except False:
     """Recursively compute the support."""
+    if level < 0:
+        raise AssertionError(
+            f'`{level = } < 0`')
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
+    if support is NULL:
+        raise AssertionError('`support is NULL`')
     index = Cudd_ReadInvPermZdd(mgr, level)
     # terminal ?
     if u == DD_ZERO(mgr) or index == -1:
-        return
+        return True
     # visited ?
     if Cudd_IsComplement(u.next):
-        return
+        return True
     u_index = Cudd_NodeReadIndex(u)
     u_level = Cudd_ReadPermZdd(mgr, u_index)
     assert level <= u_level
@@ -3132,18 +3326,22 @@ cdef void _support(
         _support(mgr, level + 1, v, support)
         _support(mgr, level + 1, w, support)
     u.next = Cudd_Not(u.next)
+    return True
 
 
-cdef void _clear_markers(DdNode *u):
+cdef bint _clear_markers(DdNode *u) except False:
     """Recursively clear complementation bits."""
+    if u is NULL:
+        raise AssertionError('`u is NULL`')
     if not Cudd_IsComplement(u.next):
-        return
+        return True
     u.next = Cudd_Regular(u.next)
     if cuddIsConstant(u):
-        return
+        return True
     v, w = Cudd_Regular(cuddE(u)), cuddT(u)
     _clear_markers(v)
     _clear_markers(w)
+    return True
 
 
 cpdef _test_call_dealloc(Function u):

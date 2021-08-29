@@ -318,12 +318,12 @@ cdef class ZDD(object):
         if memory_estimate is None:
             memory_estimate = default_memory
         if memory_estimate >= total_memory:
-            print(
+            print((
                 'Error in `dd.cudd`: '
                 'total physical memory is {t} bytes, '
                 'but requested {r} bytes').format(
                     t=total_memory,
-                    r=memory_estimate)
+                    r=memory_estimate))
         assert memory_estimate < total_memory, (
             memory_estimate, total_memory)
         if initial_cache_size is None:

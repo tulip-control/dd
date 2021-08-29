@@ -1,4 +1,4 @@
-cython==0.29.21
+cython==0.29.24
 # cysignals >= 1.7.0  # optional
 
 

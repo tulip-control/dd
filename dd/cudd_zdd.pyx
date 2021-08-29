@@ -1061,7 +1061,7 @@ cdef class ZDD:
             raise ValueError('`v.manager != self.manager`')
         cdef DdNode *r
         r = Cudd_zddIte(self.manager, g.node, u.node, v.node)
-        if r == NULL:
+        if r is NULL:
             raise CouldNotCreateNode()
         return wrap(self, r)
 
@@ -1080,7 +1080,7 @@ cdef class ZDD:
             raise ValueError('`v.manager != self.manager`')
         cdef DdNode *r
         r = cuddZddIte(self.manager, g.node, u.node, v.node)
-        if r == NULL:
+        if r is NULL:
             raise CouldNotCreateNode()
         return wrap(self, r)
 
@@ -1107,7 +1107,7 @@ cdef class ZDD:
         else:
             r = cuddUniqueInterZdd(
                 self.manager, index, high.node, low.node)
-            if r == NULL:
+            if r is NULL:
                 raise CouldNotCreateNode()
         f = wrap(self, r)
         if level > f.level:
@@ -1393,7 +1393,7 @@ cdef class ZDD:
         else:
             raise ValueError(
                 'unknown operator: "{op}"'.format(op=op))
-        if r == NULL:
+        if r is NULL:
             config = self.configure()
             raise RuntimeError((
                 'CUDD appears to have run out of memory.\n'
@@ -2548,7 +2548,7 @@ cdef DdNode *_forall(
         return u
     r = cuddCacheLookup2Zdd(
         mgr, _forall_root, u, cube)
-    if r != NULL:
+    if r is not NULL:
         return r
     u_index = Cudd_NodeReadIndex(u)
     u_level = Cudd_ReadPermZdd(mgr, u_index)
@@ -2567,17 +2567,17 @@ cdef DdNode *_forall(
         assert cuddE(cube) == cuddT(cube)
         new_cube = cuddE(cube)
     p = _forall(mgr, level + 1, v, new_cube)
-    if p == NULL:
+    if p is NULL:
         return NULL
     cuddRef(p)
     q = _forall(mgr, level + 1, w, new_cube)
-    if q == NULL:
+    if q is NULL:
         Cudd_RecursiveDerefZdd(mgr, p)
         return NULL
     cuddRef(q)
     if level == cube_level:
         conj = _conjoin(mgr, level + 1, p, q)
-        if conj == NULL:
+        if conj is NULL:
             Cudd_RecursiveDerefZdd(mgr, p)
             Cudd_RecursiveDerefZdd(mgr, q)
             return NULL
@@ -2586,7 +2586,7 @@ cdef DdNode *_forall(
         Cudd_RecursiveDerefZdd(mgr, conj)
     else:
         r = _find_or_add(mgr, index, p, q)
-    if r == NULL:
+    if r is NULL:
         Cudd_RecursiveDerefZdd(mgr, p)
         Cudd_RecursiveDerefZdd(mgr, q)
         return NULL
@@ -2638,7 +2638,7 @@ cdef DdNode *_exist(
         return u
     r = cuddCacheLookup2Zdd(
         mgr, _exist_root, u, cube)
-    if r != NULL:
+    if r is not NULL:
         return r
     u_index = Cudd_NodeReadIndex(u)
     u_level = Cudd_ReadPermZdd(mgr, u_index)
@@ -2657,18 +2657,18 @@ cdef DdNode *_exist(
         assert cuddE(cube) == cuddT(cube), 'E == T'
         new_cube = cuddE(cube)
     p = _exist(mgr, level + 1, v, new_cube)
-    if p == NULL:
+    if p is NULL:
         return NULL
     cuddRef(p)
     q = _exist(mgr, level + 1, w, new_cube)
-    if q == NULL:
+    if q is NULL:
         Cudd_RecursiveDerefZdd(mgr, p)
         return NULL
     cuddRef(q)
     assert level <= cube_level, (level, cube_level)
     if level == cube_level:
         disj = _disjoin(mgr, level + 1, p, q)
-        if disj == NULL:
+        if disj is NULL:
             Cudd_RecursiveDerefZdd(mgr, p)
             Cudd_RecursiveDerefZdd(mgr, q)
             return NULL
@@ -2677,7 +2677,7 @@ cdef DdNode *_exist(
         Cudd_RecursiveDerefZdd(mgr, disj)
     else:
         r = _find_or_add(mgr, index, p, q)
-    if r == NULL:
+    if r is NULL:
         Cudd_RecursiveDerefZdd(mgr, p)
         Cudd_RecursiveDerefZdd(mgr, q)
         return NULL
@@ -2758,7 +2758,7 @@ cdef DdNode *_disjoin(
         return v
     r = cuddCacheLookup2Zdd(
         mgr, _disjoin_root, u, v)
-    if r != NULL:
+    if r is not NULL:
         return r
     u_index = Cudd_NodeReadIndex(u)
     u_level = Cudd_ReadPermZdd(mgr, u_index)
@@ -2775,16 +2775,16 @@ cdef DdNode *_disjoin(
     else:
         pv, qv = cuddE(v), cuddT(v)
     p = _disjoin(mgr, level + 1, pu, pv)
-    if p == NULL:
+    if p is NULL:
         return NULL
     cuddRef(p)
     q = _disjoin(mgr, level + 1, qu, qv)
-    if q == NULL:
+    if q is NULL:
         Cudd_RecursiveDerefZdd(mgr, p)
         return NULL
     cuddRef(q)
     r = _find_or_add(mgr, index, p, q)
-    if r == NULL:
+    if r is NULL:
         Cudd_RecursiveDerefZdd(mgr, p)
         Cudd_RecursiveDerefZdd(mgr, q)
         return NULL
@@ -2849,7 +2849,7 @@ cdef DdNode *_conjoin(
         return u
     r = cuddCacheLookup2Zdd(
         mgr, _conjoin_root, u, v)
-    if r != NULL:
+    if r is not NULL:
         return r
     u_index = Cudd_NodeReadIndex(u)
     u_level = Cudd_ReadPermZdd(mgr, u_index)
@@ -2866,16 +2866,16 @@ cdef DdNode *_conjoin(
     else:
         pv, qv = cuddE(v), cuddT(v)
     p = _conjoin(mgr, level + 1, pu, pv)
-    if p == NULL:
+    if p is NULL:
         return NULL
     cuddRef(p)
     q = _conjoin(mgr, level + 1, qu, qv)
-    if q == NULL:
+    if q is NULL:
         Cudd_RecursiveDerefZdd(mgr, p)
         return NULL
     cuddRef(q)
     r = _find_or_add(mgr, index, p, q)
-    if r == NULL:
+    if r is NULL:
         Cudd_RecursiveDerefZdd(mgr, p)
         Cudd_RecursiveDerefZdd(mgr, q)
         return NULL
@@ -2945,19 +2945,19 @@ cdef DdNode *_compose_root(
         mgr.reordered = 0
         table = dict()
         # table = cuddHashTableInit(mgr, 1, 2)
-        # if table == NULL:
+        # if table is NULL:
         #     return NULL
         r = _compose(mgr, level, table, u, vector)
         # if mgr.reordered == 1:
-        #     assert r == NULL, r
-        if r != NULL:
+        #     assert r is NULL, r
+        if r is not NULL:
             cuddRef(r)
             assert r.ref > 0, r.ref
         # cuddHashTableQuitZdd(table)
         for nd in table.values():
             Cudd_RecursiveDerefZdd(mgr,
                 <DdNode *><stdint.uintptr_t>nd)
-        if r != NULL:
+        if r is not NULL:
             cuddDeref(r)
     return r
 
@@ -2985,7 +2985,7 @@ cdef DdNode *_compose(
     if t in table:
         return <DdNode *><stdint.uintptr_t>table[t]
     # r = cuddHashTableLookup1(table, u)
-    # if r != NULL:
+    # if r is not NULL:
     #     return r
     u_index = Cudd_NodeReadIndex(u)
     u_level = Cudd_ReadPermZdd(mgr, u_index)
@@ -2999,12 +2999,12 @@ cdef DdNode *_compose(
         assert level + 1 <= u_level, (level, u_level)
         c = _compose(
             mgr, level + 1, table, u, vector)
-        if c == NULL:
+        if c is NULL:
             return NULL
         cuddRef(c)
         assert c.ref > 0, c.ref
         r = cuddZddIte(mgr, g, DD_ZERO(mgr), c)
-        if r == NULL:
+        if r is NULL:
             Cudd_RecursiveDerefZdd(mgr, c)
             return NULL
         cuddRef(r)
@@ -3017,19 +3017,19 @@ cdef DdNode *_compose(
         assert w.ref > 0, w.ref
         p = _compose(
             mgr, level + 1, table, v, vector)
-        if p == NULL:
+        if p is NULL:
             return NULL
         cuddRef(p)
         assert p.ref > 0, p.ref
         q = _compose(
             mgr, level + 1, table, w, vector)
-        if q == NULL:
+        if q is NULL:
             Cudd_RecursiveDerefZdd(mgr, p)
             return NULL
         cuddRef(q)
         assert q.ref > 0, q.ref
         r = cuddZddIte(mgr, g, q, p)
-        if r == NULL:
+        if r is NULL:
             Cudd_RecursiveDerefZdd(mgr, q)
             Cudd_RecursiveDerefZdd(mgr, p)
             return NULL
@@ -3066,11 +3066,11 @@ cdef void cuddHashTableQuitZdd(
     cdef unsigned int numBuckets = hash.numBuckets;
     for i in range(numBuckets):
         bucket = hash.bucket[i]
-        while bucket != NULL:
+        while bucket is not NULL:
             Cudd_RecursiveDerefZdd(dd, bucket.value)
             bucket = bucket.next
     memlist = hash.memoryList
-    while (memlist != NULL):
+    while (memlist is not NULL):
         nextmem = <DdHashItem **> memlist[0]
         FREE(memlist)
         memlist = nextmem

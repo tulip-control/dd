@@ -1257,7 +1257,7 @@ cdef class BDD:
         else:
             raise ValueError(
                 'unknown operator: "{op}"'.format(op=op))
-        if r == NULL:
+        if r is NULL:
             config = self.configure()
             raise RuntimeError((
                 'CUDD appears to have run out of memory.\n'

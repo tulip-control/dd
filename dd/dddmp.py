@@ -68,7 +68,7 @@ class Lexer:
     reserved = {'.{k}'.format(k=k): v for k, v in reserved.items()}
     misc = ['MINUS', 'DOT', 'NAME', 'NUMBER']
     # token rules
-    t_MINUS = r'-'
+    t_MINUS = r'\-'
     t_DOT = r'\.'
     t_NUMBER = r'\d+'
     t_ignore = ' \t'
@@ -83,7 +83,7 @@ class Lexer:
         return t
 
     def t_NAME(self, t):
-        r"[a-zA-Z_][a-zA-Z_@0-9\'\.]*"
+        r"[a-zA-Z_][a-zA-Z_@0-9'\.]*"
         t.type = self.reserved.get(t.value, 'NAME')
         return t
 
@@ -93,7 +93,7 @@ class Lexer:
 
     def t_newline(self, t):
         r'\n+'
-        t.lexer.lineno += t.value.count("\n")
+        t.lexer.lineno += t.value.count('\n')
 
     def t_error(self, t):
         raise Exception('Illegal character "{t}"'.format(t=t.value[0]))

@@ -40,34 +40,34 @@ class Lexer(astutils.Lexer):
         return t
 
     def t_NOT(self, t):
-        r'~|\!'
+        r'\~|!'
         t.value = '!'
         return t
 
     def t_IMPLIES(self, t):
-        r'\=>|->'
+        r'=>|\->'
         t.value = '=>'
         return t
 
     def t_EQUIV(self, t):
-        r'\<\=>|\<->'
+        r'<=>|<\->'
         t.value = '<->'
         return t
 
     t_XOR = r'\^'
-    t_EQUALS = r'\='
+    t_EQUALS = r'='
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
-    t_MINUS = r'-'
+    t_MINUS = r'\-'
     t_NUMBER = r'\d+'
     t_COMMA = r','
-    t_COLON = r'\:'
+    t_COLON = r':'
     t_FORALL = r'\\A'
     t_EXISTS = r'\\E'
     t_RENAME = r'\\S'
     t_DIV = r'/'
     t_AT = r'@'
-    t_ignore = " \t"
+    t_ignore = ' \t'
 
     def t_comment(self, t):
         r'\#.*'
@@ -75,7 +75,7 @@ class Lexer(astutils.Lexer):
 
     def t_newline(self, t):
         r'\n+'
-        t.lexer.lineno += t.value.count("\n")
+        t.lexer.lineno += t.value.count('\n')
 
 
 class Parser(astutils.Parser):

@@ -1247,27 +1247,52 @@ def test_assert_refined_ordering():
     _bdd._assert_isomorphic_orders(ordering, new_ordering, ordering)
 
 
-def test_to_pydot():
-    def f(x):
+def test_to_graphviz_dot():
+    def fmt(x):
         return str(abs(x))
     # with roots
     g = x_and_y()
     pd = _bdd.to_pydot([4, 2], g)
-    r = nx.drawing.nx_pydot.from_pydot(pd)
+    r = _graph_from_dot(pd)
     for u in g:
-        assert f(u) in r, (u, r.nodes())
-    for u in g._succ:
-        i, v, w = g._succ[u]
+        assert fmt(u) in r, (u, r)
+    for u, (_, v, w) in g._succ.items():
+        su = fmt(u)
+        assert su in r, (su, r)
         if v is None or w is None:
             assert v is None, v
             assert w is None, w
             continue
-        assert r.has_edge(f(u), f(v)), (u, v)
-        assert r.has_edge(f(u), f(w)), (u, w)
+        sv = fmt(v)
+        sw = fmt(w)
+        assert sv in r[su], (su, sv, r)
+        assert sw in r[su], (su, sw, r)
     # no roots
     pd = _bdd.to_pydot(None, g)
-    r = nx.drawing.nx_pydot.from_pydot(pd)
-    assert len(r) == 8, r.nodes()  # 3 hidden nodes for levels
+    r = _graph_from_dot(pd)
+    # `r` has 3 hidden nodes,
+    # used to layout variable levels
+    assert len(r) == 8, r
+
+
+def _graph_from_dot(dot_graph):
+    """Return `dict` of `set` for graph."""
+    g = dict()
+    return _graph_from_dot_recurse(dot_graph, g)
+
+
+def _graph_from_dot_recurse(dot_graph, g):
+    for h in dot_graph.get_subgraphs():
+        _graph_from_dot_recurse(h, g)
+    for node in dot_graph.get_nodes():
+        name = node.get_name()
+        g[name] = set()
+    for edge in dot_graph.get_edges():
+        src = edge.get_source()
+        dst = edge.get_destination()
+        assert src in g, (src, g)
+        g[src].add(dst)
+    return g
 
 
 def test_function_wrapper():

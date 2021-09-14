@@ -273,7 +273,7 @@ be exhaustively enumerated (i.e., all combinations of `True` and `False`).
 For example, if `care_vars == []`, then the assignments will contain only
 those variables that appear along the recursive traversal of the BDD.
 If `care_vars == support(u)`, then the result equals the default result.
-For `care_vars > support(u)` we will see more variables in each assignment
+For `care_vars > support(u)` we will observe more variables in each assignment
 than the variables in the support.
 
 
@@ -523,7 +523,7 @@ bdd = BDD.load('manager.p')
 ### Nodes as `Function` objects
 
 As mentioned earlier, the main difference between the main `dd` modules is
-what type of object the user sees as a “node”:
+what type of object appears at the user interface as a “node”:
 
 - `dd.bdd` gives to the user signed integers as nodes
 - `dd.autoref` and `dd.cudd` give her `Function` objects as nodes.
@@ -677,7 +677,7 @@ have nonzero reference count in CUDD. By default, this assertion should never
 fail, because automated reference counting makes it impossible.
 
 If the assertion fails, then the exception is ignored and a message is printed
-instead, and Python continues execution (see also the Cython documentation of
+instead, and Python continues execution (read also the Cython documentation of
 [`__dealloc__`](
     https://cython.readthedocs.io/en/latest/src/userguide/special_methods.html#finalization-method-dealloc),
 the Python documentation of
@@ -1255,7 +1255,7 @@ in the negated value computed for node `y-3` in the next image.
   create distributions for uploading to PyPI with `twine`.
 
 - Press `Ctrl + \` on Linux and Darwin to quit the Python process when
-  CUDD computations take a long time. See `stty -a` for your settings.
+  CUDD computations take a long time. Read `stty -a` for your settings.
 
 - To use `Ctrl + C` (`KeyboardInterrupt`) to interrupt CUDD computations
   that take a long time, install `cysignals`, then build `dd.cudd`.

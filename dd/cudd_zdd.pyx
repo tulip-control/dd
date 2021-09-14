@@ -427,7 +427,7 @@ cdef class ZDD:
     def statistics(ZDD self, exact_node_count=False):
         """Return `dict` with CUDD node counts and times.
 
-        For details see the docstring of the method
+        For details read the docstring of the method
         `dd.cudd.BDD.statistics`.
         """
         warnings.warn(
@@ -491,7 +491,7 @@ cdef class ZDD:
     def configure(self, **kw):
         """Read and apply parameter values.
 
-        For details see the docstring of the method
+        For details read the docstring of the method
         `dd.cudd.BDD.configure`.
         """
         cdef int method
@@ -1239,7 +1239,7 @@ cdef class ZDD:
         Calls `Cudd_zddIte`.
         """
         # for calling `cuddZddIte`
-        # see the method `_ite_recursive`
+        # read the method `_ite_recursive`
         logger.debug('ite')
         if g.manager != self.manager:
             raise ValueError('`g.manager != self.manager`')
@@ -2205,7 +2205,7 @@ cdef class Function:
         cdef DdNode *u
         if cuddIsConstant(self.node):
             return None
-        # See the lines:
+        # refer to the lines:
         #
         # else if (top_var == level) {
         #     res = cuddE(P);
@@ -2221,7 +2221,7 @@ cdef class Function:
         cdef DdNode *u
         if cuddIsConstant(self.node):
             return None
-        # See the lines:
+        # refer to the lines:
         #
         # } else if (top_var == level) {
         # res = cuddT(P);
@@ -2404,7 +2404,7 @@ cdef dict _path_array_to_dict(int *x, dict index_of_var):
 cdef dict _cube_array_to_dict(int *x, dict index_of_var):
     """Return assignment from array of literals `x`.
 
-    @param x: see `dd.cudd._dict_to_cube_array`
+    @param x: read `dd.cudd._dict_to_cube_array`
     """
     d = dict()
     for var, j in index_of_var.items():

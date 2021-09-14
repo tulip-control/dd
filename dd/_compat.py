@@ -14,7 +14,7 @@ def items(d):
     """Try to return `dict.iteritems()`, else `dict.items()`.
 
     Compatibility between Python v2 and v3.
-    Preserves readability, w/o damaging performance.
+    Preserves readability, without damaging performance.
     """
     try:
         return d.iteritems()

@@ -337,7 +337,7 @@ API:
   - distinguish between peak and live nodes
   - cache statistics
   - unique table statistics
-  - read node count w/o removing dead nodes
+  - read node count without removing unused nodes
 - `dd.cudd.BDD.configure`:
   - accept keyword args, instead of `dict`
   - first read config (returned `dict`), then set given values

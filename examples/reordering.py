@@ -28,7 +28,7 @@ def demo_dynamic_reordering():
 def show_logging():
     """Display logging messages relevant to reordering.
 
-    To see more details, increase the verbosity level
+    To log more details, increase the verbosity level
     to `logging.DEBUG`.
     """
     logger = logging.getLogger('dd.bdd')

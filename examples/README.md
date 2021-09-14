@@ -20,7 +20,7 @@ The examples are:
 
 - `cudd_configure_reordering.py`: how to turn reordering off when using CUDD
 
-- `cudd_statistics.py`: see CUDD's activity in numbers.
+- `cudd_statistics.py`: read CUDD's activity in numbers.
 
 - `cudd_memory_limits.py`: bound how much memory CUDD is
   allowed to use.

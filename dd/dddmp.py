@@ -6,7 +6,7 @@ read the file [1] included in the CUDD distribution [2].
 The text file format details can be found
 by reading the source code [3].
 
-For the `slugs` exporter, see [4].
+For the `slugs` exporter, read [4].
 
 
 References

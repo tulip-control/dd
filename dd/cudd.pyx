@@ -510,7 +510,7 @@ cdef class BDD:
           - `'max_swaps'`: no more level swaps in one sifting
           - `'max_vars'`: no more variables moved in one sifting
 
-        For more details, see `cuddAPI.c`.
+        For more details, read `cuddAPI.c`.
         Example usage:
 
         ```python
@@ -1839,7 +1839,7 @@ cdef _dict_to_cube_array(d, int *x, dict index_of_var):
 
     @param x: array of literals
         0: negated, 1: positive, 2: don't care
-        see `Cudd_FirstCube`
+        read `Cudd_FirstCube`
     @param index_of_var: `dict` from variables to `bool`
         or `set` of variable names.
     """
@@ -1867,7 +1867,7 @@ cdef _dict_to_cube_array(d, int *x, dict index_of_var):
 cdef dict _cube_array_to_dict(int *x, dict index_of_var):
     """Return assignment from array of literals `x`.
 
-    @param x: see `_dict_to_cube_array`
+    @param x: read `_dict_to_cube_array`
     """
     d = dict()
     for var, j in index_of_var.items():

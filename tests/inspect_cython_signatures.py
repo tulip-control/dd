@@ -103,7 +103,7 @@ if __name__ == '__main__':
     print(30 * '-' + '\n')
     u = _abc.Operator
     # cannot instantiate `cudd.Function`
-    # w/o a `DdNode` pointer
+    # without a `DdNode` pointer
     b.declare('x')
     v = b.add_expr('x')
     inspect_signatures(u, v)

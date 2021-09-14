@@ -121,7 +121,7 @@ def test_configure_dynamic_reordering():
         'z1', 'z2', 'z3', 'y1', 'y2', 'y3']
     expr_1 = r'(~ z \/ (c /\ b)) /\ e /\ (a /\ (~ x \/ y))'
     expr_2 = r'(z1 /\ y1) \/ (z2 /\ y2) \/ (z3 /\ y3)'
-    # w/o dynamic reordering
+    # without dynamic reordering
     bdd = _bdd.BDD()
     bdd.declare(*vrs)
     u = bdd.add_expr(expr_1)

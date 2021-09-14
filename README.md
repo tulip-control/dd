@@ -202,7 +202,7 @@ versions. These wheel files contain the module `dd.cudd` with the CUDD
 library compiled and linked.
 If you have a Linux system and Python version compatible with one of the
 available wheels, then `pip install dd` will install `dd.cudd`, so you need
-not compile CUDD. Otherwise, see below.
+not compile CUDD. Otherwise, read below.
 
 
 ### `dd` fetching CUDD
@@ -277,7 +277,7 @@ prior to calling `pip`, or by editing the file [`download.py`](
     https://github.com/tulip-control/dd/blob/main/download.py).
 
 Currently, `download.py` expects to find Sylvan under `dd/sylvan` and built with [Autotools](https://en.wikipedia.org/wiki/GNU_Build_System)
-(for an example, see `.github/workflows/main.yml`).
+(for an example, read `.github/workflows/main.yml`).
 If the path differs in your environment, remember to update it.
 
 Scripts are available that fetch, build, and install the Cython bindings:
@@ -322,7 +322,7 @@ The modules `dd.cudd` and `dd.cudd_zdd` in the wheel dynamically link to the:
 
 - Linux kernel (in particular [`linux-vdso.so.1`](
     https://man7.org/linux/man-pages/man7/vdso.7.html)),
-  which allows system calls (see the kernel's file [`COPYING`](
+  which allows system calls (read the kernel's file [`COPYING`](
     https://github.com/torvalds/linux/blob/master/COPYING) and the explicit
   syscall exception in the file [`LICENSES/exceptions/Linux-syscall-note`](
     https://github.com/torvalds/linux/blob/master/LICENSES/exceptions/Linux-syscall-note))
@@ -391,7 +391,7 @@ The code is covered well by tests.
 
 License
 =======
-[BSD-3](https://opensource.org/licenses/BSD-3-Clause), see file `LICENSE`.
+[BSD-3](https://opensource.org/licenses/BSD-3-Clause), read file `LICENSE`.
 
 
 [build_img]: https://github.com/tulip-control/dd/actions/workflows/main.yml/badge.svg?branch=main

@@ -174,8 +174,12 @@ def _copy_extern_licenses(args):
     for name in licenses:
         license = os.path.join(path, name)
         included = os.path.join('dd', name)
-        if yes:
+        if yes and os.path.isfile(license):
             shutil.copyfile(license, included)
+        elif yes and not os.path.isfile(license):
+            print(
+                f'WARNING: No file: `{license}`, '
+                'skipping file copy.')
         elif os.path.isfile(included):
             os.remove(included)
 

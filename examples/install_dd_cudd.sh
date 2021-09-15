@@ -36,7 +36,11 @@ pip download \
     --no-binary dd
 tar -xzf dd-*.tar.gz
 pushd dd-*/
-python setup.py install --fetch --cudd --cudd_zdd
+export DD_FETCH=1 DD_CUDD=1 DD_CUDD_ZDD=1
+pip install . \
+    -vvv \
+    --use-pep517 \
+    --no-build-isolation
 # confirm that `dd.cudd` did get installed
 pushd tests/
 python -c 'import dd.cudd'

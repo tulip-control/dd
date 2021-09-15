@@ -51,7 +51,11 @@ popd
 
 
 # Fetch and install `dd`
-pip install -r <(echo "dd --install-option='--sylvan'")
+export DD_SYLVAN=1
+pip install dd \
+    -vvv \
+    --use-pep517 \
+    --no-build-isolation
 # fetch `dd` source
 pip download \
     --no-deps dd \

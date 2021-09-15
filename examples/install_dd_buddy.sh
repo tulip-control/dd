@@ -44,7 +44,11 @@ popd
 
 # Fetch and install `dd`
 pip install cython
-pip install -r <(echo "dd --install-option='--buddy'")
+export DD_BUDDY=1
+pip install dd \
+    -vvv \
+    --use-pep517 \
+    --no-build-isolation
     # passes `-lbdd` to the C compiler
 #
 # fetch `dd` source

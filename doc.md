@@ -22,6 +22,12 @@
 - [Example: Reachability analysis](#example-reachability-analysis)
 - [Syntax for quantified Boolean formulas](#syntax-for-quantified-boolean-formulas)
 - [Multi-valued decision diagrams (MDD)](#multi-valued-decision-diagrams-mdd)
+- [Installation of C extension modules](#installation-of-c-extension-modules)
+    - [Environment variables that activate C extensions](#environment-variables-that-activate-c-extensions)
+    - [Alternative: directly running `setup.py`](#alternative-directly-running-setuppy)
+    - [Using the package `build`](#using-the-package-build)
+    - [Customizing the C compilation](#customizing-the-c-compilation)
+- [Installing the development version](#installing-the-development-version)
 - [Footnotes](#footnotes)
 - [Copying](#copying)
 
@@ -1247,6 +1253,159 @@ Note that the `MDD` node `v` is complemented (-3 < 0), so the predicate
 in the negated value computed for node `y-3` in the next image.
 
 ![example_bdd](https://rawgithub.com/johnyf/binaries/main/dd/mdd.png)
+
+
+## Installation of C extension modules
+
+
+### Environment variables that activate C extensions
+
+By default, the package `dd` installs only its Python modules.
+You can select to install Cython extensions using
+environment variables:
+
+- `DD_FETCH=1`: download CUDD v3.0.0 sources from the internet,
+  check the tarball's hash, unpack the tarball, and `make` CUDD.
+- `DD_CUDD=1`: build module `dd.cudd`, for CUDD BDDs
+- `DD_CUDD_ZDD=1`: build module `dd.cudd_zdd`, for CUDD ZDDs
+- `DD_SYLVAN=1`: build module `dd.sylvan`, for Sylvan BDDs
+- `DD_BUDDY=1`: build module `dd.buddy`, for BuDDy BDDs
+
+Example scripts are available that fetch and install
+the Cython bindings:
+- [`examples/install_dd_cudd.sh`](
+    https://github.com/tulip-control/dd/blob/main/examples/install_dd_cudd.sh)
+- [`examples/install_dd_sylvan.sh`](
+    https://github.com/tulip-control/dd/blob/main/examples/install_dd_sylvan.sh)
+- [`examples/install_dd_buddy.sh`](
+    https://github.com/tulip-control/dd/blob/main/examples/install_dd_buddy.sh)
+
+
+### Alternative: Directly running `setup.py`
+
+Activating the Cython build by directly running
+`python setup.py` is an alternative to
+using environment variables (e.g., `export DD_CUDD=1` etc).
+The relevant command-line options of `setup.py` are:
+
+- `--fetch`: same effect as `DD_FETCH=1`
+- `--cudd`: same effect as `DD_CUDD=1`
+- `--cudd_zdd`: same effect as `DD_CUDD_ZDD=1`
+- `--sylvan`: same effect as `DD_SYLVAN=1`
+- `--buddy`: same effect as `DD_BUDDY=1`
+
+These options work for `python setup.py sdist` and
+`python setup.py install`, but directly running
+`python setup.py` is deprecated by `setuptools >= 58.3.0`.
+
+Example:
+
+```shell
+pip download dd --no-deps
+tar xzf dd-*.tar.gz
+pushd dd-*/
+    # `pushd` means `cd`
+python setup.py install --fetch --cudd --cudd_zdd
+popd
+```
+
+[`pushd directory`](
+    https://en.wikipedia.org/wiki/Pushd_and_popd)
+is akin to `stack.append(directory)` in
+Python, and `popd` to `stack.pop()`.
+
+The path to an existing CUDD build directory
+can be passed as an argument, for example:
+
+```shell
+python setup.py install \
+    --fetch \
+    --cudd="/home/user/cudd"
+```
+
+
+### Using the package `build`
+
+The following also works for building source tarballs and wheels:
+
+```sh
+pip install cython
+export DD_FETCH=1 DD_CUDD=1
+python -m build --no-isolation
+```
+
+To build a source tarball:
+
+```sh
+DD_CUDD=1 python -m build --sdist --no-isolation
+```
+
+
+### Customizing the C compilation
+
+If you build and install CUDD, Sylvan, or BuDDy yourself, then ensure that:
+
+- the header files and libraries are present, and
+- the compiler is configured appropriately (include,
+  linking, and library configuration),
+
+either by setting [environment variables](
+    https://en.wikipedia.org/wiki/Environment_variable)
+prior to calling `pip`, or by editing the file [`download.py`](
+    https://github.com/tulip-control/dd/blob/main/download.py).
+
+Currently, `download.py` expects to find Sylvan under `dd/sylvan` and
+built with [Autotools](
+    https://en.wikipedia.org/wiki/GNU_Build_System)
+(for an example, read `.github/workflows/setup_build_env.sh`).
+If the path differs in your environment, remember to update it.
+
+If you prefer defining installation directories, then follow
+[Cython's instructions](
+    https://cython.readthedocs.io/en/latest/src/tutorial/clibraries.html#compiling-and-linking)
+to define `CFLAGS` and `LDFLAGS` before installing.
+You need to have copied `CuddInt.h` to the installation's include location
+(CUDD omits it).
+
+
+## Installing the development version
+
+For installing the development version of `dd` from the `git` repository,
+an alternative to cloning the repository and installing from the cloned
+repository is to [use `pip` for doing so](
+    https://pip.pypa.io/en/stable/cli/pip_install/#argument-handling):
+
+```shell
+pip install https://github.com/tulip-control/dd/archive/main.tar.gz
+```
+
+or with [`pip` using `git`](
+    https://pip.pypa.io/en/stable/topics/vcs-support/#git)
+(this alternative requires that `git` be installed):
+
+```shell
+pip install git+https://github.com/tulip-control/dd
+```
+
+A `git` URL can be passed also to [`pip download`](
+    https://pip.pypa.io/en/stable/cli/pip_download/#overview),
+for example:
+
+```shell
+pip download --no-deps https://github.com/tulip-control/dd/archive/main.tar.gz
+```
+
+The extension `.zip` too can be used for the name of the [archive file](
+    https://en.wikipedia.org/wiki/Archive_file)
+in the URL. Analogously, with `pip` using `git`:
+
+```shell
+pip download --no-deps git+https://github.com/tulip-control/dd
+```
+
+Note that the naming of paths *within* the archive file downloaded from
+GitHub in this way will differ, depending on whether `https://` or
+`git+https://` is used.
 
 
 ## Footnotes

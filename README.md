@@ -176,7 +176,7 @@ package installer [`pip`](https://pip.pypa.io):
 pip install dd
 ```
 
-Locally:
+or from the directory of source files:
 
 ```shell
 pip install .
@@ -190,103 +190,47 @@ For Python 2.7, use `dd == 0.5.7`.
 
 ## Cython bindings
 
-
-### Wheel files with compiled CUDD
-
-
-As of `dd` version 0.5.3, [`manylinux2014_x86_64`](
-    https://www.python.org/dev/peps/pep-0599/)
-[wheel files](https://www.python.org/dev/peps/pep-0427/) are
-[available from PyPI](https://pypi.org/project/dd/#files) for some Python
-versions. These wheel files contain the module `dd.cudd` with the CUDD
-library compiled and linked.
-If you have a Linux system and Python version compatible with one of the
-available wheels, then `pip install dd` will install `dd.cudd`, so you need
-not compile CUDD. Otherwise, read below.
-
-
-### `dd` fetching CUDD
-
-By default, the package installs only the Python modules.
-You can select to install any Cython extensions using
-the `setup.py` options:
-
-- `--cudd`: build module of CUDD BDDs
-- `--cudd_zdd`: build module of CUDD ZDDs
-- `--sylvan`: build module of Sylvan BDDs
-- `--buddy`: build module of BuDDy BDDs
-
-Pass `--fetch` to `setup.py` to tell it to download, unpack, and
-`make` CUDD v3.0.0. For example:
+To compile also the module `dd.cudd` (which interfaces to CUDD)
+when installing from PyPI, run:
 
 ```shell
-pip download dd --no-deps
-tar xzf dd-*.tar.gz
-cd dd-*/
-python setup.py install --fetch --cudd --cudd_zdd
+pip install --upgrade wheel cython
+export DD_FETCH=1 DD_CUDD=1
+pip install dd -vvv --use-pep517 --no-build-isolation
 ```
 
-The path to an existing CUDD build directory can be passed as an argument:
+(`DD_FETCH=1 DD_CUDD=1 pip install dd` also works,
+when the source tarball includes cythonized code.)
+
+To confirm that the installation succeeded:
 
 ```shell
-python setup.py install --cudd="/home/user/cudd"
+python -c 'import dd.cudd'
 ```
 
-If you prefer defining installation directories, then follow [Cython's instructions](
-    https://cython.readthedocs.io/en/latest/src/tutorial/clibraries.html#compiling-and-linking)
-to define `CFLAGS` and `LDFLAGS` before running `setup.py`.
-You need to have copied `CuddInt.h` to the installation's include location
-(CUDD omits it).
-
-If building from the repository, then first install `cython`. For example:
-
-```shell
-git clone git@github.com:tulip-control/dd
-cd dd
-pip install cython  # not needed if building from PyPI distro
-python setup.py install --fetch --cudd
-```
-
-The above options can be passed to `pip` too, using the [`--install-option`](
-    https://pip.pypa.io/en/latest/cli/pip_install/#per-requirement-overrides)
-in a requirements file, for example:
-
-```
-dd >= 0.1.1 --install-option="--fetch" --install-option="--cudd"
-```
-
-The command line behavior of `pip` [is currently different](
-    https://github.com/pypa/pip/issues/1883), so
-
-```shell
-pip install --install-option="--fetch" dd
-```
-
-will propagate option `--fetch` to dependencies, and so raise an error.
-
-
-### User installing build dependencies
-
-If you build and install CUDD, Sylvan, or BuDDy yourself, then ensure that:
-
-- the header files and libraries are present, and
-- suitable compiler, include, linking, and library flags are passed,
-either by setting [environment variables](
+The [environment variables](
     https://en.wikipedia.org/wiki/Environment_variable)
-prior to calling `pip`, or by editing the file [`download.py`](
-    https://github.com/tulip-control/dd/blob/main/download.py).
+above mean:
+- `DD_FETCH=1`: download CUDD v3.0.0 sources from the internet,
+  unpack the tarball (after checking its hash), and `make` CUDD.
+- `DD_CUDD=1`: build the Cython module `dd.cudd`
 
-Currently, `download.py` expects to find Sylvan under `dd/sylvan` and built with [Autotools](https://en.wikipedia.org/wiki/GNU_Build_System)
-(for an example, read `.github/workflows/main.yml`).
-If the path differs in your environment, remember to update it.
+More about environment variables that configure the
+C extensions of `dd` is described in the file [`doc.md`](
+    https://github.com/tulip-control/dd/blob/main/doc.md)
 
-Scripts are available that fetch, build, and install the Cython bindings:
-- [`examples/install_dd_cudd.sh`](
-    https://github.com/tulip-control/dd/blob/main/examples/install_dd_cudd.sh)
-- [`examples/install_dd_sylvan.sh`](
-    https://github.com/tulip-control/dd/blob/main/examples/install_dd_sylvan.sh)
-- [`examples/install_dd_buddy.sh`](
-    https://github.com/tulip-control/dd/blob/main/examples/install_dd_buddy.sh)
+
+## Wheel files with compiled CUDD
+
+[Wheel files](
+    https://www.python.org/dev/peps/pep-0427/)
+are [available from PyPI](
+    https://pypi.org/project/dd/#files),
+which contain the module `dd.cudd`,
+with the CUDD library compiled and linked.
+If you have a Linux system and Python version compatible with
+one of the PyPI wheels,
+then `pip install dd` will install also `dd.cudd`.
 
 
 ### Licensing of the compiled modules `dd.cudd` and `dd.cudd_zdd` in the wheel
@@ -333,46 +277,6 @@ The modules `dd.cudd` and `dd.cudd_zdd` in the wheel dynamically link to the:
     https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=LICENSES;hb=HEAD).
   These licenses are included in the wheel file and apply to the GNU C Library
   that is dynamically linked.
-
-
-## Installing the development version
-
-For installing the development version of `dd` from the `git` repository,
-an alternative to cloning the repository and installing from the cloned
-repository is to [use `pip` for doing so](
-    https://pip.pypa.io/en/stable/cli/pip_install/#argument-handling):
-
-```shell
-pip install https://github.com/tulip-control/dd/archive/main.tar.gz
-```
-
-or with [`pip` using `git`](
-    https://pip.pypa.io/en/stable/topics/vcs-support/#git)
-(this alternative requires that `git` be installed):
-
-```shell
-pip install git+https://github.com/tulip-control/dd
-```
-
-A `git` URL can be passed also to [`pip download`](
-    https://pip.pypa.io/en/stable/cli/pip_download/#overview),
-for example:
-
-```shell
-pip download --no-deps https://github.com/tulip-control/dd/archive/main.tar.gz
-```
-
-The extension `.zip` too can be used for the name of the [archive file](
-    https://en.wikipedia.org/wiki/Archive_file)
-in the URL. Analogously, with `pip` using `git`:
-
-```shell
-pip download --no-deps git+https://github.com/tulip-control/dd
-```
-
-Note that the naming of paths *within* the archive file downloaded from
-GitHub in this way will differ, depending on whether `https://` or
-`git+https://` is used.
 
 
 Tests

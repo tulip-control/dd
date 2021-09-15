@@ -29,7 +29,15 @@ jobs:
                 set -o posix
                 echo "Exported environment variables:"
                 export -p
-                python setup.py install --fetch --cudd --cudd_zdd --sylvan
+                export \
+                    DD_FETCH=1 \
+                    DD_CUDD=1 \
+                    DD_CUDD_ZDD=1 \
+                    DD_SYLVAN=1
+                pip install . \
+                    --verbose \
+                    --use-pep517 \
+                    --no-build-isolation
             - name: Install test dependencies
               run: |
                 pip install pytest

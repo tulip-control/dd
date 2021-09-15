@@ -3,49 +3,64 @@
 
 SHELL := bash
 wheel_file := $(wildcard dist/*.whl)
-temp_file := _temp.txt
 
 .PHONY: cudd install test
-.PHONY: clean clean_all clean_cudd
+.PHONY: clean clean_all clean_cudd wheel_deps
 
 
 build_cudd: clean cudd install test
 
-build_sylvan: clean
+build_sylvan: clean wheel_deps
 	-pip uninstall -y dd
-	python setup.py install --sylvan
+	export DD_SYLVAN=1; \
+	pip install . -vvv --use-pep517 --no-build-isolation
 	pip install pytest
 	make test
 
-sdist_test: clean
-	python setup.py sdist --cudd --buddy
-	cd dist; \
+sdist_test: clean wheel_deps
+	pip install -U build cython
+	export DD_CUDD=1 DD_BUDDY=1; \
+	python -m build --sdist --no-isolation
+	pushd dist; \
 	pip install dd*.tar.gz; \
-	tar -zxf dd*.tar.gz
+	tar -zxf dd*.tar.gz && \
+	popd
 	pip install pytest
 	make -C dist/dd*/ -f ../../Makefile test
 
-sdist_test_cudd: clean
-	pip install cython ply
-	python setup.py sdist --cudd --buddy
+sdist_test_cudd: clean wheel_deps
+	pip install build cython ply
+	export DD_CUDD=1 DD_BUDDY=1; \
+	python -m build --sdist --no-isolation
 	yes | pip uninstall cython ply
-	cd dist; \
+	pushd dist; \
 	tar -zxf dd*.tar.gz; \
-	cd dd*; \
-	python setup.py install --fetch --cudd
+	pushd dd*/; \
+	export DD_FETCH=1 DD_CUDD=1; \
+	pip install . -vvv --use-pep517 --no-build-isolation && \
+	popd && popd
 	pip install pytest
 	make -C dist/dd*/ -f ../../Makefile test
 
 # use to create source distributions for PyPI
-sdist: clean
+sdist: clean wheel_deps
 	-rm dist/*.tar.gz
-	python setup.py sdist --cudd --buddy --sylvan
+	pip install -U build cython
+	export DD_CUDD=1 DD_BUDDY=1 DD_SYLVAN=1; \
+	python -m build --sdist --no-isolation
+
+wheel_deps:
+	pip install --upgrade pip setuptools wheel
 
 # use to create binary distributions for PyPI
-wheel: clean
+wheel: clean wheel_deps
 	-rm dist/*.whl
 	-rm wheelhouse/*.whl
-	python setup.py bdist_wheel --cudd --cudd_zdd
+	export DD_CUDD=1 DD_CUDD_ZDD=1; \
+	pip wheel . \
+	    -vvv \
+	    --wheel-dir dist \
+	    --no-deps
 	@echo "-------------"
 	auditwheel show dist/*.whl
 	@echo "-------------"
@@ -53,24 +68,25 @@ wheel: clean
 	@echo "-------------"
 	auditwheel show wheelhouse/*.whl
 
-install:
-	python setup.py install --cudd
+install: wheel_deps
+	export DD_CUDD=1; \
+	pip install . -vvv --use-pep517 --no-build-isolation
 
-reinstall: uninstall
-	python setup.py install --cudd --cudd_zdd --sylvan
+reinstall: uninstall wheel_deps
+	export DD_CUDD=1 DD_CUDD_ZDD DD_SYLVAN; \
+	pip install . -vvv --use-pep517 --no-build-isolation
 
-reinstall_buddy: uninstall
-	echo ". --install-option='--buddy'" \
-	    > $(temp_file)
-	pip install -vvv -r $(temp_file)
+reinstall_buddy: uninstall wheel_deps
+	export DD_BUDDY=1; \
+	pip install . -vvv --use-pep517 --no-build-isolation
 
-reinstall_cudd: uninstall
-	python setup.py install --cudd --cudd_zdd
+reinstall_cudd: uninstall wheel_deps
+	export DD_CUDD=1 DD_CUDD_ZDD=1; \
+	pip install . -vvv --use-pep517 --no-build-isolation
 
-reinstall_sylvan: uninstall
-	echo ". --install-option='--sylvan'" \
-	    > $(temp_file)
-	pip install -vvv -r $(temp_file)
+reinstall_sylvan: uninstall wheel_deps
+	export DD_SYLVAN=1; \
+	pip install . -vvv --use-pep517 --no-build-isolation
 
 uninstall:
 	pip uninstall -y dd

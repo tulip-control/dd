@@ -1,6 +1,7 @@
 """Installation script."""
 import argparse
 import logging
+import os
 import sys
 
 from setuptools import setup
@@ -51,7 +52,7 @@ install_requires = [
     'ply >= 3.4, <= 3.10',
     'psutil >= 3.2.2',
     'pydot >= 1.2.2',
-    'setuptools >= 42.0.0']
+    'setuptools >= 65.6.0']
 TESTS_REQUIRE = [
     'pytest >= 4.6.11']
 CLASSIFIERS = [
@@ -118,9 +119,30 @@ def parse_args():
     return args
 
 
+def read_env_vars(
+        ) -> dict:
+    """Read relevant environment variables."""
+    keys = {
+        k: ''
+        for k in download.EXTENSIONS}
+    keys['fetch'] = True
+    env_vars = {
+        k: v
+        for k, v in keys.items()
+        if f'DD_{k.upper()}' in os.environ}
+    print('`setup.py` of `dd` read environment variables:')
+    print(env_vars)
+    return env_vars
+
+
 def run_setup():
     """Build parser, get version from `git`, install."""
+    env_vars = read_env_vars()
     args = parse_args()
+    dargs = vars(args)
+    for k, v in env_vars.items():
+        if dargs[k] in (None, False):
+            dargs[k] = v
     if args.fetch:
         download.fetch_cudd()
     # build extensions ?

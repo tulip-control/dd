@@ -11,7 +11,8 @@ sudo apt install \
 dot -V
 pip install --upgrade \
     pip \
-    setuptools
+    setuptools \
+    wheel
 # note that installing from `requirements.txt`
 # would also install packages that
 # may be absent from where `dd` will be installed

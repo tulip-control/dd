@@ -37,14 +37,15 @@ The shell scripts show how to install the Cython modules of `dd`:
 - `install_dd_buddy.sh`: how to install the module `dd.buddy`
 
 To install all the above modules, combine the steps contained in
-the above shell scripts, and pass to `setup.py`
-all the relevant command-line options, i.e.,
+the above shell scripts, and define all the relevant
+environment variables, i.e.,
 
 ```shell
-pip install -r <(echo "dd \
-    --install-option='--buddy' \
-    --install-option='--fetch' \
-    --install-option='--cudd' \
-    --install-option='--cudd_zdd' \
-    --install-option='--sylvan'")
+export \
+    DD_BUDDY=1 \
+    DD_FETCH=1 \
+    DD_CUDD=1 \
+    DD_CUDD_ZDD=1 \
+    DD_SYLVAN=1
+pip install dd
 ```

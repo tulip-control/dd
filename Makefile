@@ -68,7 +68,8 @@ develop:
 	python setup.py develop
 
 test:
-	rtests.py --rednose
+	cd tests/; \
+	nosetests -v
 
 test_abc:
 	python tests/inspect_cython_signatures.py

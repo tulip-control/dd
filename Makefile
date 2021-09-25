@@ -60,7 +60,7 @@ wheel_deps:
 wheel: clean wheel_deps
 	-rm dist/*.whl
 	-rm wheelhouse/*.whl
-	export DD_CUDD=1 DD_CUDD_ZDD=1; \
+	export DD_CUDD=1 DD_CUDD_ZDD=1 DD_CUDD_ADD=1; \
 	pip wheel . \
 	    -vvv \
 	    --wheel-dir dist \
@@ -77,7 +77,7 @@ install: wheel_deps
 	pip install . -vvv --use-pep517 --no-build-isolation
 
 reinstall: uninstall wheel_deps
-	export DD_CUDD=1 DD_CUDD_ZDD DD_SYLVAN; \
+	export DD_CUDD=1 DD_CUDD_ZDD DD_CUDD_ADD=1 DD_SYLVAN; \
 	pip install . -vvv --use-pep517 --no-build-isolation
 
 reinstall_buddy: uninstall wheel_deps
@@ -85,7 +85,7 @@ reinstall_buddy: uninstall wheel_deps
 	pip install . -vvv --use-pep517 --no-build-isolation
 
 reinstall_cudd: uninstall wheel_deps
-	export DD_CUDD=1 DD_CUDD_ZDD=1; \
+	export DD_CUDD=1 DD_CUDD_ZDD=1 DD_CUDD_ADD=1; \
 	pip install . -vvv --use-pep517 --no-build-isolation
 
 reinstall_sylvan: uninstall wheel_deps
@@ -167,6 +167,7 @@ clean:
 	-rm dd/buddy.c
 	-rm dd/cudd.c
 	-rm dd/cudd_zdd.c
+	-rm dd/cudd_add.c
 	-rm dd/sylvan.c
 	-rm *.pyc */*.pyc
 	-rm -rf __pycache__ */__pycache__

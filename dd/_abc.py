@@ -127,9 +127,42 @@ BDD_OPERATOR_SYMBOLS: _ty.Final = {
     *TERNARY_OPERATOR_SYMBOLS}
 if len(BDD_OPERATOR_SYMBOLS) != 3 + 23 + 1:
     raise AssertionError(BDD_OPERATOR_SYMBOLS)
+_AgdUnaryOperatorSymbol: _ty.TypeAlias = (
+    _UnaryOperatorSymbol |
+    _ty.Literal['log'])
+ADD_UNARY_OPERATOR_SYMBOLS: _ty.Final = _literals_of(
+    _AgdUnaryOperatorSymbol)
+if len(ADD_UNARY_OPERATOR_SYMBOLS) != 3 + 1:
+    raise AssertionError(ADD_UNARY_OPERATOR_SYMBOLS)
+_AgdBinaryOperatorSymbol: _ty.TypeAlias = (
+    _BinaryOperatorSymbol |
+    _ty.Literal[
+        '+',
+        '*',
+        '/',
+        'nand'])
+ADD_BINARY_OPERATOR_SYMBOLS: _ty.Final = _literals_of(
+    _AgdBinaryOperatorSymbol)
+if len(ADD_BINARY_OPERATOR_SYMBOLS) != 23 + 4:
+    # `'-' in BINARY_OPERATOR_SYMBOLS`
+    raise AssertionError(ADD_BINARY_OPERATOR_SYMBOLS)
+ADD_TERNARY_OPERATOR_SYMBOLS: _ty.Final = {
+    *TERNARY_OPERATOR_SYMBOLS}
+if len(ADD_TERNARY_OPERATOR_SYMBOLS) != 1:
+    raise AssertionError(ADD_TERNARY_OPERATOR_SYMBOLS)
+ADD_OPERATOR_SYMBOLS: _ty.Final = {
+    *ADD_UNARY_OPERATOR_SYMBOLS,
+    *ADD_BINARY_OPERATOR_SYMBOLS,
+    *ADD_TERNARY_OPERATOR_SYMBOLS}
+if len(ADD_OPERATOR_SYMBOLS) != 4 + 27 + 1:
+    raise AssertionError(ADD_OPERATOR_SYMBOLS)
 OperatorSymbol: _ty.TypeAlias = (
     _UnaryOperatorSymbol |
     _BinaryOperatorSymbol |
+    _TernaryOperatorSymbol)
+AgdOperatorSymbol: _ty.TypeAlias = (
+    _AgdUnaryOperatorSymbol |
+    _AgdBinaryOperatorSymbol |
     _TernaryOperatorSymbol)
 ImageFileType: _ty.TypeAlias = _ty.Literal[
     'pdf',

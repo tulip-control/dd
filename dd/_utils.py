@@ -267,7 +267,12 @@ _OPERATOR_MAP: _ty.Final = dict(
         unary=dd._abc.UNARY_OPERATOR_SYMBOLS,
         binary=dd._abc.BINARY_OPERATOR_SYMBOLS,
         ternary=dd._abc.TERNARY_OPERATOR_SYMBOLS,
-        all=dd._abc.BDD_OPERATOR_SYMBOLS))
+        all=dd._abc.BDD_OPERATOR_SYMBOLS),
+    agd=dict(
+        unary=dd._abc.ADD_UNARY_OPERATOR_SYMBOLS,
+        binary=dd._abc.ADD_BINARY_OPERATOR_SYMBOLS,
+        ternary=dd._abc.ADD_TERNARY_OPERATOR_SYMBOLS,
+        all=dd._abc.ADD_OPERATOR_SYMBOLS))
 
 
 def assert_operator_arity(
@@ -281,7 +286,8 @@ def assert_operator_arity(
             None,
         diagram_type:
             _ty.Literal[
-                'bdd']
+                'bdd',
+                'agd']
         ) -> None:
     """Raise `ValueError` if unexpected values.
 

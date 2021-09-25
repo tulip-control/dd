@@ -25,7 +25,7 @@ import setuptools.extension as _extension
 
 
 EXTENSIONS: _ty.Final = [
-    'cudd', 'cudd_zdd', 'buddy', 'sylvan']
+    'cudd', 'cudd_add', 'cudd_zdd', 'buddy', 'sylvan']
 # CUDD
 CUDD_VERSION: _ty.Final = '3.0.0'
 CUDD_TARBALL: _ty.Final = f'cudd-{CUDD_VERSION}.tar.gz'
@@ -110,6 +110,13 @@ def extensions(
         cudd=_extension.Extension(
             'dd.cudd',
             sources=[f'dd/cudd{pyx}'],
+            include_dirs=_join(cudd_include),
+            library_dirs=_join(cudd_link),
+            libraries=CUDD_LIB,
+            extra_compile_args=cudd_cflags),
+        cudd_add=_extension.Extension(
+            'dd.cudd_add',
+            sources=[f'dd/cudd_add{pyx}'],
             include_dirs=_join(cudd_include),
             library_dirs=_join(cudd_link),
             libraries=CUDD_LIB,

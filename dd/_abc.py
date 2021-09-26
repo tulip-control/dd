@@ -141,7 +141,9 @@ class BDD:
         return next(self.pick_iter(u, care_vars), None)
 
     def pick_iter(self, u, care_vars=None):
-        """Return generator over assignments.
+        """Return iterator over assignments.
+
+        The returned iterator is generator-based.
 
         By default, `care_vars = support(u)`.
         Log a warning if `care_vars < support(u)`.

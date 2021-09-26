@@ -1291,7 +1291,10 @@ cdef class BDD:
     def _pick_iter(
             self, Function u,
             care_vars=None):
-        """Return generator over assignments."""
+        """Return iterator over assignments.
+
+        The returned iterator is generator-based.
+        """
         if u.manager != self.manager:
             raise ValueError(
                 '`u.manager != self.manager`')

@@ -1490,8 +1490,10 @@ cdef class ZDD:
         return next(self.pick_iter(u, care_vars), None)
 
     def pick_iter(self, Function u, care_vars=None):
-        """Return generator over satisfying assignments."""
-        logger.debug('pick_iter')
+        """Return iterator over satisfying assignments.
+
+        The returned iterator is generator-based.
+        """
         if self.manager != u.manager:
             raise ValueError('nodes from different managers')
         support = self.support(u)

@@ -24,6 +24,7 @@ from cpython cimport bool as python_bool
 from libcpp cimport bool
 # from libc.stdio cimport FILE, fdopen, fopen, fclose
 # from cpython.mem cimport PyMem_Malloc, PyMem_Free
+cimport cpython.object as cpo
 import psutil
 
 from dd import _parser
@@ -93,9 +94,9 @@ cdef class BDD:
         if other is None:
             eq = False
         # `sylvan` supports one manager only
-        if op == 2:
+        if op == cpo.Py_EQ:
             return eq
-        elif op == 3:
+        elif op == cpo.Py_NE:
             return not eq
         else:
             raise Exception('Only __eq__ and __ne__ defined')
@@ -721,9 +722,9 @@ cdef class Function:
             # if self.manager != other.manager:
             #     raise ValueError((self, other))
             eq = (self.node == other.node)
-        if op == 2:
+        if op == cpo.Py_EQ:
             return eq
-        elif op == 3:
+        elif op == cpo.Py_NE:
             return not eq
         else:
             raise TypeError('Only `__eq__` and `__ne__` defined.')

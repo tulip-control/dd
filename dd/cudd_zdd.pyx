@@ -63,6 +63,7 @@ from libc.stdio cimport FILE, fdopen, fopen, fclose
 from libc cimport stdint
 from cpython cimport bool as python_bool
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
+cimport cpython.object as cpo
 import psutil
 # inline:
 # import networkx
@@ -379,9 +380,9 @@ cdef class ZDD:
             eq = False
         else:
             eq = (self.manager == other.manager)
-        if op == 2:
+        if op == cpo.Py_EQ:
             return eq
-        elif op == 3:
+        elif op == cpo.Py_NE:
             return not eq
         else:
             raise ValueError('Only `__eq__` and `__ne__` are defined')
@@ -2317,17 +2318,17 @@ cdef class Function:
             if self.manager != other.manager:
                 raise ValueError('`self.manager != other.manager`')
             eq = (self.node == other.node)
-        if op == 2:  # ==
+        if op == cpo.Py_EQ:
             return eq
-        elif op == 3:  # !=
+        elif op == cpo.Py_NE:
             return not eq
-        elif op == 0:  # <
+        elif op == cpo.Py_LT:
             return (other | ~ self) == self.bdd.true and not eq
-        elif op == 1:  # <=
+        elif op == cpo.Py_LE:
             return (other | ~ self) == self.bdd.true
-        elif op == 4:  # >
+        elif op == cpo.Py_GT:
             return (self | ~ other) == self.bdd.true and not eq
-        elif op == 5:  # >=
+        elif op == cpo.Py_GE:
             return (self | ~ other) == self.bdd.true
         else:
             raise ValueError(

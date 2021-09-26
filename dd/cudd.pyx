@@ -121,10 +121,12 @@ cdef extern from 'cudd.h':
     cdef DdNode *Cudd_bddIte(
         DdManager *dd, DdNode *f,
         DdNode *g, DdNode *h)
-    cdef DdNode *Cudd_bddAnd(DdManager *dd,
-                             DdNode *dd, DdNode *dd)
-    cdef DdNode *Cudd_bddOr(DdManager *dd,
-                            DdNode *dd, DdNode *dd)
+    cdef DdNode *Cudd_bddAnd(
+        DdManager *dd,
+        DdNode *f, DdNode *g)
+    cdef DdNode *Cudd_bddOr(
+        DdManager *dd,
+        DdNode *f, DdNode *g)
     cdef DdNode *Cudd_bddXor(
         DdManager *dd,
         DdNode *f, DdNode *g)

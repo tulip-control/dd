@@ -2257,12 +2257,25 @@ cdef class Function:
 
     def __richcmp__(Function self, Function other, op):
         if other is None:
-            eq = False
-        else:
-            # guard against mixing managers
-            if self.manager != other.manager:
-                raise ValueError('`self.manager != other.manager`')
-            eq = (self.node == other.node)
+            if op == cpo.Py_EQ:
+                return False
+            elif op == cpo.Py_NE:
+                return True
+            elif op not in {
+                    cpo.Py_LT, cpo.Py_LE,
+                    cpo.Py_GT, cpo.Py_GE}:
+                raise ValueError(
+                    f'unexpected `op` value: {op} ')
+            symbol = _utils._CY_SYMBOLS[op]
+            raise ValueError(
+                f'unexpected `op` value: {op} '
+                f'(the value {op} represents '
+                f'"{symbol}")')
+        # guard against mixing managers
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
+        eq = (self.node == other.node)
         if op == cpo.Py_EQ:
             return eq
         elif op == cpo.Py_NE:

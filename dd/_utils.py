@@ -3,6 +3,20 @@
 # All rights reserved. Licensed under 3-clause BSD.
 #
 import textwrap as _tw
+import typing as _ty
+
+
+# The mapping from values of argument `op` of
+# `__richcmp__()` of Cython objects,
+# to the corresponding operator symbols.
+# Constants are defined in `cpython.object`.
+_CY_SYMBOLS: _ty.Final = {
+    2: '==',
+    3: '!=',
+    0: '<',
+    1: '<=',
+    4: '>',
+    5: '>='}
 
 
 def print_var_levels(bdd):

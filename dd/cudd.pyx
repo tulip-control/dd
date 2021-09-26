@@ -850,12 +850,12 @@ cdef class BDD:
         """
         reorder(self, var_order)
 
-    cpdef support(self, Function f):
+    cpdef support(self, Function u):
         """Return `set` of variables that node `f` depends on."""
-        if self.manager != f.manager:
-            raise ValueError(f)
+        if self.manager != u.manager:
+            raise ValueError(u)
         cdef DdNode *r
-        r = Cudd_Support(self.manager, f.node)
+        r = Cudd_Support(self.manager, u.node)
         f = wrap(self, r)
         supp = self._cube_to_dict(f)
         # constant ?

@@ -95,9 +95,9 @@ cdef class BDD:
             eq = False
         # `sylvan` supports one manager only
         if op == cpo.Py_EQ:
-            return eq
+            return True
         elif op == cpo.Py_NE:
-            return not eq
+            return False
         else:
             raise Exception('Only __eq__ and __ne__ defined')
 

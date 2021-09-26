@@ -195,15 +195,15 @@ cdef extern from 'cudd.h':
     cdef struct DdGen
     # variables
     cdef DdNode *Cudd_zddIthVar(
-        DdManager *dd, int i)
+        DdManager *dd, int index)
     cdef DdNode *Cudd_bddIthVar(
-        DdManager *dd, int i)
+        DdManager *dd, int index)
     cdef DdNode *Cudd_zddSupport(
         DdManager *dd, DdNode *f)
     cdef int Cudd_ReadPermZdd(
-        DdManager *dd, int i)
+        DdManager *dd, int index)
     cdef int Cudd_ReadInvPermZdd(
-        DdManager *dd, int i)
+        DdManager *dd, int level)
     cdef unsigned int Cudd_NodeReadIndex(
         DdNode *u)
     # cofactors (of any given `var`, not only top)

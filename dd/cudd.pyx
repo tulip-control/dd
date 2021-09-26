@@ -94,7 +94,7 @@ cdef extern from 'cudd.h':
     cdef DdNode *Cudd_bddNewVarAtLevel(
         DdManager *dd, int level)
     cdef DdNode *Cudd_bddIthVar(
-        DdManager *dd, int i)
+        DdManager *dd, int index)
     cdef DdNode *Cudd_ReadLogicZero(
         DdManager *dd)
     cdef DdNode *Cudd_ReadOne(
@@ -232,9 +232,9 @@ cdef extern from 'cudd.h':
     cdef long Cudd_ReadReorderingTime(
         DdManager *dd)
     cdef int Cudd_ReadPerm(
-        DdManager *dd, int i)
+        DdManager *dd, int index)
     cdef int Cudd_ReadInvPerm(
-        DdManager *dd, int i)
+        DdManager *dd, int level)
     cdef void Cudd_SetSiftMaxSwap(
         DdManager *dd, int sms)
     cdef int Cudd_ReadSiftMaxSwap(

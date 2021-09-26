@@ -1173,6 +1173,13 @@ The token precedence (lowest to highest) and associativity
 - `~, !` (r)
 - `-` (r) unary minus, as in `-5`
 
+The meaning of a number of operators,
+assuming `a` and `b` take Boolean values:
+- `a => b` means `b \/ ~ a`
+- `a <=> b` means `(a /\ b) \/ (~ a /\ ~ b)`
+- `a # b` means `(a /\ ~ b) \/ (b /\ ~ a)`
+- `ite(a, b, c)` means `(a /\ b) \/ (~ a /\ c)`
+
 Both and `setup.py`, and a developer may want to force a rebuild of the
 parser table. For this purpose, each module that contains a parser,
 also has a function `_rewrite_tables` that deletes and rewrites the tables.

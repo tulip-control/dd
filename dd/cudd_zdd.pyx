@@ -1576,17 +1576,17 @@ cdef class ZDD:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
             qvars = self.support(u)
-            res = self.forall(qvars, v)
-            Cudd_Ref(res.node)
-            r = res.node
+            cube = _dict_to_zdd(qvars, v.zdd)
+            r = _forall_root(
+                mgr, v.node, cube.node)
         elif op in (r'\E', 'exists'):
             if w is not None:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
             qvars = self.support(u)
-            res = self.exist(qvars, v)
-            Cudd_Ref(res.node)
-            r = res.node
+            cube = _dict_to_zdd(qvars, v.zdd)
+            r = _exist_root(
+                mgr, v.node, cube.node)
         # ternary
         elif op == 'ite':
             if v is None:
@@ -1606,8 +1606,6 @@ cdef class ZDD:
                 f'    max memory = {config["max_memory"]} bytes\n'
                 f'    max cache = {config["max_cache_hard"]} entries')
         res = wrap(self, r)
-        if op in (r'\A', 'forall', r'\E', 'exist'):
-            Cudd_RecursiveDerefZdd(mgr, r)
         return res
 
     cpdef _add_int(self, i):

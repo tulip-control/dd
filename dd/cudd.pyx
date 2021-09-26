@@ -110,6 +110,9 @@ cdef extern from 'cudd.h':
                             DdNode *dd, DdNode *dd)
     cdef DdNode *Cudd_bddXor(DdManager *dd,
                              DdNode *f, DdNode *g)
+    cdef DdNode *Cudd_bddXnor(
+        DdManager *dd,
+        DdNode *f, DdNode *g)
     cdef DdNode *Cudd_Support(DdManager *dd, DdNode *f)
     cdef DdNode *Cudd_bddComputeCube(
         DdManager *dd, DdNode **vars, int *phase, int n)
@@ -1258,7 +1261,7 @@ cdef class BDD:
             if w is not None:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
-            r = Cudd_bddIte(mgr, u.node, v.node, Cudd_Not(v.node))
+            r = Cudd_bddXnor(mgr, u.node, v.node)
         elif op in ('diff', '-'):
             if w is not None:
                 raise ValueError(

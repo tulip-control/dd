@@ -67,7 +67,9 @@ cdef extern from 'cuddInt.h':
         double cacheinserts
         double cachedeletions
     cdef DdNode *cuddUniqueInter(
-        DdManager *unique, int index, DdNode *T, DdNode *E)
+        DdManager *unique,
+        int index,
+        DdNode *T, DdNode *E)
 cdef extern from 'cudd.h':
     # node
     ctypedef unsigned int DdHalfWord
@@ -87,131 +89,219 @@ cdef extern from 'cudd.h':
     ctypedef enum Cudd_ReorderingType:
         pass
     # node elements
-    cdef DdNode *Cudd_bddNewVar(DdManager *dd)
-    cdef DdNode *Cudd_bddNewVarAtLevel(DdManager *dd, int level)
-    cdef DdNode *Cudd_bddIthVar(DdManager *dd, int i)
-    cdef DdNode *Cudd_ReadLogicZero(DdManager *dd)
-    cdef DdNode *Cudd_ReadOne(DdManager *dd)
-    cdef DdNode *Cudd_Regular(DdNode *u)
-    cdef bool Cudd_IsConstant(DdNode *u)
-    cdef unsigned int Cudd_NodeReadIndex(DdNode *u)
-    cdef DdNode *Cudd_T(DdNode *u)
-    cdef DdNode *Cudd_E(DdNode *u)
-    cdef bool Cudd_IsComplement(DdNode *u)
-    cdef int Cudd_DagSize(DdNode *node)
-    cdef int Cudd_SharingSize(DdNode **nodeArray, int n)
+    cdef DdNode *Cudd_bddNewVar(
+        DdManager *dd)
+    cdef DdNode *Cudd_bddNewVarAtLevel(
+        DdManager *dd, int level)
+    cdef DdNode *Cudd_bddIthVar(
+        DdManager *dd, int i)
+    cdef DdNode *Cudd_ReadLogicZero(
+        DdManager *dd)
+    cdef DdNode *Cudd_ReadOne(
+        DdManager *dd)
+    cdef DdNode *Cudd_Regular(
+        DdNode *u)
+    cdef bool Cudd_IsConstant(
+        DdNode *u)
+    cdef unsigned int Cudd_NodeReadIndex(
+        DdNode *u)
+    cdef DdNode *Cudd_T(
+        DdNode *u)
+    cdef DdNode *Cudd_E(
+        DdNode *u)
+    cdef bool Cudd_IsComplement(
+        DdNode *u)
+    cdef int Cudd_DagSize(
+        DdNode *node)
+    cdef int Cudd_SharingSize(
+        DdNode **nodeArray, int n)
     # basic Boolean operators
-    cdef DdNode *Cudd_Not(DdNode *dd)
-    cdef DdNode *Cudd_bddIte(DdManager *dd, DdNode *f,
-                             DdNode *g, DdNode *h)
+    cdef DdNode *Cudd_Not(
+        DdNode *dd)
+    cdef DdNode *Cudd_bddIte(
+        DdManager *dd, DdNode *f,
+        DdNode *g, DdNode *h)
     cdef DdNode *Cudd_bddAnd(DdManager *dd,
                              DdNode *dd, DdNode *dd)
     cdef DdNode *Cudd_bddOr(DdManager *dd,
                             DdNode *dd, DdNode *dd)
-    cdef DdNode *Cudd_bddXor(DdManager *dd,
-                             DdNode *f, DdNode *g)
+    cdef DdNode *Cudd_bddXor(
+        DdManager *dd,
+        DdNode *f, DdNode *g)
     cdef DdNode *Cudd_bddXnor(
         DdManager *dd,
         DdNode *f, DdNode *g)
-    cdef DdNode *Cudd_Support(DdManager *dd, DdNode *f)
+    cdef DdNode *Cudd_Support(
+        DdManager *dd, DdNode *f)
     cdef DdNode *Cudd_bddComputeCube(
-        DdManager *dd, DdNode **vars, int *phase, int n)
-    cdef DdNode *Cudd_CubeArrayToBdd(DdManager *dd, int *array)
-    cdef int Cudd_BddToCubeArray(DdManager *dd, DdNode *cube,
-                                 int *array)
-    cdef int Cudd_PrintMinterm(DdManager *dd, DdNode *f)
-    cdef DdNode *Cudd_Cofactor(DdManager *dd, DdNode *f, DdNode *g)
-    cdef DdNode *Cudd_bddCompose(DdManager *dd,
-                                 DdNode *f, DdNode *g, int v)
-    cdef DdNode *Cudd_bddVectorCompose(DdManager *dd,
-                                       DdNode *f, DdNode **vector)
-    cdef DdNode *Cudd_bddRestrict(DdManager *dd, DdNode *f, DdNode *c)
+        DdManager *dd,
+        DdNode **vars, int *phase, int n)
+    cdef DdNode *Cudd_CubeArrayToBdd(
+        DdManager *dd, int *array)
+    cdef int Cudd_BddToCubeArray(
+        DdManager *dd,
+        DdNode *cube, int *array)
+    cdef int Cudd_PrintMinterm(
+        DdManager *dd, DdNode *f)
+    cdef DdNode *Cudd_Cofactor(
+        DdManager *dd, DdNode *f, DdNode *g)
+    cdef DdNode *Cudd_bddCompose(
+        DdManager *dd,
+        DdNode *f, DdNode *g, int v)
+    cdef DdNode *Cudd_bddVectorCompose(
+        DdManager *dd,
+        DdNode *f, DdNode **vector)
+    cdef DdNode *Cudd_bddRestrict(
+        DdManager *dd, DdNode *f, DdNode *c)
     # cubes
-    cdef DdGen *Cudd_FirstCube(DdManager *dd, DdNode *f,
-                               int **cube, double *value)
-    cdef int Cudd_NextCube(DdGen *gen, int **cube, double *value)
-    cdef int Cudd_IsGenEmpty(DdGen *gen)
-    cdef int Cudd_GenFree(DdGen *gen)
-    cdef double Cudd_CountMinterm(DdManager *dd, DdNode *f, int nvars)
+    cdef DdGen *Cudd_FirstCube(
+        DdManager *dd, DdNode *f,
+        int **cube, double *value)
+    cdef int Cudd_NextCube(
+        DdGen *gen, int **cube, double *value)
+    cdef int Cudd_IsGenEmpty(
+        DdGen *gen)
+    cdef int Cudd_GenFree(
+        DdGen *gen)
+    cdef double Cudd_CountMinterm(
+        DdManager *dd, DdNode *f, int nvars)
     # refs
-    cdef void Cudd_Ref(DdNode *n)
-    cdef void Cudd_RecursiveDeref(DdManager *table,
-                                  DdNode *n)
-    cdef void Cudd_Deref(DdNode *n)
+    cdef void Cudd_Ref(
+        DdNode *n)
+    cdef void Cudd_RecursiveDeref(
+        DdManager *table, DdNode *n)
+    cdef void Cudd_Deref(
+        DdNode *n)
     # checks
-    cdef int Cudd_CheckZeroRef(DdManager *manager)
-    cdef int Cudd_DebugCheck(DdManager *table)
-    cdef void Cudd_Quit(DdManager *unique)
+    cdef int Cudd_CheckZeroRef(
+        DdManager *manager)
+    cdef int Cudd_DebugCheck(
+        DdManager *table)
+    cdef void Cudd_Quit(
+        DdManager *unique)
     cdef DdNode *Cudd_bddTransfer(
-        DdManager *ddSource, DdManager *ddDestination, DdNode *f)
+        DdManager *ddSource,
+        DdManager *ddDestination,
+        DdNode *f)
     # info
-    cdef int Cudd_PrintInfo(DdManager *dd, FILE *fp)
-    cdef int Cudd_ReadSize(DdManager *dd)
-    cdef long Cudd_ReadNodeCount(DdManager *dd)
-    cdef long Cudd_ReadPeakNodeCount(DdManager *dd)
-    cdef int Cudd_ReadPeakLiveNodeCount(DdManager *dd)
-    cdef size_t Cudd_ReadMemoryInUse(DdManager *dd)
-    cdef unsigned int Cudd_ReadSlots(DdManager *dd)
-    cdef double Cudd_ReadUsedSlots(DdManager *dd)
-    cdef double Cudd_ExpectedUsedSlots(DdManager *dd)
-    cdef unsigned int Cudd_ReadCacheSlots(DdManager *dd)
-    cdef double Cudd_ReadCacheUsedSlots(DdManager *dd)
-    cdef double Cudd_ReadCacheLookUps(DdManager *dd)
-    cdef double Cudd_ReadCacheHits(DdManager *dd)
+    cdef int Cudd_PrintInfo(
+        DdManager *dd, FILE *fp)
+    cdef int Cudd_ReadSize(
+        DdManager *dd)
+    cdef long Cudd_ReadNodeCount(
+        DdManager *dd)
+    cdef long Cudd_ReadPeakNodeCount(
+        DdManager *dd)
+    cdef int Cudd_ReadPeakLiveNodeCount(
+        DdManager *dd)
+    cdef size_t Cudd_ReadMemoryInUse(
+        DdManager *dd)
+    cdef unsigned int Cudd_ReadSlots(
+        DdManager *dd)
+    cdef double Cudd_ReadUsedSlots(
+        DdManager *dd)
+    cdef double Cudd_ExpectedUsedSlots(
+        DdManager *dd)
+    cdef unsigned int Cudd_ReadCacheSlots(
+        DdManager *dd)
+    cdef double Cudd_ReadCacheUsedSlots(
+        DdManager *dd)
+    cdef double Cudd_ReadCacheLookUps(
+        DdManager *dd)
+    cdef double Cudd_ReadCacheHits(
+        DdManager *dd)
     # reordering
-    cdef int Cudd_ReduceHeap(DdManager *table,
-                             Cudd_ReorderingType heuristic,
-                             int minsize)
-    cdef int Cudd_ShuffleHeap(DdManager *table, int *permutation)
-    cdef void Cudd_AutodynEnable(DdManager *unique,
-                                 Cudd_ReorderingType method)
-    cdef void Cudd_AutodynDisable(DdManager *unique)
-    cdef int Cudd_ReorderingStatus(DdManager * unique,
-                                   Cudd_ReorderingType * method)
-    cdef unsigned int Cudd_ReadReorderings(DdManager *dd)
-    cdef long Cudd_ReadReorderingTime(DdManager *dd)
-    cdef int Cudd_ReadPerm(DdManager *dd, int i)
-    cdef int Cudd_ReadInvPerm(DdManager *dd, int i)
-    cdef void Cudd_SetSiftMaxSwap(DdManager *dd, int sms)
-    cdef int Cudd_ReadSiftMaxSwap(DdManager *dd)
-    cdef void Cudd_SetSiftMaxVar(DdManager *dd, int smv)
-    cdef int Cudd_ReadSiftMaxVar(DdManager *dd)
+    cdef int Cudd_ReduceHeap(
+        DdManager *table,
+        Cudd_ReorderingType heuristic,
+        int minsize)
+    cdef int Cudd_ShuffleHeap(
+        DdManager *table, int *permutation)
+    cdef void Cudd_AutodynEnable(
+        DdManager *unique,
+        Cudd_ReorderingType method)
+    cdef void Cudd_AutodynDisable(
+        DdManager *unique)
+    cdef int Cudd_ReorderingStatus(
+        DdManager *unique,
+        Cudd_ReorderingType *method)
+    cdef unsigned int Cudd_ReadReorderings(
+        DdManager *dd)
+    cdef long Cudd_ReadReorderingTime(
+        DdManager *dd)
+    cdef int Cudd_ReadPerm(
+        DdManager *dd, int i)
+    cdef int Cudd_ReadInvPerm(
+        DdManager *dd, int i)
+    cdef void Cudd_SetSiftMaxSwap(
+        DdManager *dd, int sms)
+    cdef int Cudd_ReadSiftMaxSwap(
+        DdManager *dd)
+    cdef void Cudd_SetSiftMaxVar(
+        DdManager *dd, int smv)
+    cdef int Cudd_ReadSiftMaxVar(
+        DdManager *dd)
     # variable grouping
     extern MtrNode *Cudd_MakeTreeNode(
         DdManager *dd, unsigned int low,
         unsigned int size, unsigned int type)
-    extern MtrNode *Cudd_ReadTree(DdManager *dd)
-    extern void Cudd_SetTree(DdManager *dd, MtrNode *tree)
-    extern void Cudd_FreeTree(DdManager *dd)
+    extern MtrNode *Cudd_ReadTree(
+        DdManager *dd)
+    extern void Cudd_SetTree(
+        DdManager *dd, MtrNode *tree)
+    extern void Cudd_FreeTree(
+        DdManager *dd)
     # manager config
-    cdef size_t Cudd_ReadMaxMemory(DdManager *dd)
-    cdef size_t Cudd_SetMaxMemory(DdManager *dd,
-                                size_t maxMemory)
-    cdef unsigned int Cudd_ReadMaxCacheHard(DdManager *dd)
-    cdef unsigned int Cudd_ReadMaxCache(DdManager *dd)
-    cdef void Cudd_SetMaxCacheHard(DdManager *dd, unsigned int mc)
-    cdef double Cudd_ReadMaxGrowth(DdManager *dd)
-    cdef void Cudd_SetMaxGrowth(DdManager *dd, double mg)
-    cdef unsigned int Cudd_ReadMinHit(DdManager *dd)
-    cdef void Cudd_SetMinHit(DdManager *dd, unsigned int hr)
-    cdef void Cudd_EnableGarbageCollection(DdManager *dd)
-    cdef void Cudd_DisableGarbageCollection(DdManager *dd)
-    cdef int Cudd_GarbageCollectionEnabled(DdManager * dd)
-    cdef unsigned int Cudd_ReadLooseUpTo(DdManager *dd)
-    cdef void Cudd_SetLooseUpTo(DdManager *dd, unsigned int lut)
+    cdef size_t Cudd_ReadMaxMemory(
+        DdManager *dd)
+    cdef size_t Cudd_SetMaxMemory(
+        DdManager *dd,
+        size_t maxMemory)
+    cdef unsigned int Cudd_ReadMaxCacheHard(
+        DdManager *dd)
+    cdef unsigned int Cudd_ReadMaxCache(
+        DdManager *dd)
+    cdef void Cudd_SetMaxCacheHard(
+        DdManager *dd, unsigned int mc)
+    cdef double Cudd_ReadMaxGrowth(
+        DdManager *dd)
+    cdef void Cudd_SetMaxGrowth(
+        DdManager *dd, double mg)
+    cdef unsigned int Cudd_ReadMinHit(
+        DdManager *dd)
+    cdef void Cudd_SetMinHit(
+        DdManager *dd, unsigned int hr)
+    cdef void Cudd_EnableGarbageCollection(
+        DdManager *dd)
+    cdef void Cudd_DisableGarbageCollection(
+        DdManager *dd)
+    cdef int Cudd_GarbageCollectionEnabled(
+        DdManager * dd)
+    cdef unsigned int Cudd_ReadLooseUpTo(
+        DdManager *dd)
+    cdef void Cudd_SetLooseUpTo(
+        DdManager *dd, unsigned int lut)
     # quantification
     cdef DdNode *Cudd_bddExistAbstract(
-        DdManager *manager, DdNode *f, DdNode *cube)
+        DdManager *manager,
+        DdNode *f,
+        DdNode *cube)
     cdef DdNode *Cudd_bddUnivAbstract(
-        DdManager *manager, DdNode *f, DdNode *cube)
+        DdManager *manager,
+        DdNode *f,
+        DdNode *cube)
     cdef DdNode *Cudd_bddAndAbstract(
-        DdManager *manager, DdNode *f, DdNode *g, DdNode *cube)
+        DdManager *manager,
+        DdNode *f, DdNode *g,
+        DdNode *cube)
     cdef DdNode *Cudd_bddSwapVariables(
         DdManager *dd,
-        DdNode *f, DdNode **x, DdNode **y, int n)
+        DdNode *f, DdNode **x, DdNode **y,
+        int n)
 cdef extern from '_cudd_addendum.c':
     cdef DdNode *Cudd_bddTransferRename(
-        DdManager *ddSource, DdManager *ddDestination,
+        DdManager *ddSource,
+        DdManager *ddDestination,
         DdNode *f, int *renaming)
 cdef CUDD_UNIQUE_SLOTS = 2**8
 cdef CUDD_CACHE_SLOTS = 2**18
@@ -403,7 +493,8 @@ cdef class BDD:
             '\t {mem:10.1f} bytes in use\n'
             '\t {reorder_time:10.1f} sec '
                 'spent reordering\n'
-            '\t {n_reorderings} reorderings\n').format(
+            '\t {n_reorderings} reorderings\n'
+            ).format(
                 n=d['n_nodes'],
                 peak=d['peak_live_nodes'],
                 n_vars=d['n_vars'],
@@ -429,9 +520,12 @@ cdef class BDD:
           - `n_reorderings`: number of reorderings
 
           - `mem`: bytes in use
-          - `unique_size`: total number of buckets in unique table
-          - `unique_used_fraction`: buckets that contain >= 1 node
-          - `expected_unique_used_fraction`: if properly working
+          - `unique_size`: total number of
+            buckets in unique table
+          - `unique_used_fraction`: buckets that
+            contain >= 1 node
+          - `expected_unique_used_fraction`:
+            if properly working
 
           - `cache_size`: number of slots in cache
           - `cache_used_fraction`: slots with data
@@ -468,7 +562,8 @@ cdef class BDD:
         # unique table
         unique_size = Cudd_ReadSlots(mgr)
         unique_used_fraction = Cudd_ReadUsedSlots(mgr)
-        expected_unique_fraction = Cudd_ExpectedUsedSlots(mgr)
+        expected_unique_fraction = (
+            Cudd_ExpectedUsedSlots(mgr))
         # cache
         cache_size = Cudd_ReadCacheSlots(mgr)
         cache_used_fraction = Cudd_ReadCacheUsedSlots(mgr)
@@ -487,7 +582,8 @@ cdef class BDD:
             mem=mem,
             unique_size=unique_size,
             unique_used_fraction=unique_used_fraction,
-            expected_unique_used_fraction=expected_unique_fraction,
+            expected_unique_used_fraction=
+                expected_unique_fraction,
             cache_size=cache_size,
             cache_used_fraction=cache_used_fraction,
             cache_lookups=cache_lookups,
@@ -503,16 +599,29 @@ cdef class BDD:
         First read (returned), then apply `kw`.
         Available keyword arguments:
 
-          - `'reordering'`: if `True` then enable, else disable
-          - `'garbage_collection'`: if `True` then enable,
-              else disable
+          - `'reordering'`:
+                if `True` then enable,
+                else disable
+          - `'garbage_collection'`:
+                if `True` then enable,
+                else disable
           - `'max_memory'`: in bytes
-          - `'loose_up_to'`: unique table fast growth upper bound
-          - `'max_cache_hard'`: cache entries upper bound
-          - `'min_hit'`: hit ratio for resizing cache
-          - `'max_growth'`: intermediate growth during sifting
-          - `'max_swaps'`: no more level swaps in one sifting
-          - `'max_vars'`: no more variables moved in one sifting
+          - `'loose_up_to'`:
+                unique table fast growth
+                upper bound
+          - `'max_cache_hard'`:
+                cache entries upper bound
+          - `'min_hit'`:
+                hit ratio for resizing cache
+          - `'max_growth'`:
+                intermediate growth
+                during sifting
+          - `'max_swaps'`:
+                no more level swaps
+                in one sifting
+          - `'max_vars'`:
+                no more variables moved
+                in one sifting
 
         For more details, read `cuddAPI.c`.
         Example usage:
@@ -540,7 +649,8 @@ cdef class BDD:
         # read
         reordering = Cudd_ReorderingStatus(
             mgr, <Cudd_ReorderingType *>&method)
-        garbage_collection = Cudd_GarbageCollectionEnabled(mgr)
+        garbage_collection = (
+            Cudd_GarbageCollectionEnabled(mgr))
         max_memory = Cudd_ReadMaxMemory(mgr)
         loose_up_to = Cudd_ReadLooseUpTo(mgr)
         max_cache_soft = Cudd_ReadMaxCache(mgr)
@@ -550,7 +660,8 @@ cdef class BDD:
         max_swaps = Cudd_ReadSiftMaxSwap(mgr)
         max_vars = Cudd_ReadSiftMaxVar(mgr)
         d = dict(
-            reordering=True if reordering == 1 else False,
+            reordering=True if reordering == 1
+                else False,
             garbage_collection=True
                 if garbage_collection == 1
                 else False,
@@ -566,7 +677,8 @@ cdef class BDD:
         for k, v in kw.items():
             if k == 'reordering':
                 if v:
-                    Cudd_AutodynEnable(mgr, CUDD_REORDER_GROUP_SIFT)
+                    Cudd_AutodynEnable(
+                        mgr, CUDD_REORDER_GROUP_SIFT)
                 else:
                     Cudd_AutodynDisable(mgr)
             elif k == 'garbage_collection':
@@ -589,7 +701,8 @@ cdef class BDD:
             elif k == 'max_vars':
                 Cudd_SetSiftMaxVar(mgr, v)
             elif k == 'max_cache_soft':
-                logger.warning('"max_cache_soft" not settable.')
+                logger.warning(
+                    '"max_cache_soft" not settable.')
             else:
                 raise ValueError(
                     f'Unknown parameter "{k}"')
@@ -744,7 +857,8 @@ cdef class BDD:
     cpdef insert_var(self, var, level):
         """Create a new variable named `var`, at `level`."""
         cdef DdNode *r
-        r = Cudd_bddNewVarAtLevel(self.manager, level)
+        r = Cudd_bddNewVarAtLevel(
+            self.manager, level)
         if r is NULL:
             raise RuntimeError(
                 f'failed to create var "{var}"')
@@ -849,7 +963,8 @@ cdef class BDD:
     def reorder(self, var_order=None):
         """Reorder variables to `var_order`.
 
-        If `var_order` is `None`, then invoke sifting.
+        If `var_order` is `None`,
+        then invoke sifting.
         """
         reorder(self, var_order)
 
@@ -880,7 +995,8 @@ cdef class BDD:
                     'has no effect')
             group_low = self._index_of_var[var]
             Cudd_MakeTreeNode(
-                self.manager, group_low, group_size, MTR_DEFAULT)
+                self.manager, group_low,
+                group_size, MTR_DEFAULT)
 
     def copy(self, u, other):
         """Transfer BDD with root `u` to `other`.
@@ -894,7 +1010,8 @@ cdef class BDD:
         else:
             return _copy.copy_bdd(u, other)
 
-    cpdef Function let(self, definitions, Function u):
+    cpdef Function let(
+            self, definitions, Function u):
         """Replace variables with `definitions` in `u`."""
         d = definitions
         if not d:
@@ -912,20 +1029,24 @@ cdef class BDD:
             value + 's'
         except TypeError:
             raise ValueError(
-                'Value must be variable name as `str`, '
+                'Value must be variable '
+                'name as `str`, '
                 'or Boolean value as `bool`, '
                 'or BDD node as `int`. '
                 f'Got: {value}')
         return self._rename(u, d)
 
-    cpdef Function _compose(self, Function f, var_sub):
+    cpdef Function _compose(
+            self, Function f, var_sub):
         """Return the composition f|_(var = g).
 
-        @param var_sub: `dict` from variable names to nodes.
+        @param var_sub: `dict` from
+            variable names to nodes.
         """
         n = len(var_sub)
         if n == 0:
-            logger.warning('call without any effect')
+            logger.warning(
+                'call without any effect')
             return f
         if n > 1:
             return self._vector_compose(f, var_sub)
@@ -934,7 +1055,8 @@ cdef class BDD:
         for var, g in var_sub.items():
             return self._unary_compose(f, var, g)
 
-    cdef Function _unary_compose(self, Function f, var, Function g):
+    cdef Function _unary_compose(
+            self, Function f, var, Function g):
         """Return single composition."""
         if f.manager != self.manager:
             raise ValueError(
@@ -944,12 +1066,14 @@ cdef class BDD:
                 '`g.manager != self.manager`')
         cdef DdNode *r
         index = self._index_of_var[var]
-        r = Cudd_bddCompose(self.manager, f.node, g.node, index)
+        r = Cudd_bddCompose(
+            self.manager, f.node, g.node, index)
         if r is NULL:
             raise RuntimeError('compose failed')
         return wrap(self, r)
 
-    cdef Function _vector_compose(self, Function f, var_sub):
+    cdef Function _vector_compose(
+            self, Function f, var_sub):
         """Return vector composition."""
         if f.manager != self.manager:
             raise ValueError(
@@ -972,56 +1096,77 @@ cdef class BDD:
                 x[j] = g.node
             else:
                 # leave var same
-                x[j] = Cudd_bddIthVar(self.manager, j)
+                x[j] = Cudd_bddIthVar(
+                    self.manager, j)
         try:
-            r = Cudd_bddVectorCompose(self.manager, f.node, x)
+            r = Cudd_bddVectorCompose(
+                self.manager, f.node, x)
         finally:
             PyMem_Free(x)
         return wrap(self, r)
 
-    cpdef Function _cofactor(self, Function f, values):
+    cpdef Function _cofactor(
+            self, Function f, values):
         """Return the cofactor f|_g."""
         if self.manager != f.manager:
             raise ValueError(f)
         cdef DdNode *r
         cdef Function cube
         cube = self.cube(values)
-        r = Cudd_Cofactor(self.manager, f.node, cube.node)
+        r = Cudd_Cofactor(
+            self.manager, f.node, cube.node)
         if r is NULL:
             raise RuntimeError(
                 'cofactor failed')
         return wrap(self, r)
 
-    cpdef Function _rename(self, Function u, dvars):
+    cpdef Function _rename(
+            self, Function u, dvars):
         """Return node `u` after renaming variables in `dvars`.
 
-        The argument value `dvars = dict(x='y')` results in
-        variable `'x'` substituted by variable `'y'`.
+        The argument value `dvars = dict(x='y')`
+        results in variable `'x'` substituted by
+        variable `'y'`.
 
-        The argument value `dvars = dict(x='y', y='x')` results in
-        simultaneous substitution of variable `'x'` by variable `'y'`
+        The argument value
+        `dvars = dict(x='y', y='x')` results in
+        simultaneous substitution of variable
+        `'x'` by variable `'y'`
         and of variable `'y'` by variable `'x'`.
         """
-        rename = {k: self.var(v) for k, v in dvars.items()}
+        rename = {
+            k: self.var(v)
+            for k, v in dvars.items()}
         return self._compose(u, rename)
 
     cpdef Function _swap(self, Function u, dvars):
         """Return node `u` after swapping variable pairs in `dvars`.
 
-        Asserts that each variable occurs in at most one key-value pair
+        Asserts that each variable occurs in
+        at most one key-value pair
         of the dictionary `dvars`.
 
-        The argument value `dvars = dict(x='y')` results in swapping
-        of variables `'x'` and `'y'`, which is equivalent to
-        simultaneous substitution of `'x'` by `'y'` and `'y'` by `'x'`.
+        The argument value `dvars = dict(x='y')`
+        results in swapping
+        of variables `'x'` and `'y'`,
+        which is equivalent to
+        simultaneous substitution of
+        `'x'` by `'y'` and `'y'` by `'x'`.
 
-        So the argument value `dvars = dict(x='y')` has the same
-        result as calling `_rename` with `dvars = dict(x='y', y='x')`.
+        So the argument value
+        `dvars = dict(x='y')` has the same
+        result as calling `_rename`
+        with `dvars = dict(x='y', y='x')`.
         """
-        # assert that each variable occurs in at most one
-        # key-value pair of the dictionary `dvars`:
-        # 1) assert keys and values of `dvars` are disjoint sets
-        common = {var for var in dvars.values() if var in dvars}
+        # assert that each variable
+        # occurs in at most one
+        # key-value pair of the
+        # dictionary `dvars`:
+        # 1) assert keys and values of
+        # `dvars` are disjoint sets
+        common = {
+            var for var in dvars.values()
+            if var in dvars}
         if common:
             raise ValueError(common)
         # 2) assert each value is unique
@@ -1031,8 +1176,10 @@ cdef class BDD:
         #
         # call swapping
         n = len(dvars)
-        cdef DdNode **x = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
-        cdef DdNode **y = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
+        cdef DdNode **x = <DdNode **> PyMem_Malloc(
+            n * sizeof(DdNode *))
+        cdef DdNode **y = <DdNode **> PyMem_Malloc(
+            n * sizeof(DdNode *))
         cdef DdNode *r
         cdef DdManager *mgr = u.manager
         cdef Function f
@@ -1053,7 +1200,9 @@ cdef class BDD:
             PyMem_Free(y)
         return wrap(self, r)
 
-    cpdef Function ite(self, Function g, Function u, Function v):
+    cpdef Function ite(
+            self, Function g,
+            Function u, Function v):
         """Ternary conditional `IF g THEN u ELSE v`."""
         if g.manager != self.manager:
             raise ValueError(
@@ -1065,11 +1214,14 @@ cdef class BDD:
             raise ValueError(
                 '`v.manager != self.manager`')
         cdef DdNode *r
-        r = Cudd_bddIte(self.manager, g.node, u.node, v.node)
+        r = Cudd_bddIte(
+            self.manager,
+            g.node, u.node, v.node)
         return wrap(self, r)
 
     cpdef Function find_or_add(
-            self, str var, Function low, Function high):
+            self, str var,
+            Function low, Function high):
         """Return node `IF var THEN high ELSE low`."""
         if low.manager != self.manager:
             raise ValueError(
@@ -1091,16 +1243,20 @@ cdef class BDD:
                 level, high.level, 'high.level')
         cdef DdNode *r
         index = self._index_of_var[var]
-        r = cuddUniqueInter(self.manager, index, high.node, low.node)
+        r = cuddUniqueInter(
+            self.manager, index,
+            high.node, low.node)
         return wrap(self, r)
 
     def count(self, Function u, nvars=None):
         """Return number of models of node `u`.
 
-        @param nvars: regard `u` as an operator that
-            depends on `nvars` many variables.
+        @param nvars: regard `u` as
+            an operator that depends on
+            `nvars` many variables.
 
-            If omitted, then assume those in `support(u)`.
+            If omitted, then assume
+            those variables in `support(u)`.
         """
         if u.manager != self.manager:
             raise ValueError(
@@ -1110,7 +1266,8 @@ cdef class BDD:
             nvars = n
         if nvars < n:
             raise ValueError(nvars, n)
-        r = Cudd_CountMinterm(self.manager, u.node, nvars)
+        r = Cudd_CountMinterm(
+            self.manager, u.node, nvars)
         if r == CUDD_OUT_OF_MEM:
             raise RuntimeError(
                 'CUDD out of memory')
@@ -1120,11 +1277,17 @@ cdef class BDD:
                 'type double')
         return r
 
-    def pick(self, Function u, care_vars=None):
+    def pick(
+            self, Function u,
+            care_vars=None):
         """Return a single assignment as `dict`."""
-        return next(self.pick_iter(u, care_vars), None)
+        return next(
+            self.pick_iter(u, care_vars),
+            None)
 
-    def _pick_iter(self, Function u, care_vars=None):
+    def _pick_iter(
+            self, Function u,
+            care_vars=None):
         """Return generator over assignments."""
         if u.manager != self.manager:
             raise ValueError(
@@ -1135,13 +1298,18 @@ cdef class BDD:
         support = self.support(u)
         if care_vars is None:
             care_vars = support
-        missing = {v for v in support if v not in care_vars}
+        missing = {
+            v for v in support
+            if v not in care_vars}
         if missing:
             logger.warning(
                 'Missing bits:  '
                 f'support - care_vars = {missing}')
-        config = self.configure(reordering=False)
-        gen = Cudd_FirstCube(self.manager, u.node, &cube, &value)
+        config = self.configure(
+            reordering=False)
+        gen = Cudd_FirstCube(
+            self.manager, u.node,
+            &cube, &value)
         if gen is NULL:
             raise RuntimeError(
                 'first cube failed')
@@ -1152,38 +1320,51 @@ cdef class BDD:
                     raise RuntimeError(
                         'gen not empty but '
                         'no next cube', r)
-                d = _cube_array_to_dict(cube, self._index_of_var)
+                d = _cube_array_to_dict(
+                    cube, self._index_of_var)
                 if not set(d).issubset(support):
                     raise AssertionError(
                         set(d).difference(support))
-                for m in _bdd._enumerate_minterms(d, care_vars):
+                for m in _bdd._enumerate_minterms(
+                        d, care_vars):
                     yield m
-                r = Cudd_NextCube(gen, &cube, &value)
+                r = Cudd_NextCube(
+                    gen, &cube, &value)
         finally:
             Cudd_GenFree(gen)
-        self.configure(reordering=config['reordering'])
+        self.configure(
+            reordering=config['reordering'])
 
-    def pick_iter(self, Function u, care_vars=None):
+    def pick_iter(
+            self, Function u,
+            care_vars=None):
         if self.manager != u.manager:
             raise ValueError(
                 '`u.manager != self.manager`')
         support = self.support(u)
         if care_vars is None:
             care_vars = support
-        missing = {v for v in support if v not in care_vars}
+        missing = {
+            v for v in support
+            if v not in care_vars}
         if missing:
             logger.warning(
                 'Missing bits:  '
                 f'support - care_vars = {missing}')
         cube = dict()
         value = True
-        config = self.configure(reordering=False)
-        for cube in self._sat_iter(u, cube, value, support):
-            for m in _bdd._enumerate_minterms(cube, care_vars):
+        config = self.configure(
+            reordering=False)
+        for cube in self._sat_iter(
+                u, cube, value, support):
+            for m in _bdd._enumerate_minterms(
+                    cube, care_vars):
                 yield m
-        self.configure(reordering=config['reordering'])
+        self.configure(
+            reordering=config['reordering'])
 
-    def _sat_iter(self, u, cube, value, support):
+    def _sat_iter(
+            self, u, cube, value, support):
         """Recurse to enumerate models."""
         if u.negated:
             value = not value
@@ -1202,9 +1383,11 @@ cdef class BDD:
         d0[var] = False
         d1 = dict(cube)
         d1[var] = True
-        for x in self._sat_iter(v, d0, value, support):
+        for x in self._sat_iter(
+                v, d0, value, support):
             yield x
-        for x in self._sat_iter(w, d1, value, support):
+        for x in self._sat_iter(
+                w, d1, value, support):
             yield x
 
     cpdef Function apply(
@@ -1256,7 +1439,9 @@ cdef class BDD:
             if w is not None:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
-            r = Cudd_bddIte(mgr, u.node, v.node, Cudd_ReadOne(mgr))
+            r = Cudd_bddIte(
+                mgr, u.node, v.node,
+                Cudd_ReadOne(mgr))
         elif op in ('<=>', '<->', 'equiv'):
             if w is not None:
                 raise ValueError(
@@ -1266,21 +1451,24 @@ cdef class BDD:
             if w is not None:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
-            r = Cudd_bddIte(mgr, u.node, Cudd_Not(v.node),
-                            Cudd_ReadLogicZero(mgr))
+            r = Cudd_bddIte(
+                mgr, u.node, Cudd_Not(v.node),
+                Cudd_ReadLogicZero(mgr))
         elif op in (r'\A', 'forall'):
             if w is not None:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
             sig_on()
-            r = Cudd_bddUnivAbstract(mgr, v.node, u.node)
+            r = Cudd_bddUnivAbstract(
+                mgr, v.node, u.node)
             sig_off()
         elif op in (r'\E', 'exists'):
             if w is not None:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
             sig_on()
-            r = Cudd_bddExistAbstract(mgr, v.node, u.node)
+            r = Cudd_bddExistAbstract(
+                mgr, v.node, u.node)
             sig_off()
         # ternary
         elif op == 'ite':
@@ -1290,17 +1478,21 @@ cdef class BDD:
             if w is None:
                 raise ValueError(
                     '`w is None`')
-            r = Cudd_bddIte(mgr, u.node, v.node, w.node)
+            r = Cudd_bddIte(
+                mgr, u.node, v.node, w.node)
         else:
             raise ValueError(
                 f'unknown operator: "{op}"')
         if r is NULL:
             config = self.configure()
             raise RuntimeError((
-                'CUDD appears to have run out of memory.\n'
-                'Current settings for upper bounds:\n'
+                'CUDD appears to have '
+                'run out of memory.\n'
+                'Current settings for '
+                'upper bounds are:\n'
                 '    max memory = {max_memory} bytes\n'
-                '    max cache = {max_cache} entries').format(
+                '    max cache = {max_cache} entries'
+                ).format(
                     max_memory=config['max_memory'],
                     max_cache=config['max_cache_hard']))
         return wrap(self, r)
@@ -1319,7 +1511,8 @@ cdef class BDD:
     cpdef Function cube(self, dvars):
         """Return node for cube over `dvars`.
 
-        @param dvars: `dict` that maps each variable to a `bool`
+        @param dvars: `dict` that maps
+            each variable to a `bool`
         """
         n_cudd_vars = self._number_of_cudd_vars()
         # make cube
@@ -1327,14 +1520,17 @@ cdef class BDD:
         cdef int *x
         x = <int *> PyMem_Malloc(
             n_cudd_vars * sizeof(int))
-        _dict_to_cube_array(dvars, x, self._index_of_var)
+        _dict_to_cube_array(
+            dvars, x, self._index_of_var)
         try:
-            cube = Cudd_CubeArrayToBdd(self.manager, x)
+            cube = Cudd_CubeArrayToBdd(
+                self.manager, x)
         finally:
             PyMem_Free(x)
         return wrap(self, cube)
 
-    cdef Function _cube_from_bdds(self, dvars):
+    cdef Function _cube_from_bdds(
+            self, dvars):
         """Return node for cube over `dvars`.
 
         Only positive unate cubes implemented for now.
@@ -1343,12 +1539,14 @@ cdef class BDD:
         # make cube
         cdef DdNode *cube
         cdef DdNode **x
-        x = <DdNode **> PyMem_Malloc(n * sizeof(DdNode *))
+        x = <DdNode **> PyMem_Malloc(
+            n * sizeof(DdNode *))
         for i, var in enumerate(dvars):
             f = self.var(var)
             x[i] = f.node
         try:
-            cube = Cudd_bddComputeCube(self.manager, x, NULL, n)
+            cube = Cudd_bddComputeCube(
+                self.manager, x, NULL, n)
         finally:
             PyMem_Free(x)
         return wrap(self, cube)
@@ -1363,14 +1561,17 @@ cdef class BDD:
         x = <int *> PyMem_Malloc(
             n_cudd_vars * sizeof(DdNode *))
         try:
-            Cudd_BddToCubeArray(self.manager, f.node, x)
-            d = _cube_array_to_dict(x, self._index_of_var)
+            Cudd_BddToCubeArray(
+                self.manager, f.node, x)
+            d = _cube_array_to_dict(
+                x, self._index_of_var)
         finally:
             PyMem_Free(x)
         return d
 
-    cpdef Function quantify(self, Function u,
-                            qvars, forall=False):
+    cpdef Function quantify(
+            self, Function u, qvars,
+            forall=False):
         """Abstract variables `qvars` from node `u`."""
         if u.manager != self.manager:
             raise ValueError(
@@ -1381,27 +1582,33 @@ cdef class BDD:
         # quantify
         if forall:
             sig_on()
-            r = Cudd_bddUnivAbstract(mgr, u.node, cube.node)
+            r = Cudd_bddUnivAbstract(
+                mgr, u.node, cube.node)
             sig_off()
         else:
             sig_on()
-            r = Cudd_bddExistAbstract(mgr, u.node, cube.node)
+            r = Cudd_bddExistAbstract(
+                mgr, u.node, cube.node)
             sig_off()
         return wrap(self, r)
 
-    cpdef Function forall(self, variables, Function u):
+    cpdef Function forall(
+            self, variables, Function u):
         """Quantify `variables` in `u` universally.
 
         Wraps method `quantify` to be more readable.
         """
-        return self.quantify(u, variables, forall=True)
+        return self.quantify(
+            u, variables, forall=True)
 
-    cpdef Function exist(self, variables, Function u):
+    cpdef Function exist(
+            self, variables, Function u):
         """Quantify `variables` in `u` existentially.
 
         Wraps method `quantify` to be more readable.
         """
-        return self.quantify(u, variables, forall=False)
+        return self.quantify(
+            u, variables, forall=False)
 
     cpdef assert_consistent(self):
         """Raise `AssertionError` if not consistent."""
@@ -1449,7 +1656,9 @@ cdef class BDD:
             s = f'(~ {s})'
         return s
 
-    cpdef dump(self, filename, roots, filetype=None):
+    cpdef dump(
+            self, filename, roots,
+            filetype=None):
         """Write BDDs to `filename`.
 
         The file type is inferred from the
@@ -1502,13 +1711,15 @@ cdef class BDD:
                     'from extension of file '
                     f'name "{filename}"')
         if filetype == 'dddmp':
-            u, = roots  # single root supported for now
+            # single root supported for now
+            u, = roots
             return self._dump_dddmp(u, filename)
         elif filetype == 'json':
             return _copy.dump_json(roots, filename)
         else:
             bdd = autoref.BDD()
-            _copy.copy_vars(self, bdd)  # preserve levels
+            _copy.copy_vars(self, bdd)
+                # preserve levels
             v = _copy.copy_bdds_from(roots, bdd)
             bdd.dump(filename, v, filetype=filetype)
 
@@ -1533,7 +1744,8 @@ cdef class BDD:
         str_mem = list()
         for index, var in self._var_with_index.items():
             py_bytes = var.encode()
-            str_mem.append(py_bytes)  # prevent garbage collection
+            str_mem.append(py_bytes)
+                # prevent garbage collection
             names[index] = py_bytes
         try:
             f = fopen(fname.encode(), 'w')
@@ -1597,8 +1809,9 @@ cdef class BDD:
                 f)
         except:
             raise Exception(
-                'A malformed DDDMP file can cause '
-                'segmentation faults to `cudd/dddmp`.')
+                'A malformed DDDMP file '
+                'can cause segmentation '
+                'faults to `cudd/dddmp`.')
         finally:
             fclose(f)
             PyMem_Free(names)
@@ -1630,34 +1843,42 @@ cdef class BDD:
         return wrap(self, r)
 
 
-cpdef Function restrict(Function u, Function care_set):
+cpdef Function restrict(
+        Function u, Function care_set):
     """Restrict `u` to `care_set` (1990 Coudert ICCAD)."""
     if u.manager != care_set.manager:
         raise ValueError(
             '`u.manager != care_set.manager`')
     cdef DdNode *r
-    r = Cudd_bddRestrict(u.manager, u.node, care_set.node)
+    r = Cudd_bddRestrict(
+        u.manager, u.node, care_set.node)
     return wrap(u.bdd, r)
 
 
-cpdef Function and_exists(Function u, Function v, qvars):
+cpdef Function and_exists(
+        Function u, Function v, qvars):
     """Return `? qvars. u & v`."""
     if u.manager != v.manager:
         raise ValueError(
             '`u.manager != v.manager`')
     cube = u.bdd.cube(qvars)
-    r = Cudd_bddAndAbstract(u.manager, u.node, v.node, cube.node)
+    r = Cudd_bddAndAbstract(
+        u.manager, u.node, v.node, cube.node)
     return wrap(u.bdd, r)
 
 
-cpdef Function or_forall(Function u, Function v, qvars):
+cpdef Function or_forall(
+        Function u, Function v, qvars):
     """Return `! qvars. u | v`."""
     if u.manager != v.manager:
         raise ValueError(
             '`u.manager != v.manager`')
     cube = u.bdd.cube(qvars)
     r = Cudd_bddAndAbstract(
-        u.manager, Cudd_Not(u.node), Cudd_Not(v.node), cube.node)
+        u.manager,
+        Cudd_Not(u.node),
+        Cudd_Not(v.node),
+        cube.node)
     r = Cudd_Not(r)
     return wrap(u.bdd, r)
 
@@ -1669,7 +1890,9 @@ cpdef reorder(BDD bdd, dvars=None):
     """
     # invoke sifting ?
     if dvars is None:
-        Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_GROUP_SIFT, 1)
+        Cudd_ReduceHeap(
+            bdd.manager,
+            CUDD_REORDER_GROUP_SIFT, 1)
         return
     n_declared_vars = len(bdd.vars)
     n_cudd_vars = bdd._number_of_cudd_vars()
@@ -1726,13 +1949,16 @@ cpdef copy_bdd(Function u, BDD target):
     logger.debug('++ transfer bdd')
     source = u.bdd
     if u.manager == target.manager:
-        logger.warning('copying node to same manager')
+        logger.warning(
+            'copying node to same manager')
         return u
     # target missing vars ?
     cfg = source.configure(reordering=False)
     supp = source.support(u)
     source.configure(reordering=cfg['reordering'])
-    missing = {var for var in supp if var not in target.vars}
+    missing = {
+        var for var in supp
+        if var not in target.vars}
     if missing:
         raise ValueError(
             '`target` BDD is missing the variables:\n'
@@ -1751,10 +1977,12 @@ cpdef copy_bdd(Function u, BDD target):
         renaming[i] = j
     try:
         r = Cudd_bddTransferRename(
-            source.manager, target.manager, u.node, renaming)
+            source.manager,
+            target.manager, u.node, renaming)
     finally:
         PyMem_Free(renaming)
-    logger.debug('-- done transferring bdd')
+    logger.debug(
+        '-- done transferring bdd')
     return wrap(target, r)
 
 
@@ -1794,8 +2022,9 @@ def dump(u, file_name):
     bdd = u.bdd
     pickle_fname = f'{file_name}.pickle'
     dddmp_fname = f'{file_name}.dddmp'
-    order = {var: bdd.level_of_var(var)
-             for var in bdd.vars}
+    order = {
+        var: bdd.level_of_var(var)
+        for var in bdd.vars}
     d = dict(variable_order=order)
     with open(pickle_fname, 'wb') as f:
         pickle.dump(d, f, protocol=2)
@@ -1838,7 +2067,8 @@ def load(file_name, BDD bdd, reordering=False):
     return u
 
 
-cdef _dict_to_cube_array(d, int *x, dict index_of_var):
+cdef _dict_to_cube_array(
+        d, int *x, dict index_of_var):
     """Assign array of literals `x` from assignment `d`.
 
     @param x: array of literals
@@ -1868,7 +2098,8 @@ cdef _dict_to_cube_array(d, int *x, dict index_of_var):
                 f'unknown value: {b}')
 
 
-cdef dict _cube_array_to_dict(int *x, dict index_of_var):
+cdef dict _cube_array_to_dict(
+        int *x, dict index_of_var):
     """Return assignment from array of literals `x`.
 
     @param x: read `_dict_to_cube_array`
@@ -2214,7 +2445,8 @@ cdef class Function:
         # anticipate multiple calls to `__dealloc__`
         self._ref -= 1
         # deref
-        Cudd_RecursiveDeref(self.manager, self.node)
+        Cudd_RecursiveDeref(
+            self.manager, self.node)
         # avoid future access
         # to deallocated memory
         self.node = NULL
@@ -2308,14 +2540,16 @@ cdef class Function:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
-        r = Cudd_bddAnd(self.manager, self.node, other.node)
+        r = Cudd_bddAnd(
+            self.manager, self.node, other.node)
         return wrap(self.bdd, r)
 
     def __or__(Function self, Function other):
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
-        r = Cudd_bddOr(self.manager, self.node, other.node)
+        r = Cudd_bddOr(
+            self.manager, self.node, other.node)
         return wrap(self.bdd, r)
 
     def implies(Function self, Function other):
@@ -2390,10 +2624,12 @@ cpdef _test_decref():
 cpdef _test_dict_to_cube_array():
     cdef int *x
     n = 3
-    x = <int *> PyMem_Malloc(n * sizeof(int))
+    x = <int *> PyMem_Malloc(
+        n * sizeof(int))
     index_of_var = dict(x=0, y=1, z=2)
     d = dict(y=True, z=False)
-    _dict_to_cube_array(d, x, index_of_var)
+    _dict_to_cube_array(
+        d, x, index_of_var)
     r = [j for j in x[:n]]
     r_ = [2, 1, 0]
     if r != r_:
@@ -2404,12 +2640,14 @@ cpdef _test_dict_to_cube_array():
 cpdef _test_cube_array_to_dict():
     cdef int *x
     n = 3
-    x = <int *> PyMem_Malloc(n * sizeof(int))
+    x = <int *> PyMem_Malloc(
+        n * sizeof(int))
     x[0] = 2
     x[1] = 1
     x[2] = 0
     index_of_var = dict(x=0, y=1, z=2)
-    d = _cube_array_to_dict(x, index_of_var)
+    d = _cube_array_to_dict(
+        x, index_of_var)
     d_ = dict(y=True, z=False)
     if d != d_:
         raise AssertionError((d, d_))

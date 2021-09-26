@@ -19,7 +19,6 @@ import sys
 from libcpp cimport bool
 from libc.stdio cimport fdopen, fopen
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
-cimport cpython.object as cpo
 from dd cimport buddy_ as buddy
 APPLY_MAP = {
     'and': 0, 'xor': 1, 'or': 2, 'nand': 3, 'nor': 4,
@@ -281,17 +280,15 @@ cdef class Function:
     def __len__(self):
         return buddy.bdd_nodecount(self.node)
 
-    def __richcmp__(self, other, op):
+    def __eq__(self, other):
         if other is None:
-            eq = False
-        else:
-            eq = (self.node == other.node)
-        if op == cpo.Py_EQ:
-            return eq
-        elif op == cpo.Py_NE:
-            return not eq
-        else:
-            raise Exception('Only `==` and `!=` defined.')
+            return False
+        return self.node == other.node
+
+    def __ne__(self, other):
+        if other is None:
+            return True
+        return self.node != other.node
 
     def __invert__(self):
         r = buddy.bdd_not(self.node)

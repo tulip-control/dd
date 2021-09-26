@@ -24,7 +24,6 @@ from cpython cimport bool as python_bool
 from libcpp cimport bool
 # from libc.stdio cimport FILE, fdopen, fopen, fclose
 # from cpython.mem cimport PyMem_Malloc, PyMem_Free
-cimport cpython.object as cpo
 import psutil
 
 from dd import _parser
@@ -89,17 +88,25 @@ cdef class BDD:
         sy.sylvan_quit()
         sy.lace_exit()
 
-    def __richcmp__(BDD self, BDD other, op):
-        """Return `True` if `other` has same manager."""
+    def __eq__(BDD self, BDD other):
+        """Return `True` if `other` has same manager.
+
+        If `other is None`, then return `False`.
+        """
         if other is None:
-            eq = False
-        # `sylvan` supports one manager only
-        if op == cpo.Py_EQ:
-            return True
-        elif op == cpo.Py_NE:
             return False
-        else:
-            raise Exception('Only __eq__ and __ne__ defined')
+        # `sylvan` supports one manager only
+        return True
+
+    def __ne__(BDD self, BDD other):
+        """Return `True` if `other` has different manager.
+
+        If `other is None`, then return `True`.
+        """
+        if other is None:
+            return True
+        # `sylvan` supports one manager only
+        return False
 
     def __len__(self):
         """Return number of nodes with non-zero references."""
@@ -712,22 +719,19 @@ cdef class Function:
         """
         return len(self)
 
-    def __richcmp__(Function self, Function other, op):
+    def __eq__(Function self, Function other):
+        if other is None:
+            return False
         if self.bdd is not other.bdd:
             raise ValueError((self, other))
+        return self.node == other.node
+
+    def __ne__(Function self, Function other):
         if other is None:
-            eq = False
-        else:
-            # guard against mixing managers
-            # if self.manager != other.manager:
-            #     raise ValueError((self, other))
-            eq = (self.node == other.node)
-        if op == cpo.Py_EQ:
-            return eq
-        elif op == cpo.Py_NE:
-            return not eq
-        else:
-            raise TypeError('Only `__eq__` and `__ne__` defined.')
+            return True
+        if self.bdd is not other.bdd:
+            raise ValueError((self, other))
+        return self.node != other.node
 
     def __invert__(Function self):
         r = sy.sylvan_not(self.node)

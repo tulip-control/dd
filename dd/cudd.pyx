@@ -32,7 +32,6 @@ from libc.stdio cimport FILE, fdopen, fopen, fclose
 from libc cimport stdint
 from cpython cimport bool as python_bool
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
-cimport cpython.object as cpo
 import psutil
 
 
@@ -457,18 +456,16 @@ cdef class BDD:
         # `Cudd_Quit` might be unsafe.
         Cudd_Quit(self.manager)
 
-    def __richcmp__(BDD self, BDD other, op):
+    def __eq__(BDD self, BDD other):
         """Return `True` if `other` has same manager."""
         if other is None:
-            eq = False
-        else:
-            eq = (self.manager == other.manager)
-        if op == cpo.Py_EQ:
-            return eq
-        elif op == cpo.Py_NE:
-            return not eq
-        else:
-            raise ValueError('Only `__eq__` and `__ne__` defined')
+            return False
+        return self.manager == other.manager
+
+    def __ne__(BDD self, BDD other):
+        if other is None:
+            return True
+        return self.manager != other.manager
 
     def __len__(self):
         """Return number of nodes with non-zero references."""
@@ -2496,46 +2493,50 @@ cdef class Function:
         """
         return len(self)
 
-    def __richcmp__(Function self, Function other, op):
+    def __eq__(Function self, Function other):
         if other is None:
-            if op == cpo.Py_EQ:
-                return False
-            elif op == cpo.Py_NE:
-                return True
-            elif op not in {
-                    cpo.Py_LT, cpo.Py_LE,
-                    cpo.Py_GT, cpo.Py_GE}:
-                raise ValueError(
-                    f'unexpected `op` value: {op} ')
-            symbol = _utils._CY_SYMBOLS[op]
-            raise ValueError(
-                f'unexpected `op` value: {op} '
-                f'(the value {op} represents '
-                f'"{symbol}")')
+            return False
         # guard against mixing managers
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
-        eq = (self.node == other.node)
-        if op == cpo.Py_EQ:
-            return eq
-        elif op == cpo.Py_NE:
-            return not eq
-        elif op == cpo.Py_LT:
-            return (
-                not eq and
-                (other | ~ self) == self.bdd.true)
-        elif op == cpo.Py_LE:
-            return (other | ~ self) == self.bdd.true
-        elif op == cpo.Py_GT:
-            return (
-                not eq and
-                (self | ~ other) == self.bdd.true)
-        elif op == cpo.Py_GE:
-            return (self | ~ other) == self.bdd.true
-        else:
+        return self.node == other.node
+
+    def __ne__(Function self, Function other):
+        if other is None:
+            return True
+        if self.manager != other.manager:
             raise ValueError(
-                f'unexpected value: {op = }')
+                '`self.manager != other.manager`')
+        return self.node != other.node
+
+    def __le__(Function self, Function other):
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
+        return (other | ~ self) == self.bdd.true
+
+    def __lt__(Function self, Function other):
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
+        return (
+            self.node != other.node and
+            (other | ~ self) == self.bdd.true)
+
+    def __ge__(Function self, Function other):
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
+        return (self | ~ other) == self.bdd.true
+
+    def __gt__(Function self, Function other):
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
+        return (
+            self.node != other.node and
+            (self | ~ other) == self.bdd.true)
 
     def __invert__(self):
         cdef DdNode *r

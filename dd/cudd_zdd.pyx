@@ -2160,10 +2160,9 @@ cdef class Function:
         if node is NULL:
             raise ValueError('`DdNode *node` is `NULL` pointer.')
         self.zdd = bdd
-        # TODO: rename this attribute to `zdd` in the class
         self.bdd = bdd  # keep this attribute for writing
             # common algorithms for BDDs and ZDDs where possible
-        self.manager = bdd.manager
+        self.manager = zdd.manager
         self.node = node
         self._ref = 1  # lower bound on reference count
         Cudd_Ref(node)
@@ -2186,7 +2185,7 @@ cdef class Function:
         """
         if cuddIsConstant(self.node):
             return None
-        return self.bdd._var_with_index[self._index]
+        return self.zdd._var_with_index[self._index]
 
     @property
     def level(self):
@@ -2214,7 +2213,7 @@ cdef class Function:
         # inside the function `zdd_subset0_aux`,
         # in the file `cudd/cuddZddSetop.c`.
         u = cuddE(self.node)
-        return wrap(self.bdd, u)
+        return wrap(self.zdd, u)
 
     @property
     def high(self):
@@ -2230,7 +2229,7 @@ cdef class Function:
         # inside the function `zdd_subset1_aux`,
         # in file `cudd/cuddZddSetop.c`.
         u = cuddT(self.node)
-        return wrap(self.bdd, u)
+        return wrap(self.zdd, u)
 
     @property
     def negated(self):
@@ -2241,7 +2240,7 @@ cdef class Function:
     @property
     def support(ZDD self):
         """Return `set` of variables in support."""
-        return self.bdd.support(self)
+        return self.zdd.support(self)
 
     def __dealloc__(self):
         # when changing this method,
@@ -2323,13 +2322,13 @@ cdef class Function:
         elif op == cpo.Py_NE:
             return not eq
         elif op == cpo.Py_LT:
-            return (other | ~ self) == self.bdd.true and not eq
+            return (other | ~ self) == self.zdd.true and not eq
         elif op == cpo.Py_LE:
-            return (other | ~ self) == self.bdd.true
+            return (other | ~ self) == self.zdd.true
         elif op == cpo.Py_GT:
-            return (self | ~ other) == self.bdd.true and not eq
+            return (self | ~ other) == self.zdd.true and not eq
         elif op == cpo.Py_GE:
-            return (self | ~ other) == self.bdd.true
+            return (self | ~ other) == self.zdd.true
         else:
             raise ValueError(
                 f'unexpected value: {op = }')
@@ -2340,19 +2339,19 @@ cdef class Function:
             self.manager,
             Cudd_ReadZddOne(self.manager, 0),
             self.node)
-        return wrap(self.bdd, r)
+        return wrap(self.zdd, r)
 
     def __and__(Function self, Function other):
         if self.manager != other.manager:
             raise ValueError('`self.manager != other.manager`')
         r = Cudd_zddIntersect(self.manager, self.node, other.node)
-        return wrap(self.bdd, r)
+        return wrap(self.zdd, r)
 
     def __or__(Function self, Function other):
         if self.manager != other.manager:
             raise ValueError('`self.manager != other.manager`')
         r = Cudd_zddUnion(self.manager, self.node, other.node)
-        return wrap(self.bdd, r)
+        return wrap(self.zdd, r)
 
     def implies(Function self, Function other):
         if self.manager != other.manager:
@@ -2360,25 +2359,25 @@ cdef class Function:
         r = Cudd_zddIte(
             self.manager, self.node,
             other.node, Cudd_ReadZddOne(self.manager, 0))
-        return wrap(self.bdd, r)
+        return wrap(self.zdd, r)
 
     def equiv(Function self, Function other):
-        return self.bdd.apply('<=>', self, other)
+        return self.zdd.apply('<=>', self, other)
 
     def let(Function self, **definitions):
-        return self.bdd.let(definitions, self)
+        return self.zdd.let(definitions, self)
 
     def exist(Function self, *variables):
-        return self.bdd.exist(variables, self)
+        return self.zdd.exist(variables, self)
 
     def forall(Function self, *variables):
-        return self.bdd.forall(variables, self)
+        return self.zdd.forall(variables, self)
 
     def pick(Function self, care_vars=None):
-        return self.bdd.pick(self, care_vars)
+        return self.zdd.pick(self, care_vars)
 
     def count(Function self, nvars=None):
-        return self.bdd.count(self, nvars)
+        return self.zdd.count(self, nvars)
 
 
 # Similar to the function `dd.cudd._cube_array_to_dict`

@@ -1118,9 +1118,12 @@ cdef class ZDD:
         """Transfer ZDD with root `u` to `other`.
 
         @param other: `ZDD` or `BDD` manager
-        @type other: `dd.cudd_zdd.ZDD` or
-            `dd.cudd.BDD` or `dd.autoref.BDD`
-        @rtype: `dd.cudd_zdd.Function`
+        @type other:
+               `dd.cudd_zdd.ZDD`
+            or `dd.cudd.BDD`
+            or `dd.autoref.BDD`
+        @rtype:
+               `dd.cudd_zdd.Function`
             or `dd.cudd.Function`
             or `dd.autoref.Function`
         """
@@ -1602,8 +1605,31 @@ cdef class ZDD:
             Function u,
             Function v=None,
             Function w=None):
-        """Return as `Function` the result of applying `op`."""
-        logger.debug('apply')
+        r"""Return as `Function` the result of applying `op`.
+
+        @type op: `str` in
+            - `'~'`, `'not'`, `'!'`
+              (logical negation)
+            - `'/\\'`, `'and'`, `'&'`, `'&&'`
+              (conjunction)
+            - `'or'`, `r'\/'`, `'|'`, `'||'`
+              (disjunction)
+            - `'xor'`, `'^'`
+              (different values)
+            - `'=>'`, `'implies'`, `'->'`
+              (logical implication)
+            - `'<=>'`, `'equiv'`, `'<->'`
+              (logical equivalence)
+            - `'ite'`
+              (ternary conditional)
+            - `r'\A'`, `'forall'`
+              (universal quantification)
+            - `r'\E'`, `'exists'`
+              (existential quantification)
+            - `'-'`
+              (`a - b` means `a /\ ~ b`)
+        @type u, v, w: `Function`
+        """
         if self.manager != u.manager:
             raise ValueError(
                 'node `u` is from different ZDD manager')

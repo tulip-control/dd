@@ -1004,8 +1004,12 @@ cdef class BDD:
         """Transfer BDD with root `u` to `other`.
 
         @param other: BDD manager
-        @type other: `dd.cudd.BDD` or `dd.autoref.BDD`
-        @rtype: node
+        @type other:
+               `dd.cudd.BDD`
+            or `dd.autoref.BDD`
+        @rtype:
+               `dd.cudd.Function`
+            or `dd.autoref.Function`
         """
         if isinstance(other, BDD):
             return copy_bdd(u, other)

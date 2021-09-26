@@ -183,18 +183,18 @@ class BDD:
         """
 
     def apply(self, op, u, v=None, w=None):
-        r"""Apply operator `op` to nodes `u` and `v`.
+        r"""Apply operator `op` to nodes `u`, `v`, `w`.
 
         @type op: `str` in:
-          - `'not', '~', '!'`
-          - `'and', '/\\', '&', '&&'`
-          - `'or', r'\/', '|', '||'`
-          - `'xor', '#', '^'`
-          - `'=>', '->', 'implies'`
-          - `'<=>', '<->', 'equiv'`
-          - `'diff', '-'`
-          - `r'\A', 'forall'`
-          - `r'\E', 'exists'`
+          - `'not'`, `'~'`, `'!'`
+          - `'and'`, `'/\\'`, `'&'`, `'&&'`
+          - `'or'`, `r'\/'`, `'|'`, `'||'`
+          - `'xor'`, `'^'`
+          - `'=>'`, `'->'`, `'implies'`
+          - `'<=>'`, `'<->'`, `'equiv'`
+          - `'diff'`, `'-'`
+          - `r'\A'`, `'forall'`
+          - `r'\E'`, `'exists'`
           - `'ite'`
         @type u, v, w: nodes
         """

@@ -2199,9 +2199,9 @@ cdef class Function:
     @property
     def low(self):
         """Return "else" node as `Function`."""
-        cdef DdNode *u
         if cuddIsConstant(self.node):
             return None
+        cdef DdNode *u
         # refer to the lines:
         #
         # else if (top_var == level) {
@@ -2215,9 +2215,9 @@ cdef class Function:
     @property
     def high(self):
         """Return "then" node as `Function`."""
-        cdef DdNode *u
         if cuddIsConstant(self.node):
             return None
+        cdef DdNode *u
         # refer to the lines:
         #
         # } else if (top_var == level) {

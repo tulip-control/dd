@@ -57,8 +57,8 @@ cdef extern from 'bdd.h':
     cdef BDD bdd_delref(BDD r)
     cdef void bdd_gbc()
     # basic Boolean operators
-    cdef bdd_ite(BDD u, BDD v, BDD w)
-    cdef bdd_apply(BDD u, BDD w, int op)
+    cdef BDD bdd_ite(BDD u, BDD v, BDD w)
+    cdef BDD bdd_apply(BDD u, BDD w, int op)
     cdef BDD bdd_not(BDD u)
     cdef BDD bdd_and(BDD u, BDD v)
     cdef BDD bdd_or(BDD u, BDD v)
@@ -69,7 +69,7 @@ cdef extern from 'bdd.h':
     cdef BDD bdd_restrict(BDD r, BDD var)
     cdef BDD bdd_constrain(BDD f, BDD c)
     cdef BDD bdd_compose(BDD f, BDD g, BDD v)
-    cdef bdd_simplify(BDD f, BDD d)
+    cdef BDD bdd_simplify(BDD f, BDD d)
     # quantification
     cdef BDD bdd_exist(BDD r, BDD var)
     cdef BDD bdd_forall(BDD r, BDD var)

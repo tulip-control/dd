@@ -2332,11 +2332,15 @@ cdef class Function:
         elif op == cpo.Py_NE:
             return not eq
         elif op == cpo.Py_LT:
-            return (other | ~ self) == self.zdd.true and not eq
+            return (
+                not eq and
+                (other | ~ self) == self.zdd.true)
         elif op == cpo.Py_LE:
             return (other | ~ self) == self.zdd.true
         elif op == cpo.Py_GT:
-            return (self | ~ other) == self.zdd.true and not eq
+            return (
+                not eq and
+                (self | ~ other) == self.zdd.true)
         elif op == cpo.Py_GE:
             return (self | ~ other) == self.zdd.true
         else:

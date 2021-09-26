@@ -2156,11 +2156,11 @@ cdef class Function:
     cdef DdNode *node
     cdef public int _ref
 
-    cdef init(self, DdNode *node, ZDD bdd):
+    cdef init(self, DdNode *node, ZDD zdd):
         if node is NULL:
             raise ValueError('`DdNode *node` is `NULL` pointer.')
-        self.zdd = bdd
-        self.bdd = bdd  # keep this attribute for writing
+        self.zdd = zdd
+        self.bdd = zdd  # keep this attribute for writing
             # common algorithms for BDDs and ZDDs where possible
         self.manager = zdd.manager
         self.node = node

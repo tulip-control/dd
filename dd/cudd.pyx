@@ -1436,7 +1436,7 @@ cdef class BDD:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
             r = Cudd_bddOr(mgr, u.node, v.node)
-        elif op in ('xor', '^'):
+        elif op in ('#', 'xor', '^'):
             if w is not None:
                 raise ValueError(
                     f'`w is not None`, but: {w}')

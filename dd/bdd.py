@@ -1463,7 +1463,7 @@ class BDD(_abc.BDD):
             if w is not None:
                 raise ValueError(w)
             return self.ite(u, v, -1)
-        elif op in ('xor', '^'):
+        elif op in ('#', 'xor', '^'):
             if v is None:
                 raise ValueError(v)
             if w is not None:

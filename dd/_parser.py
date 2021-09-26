@@ -71,7 +71,7 @@ class Lexer(astutils.Lexer):
         t.value = '<->'
         return t
 
-    t_XOR = r'\^'
+    t_XOR = r'\#|\^'
     t_EQUALS = r'='
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
@@ -85,10 +85,6 @@ class Lexer(astutils.Lexer):
     t_DIV = r'/'
     t_AT = r'@'
     t_ignore = ' \t'
-
-    def t_comment(self, t):
-        r'\#.*'
-        return
 
     def t_trailing_comment(self, t):
         r'\\\*.*'

@@ -1123,6 +1123,7 @@ expr ::= '\A' names ':' expr  # universal quantification (forall)
        | expr '\/' expr   # disjunction (or)
        | expr '=>' expr   # implication (implies)
        | expr '<=>' expr  # equivalence (if and only if)
+       | expr '#' expr    # difference (negation of `<=>`)
 
        # Promela syntax
        | '!' expr         # negation
@@ -1157,8 +1158,6 @@ Comments are written using TLA+ syntax:
 - `\* this is a trailing comment`
 
 Doubly-delimited comments can span multiple lines.
-Trailing comments can be added using a hashmark,
-for example `# this is comment`.
 
 The token precedence (lowest to highest) and associativity
 (r = right, l = left, n = none) is:
@@ -1167,7 +1166,7 @@ The token precedence (lowest to highest) and associativity
 - `<=>, <->` (l)
 - `=>, ->` (l)
 - `-` (l)
-- `^` (l)
+- `#`, `^` (l)
 - `\/, |` (l)
 - `/\, &` (l)
 - `=` (l)

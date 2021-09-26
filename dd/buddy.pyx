@@ -178,7 +178,7 @@ cdef class BDD:
             r = buddy.bdd_and(u.node, v.node)
         elif op in ('|', 'or'):
             r = buddy.bdd_or(u.node, v.node)
-        elif op in ('^', 'xor'):
+        elif op in ('#', '^', 'xor'):
             r = buddy.bdd_xor(u.node, v.node)
         return Function(r)
 

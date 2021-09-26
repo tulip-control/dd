@@ -409,7 +409,7 @@ cdef class BDD:
             r = sy.sylvan_and(u.node, v.node)
         elif op in ('or', r'\/', '|', '||'):
             r = sy.sylvan_or(u.node, v.node)
-        elif op in ('xor', '^'):
+        elif op in ('#', 'xor', '^'):
             r = sy.sylvan_xor(u.node, v.node)
         elif op in ('=>', '->', 'implies'):
             r = sy.sylvan_imp(u.node, v.node)

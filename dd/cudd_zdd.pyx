@@ -80,14 +80,14 @@ ELSE:
 
 
 cdef extern from 'cuddInt.h':
-    cdef char* CUDD_VERSION
-    cdef int CUDD_CONST_INDEX
+    char* CUDD_VERSION
+    int CUDD_CONST_INDEX
     # subtable (for a level)
-    cdef struct DdSubtable:
+    struct DdSubtable:
         unsigned int slots
         unsigned int keys
     # manager
-    cdef struct DdManager:
+    struct DdManager:
         DdSubtable *subtables
         unsigned int keys
         unsigned int dead
@@ -98,33 +98,33 @@ cdef extern from 'cuddInt.h':
         int reordered
     # local hash tables
     ctypedef stdint.intptr_t ptrint
-    cdef struct DdHashItem:
+    struct DdHashItem:
         DdHashItem *next
         DdNode *value
-    cdef struct DdHashTable:
+    struct DdHashTable:
         DdHashItem **bucket
         DdHashItem **memoryList
         unsigned int numBuckets
         DdManager *manager
-    cdef DdHashTable * cuddHashTableInit(
+    DdHashTable * cuddHashTableInit(
         DdManager *manager,
         unsigned int keySize,
         unsigned int initSize)
-    cdef void cuddHashTableQuit(
+    void cuddHashTableQuit(
         DdHashTable *hash)
-    cdef int cuddHashTableInsert1(
+    int cuddHashTableInsert1(
         DdHashTable *hash, DdNode *f,
         DdNode *value, ptrint count)
-    cdef DdNode * cuddHashTableLookup1(
+    DdNode * cuddHashTableLookup1(
         DdHashTable *hash, DdNode *f)
     # cache
-    cdef DdNode * cuddCacheLookup2Zdd(
+    DdNode * cuddCacheLookup2Zdd(
         DdManager *table,
         DdNode * (*)(
             DdManager *, DdNode *, DdNode *),
         DdNode *f,
         DdNode *g)
-    cdef void cuddCacheInsert2(
+    void cuddCacheInsert2(
         DdManager *table,
         DdNode * (*)(
             DdManager *, DdNode *, DdNode *),
@@ -132,239 +132,239 @@ cdef extern from 'cuddInt.h':
         DdNode *g,
         DdNode *data)
     # node elements
-    cdef DdNode *cuddUniqueInter(
+    DdNode *cuddUniqueInter(
         DdManager *unique, int index,
         DdNode *T, DdNode *E)
-    cdef DdNode * cuddUniqueInterZdd(
+    DdNode * cuddUniqueInterZdd(
         DdManager *unique, int index,
         DdNode *T, DdNode *E)
-    cdef bool cuddIsConstant(
+    bool cuddIsConstant(
         DdNode *u)
-    cdef DdNode *DD_ZERO(
+    DdNode *DD_ZERO(
         DdManager *mgr)
-    cdef DdNode *DD_ONE(
+    DdNode *DD_ONE(
         DdManager *mgr)
-    cdef DdNode *cuddT(
+    DdNode *cuddT(
         DdNode *u)  # top cofactors
-    cdef DdNode *cuddE(
+    DdNode *cuddE(
         DdNode *u)
     # BDD node elements
-    cdef DdNode *Cudd_Not(
+    DdNode *Cudd_Not(
         DdNode *dd)
-    cdef DdNode *Cudd_Regular(
+    DdNode *Cudd_Regular(
         DdNode *u)
-    cdef bool Cudd_IsComplement(
+    bool Cudd_IsComplement(
         DdNode *u)
     # reference counting
-    cdef void cuddRef(
+    void cuddRef(
         DdNode *u)
-    cdef void cuddDeref(
+    void cuddDeref(
         DdNode *u)
     # recursive ITE
-    cdef DdNode * cuddZddIte(
+    DdNode * cuddZddIte(
         DdManager *dd,
         DdNode *f, DdNode *g, DdNode *h)
     # realignment
-    cdef int Cudd_zddRealignmentEnabled(
+    int Cudd_zddRealignmentEnabled(
         DdManager *unique)
-    cdef void Cudd_zddRealignEnable(
+    void Cudd_zddRealignEnable(
         DdManager *unique)
-    cdef void Cudd_zddRealignDisable(
+    void Cudd_zddRealignDisable(
         DdManager *unique)
-    cdef int Cudd_bddRealignmentEnabled(
+    int Cudd_bddRealignmentEnabled(
         DdManager *unique)
-    cdef void Cudd_bddRealignEnable(
+    void Cudd_bddRealignEnable(
         DdManager *unique)
-    cdef void Cudd_bddRealignDisable(
+    void Cudd_bddRealignDisable(
         DdManager *unique)
 cdef extern from 'cudd.h':
     # node
     ctypedef unsigned int DdHalfWord
-    cdef struct DdNode:
+    struct DdNode:
         DdHalfWord index
         DdHalfWord ref
         DdNode *next
     # manager
-    cdef DdManager *Cudd_Init(
+    DdManager *Cudd_Init(
         unsigned int numVars,
         unsigned int numVarsZ,
         unsigned int numSlots,
         unsigned int cacheSize,
         size_t maxMemory)
     # generator
-    cdef struct DdGen
+    struct DdGen
     # variables
-    cdef DdNode *Cudd_zddIthVar(
+    DdNode *Cudd_zddIthVar(
         DdManager *dd, int index)
-    cdef DdNode *Cudd_bddIthVar(
+    DdNode *Cudd_bddIthVar(
         DdManager *dd, int index)
-    cdef DdNode *Cudd_zddSupport(
+    DdNode *Cudd_zddSupport(
         DdManager *dd, DdNode *f)
-    cdef int Cudd_ReadPermZdd(
+    int Cudd_ReadPermZdd(
         DdManager *dd, int index)
-    cdef int Cudd_ReadInvPermZdd(
+    int Cudd_ReadInvPermZdd(
         DdManager *dd, int level)
-    cdef unsigned int Cudd_NodeReadIndex(
+    unsigned int Cudd_NodeReadIndex(
         DdNode *u)
     # cofactors (of any given `var`, not only top)
-    cdef DdNode *Cudd_zddSubset1(
+    DdNode *Cudd_zddSubset1(
         DdManager *dd, DdNode *P, int var)
-    cdef DdNode *Cudd_zddSubset0(
+    DdNode *Cudd_zddSubset0(
         DdManager *dd, DdNode *P, int var)
     # conversions between BDDs and ZDDs
-    cdef int Cudd_zddVarsFromBddVars(
+    int Cudd_zddVarsFromBddVars(
         DdManager *dd, int multiplicity)
-    cdef DdNode *Cudd_zddPortFromBdd(
+    DdNode *Cudd_zddPortFromBdd(
         DdManager *dd, DdNode *B)
-    cdef DdNode *Cudd_zddPortToBdd(
+    DdNode *Cudd_zddPortToBdd(
         DdManager *dd, DdNode *f)
     # propositional operators
-    cdef DdNode *Cudd_zddIte(
+    DdNode *Cudd_zddIte(
         DdManager *dd,
         DdNode *f, DdNode *g, DdNode *h)
-    cdef DdNode *Cudd_zddUnion(
+    DdNode *Cudd_zddUnion(
         DdManager *dd, DdNode *P, DdNode *Q)
-    cdef DdNode *Cudd_zddIntersect(
+    DdNode *Cudd_zddIntersect(
         DdManager *dd, DdNode *P, DdNode *Q)
-    cdef DdNode *Cudd_zddDiff(
+    DdNode *Cudd_zddDiff(
         DdManager *dd, DdNode *P, DdNode *Q)
     # constants
-    cdef DdNode *Cudd_ReadZddOne(
+    DdNode *Cudd_ReadZddOne(
         DdManager *dd, int i)
         # `i` is the index of the topmost variable
-    cdef DdNode *Cudd_ReadZero(DdManager *dd)
+    DdNode *Cudd_ReadZero(DdManager *dd)
     # counting
-    cdef int Cudd_zddDagSize(
+    int Cudd_zddDagSize(
         DdNode *p_node)
-    cdef double Cudd_zddCountMinterm(
+    double Cudd_zddCountMinterm(
         DdManager *zdd, DdNode *node, int path)
-    cdef int Cudd_zddCount(
+    int Cudd_zddCount(
         DdManager *zdd, DdNode *P)
-    cdef int Cudd_BddToCubeArray(
+    int Cudd_BddToCubeArray(
         DdManager *dd, DdNode *cube, int *array)
     # pick
-    cdef DdGen *Cudd_zddFirstPath(
+    DdGen *Cudd_zddFirstPath(
         DdManager *zdd, DdNode *f, int **path)
-    cdef int Cudd_zddNextPath(
+    int Cudd_zddNextPath(
         DdGen *gen, int **path)
-    cdef int Cudd_IsGenEmpty(
+    int Cudd_IsGenEmpty(
         DdGen *gen)
-    cdef int Cudd_GenFree(
+    int Cudd_GenFree(
         DdGen *gen)
     # info
-    cdef int Cudd_PrintInfo(
+    int Cudd_PrintInfo(
         DdManager *dd, FILE *fp)
-    cdef int Cudd_ReadZddSize(
+    int Cudd_ReadZddSize(
         DdManager *dd)
-    cdef long Cudd_zddReadNodeCount(
+    long Cudd_zddReadNodeCount(
         DdManager *dd)
-    cdef long Cudd_ReadPeakNodeCount(
+    long Cudd_ReadPeakNodeCount(
         DdManager *dd)
-    cdef int Cudd_ReadPeakLiveNodeCount(
+    int Cudd_ReadPeakLiveNodeCount(
         DdManager *dd)
-    cdef size_t Cudd_ReadMemoryInUse(
+    size_t Cudd_ReadMemoryInUse(
         DdManager *dd)
-    cdef unsigned int Cudd_ReadSlots(
+    unsigned int Cudd_ReadSlots(
         DdManager *dd)
-    cdef double Cudd_ReadUsedSlots(
+    double Cudd_ReadUsedSlots(
         DdManager *dd)
-    cdef double Cudd_ExpectedUsedSlots(
+    double Cudd_ExpectedUsedSlots(
         DdManager *dd)
-    cdef unsigned int Cudd_ReadCacheSlots(
+    unsigned int Cudd_ReadCacheSlots(
         DdManager *dd)
-    cdef double Cudd_ReadCacheUsedSlots(
+    double Cudd_ReadCacheUsedSlots(
         DdManager *dd)
-    cdef double Cudd_ReadCacheLookUps(
+    double Cudd_ReadCacheLookUps(
         DdManager *dd)
-    cdef double Cudd_ReadCacheHits(
+    double Cudd_ReadCacheHits(
         DdManager *dd)
     # reordering
     ctypedef enum Cudd_ReorderingType:
         pass
-    cdef void Cudd_AutodynEnableZdd(
+    void Cudd_AutodynEnableZdd(
         DdManager *unique,
         Cudd_ReorderingType method)
-    cdef void Cudd_AutodynDisableZdd(
+    void Cudd_AutodynDisableZdd(
         DdManager *unique)
-    cdef int Cudd_ReorderingStatusZdd(
+    int Cudd_ReorderingStatusZdd(
         DdManager *unique,
         Cudd_ReorderingType *method)
-    cdef int Cudd_zddReduceHeap(
+    int Cudd_zddReduceHeap(
         DdManager *table,
         Cudd_ReorderingType heuristic,
         int minsize)
-    cdef int Cudd_zddShuffleHeap(
+    int Cudd_zddShuffleHeap(
         DdManager *table, int *permutation)
-    cdef void Cudd_SetSiftMaxSwap(
+    void Cudd_SetSiftMaxSwap(
         DdManager *dd, int sms)
-    cdef int Cudd_ReadSiftMaxSwap(
+    int Cudd_ReadSiftMaxSwap(
         DdManager *dd)
-    cdef void Cudd_SetSiftMaxVar(
+    void Cudd_SetSiftMaxVar(
         DdManager *dd, int smv)
-    cdef int Cudd_ReadSiftMaxVar(
+    int Cudd_ReadSiftMaxVar(
         DdManager *dd)
     # The function `Cudd_zddReduceHeap` increments the
     # counter `dd->reorderings`. The function `Cudd_ReadReorderings`
     # reads this counter.
-    cdef unsigned int Cudd_ReadReorderings(
+    unsigned int Cudd_ReadReorderings(
         DdManager *dd)
     # The function `Cudd_zddReduceHeap` adds to the attribute
     # `dd->reordTime`. The function `Cudd_ReadReorderingTime`
     # reads this attribute.
-    cdef long Cudd_ReadReorderingTime(
+    long Cudd_ReadReorderingTime(
         DdManager *dd)
     # manager config
-    cdef size_t Cudd_ReadMaxMemory(
+    size_t Cudd_ReadMaxMemory(
         DdManager *dd)
-    cdef size_t Cudd_SetMaxMemory(
+    size_t Cudd_SetMaxMemory(
         DdManager *dd, size_t maxMemory)
-    cdef unsigned int Cudd_ReadMaxCacheHard(
+    unsigned int Cudd_ReadMaxCacheHard(
         DdManager *dd)
-    cdef unsigned int Cudd_ReadMaxCache(
+    unsigned int Cudd_ReadMaxCache(
         DdManager *dd)
-    cdef void Cudd_SetMaxCacheHard(
+    void Cudd_SetMaxCacheHard(
         DdManager *dd, unsigned int mc)
-    cdef double Cudd_ReadMaxGrowth(
+    double Cudd_ReadMaxGrowth(
         DdManager *dd)
-    cdef void Cudd_SetMaxGrowth(
+    void Cudd_SetMaxGrowth(
         DdManager *dd, double mg)
-    cdef unsigned int Cudd_ReadMinHit(
+    unsigned int Cudd_ReadMinHit(
         DdManager *dd)
-    cdef void Cudd_SetMinHit(
+    void Cudd_SetMinHit(
         DdManager *dd, unsigned int hr)
-    cdef void Cudd_EnableGarbageCollection(
+    void Cudd_EnableGarbageCollection(
         DdManager *dd)
-    cdef void Cudd_DisableGarbageCollection(
+    void Cudd_DisableGarbageCollection(
         DdManager *dd)
-    cdef int Cudd_GarbageCollectionEnabled(
+    int Cudd_GarbageCollectionEnabled(
         DdManager * dd)
-    cdef unsigned int Cudd_ReadLooseUpTo(
+    unsigned int Cudd_ReadLooseUpTo(
         DdManager *dd)
-    cdef void Cudd_SetLooseUpTo(
+    void Cudd_SetLooseUpTo(
         DdManager *dd, unsigned int lut)
     # reference counting
-    cdef void Cudd_Ref(
+    void Cudd_Ref(
         DdNode *n)
-    cdef void Cudd_Deref(
+    void Cudd_Deref(
         DdNode *n)
-    cdef void Cudd_RecursiveDerefZdd(
+    void Cudd_RecursiveDerefZdd(
         DdManager *table, DdNode *n)
-    cdef int Cudd_CheckZeroRef(
+    int Cudd_CheckZeroRef(
         DdManager *manager)
     # checks
-    cdef int Cudd_DebugCheck(
+    int Cudd_DebugCheck(
         DdManager *table)
-    cdef void Cudd_Quit(
+    void Cudd_Quit(
         DdManager *unique)
     # manager config
-    cdef void Cudd_EnableGarbageCollection(
+    void Cudd_EnableGarbageCollection(
         DdManager *dd)
-    cdef void Cudd_DisableGarbageCollection(
+    void Cudd_DisableGarbageCollection(
         DdManager *dd)
-    cdef int Cudd_GarbageCollectionEnabled(
+    int Cudd_GarbageCollectionEnabled(
         DdManager * dd)
     # BDD functions
-    cdef DdNode *Cudd_bddIte(
+    DdNode *Cudd_bddIte(
         DdManager *dd,
         DdNode *f, DdNode *g, DdNode *h)
 cdef extern from 'util.h':

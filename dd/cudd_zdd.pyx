@@ -1046,14 +1046,12 @@ cdef class ZDD:
         These are the variables that the Boolean function
         represented by the ZDD with root `u` depends on.
         """
-        logger.debug('support')
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
         return _c_support(u)
 
     cpdef _support_py(self, Function u):
         # Python implementation
-        logger.debug('support')
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
         visited = set()
@@ -1145,7 +1143,6 @@ cdef class ZDD:
         @type u: `Function`
         @rtype: `Function`
         """
-        logger.debug('let')
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
         d = definitions
@@ -1178,7 +1175,6 @@ cdef class ZDD:
         @param d: `dict` from variable names (`str`)
             to Boolean values (`bool`).
         """
-        logger.debug('_cofactor_root')
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
         level = 0
@@ -1253,7 +1249,6 @@ cdef class ZDD:
         @param d: `dict` from variable names (`str`)
             to ZDD nodes (`Function`).
         """
-        logger.debug('_compose_root')
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
         self.manager.reordered = 1
@@ -1325,7 +1320,6 @@ cdef class ZDD:
 
     cpdef Function _rename(self, Function u, d):
         """Return node from renaming in `u` the variables in `d`."""
-        logger.debug('_rename')
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
         rename = {k: self.var(v) for k, v in d.items()}
@@ -1340,7 +1334,6 @@ cdef class ZDD:
         """
         # for calling `cuddZddIte`
         # read the method `_ite_recursive`
-        logger.debug('ite')
         if g.manager != self.manager:
             raise ValueError('`g.manager != self.manager`')
         if u.manager != self.manager:
@@ -1446,7 +1439,6 @@ cdef class ZDD:
 
             If omitted, then assume those in `support(u)`.
         """
-        logger.debug('count')
         if u.manager != self.manager:
             raise ValueError('nodes from different managers')
         support = self.support(u)
@@ -1495,7 +1487,6 @@ cdef class ZDD:
 
     def pick(self, Function u, care_vars=None):
         """Return a single satisfying assignment as `dict`."""
-        logger.debug('pick')
         return next(self.pick_iter(u, care_vars), None)
 
     def pick_iter(self, Function u, care_vars=None):
@@ -1870,7 +1861,6 @@ cdef class ZDD:
     cpdef Function quantify(
             self, Function u, qvars, forall=False):
         """Abstract variables `qvars` from node `u`."""
-        logger.debug('quantify')
         if u.manager != self.manager:
             raise ValueError('`u.manager != self.manager`')
         # similar to the C implementation

@@ -90,6 +90,14 @@ class Lexer(astutils.Lexer):
         r'\#.*'
         return
 
+    def t_trailing_comment(self, t):
+        r'\\\*.*'
+        return
+
+    def t_doubly_delimited_comment(self, t):
+        r'\(\*[\s\S]*?\*\)'
+        return
+
     def t_newline(self, t):
         r'\n+'
         t.lexer.lineno += t.value.count('\n')

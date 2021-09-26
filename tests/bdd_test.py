@@ -622,6 +622,24 @@ def test_add_expr():
     compare(u, g, h)
 
 
+def test_expr_comments():
+    bdd = BDD()
+    bdd.declare('x', 'y', 'z', 'w')
+    expr = r'''
+        \* trailing comment
+        (x \/ (
+        (* doubly-delimited comment *)
+            y /\ ~ z))
+        (* multiline
+        comment *)
+        /\ w
+        '''
+    expr_ = r'(x \/ (y /\ ~ z)) /\ w'
+    u = bdd.add_expr(expr)
+    u_ = bdd.add_expr(expr_)
+    assert u == u_, (u, u_)
+
+
 def test_compose():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)

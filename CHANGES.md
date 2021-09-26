@@ -8,6 +8,9 @@
 
 API:
 
+- use TLA+ syntax for comments:
+  - `(* this is a doubly-delimited comment *)`
+  - `\* this is a trailing comment`
 - raise `ValueError` from:
   - `dd.autoref.BDD.level_of_var()`
   - `dd.bdd.BDD.level_of_var()`

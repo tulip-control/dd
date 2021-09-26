@@ -1152,6 +1152,11 @@ NAME ::= [A-Za-z_][A-za-z0-9_.']*
 INTEGER ::= [-][0-9]*
 ```
 
+Comments are written using TLA+ syntax:
+- `(* this is a doubly-delimited comment *)`
+- `\* this is a trailing comment`
+
+Doubly-delimited comments can span multiple lines.
 Trailing comments can be added using a hashmark,
 for example `# this is comment`.
 

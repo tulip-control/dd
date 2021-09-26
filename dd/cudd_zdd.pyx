@@ -2173,8 +2173,7 @@ cdef class Function:
     @property
     def _index(self):
         """Index of `self.node`."""
-        index = Cudd_NodeReadIndex(self.node)
-        return index
+        return Cudd_NodeReadIndex(self.node)
 
     @property
     def var(self):

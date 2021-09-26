@@ -2128,7 +2128,6 @@ cdef class Function:
     @property
     def _index(self):
         """Index of `self.node`."""
-        cdef DdNode *u
         index = Cudd_NodeReadIndex(self.node)
         return index
 

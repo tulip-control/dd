@@ -860,7 +860,28 @@ cdef class BDD:
         return j
 
     cpdef insert_var(self, var, level):
-        """Create a new variable named `var`, at `level`."""
+        """Create new variable at `level`.
+
+        The name of the variable is
+        the string `var`.
+
+        @param var: name of variable
+            that this function
+            will declare
+        @type var: `str`
+        @param level: where the new
+            variable will be placed
+            in the variable order
+            of this BDD manager
+        @type level: `int`
+        @return: number that CUDD
+            uses to identify the
+            newly created variable.
+            This number is also
+            called an index of
+            the variable.
+        @rtype: `int` >= 0
+        """
         cdef DdNode *r
         r = Cudd_bddNewVarAtLevel(
             self.manager, level)

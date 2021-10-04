@@ -893,7 +893,20 @@ cdef class BDD:
         return j
 
     cdef _add_var(self, str var, int index):
-        """Add to `self` a *new* variable named `var`."""
+        """Declare new variable `var`.
+
+        Adds to `self` a *new* variable
+        named `var`, identified within
+        CUDD by the number `index`.
+
+        @param var: name of variable that
+            this function will declare
+        @type var: `str`
+        @param index: number that
+            will identify within CUDD
+            the newly created variable
+        @type index: `int` >= 0
+        """
         if var in self.vars:
             raise ValueError(
                 f'existing variable: "{var}"')

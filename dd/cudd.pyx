@@ -1203,7 +1203,14 @@ cdef class BDD:
 
     cpdef Function _cofactor(
             self, Function f, values):
-        """Return the cofactor f|_g."""
+        """Substitute Booleans for variables.
+
+        @param values: `dict` that maps
+            variable names to Boolean constants
+        @type values: `dict: str -> bool`
+        @return: result of substitution
+        @rtype: `Function`
+        """
         if self.manager != f.manager:
             raise ValueError(f)
         cdef DdNode *r
@@ -1218,7 +1225,11 @@ cdef class BDD:
 
     cpdef Function _rename(
             self, Function u, dvars):
-        """Return node `u` after renaming variables in `dvars`.
+        """Return node `u` after renaming variables.
+
+        How to rename the variable is defined
+        in the argument `dvars`,
+        which is a `dict`.
 
         The argument value `dvars = dict(x='y')`
         results in variable `'x'` substituted by
@@ -1236,7 +1247,10 @@ cdef class BDD:
         return self._compose(u, rename)
 
     cpdef Function _swap(self, Function u, dvars):
-        """Return node `u` after swapping variable pairs in `dvars`.
+        """Return result from swapping variable pairs.
+
+        The variable pairs are defined in
+        the argument `dvars`, which is a `dict`.
 
         Asserts that each variable occurs in
         at most one key-value pair
@@ -1299,7 +1313,16 @@ cdef class BDD:
     cpdef Function ite(
             self, Function g,
             Function u, Function v):
-        """Ternary conditional `IF g THEN u ELSE v`."""
+        """Ternary conditional.
+
+        In other words, the root of
+        the BDD that represents
+        the expression:
+
+        ```tla
+        IF g THEN u ELSE v
+        ```
+        """
         if g.manager != self.manager:
             raise ValueError(
                 '`g.manager != self.manager`')
@@ -1349,7 +1372,7 @@ cdef class BDD:
 
         @param nvars: regard `u` as
             an operator that depends on
-            `nvars` many variables.
+            `nvars`-many variables.
 
             If omitted, then assume
             those variables in `support(u)`.
@@ -1376,7 +1399,12 @@ cdef class BDD:
     def pick(
             self, Function u,
             care_vars=None):
-        """Return a single assignment as `dict`."""
+        """Return a single assignment.
+
+        @return: assignment of values to
+            variables
+        @rtype: `dict` from `str` to `bool`
+        """
         return next(
             self.pick_iter(u, care_vars),
             None)
@@ -1437,6 +1465,10 @@ cdef class BDD:
     def pick_iter(
             self, Function u,
             care_vars=None):
+        """Return iterator over assignments.
+
+        The returned iterator is generator-based.
+        """
         if self.manager != u.manager:
             raise ValueError(
                 '`u.manager != self.manager`')
@@ -1495,7 +1527,12 @@ cdef class BDD:
             Function u,
             Function v=None,
             Function w=None):
-        """Return as `Function` the result of applying `op`."""
+        """Return the result of applying `op`.
+
+        @type op: `str`
+        @type u, v, w: `Function`
+        @rtype: `Function`
+        """
         if self.manager != u.manager:
             raise ValueError(
                 '`u.manager != self.manager`')
@@ -1651,7 +1688,7 @@ cdef class BDD:
         return wrap(self, cube)
 
     cpdef _cube_to_dict(self, Function f):
-        """Recurse to collect indices of support variables."""
+        """Collect indices of support variables."""
         if f.manager != self.manager:
             raise ValueError(
                 '`f.manager != self.manager`')
@@ -1866,7 +1903,14 @@ cdef class BDD:
                 'failed to write to DDDMP file')
 
     cpdef load(self, filename):
-        """Return `Function` loaded from file `filename`."""
+        """Return `Function` loaded from `filename`.
+
+        @param filename: name of file from
+            where the BDD is loaded
+        @type filename: `str`
+        @return: roots of loaded BDDs
+        @rtype: `list` of `Function`
+        """
         if filename.lower().endswith('.dddmp'):
             r = self._load_dddmp(filename)
             return [r]
@@ -1944,7 +1988,11 @@ cdef class BDD:
 
 cpdef Function restrict(
         Function u, Function care_set):
-    """Restrict `u` to `care_set` (1990 Coudert ICCAD)."""
+    """Restrict `u` to `care_set`.
+
+    The operator "restrict" is defined in
+    1990 Coudert ICCAD.
+    """
     if u.manager != care_set.manager:
         raise ValueError(
             '`u.manager != care_set.manager`')
@@ -2481,7 +2529,12 @@ cdef class Function:
 
     @property
     def ref(self):
-        """Sum of reference counts of node and its negation."""
+        """Reference count of node.
+
+        Returns the sum of the reference count
+        of this BDD root, and of the reference
+        count of the root of the negated BDD.
+        """
         cdef DdNode *u
         u = Cudd_Regular(self.node)
         return u.ref
@@ -2506,7 +2559,11 @@ cdef class Function:
 
     @property
     def negated(self):
-        """Return `True` if `self` is a complemented edge."""
+        """`True` if this is a complemented edge.
+
+        Returns `True` if `self` is
+        a complemented edge.
+        """
         return Cudd_IsComplement(self.node)
 
     @property

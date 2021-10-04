@@ -1068,7 +1068,48 @@ cdef class BDD:
 
     cpdef Function let(
             self, definitions, Function u):
-        """Replace variables with `definitions` in `u`."""
+        r"""Substitute variables.
+
+        Variables can be substituted with:
+        - other variables (by name)
+        - Boolean constant values
+          (given as Python `bool` values)
+        - binary decision diagrams
+          (given as `Function` instances)
+
+        Variables that are to be substituted
+        are identified by their names,
+        as keys of the argument `definitions`,
+        which is a `dict`.
+
+        Multiple variables can be substituted
+        at once. This means that variables
+        can be swapped too.
+
+        The name of this function originates
+        from TLA+ and languages with
+        "let" expressions. A "let" expression
+        in TLA+ takes the following form:
+
+        ```tla
+        LET x == TRUE
+        IN x /\ y
+        ```
+
+        In a context where `y` can take
+        only the values `FALSE` and `TRUE`,
+        the above `LET` expression
+        is equivalent to the expression `y`.
+
+        In comparison, the expression:
+
+        ```tla
+        LET x == FALSE
+        IN x /\ y
+        ```
+
+        is equivalent to `FALSE`.
+        """
         if not definitions:
             logger.warning(
                 'Call to `BDD.let` with no effect: '

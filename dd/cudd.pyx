@@ -364,13 +364,15 @@ cdef class BDD:
     cdef public object _index_of_var
     cdef public object _var_with_index
 
-    def __cinit__(self,
-                  memory_estimate=None,
-                  initial_cache_size=None,
-                  *arg, **kw):
+    def __cinit__(
+            self,
+            memory_estimate=None,
+            initial_cache_size=None,
+            *arg, **kw):
         """Initialize BDD manager.
 
-        @param memory_estimate: maximum allowed memory, in bytes.
+        @param memory_estimate:
+            maximum allowed memory, in bytes.
         """
         self.manager = NULL  # prepare for
             # `__dealloc__`,
@@ -427,9 +429,12 @@ cdef class BDD:
                  memory_estimate=None,
                  initial_cache_size=None):
         logger.info(f'Using CUDD v{__version__}')
-        self.configure(reordering=True, max_cache_hard=MAX_CACHE)
+        self.configure(
+            reordering=True,
+            max_cache_hard=MAX_CACHE)
         self.vars = set()
-        self._index_of_var = dict()  # map: str -> unique fixed int
+        # map: str -> unique fixed int
+        self._index_of_var = dict()
         self._var_with_index = dict()
 
     def __dealloc__(self):
@@ -485,7 +490,8 @@ cdef class BDD:
     def __str__(self):
         d = self.statistics()
         s = (
-            'Binary decision diagram (CUDD wrapper) with:\n'
+            'Binary decision diagram '
+                '(CUDD wrapper) with:\n'
             '\t {n} live nodes now\n'
             '\t {peak} live nodes at peak\n'
             '\t {n_vars} BDD variables\n'

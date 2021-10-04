@@ -1775,13 +1775,12 @@ cdef class BDD:
             return 'FALSE'
         if u == Cudd_ReadOne(self.manager):
             return 'TRUE'
-        r = Cudd_Regular(u)
-        i = r.index
         v = Cudd_E(u)
         w = Cudd_T(u)
-        var = self._var_with_index[i]
         p = self._to_expr(v)
         q = self._to_expr(w)
+        r = Cudd_Regular(u)
+        var = self._var_with_index[r.index]
         # pure var ?
         if p == 'FALSE' and q == 'TRUE':
             s = var

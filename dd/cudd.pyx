@@ -1025,7 +1025,9 @@ cdef class BDD:
         if not support:
             return set()
         # must be positive unate
-        if set(support.values()) != {True}:
+        for value in support.values():
+            if value is True:
+                continue
             raise AssertionError(support)
         return set(support)
 

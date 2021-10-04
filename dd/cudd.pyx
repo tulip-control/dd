@@ -1019,15 +1019,15 @@ cdef class BDD:
                 '`u.manager != self.manager`')
         cdef DdNode *r
         r = Cudd_Support(self.manager, u.node)
-        f = wrap(self, r)
-        supp = self._cube_to_dict(f)
+        cube = wrap(self, r)
+        support = self._cube_to_dict(cube)
         # constant ?
-        if not supp:
+        if not support:
             return set()
         # must be positive unate
-        if set(supp.values()) != {True}:
-            raise AssertionError(supp)
-        return set(supp)
+        if set(support.values()) != {True}:
+            raise AssertionError(support)
+        return set(support)
 
     def group(self, vrs):
         """Couple variables in range of contiguous levels."""

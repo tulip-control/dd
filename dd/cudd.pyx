@@ -1015,7 +1015,8 @@ cdef class BDD:
         @rtype: `set` of `str`
         """
         if self.manager != u.manager:
-            raise ValueError(u)
+            raise ValueError(
+                '`u.manager != self.manager`')
         cdef DdNode *r
         r = Cudd_Support(self.manager, u.node)
         f = wrap(self, r)

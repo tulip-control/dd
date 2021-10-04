@@ -1148,8 +1148,8 @@ cdef class BDD:
             return self._multi_compose(f, var_sub)
         if n != 1:
             raise ValueError(n)
-        for var, g in var_sub.items():
-            return self._unary_compose(f, var, g)
+        var, g = next(iter(var_sub.items()))
+        return self._unary_compose(f, var, g)
 
     cdef Function _unary_compose(
             self, Function f, var, Function g):

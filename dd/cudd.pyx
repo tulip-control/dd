@@ -1783,13 +1783,13 @@ cdef class BDD:
         var = self._var_with_index[r.index]
         # pure var ?
         if p == 'FALSE' and q == 'TRUE':
-            s = var
+            expr = var
         else:
-            s = f'ite({var}, {q}, {p})'
+            expr = f'ite({var}, {q}, {p})'
         # complemented ?
         if Cudd_IsComplement(u):
-            s = f'(~ {s})'
-        return s
+            expr = f'(~ {expr})'
+        return expr
 
     cpdef dump(
             self, filename, roots,

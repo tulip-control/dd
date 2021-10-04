@@ -1032,7 +1032,12 @@ cdef class BDD:
         return set(support)
 
     def group(self, vrs):
-        """Couple variables in range of contiguous levels."""
+        """Couple adjacent variables.
+
+        The variables in `vrs` must be at
+        levels that form a contiguous
+        range.
+        """
         cdef unsigned int group_low
         cdef unsigned int group_size
         for var, group_size in vrs.items():

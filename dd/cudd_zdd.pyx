@@ -753,7 +753,10 @@ cdef class ZDD:
         else:
             j = index
         u = Cudd_zddIthVar(self.manager, j)
-        wrap(self, u)  # ref and recursive deref, to cancel ref out
+        # ref and recursive deref,
+        # in order to cancel refs out
+        Cudd_Ref(u)
+        Cudd_RecursiveDerefZdd(self.manager, u)
         if u is NULL:
             raise RuntimeError(
                 f'failed to add var "{var}"')

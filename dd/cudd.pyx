@@ -1145,7 +1145,7 @@ cdef class BDD:
                 'call without any effect')
             return f
         if n > 1:
-            return self._vector_compose(f, var_sub)
+            return self._multi_compose(f, var_sub)
         if n != 1:
             raise ValueError(n)
         for var, g in var_sub.items():
@@ -1168,7 +1168,7 @@ cdef class BDD:
             raise RuntimeError('compose failed')
         return wrap(self, r)
 
-    cdef Function _vector_compose(
+    cdef Function _multi_compose(
             self, Function f, var_sub):
         """Return vector composition."""
         if f.manager != self.manager:

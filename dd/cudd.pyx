@@ -473,7 +473,7 @@ cdef class BDD:
         return self.manager != other.manager
 
     def __len__(self):
-        """Return number of nodes with non-zero references."""
+        """Number of nodes with nonzero references."""
         return Cudd_CheckZeroRef(self.manager)
 
     def __contains__(self, Function u):

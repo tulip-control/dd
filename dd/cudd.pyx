@@ -1008,7 +1008,12 @@ cdef class BDD:
         reorder(self, var_order)
 
     cpdef support(self, Function u):
-        """Return `set` of variables that node `f` depends on."""
+        """Return variables that `u` depends on.
+
+        @type u: `Function`
+        @return: set of variable names
+        @rtype: `set` of `str`
+        """
         if self.manager != u.manager:
             raise ValueError(u)
         cdef DdNode *r

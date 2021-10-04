@@ -2143,7 +2143,8 @@ cpdef count_nodes(functions):
     cdef DdNode **x
     cdef Function f
     n = len(functions)
-    x = <DdNode **> PyMem_Malloc(n *sizeof(DdNode *))
+    x = <DdNode **> PyMem_Malloc(
+        n * sizeof(DdNode *))
     for i, f in enumerate(functions):
         x[i] = f.node
     try:

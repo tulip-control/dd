@@ -1069,18 +1069,17 @@ cdef class BDD:
     cpdef Function let(
             self, definitions, Function u):
         """Replace variables with `definitions` in `u`."""
-        d = definitions
-        if not d:
+        if not definitions:
             logger.warning(
                 'Call to `BDD.let` with no effect: '
                 '`defs` is empty.')
             return u
-        var = next(iter(d))
-        value = d[var]
+        var = next(iter(definitions))
+        value = definitions[var]
         if isinstance(value, python_bool):
-            return self._cofactor(u, d)
+            return self._cofactor(u, definitions)
         elif isinstance(value, Function):
-            return self._compose(u, d)
+            return self._compose(u, definitions)
         try:
             value + 's'
         except TypeError:
@@ -1090,7 +1089,7 @@ cdef class BDD:
                 'or Boolean value as `bool`, '
                 'or BDD node as `int`. '
                 f'Got: {value}')
-        return self._rename(u, d)
+        return self._rename(u, definitions)
 
     cpdef Function _compose(
             self, Function f, var_sub):

@@ -27,6 +27,9 @@ The examples are:
 
 - `cudd_zdd.py`: how to use ZDDs with CUDD.
 
+- `json_example.py`: how to write BDDs to JSON files,
+  and how to load BDDs from JSON files.
+
 
 The shell scripts show how to install the Cython modules of `dd`:
 

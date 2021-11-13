@@ -38,8 +38,7 @@ def copy_bdd(u, target, cache=None):
     """
     if cache is None:
         cache = dict()
-    r = _copy_bdd(u, target, cache)
-    return r
+    return _copy_bdd(u, target, cache)
 
 
 def _copy_bdd(u, bdd, cache):
@@ -93,8 +92,7 @@ def copy_zdd(u, target, cache=None):
     if cache is None:
         cache = dict()
     level = 0
-    r = _copy_zdd(level, u, target, cache)
-    return r
+    return _copy_zdd(level, u, target, cache)
 
 
 def _copy_zdd(level, u, target, cache):

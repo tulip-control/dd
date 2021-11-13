@@ -1,9 +1,9 @@
 """How to use ZDDs with CUDD."""
-from dd import cudd_zdd
+import dd.cudd_zdd as _zdd
 
 
 def main():
-    zdd = cudd_zdd.ZDD()
+    zdd = _zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     u = zdd.add_expr(r'(x /\ y) \/ z')
     let = dict(y=zdd.add_expr('~ x'))

@@ -1,6 +1,6 @@
 """Renaming variables."""
-from dd import autoref as _bdd
-# from dd import cudd as _bdd  # uncomment to use CUDD
+import dd.autoref as _bdd
+# import dd.cudd as _bdd  # uncomment to use CUDD
 
 
 # instantiate a shared BDD manager

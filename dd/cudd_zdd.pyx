@@ -60,7 +60,7 @@ from dd import _utils
 from dd import bdd as _bdd
 from libcpp cimport bool
 from libc.stdio cimport FILE, fdopen, fopen, fclose
-from libc cimport stdint
+cimport libc.stdint as stdint
 from cpython cimport bool as python_bool
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 import psutil

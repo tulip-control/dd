@@ -12,8 +12,9 @@ Henrik R. Andersen
 """
 import pickle
 import time
-from dd import bdd as _bdd
-from omega.logic.syntax import conj, disj
+
+import dd.bdd as _bdd
+import omega.logic.syntax as stx
 
 
 def solve_queens(n):
@@ -38,7 +39,7 @@ def queens_formula(n):
     cols = at_most_one_queen_per_line(False, n)
     slash = at_most_one_queen_per_diagonal(True, n)
     backslash = at_most_one_queen_per_diagonal(False, n)
-    s = conj([present, rows, cols, slash, backslash])
+    s = stx.conj([present, rows, cols, slash, backslash])
     return s
 
 
@@ -47,9 +48,9 @@ def at_least_one_queen_per_row(n):
     c = list()
     for i in range(n):
         xijs = [_var_str(i, j) for j in range(n)]
-        s = disj(xijs)
+        s = stx.disj(xijs)
         c.append(s)
-    return conj(c)
+    return stx.conj(c)
 
 
 def at_most_one_queen_per_line(row, n):
@@ -65,7 +66,7 @@ def at_most_one_queen_per_line(row, n):
             xijs = [_var_str(j, i) for j in range(n)]
         s = mutex(xijs)
         c.append(s)
-    return conj(c)
+    return stx.conj(c)
 
 
 def at_most_one_queen_per_diagonal(slash, n):
@@ -92,7 +93,7 @@ def at_most_one_queen_per_diagonal(slash, n):
         xijs = [_var_str(i, j) for i, j in ijs]
         s = mutex(xijs)
         c.append(s)
-    return conj(c)
+    return stx.conj(c)
 
 
 def mutex(v):
@@ -103,10 +104,10 @@ def mutex(v):
     v = set(v)
     c = list()
     for x in v:
-        rest = disj(y for y in v if y != x)
+        rest = stx.disj(y for y in v if y != x)
         s = f'{x} => ~ ({rest})'
         c.append(s)
-    return conj(c)
+    return stx.conj(c)
 
 
 def _var_str(i, j):

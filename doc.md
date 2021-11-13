@@ -111,7 +111,7 @@ Roughly four kinds of operations suffice to perform most tasks:
 First, instantiate a manager and declare variables
 
 ```python
-from dd import autoref as _bdd
+import dd.autoref as _bdd
 
 
 bdd = _bdd.BDD()
@@ -334,7 +334,7 @@ assignments to variables, so a [model-theoretic viewpoint](
 You can dump a PDF of all nodes in the manager as follows
 
 ```python
-from dd import autoref as _bdd
+import dd.autoref as _bdd
 
 
 bdd = _bdd.BDD()
@@ -381,7 +381,7 @@ a complemented arc. External references can be included in a BDD diagram by
 using the argument `roots` of the method `BDD.dump`. For example
 
 ```python
-from dd import autoref as _bdd
+import dd.autoref as _bdd
 
 
 bdd = _bdd.BDD()
@@ -701,7 +701,8 @@ to go unnoticed. To make Python exit when reference counting errors exist
 before a BDD manager is deallocated, use:
 
 ```python
-from dd import cudd
+import dd.cudd as cudd
+
 
 bdd = cudd.BDD()
 # ... statements ...
@@ -715,10 +716,10 @@ different. As a result, the code for checking that no BDD nodes have nonzero
 reference count in `dd.autoref` is:
 
 ```python
-from dd import autoref
+import dd.autoref as _bdd
 
 
-bdd = autoref.BDD()
+bdd = _bdd.BDD()
 # ... statements ...
 # raise `AssertionError` if any nodes have nonzero reference count
 # just before deallocating the BDD manager
@@ -810,7 +811,7 @@ bdd.incref(u)
 Revisiting an earlier example, manual reference counting looks like:
 
 ```python
-from dd import bdd as _bdd
+import dd.bdd as _bdd
 
 
 bdd = _bdd.BDD()
@@ -860,7 +861,7 @@ This reordering heuristic is the most commonly used, also in CUDD.
 Dynamic variable reordering can be enabled by calling:
 
 ```python
-from dd import bdd as _bdd
+import dd.bdd as _bdd
 
 
 bdd = _bdd.BDD()
@@ -874,7 +875,7 @@ You can also invoke reordering explicitly when desired, besides dynamic
 invocation. For example:
 
 ```python
-from dd import bdd as _bdd
+import dd.bdd as _bdd
 
 
 bdd = _bdd.BDD()
@@ -1054,7 +1055,7 @@ The identifiers `["x0", "x1", "x0'", "x1'"]` are just four bits.
 The elevator can move as follows
 
 ```python
-from dd import autoref as _bdd
+import dd.autoref as _bdd
 
 
 bdd = _bdd.BDD()
@@ -1220,7 +1221,7 @@ The variables are defined by a `dict` argument to the constructor
 by adding a method `MDD.add_var`)
 
 ```python
-from dd import mdd as _mdd
+import dd.mdd as _mdd
 
 
 dvars = dict(
@@ -1239,7 +1240,8 @@ because `bdd_to_mdd` invokes garbage collection on the BDD.
 
 ```python
 from dd.bdd import BDD
-from dd import mdd as _mdd
+import dd.mdd as _mdd
+
 
 bits = dict(x=0, y0=1, y1=2)
 bdd = BDD(bits)

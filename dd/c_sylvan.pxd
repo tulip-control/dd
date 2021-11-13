@@ -13,7 +13,7 @@ Reference
 # All rights reserved. Licensed under BSD-3.
 #
 from libcpp cimport bool
-from libc cimport stdint
+cimport libc.stdint as stdint
 
 
 cdef extern from 'lace.h':

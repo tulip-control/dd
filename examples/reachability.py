@@ -10,9 +10,9 @@ then take a look at the package `omega`.
 [1](https://github.com/tulip-control/dd/blob/
     main/doc.md#example-reachability-analysis)
 """
-from dd import autoref as _bdd
+import dd.autoref as _bdd
 # uncomment if you have compiled `dd.cudd`
-# from dd import cudd as _bdd
+# import dd.cudd as _bdd
 
 
 def transition_system(bdd):

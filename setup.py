@@ -4,8 +4,8 @@ import logging
 import os
 import sys
 
-from setuptools import setup
-from pkg_resources import parse_version
+import pkg_resources as _pkg
+import setuptools
 
 import download
 # inline:
@@ -78,7 +78,9 @@ def git_version(version):
     # assert versions are increasing
     latest_tag = repo.git.describe(
         match='v[0-9]*', tags=True, abbrev=0)
-    if parse_version(latest_tag) > parse_version(version):
+    latest_version = _pkg.parse_version(latest_tag)
+    given_version = _pkg.parse_version(version)
+    if latest_version > given_version:
         raise AssertionError(
             (latest_tag, version))
     sha = repo.head.commit.hexsha
@@ -167,7 +169,7 @@ def run_setup():
     except ImportError:
         print('WARNING: `dd` could not cache parser tables '
               '(ignore this if running only for "egg_info").')
-    setup(
+    setuptools.setup(
         name=PACKAGE_NAME,
         version=version,
         description=DESCRIPTION,

@@ -1,10 +1,11 @@
 """Package of algorithms based on decision diagrams."""
 try:
-    from dd._version import version as __version__
+    import dd._version as _version
+    __version__ = _version.version
 except ImportError:
     __version__ = None
 try:
-    from dd import cudd as _bdd
+    import dd.cudd as _bdd
 except ImportError:
-    from dd import autoref as _bdd
+    import dd.autoref as _bdd
 BDD = _bdd.BDD

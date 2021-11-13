@@ -1,7 +1,7 @@
 """Activate dynamic reordering for the Python implementation `dd.autoref`."""
 import logging
 
-from dd import autoref as _bdd
+import dd.autoref as _bdd
 
 
 def demo_dynamic_reordering():

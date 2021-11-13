@@ -1,12 +1,12 @@
 """How to copy a BDD from one manager to another."""
-from dd import autoref
+import dd.autoref as _bdd
 
 
 def transfer():
     """Copy a BDD from one manager to another."""
     # create two BDD managers
-    source = autoref.BDD()
-    target = autoref.BDD()
+    source = _bdd.BDD()
+    target = _bdd.BDD()
     # declare the variables in both BDD managers
     vrs = ['a', 'b']
     source.declare(*vrs)
@@ -19,8 +19,8 @@ def transfer():
 
 def copy_variable_order():
     """As in `transfer`, and copy variable order too."""
-    source = autoref.BDD()
-    target = autoref.BDD()
+    source = _bdd.BDD()
+    target = _bdd.BDD()
     # declare variables in the source BDD manager
     source.declare('a', 'b')
     # create a BDD with root `u`

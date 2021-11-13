@@ -40,14 +40,14 @@ Henrik R. Andersen
 # Copyright 2014 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
-from collections.abc import Mapping
+import collections.abc as _abc
 import logging
 import pickle
 import sys
 import warnings
 
-from dd import _abc
-from dd import _parser
+import dd._abc
+import dd._parser
 # inline:
 # import networkx
 # import pydot
@@ -108,7 +108,7 @@ class _NeedsReordering(Exception):
     pass
 
 
-class BDD(_abc.BDD):
+class BDD(dd._abc.BDD):
     """Shared ordered binary decision diagram.
 
     The terminal node is 1.
@@ -453,7 +453,7 @@ class BDD(_abc.BDD):
                         f'level {level} is not in '
                         f'{self._level_to_var = }')
             return d
-        if isinstance(d, Mapping):
+        if isinstance(d, _abc.Mapping):
             r = {
                 self.vars[var]: bool(val)
                 for var, val in d.items()}
@@ -1409,7 +1409,7 @@ class BDD(_abc.BDD):
 
     @_try_to_reorder
     def add_expr(self, e):
-        return _parser.add_expr(e, self)
+        return dd._parser.add_expr(e, self)
 
     def to_expr(self, u):
         if u not in self:
@@ -1735,7 +1735,7 @@ def _assert_valid_ordering(levels):
     - contiguous levels
     """
     # `levels` is a mapping -> each var : single level
-    if not isinstance(levels, Mapping):
+    if not isinstance(levels, _abc.Mapping):
         raise TypeError(levels)
     # levels are contiguous integers ?
     n = len(levels)

@@ -5,7 +5,7 @@ from dd import cudd
 import humanize
 
 
-def main():
+def print_statistics():
     b = cudd.BDD()
     b.declare('x', 'y', 'z')
     u = b.add_expr(r'x /\ y /\ z')
@@ -27,4 +27,4 @@ def format_number(x):
 
 
 if __name__ == '__main__':
-    main()
+    print_statistics()

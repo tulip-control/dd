@@ -2,7 +2,7 @@
 import dd.cudd_zdd as _zdd
 
 
-def main():
+def zdd_example():
     zdd = _zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     u = zdd.add_expr(r'(x /\ y) \/ z')
@@ -13,4 +13,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    zdd_example()

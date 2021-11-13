@@ -2,7 +2,7 @@
 import dd.cudd as _bdd
 
 
-def main():
+def configure():
     GiB = 2**30
     b = _bdd.BDD()
     b.configure(
@@ -13,4 +13,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    configure()

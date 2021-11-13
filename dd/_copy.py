@@ -30,15 +30,15 @@ def copy_bdds_from(roots, target):
     return [copy_bdd(u, target, cache) for u in roots]
 
 
-def copy_bdd(u, target, cache=None):
-    """Copy BDD with root `u` to manager `target`.
+def copy_bdd(root, target, cache=None):
+    """Copy BDD with `root` to manager `target`.
 
     @param target: BDD or ZDD
     @param cache: `dict` for memoizing results
     """
     if cache is None:
         cache = dict()
-    return _copy_bdd(u, target, cache)
+    return _copy_bdd(root, target, cache)
 
 
 def _copy_bdd(u, bdd, cache):
@@ -83,8 +83,8 @@ def _flip(r, u):
     return ~ r if u.negated else r
 
 
-def copy_zdd(u, target, cache=None):
-    """Copy ZDD with root `u` to manager `target`.
+def copy_zdd(root, target, cache=None):
+    """Copy ZDD with `root` to manager `target`.
 
     @param target: BDD or ZDD
     @param cache: `dict` for memoizing results
@@ -92,7 +92,7 @@ def copy_zdd(u, target, cache=None):
     if cache is None:
         cache = dict()
     level = 0
-    return _copy_zdd(level, u, target, cache)
+    return _copy_zdd(level, root, target, cache)
 
 
 def _copy_zdd(level, u, target, cache):
@@ -132,23 +132,23 @@ def dump_json(nodes, file_name):
     os.makedirs(SHELVE_DIR)
     try:
         with shelve.open(tmp_fname) as cache,\
-                open(file_name, 'w') as f:
-            _dump_json(nodes, f, cache)
+                open(file_name, 'w') as fd:
+            _dump_json(nodes, fd, cache)
     finally:
         # `shelve` file naming depends on context
         shutil.rmtree(SHELVE_DIR)
 
 
-def _dump_json(nodes, f, cache):
-    """Dump BDD as JSON to file `f`, using `cache`."""
-    f.write('{')
-    _dump_bdd_info(nodes, f)
+def _dump_json(nodes, fd, cache):
+    """Dump BDD as JSON to file `fd`, using `cache`."""
+    fd.write('{')
+    _dump_bdd_info(nodes, fd)
     for u in nodes:
-        _dump_bdd(u, f, cache)
-    f.write('\n}\n')
+        _dump_bdd(u, fd, cache)
+    fd.write('\n}\n')
 
 
-def _dump_bdd_info(nodes, f):
+def _dump_bdd_info(nodes, fd):
     """Dump variable levels and roots."""
     u = next(iter(nodes))
     bdd = u.bdd
@@ -156,15 +156,15 @@ def _dump_bdd_info(nodes, f):
         var: bdd.level_of_var(var)
         for var in bdd.vars}
     roots = [_node_to_int(u) for u in nodes]
-    s = (
+    info = (
         '\n"level_of_var": {level}'
         ',\n"roots": {roots}').format(
             level=json.dumps(var_level),
             roots=json.dumps(roots))
-    f.write(s)
+    fd.write(info)
 
 
-def _dump_bdd(u, f, cache):
+def _dump_bdd(u, fd, cache):
     """Recursive step of dumping nodes."""
     # terminal ?
     if u == u.bdd.true:
@@ -179,11 +179,11 @@ def _dump_bdd(u, f, cache):
     if str(k) in cache:
         return -k if u.negated else k
     # recurse
-    low = _dump_bdd(u.low, f, cache)
-    high = _dump_bdd(u.high, f, cache)
+    low = _dump_bdd(u.low, fd, cache)
+    high = _dump_bdd(u.high, fd, cache)
     # dump node
     s = f',\n"{k}": [{u.level}, {low}, {high}]'
-    f.write(s)
+    fd.write(s)
     # record as dumped
     cache[str(k)] = True
     return -k if u.negated else k
@@ -200,15 +200,15 @@ def load_json(file_name, bdd, load_order=False):
     os.makedirs(SHELVE_DIR)
     try:
         with shelve.open(tmp_fname) as cache,\
-                open(file_name, 'r') as f:
-            nodes = _load_json(f, bdd, load_order, cache)
+                open(file_name, 'r') as fd:
+            nodes = _load_json(fd, bdd, load_order, cache)
     finally:
         shutil.rmtree(SHELVE_DIR)
     return nodes
 
 
-def _load_json(f, bdd, load_order, cache):
-    """Load BDDs from JSON file `f` to manager `bdd`."""
+def _load_json(fd, bdd, load_order, cache):
+    """Load BDDs from JSON file `fd` to manager `bdd`."""
     context = dict(load_order=load_order)
     # if the variable order is going to be loaded,
     # then turn off dynamic reordering,
@@ -219,7 +219,7 @@ def _load_json(f, bdd, load_order, cache):
     if load_order:
         old_reordering = bdd.configure(
             reordering=False)
-    for line in f:
+    for line in fd:
         d = _parse_line(line)
         _store_line(d, bdd, context, cache)
     roots = [_node_from_int(k, bdd, cache)

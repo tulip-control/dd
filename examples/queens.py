@@ -132,7 +132,7 @@ def benchmark(n):
     return dt
 
 
-if __name__ == '__main__':
+def _example():
     n_max = 9
     fname = 'dd_times.p'
     times = dict()
@@ -141,3 +141,7 @@ if __name__ == '__main__':
         times[n] = t
     with open(fname, 'wb') as f:
         pickle.dump(times, f)
+
+
+if __name__ == '__main__':
+    _example()

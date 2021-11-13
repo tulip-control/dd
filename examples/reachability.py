@@ -51,9 +51,13 @@ def least_fixpoint(transitions, bdd):
     return q
 
 
-if __name__ == '__main__':
+def reachability_example():
     bdd = _bdd.BDD()
     transitions = transition_system(bdd)
     q = least_fixpoint(transitions, bdd)
     s = q.to_expr()
     print(s)
+
+
+if __name__ == '__main__':
+    reachability_example()

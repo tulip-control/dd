@@ -12,6 +12,8 @@ The examples are:
 - `queens.py`: solve the [N-queens problem](
     https://en.wikipedia.org/wiki/Eight_queens_puzzle).
 
+- `bdd_traversal.py`: breadth-first and depth-first iteration over nodes
+
 - `reordering.py`: activate dynamic variable reordering for the Python
   implementation, invoke reordering explicitly, and permute variables to
   a desired order.

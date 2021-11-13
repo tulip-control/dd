@@ -45,38 +45,44 @@ PARSER_LOG = 'dd.dddmp.parser_logger'
 class Lexer:
     """Token rules to build LTL lexer."""
 
-    reserved = {
-        'ver': 'VERSION',
-        'add': 'ADD',
-        'mode': 'FILEMODE',
-        'varinfo': 'VARINFO',
-        'dd': 'DD',
-        'nnodes': 'NNODES',
-        'nvars': 'NVARS',
-        'orderedvarnames': 'ORDEREDVARNAMES',
-        'nsuppvars': 'NSUPPVARS',
-        'suppvarnames': 'SUPPVARNAMES',
-        'ids': 'IDS',
-        'permids': 'PERMIDS',
-        'auxids': 'AUXIDS',
-        'nroots': 'NROOTS',
-        'rootids': 'ROOTIDS',
-        'rootnames': 'ROOTNAMES',
-        # 'nodes': 'NODES',
-        # 'end': 'END'
-        }
-    reserved = {f'.{k}': v for k, v in reserved.items()}
-    misc = ['MINUS', 'DOT', 'NAME', 'NUMBER']
+    def __init__(self, debug=False):
+        reserved = {
+            'ver': 'VERSION',
+            'add': 'ADD',
+            'mode': 'FILEMODE',
+            'varinfo': 'VARINFO',
+            'dd': 'DD',
+            'nnodes': 'NNODES',
+            'nvars': 'NVARS',
+            'orderedvarnames': 'ORDEREDVARNAMES',
+            'nsuppvars': 'NSUPPVARS',
+            'suppvarnames': 'SUPPVARNAMES',
+            'ids': 'IDS',
+            'permids': 'PERMIDS',
+            'auxids': 'AUXIDS',
+            'nroots': 'NROOTS',
+            'rootids': 'ROOTIDS',
+            'rootnames': 'ROOTNAMES',
+            # 'nodes': 'NODES',
+            # 'end': 'END'
+            }
+        self.reserved = {
+            f'.{k}': v
+            for k, v in reserved.items()}
+        self.misc = [
+            'MINUS',
+            'DOT',
+            'NAME',
+            'NUMBER']
+        self.tokens = self.misc + list(
+            sorted(self.reserved.values()))
+        self.build(debug=debug)
+
     # token rules
     t_MINUS = r'\-'
     t_DOT = r'\.'
     t_NUMBER = r'\d+'
     t_ignore = ' \t'
-
-    def __init__(self, debug=False):
-        self.tokens = self.misc + list(
-            sorted(self.reserved.values()))
-        self.build(debug=debug)
 
     def t_KEYWORD(self, t):
         r"\.[a-zA-Z][a-zA-Z]*"
@@ -119,9 +125,8 @@ class Lexer:
 class Parser:
     """Production rules to build LTL parser."""
 
-    tabmodule = TABMODULE
-
     def __init__(self):
+        self.tabmodule = TABMODULE
         self.lexer = Lexer()
         self.tokens = self.lexer.tokens
         self.build()

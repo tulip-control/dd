@@ -12,17 +12,34 @@ TABMODULE = 'dd.bdd_parsetab'
 class Lexer(astutils.Lexer):
     """Lexer for Boolean formulae."""
 
-    reserved = {
-        'ite': 'ITE',
-        'False': 'FALSE',
-        'True': 'TRUE',
-        'FALSE': 'FALSE',
-        'TRUE': 'TRUE'}
-    delimiters = ['LPAREN', 'RPAREN', 'COMMA']
-    operators = ['NOT', 'AND', 'OR', 'XOR', 'IMPLIES', 'EQUIV',
-                 'EQUALS', 'MINUS', 'DIV', 'AT',
-                 'COLON', 'FORALL', 'EXISTS', 'RENAME']
-    misc = ['NAME', 'NUMBER']
+    def __init__(self, **kw):
+        self.reserved = {
+            'ite': 'ITE',
+            'False': 'FALSE',
+            'True': 'TRUE',
+            'FALSE': 'FALSE',
+            'TRUE': 'TRUE'}
+        self.delimiters = [
+            'LPAREN',
+            'RPAREN',
+            'COMMA']
+        self.operators = [
+            'NOT',
+            'AND',
+            'OR',
+            'XOR',
+            'IMPLIES',
+            'EQUIV',
+            'EQUALS',
+            'MINUS',
+            'DIV',
+            'AT',
+            'COLON',
+            'FORALL',
+            'EXISTS',
+            'RENAME']
+        self.misc = ['NAME', 'NUMBER']
+        super().__init__(**kw)
 
     def t_NAME(self, t):
         r"[A-Za-z_][A-za-z0-9_']*"
@@ -81,21 +98,23 @@ class Lexer(astutils.Lexer):
 class Parser(astutils.Parser):
     """Parser for Boolean formulae."""
 
-    tabmodule = TABMODULE
-    start = 'expr'
-    # low to high
-    precedence = (
-        ('left', 'COLON'),
-        ('left', 'EQUIV'),
-        ('left', 'IMPLIES'),
-        ('left', 'MINUS'),
-        ('left', 'XOR'),
-        ('left', 'OR'),
-        ('left', 'AND'),
-        ('left', 'EQUALS'),
-        ('right', 'NOT'),
-        ('right', 'UMINUS'))
-    Lexer = Lexer
+    def __init__(self, **kw):
+        self.tabmodule = TABMODULE
+        self.start = 'expr'
+        # low to high
+        self.precedence = (
+            ('left', 'COLON'),
+            ('left', 'EQUIV'),
+            ('left', 'IMPLIES'),
+            ('left', 'MINUS'),
+            ('left', 'XOR'),
+            ('left', 'OR'),
+            ('left', 'AND'),
+            ('left', 'EQUALS'),
+            ('right', 'NOT'),
+            ('right', 'UMINUS'))
+        self.Lexer = Lexer
+        super().__init__(**kw)
 
     def p_bool(self, p):
         """expr : TRUE

@@ -14,15 +14,16 @@ def dump_bdd_as_json(filename):
     bdd = _bdd.BDD()
     bdd.declare('x', 'y', 'z')
     u = bdd.add_expr(r'(x /\ y) \/ ~ z')
-    bdd.dump(filename, [u])
+    roots = dict(u=u)
+    bdd.dump(filename, roots)
     print(f'Dumped BDD: {u}')
 
 
 def load_bdd_from_json(filename):
     """Load a BDD from a JSON file."""
     bdd = _bdd.BDD()
-    u, = bdd.load(filename)
-    print(f'Loaded BDD: {u}')
+    roots = bdd.load(filename)
+    print(f'Loaded BDD: {roots}')
 
 
 if __name__ == '__main__':

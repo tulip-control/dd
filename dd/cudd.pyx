@@ -1822,7 +1822,11 @@ cdef class BDD:
 
         @type filename: `str`
         @type filetype: `str`, e.g., `"pdf"`
-        @type roots: container of nodes
+        @type roots:
+            - `list` of nodes, or
+            - for JSON:
+              `dict` that maps names (as `str`)
+              to nodes
         """
         if filetype is None:
             name = filename.lower()
@@ -1917,7 +1921,11 @@ cdef class BDD:
             where the BDD is loaded
         @type filename: `str`
         @return: roots of loaded BDDs
-        @rtype: `list` of `Function`
+        @rtype: depends on the contents of the file,
+            either:
+            - `dict` that maps names (as `str`)
+              to nodes (as `Function`), or
+            - `list` of `Function`
         """
         if filename.lower().endswith('.dddmp'):
             r = self._load_dddmp(filename)

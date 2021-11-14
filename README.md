@@ -134,7 +134,7 @@ for d in bdd.pick_iter(u):
 n = bdd.count(u)
 # write to and load from JSON file
 filename = 'bdd.json'
-bdd.dump(filename, roots=[u])
+bdd.dump(filename, roots=dict(res=u))
 other_bdd = BDD()
 roots = other_bdd.load(filename)
 print(other_bdd.vars)

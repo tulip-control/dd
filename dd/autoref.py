@@ -240,7 +240,11 @@ class BDD(_abc.BDD):
 
         @type filename: `str`
         @type filetype: `str`, e.g., `"pdf"`
-        @type roots: container of nodes
+        @type roots:
+            - `list` of nodes, or
+            - for JSON or Pickle:
+              `dict` that maps names (as `str`)
+              to nodes
         """
         # The method's docstring is a slight modification
         # of the docstring of the method `dd._abc.BDD.dump`.

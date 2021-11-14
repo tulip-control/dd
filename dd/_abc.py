@@ -241,11 +241,12 @@ class BDD:
 
         @type filename: `str`
         @type filetype: `str`, e.g., `"pdf"`
-        @type roots: container of nodes
+        @type roots:
+            - `list` of nodes, or
+            - for Pickle: `dict` that maps
+              names (as `str`) to nodes
         """
 
-    # revise this method to return roots as `list` or
-    # named nodes as `dict`
     def load(self, filename, levels=True):
         """Load nodes from Pickle file `filename`.
 
@@ -255,7 +256,11 @@ class BDD:
 
         @type filename: `str`
         @return: roots of the loaded BDDs
-        @rtype: `list` of nodes
+        @rtype: depends on the contents of the file,
+            either:
+            - `dict` that maps names (as `str`)
+              to nodes, or
+            - `list` of nodes
         """
 
     @property

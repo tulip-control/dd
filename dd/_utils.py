@@ -2,6 +2,7 @@
 # Copyright 2017-2018 by California Institute of Technology
 # All rights reserved. Licensed under 3-clause BSD.
 #
+import collections.abc as _abc
 import textwrap as _tw
 import typing as _ty
 
@@ -110,3 +111,70 @@ def _raise_runtimerror_about_ref_count(
         f'value of attribute `_ref` is:\n{ref_count_lb}\n'
         'For more information read the docstring of '
         f'the class {class_name}.')
+
+
+
+@_ty.overload
+def _map_container(
+        mapper:
+            _abc.Callable,
+        container:
+            _abc.Mapping
+        ) -> dict:
+    ...
+
+
+@_ty.overload
+def _map_container(
+        mapper:
+            _abc.Callable,
+        container:
+            _abc.Iterable
+        ) -> list:
+    ...
+
+
+def _map_container(
+        mapper,
+        container):
+    """Map `container`, using `mapper()`.
+
+    If `container` is a sequence,
+    then map each item.
+
+    If `container` is a mapping of
+    keys to values, then map each value.
+    """
+    if isinstance(container, _abc.Mapping):
+        return _map_values(mapper, container)
+    return list(map(mapper, container))
+
+
+def _map_values(
+        mapper:
+            _abc.Callable,
+        kv:
+            _abc.Mapping
+        ) -> dict:
+    """Map each value of `kv` using `mapper()`.
+
+    The keys of `kv` remain unchanged.
+    """
+    return {k: mapper(v) for k, v in kv.items()}
+
+
+def _values_of(
+        container:
+            _abc.Mapping |
+            _abc.Collection
+        ) -> _abc.Iterable:
+    """Return container values.
+
+    @return:
+        - `container.values()` if
+          `container` is a mapping
+        - `container` otherwise
+    """
+    if isinstance(container, _abc.Mapping):
+        return container.values()
+    return container

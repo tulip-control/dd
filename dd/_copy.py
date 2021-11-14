@@ -6,9 +6,34 @@ import json
 import os
 import shelve
 import shutil
+import typing as _ty
+
+import dd._abc
+import dd._utils as _utils
 
 
 SHELVE_DIR = '__shelve__'
+_Yes: _ty.TypeAlias = dd._abc.Yes
+
+
+class _Ref(_ty.Protocol):
+    var: str
+    level: int
+    low: '_Ref'
+    high: '_Ref'
+    bdd: '_BDD'
+    negated: _Yes
+    ref: int
+
+    def __int__(
+            self
+            ) -> int:
+        ...
+
+    def __invert__(
+            self
+            ) -> '_Ref':
+        ...
 
 
 def copy_vars(source, target):
@@ -140,6 +165,12 @@ def dump_json(nodes, file_name):
 
     Also dumps the variable names and the
     variable order, to the same JSON file.
+
+    @param nodes: `dict` that maps names to
+        roots of the BDDs that will be written
+        to the JSON file
+    @type nodes: `dict` with `str` keys and
+        `Function` values
     """
     tmp_fname = os.path.join(
         SHELVE_DIR, 'temporary_shelf')
@@ -162,19 +193,24 @@ def _dump_json(nodes, fd, cache):
     """
     fd.write('{')
     _dump_bdd_info(nodes, fd)
-    for u in nodes:
+    for u in _utils._values_of(nodes):
         _dump_bdd(u, fd, cache)
     fd.write('\n}\n')
 
 
 def _dump_bdd_info(nodes, fd):
-    """Dump variable levels and roots."""
-    u = next(iter(nodes))
+    """Dump variable levels and roots.
+
+    @param nodes: `dict` that maps
+        names to roots of BDDs
+    @type nodes: `dict` with `str` keys
+    """
+    roots = _utils._map_container(_node_to_int, nodes)
+    u = next(iter(_utils._values_of(nodes)))
     bdd = u.bdd
     var_level = {
         var: bdd.level_of_var(var)
         for var in bdd.vars}
-    roots = [_node_to_int(u) for u in nodes]
     info = (
         '\n"level_of_var": {level}'
         ',\n"roots": {roots}').format(
@@ -208,12 +244,22 @@ def _dump_bdd(u, fd, cache):
     return -k if u.negated else k
 
 
-def load_json(file_name, bdd, load_order=False):
+def load_json(
+        file_name,
+        bdd,
+        load_order=False
+        ) -> (
+            dict[str, _Ref] |
+            list[_Ref]):
     """Add BDDs from JSON `file_name` to `bdd`.
 
-    @param load_order: if `True`,
+    @param load_order:
+        if `True`,
         then load variable order
         from `file_name`.
+    @return:
+        - keys (or indices) are names
+        - values are BDD roots
     """
     tmp_fname = os.path.join(
         SHELVE_DIR, 'temporary_shelf')
@@ -228,7 +274,13 @@ def load_json(file_name, bdd, load_order=False):
     return nodes
 
 
-def _load_json(fd, bdd, load_order, cache):
+def _load_json(
+        fd,
+        bdd,
+        load_order,
+        cache) -> (
+            dict[str, _Ref] |
+            list[_Ref]):
     """Load BDDs from JSON file `fd` to manager `bdd`."""
     context = dict(load_order=load_order)
     # if the variable order is going to be loaded,
@@ -243,8 +295,15 @@ def _load_json(fd, bdd, load_order, cache):
     for line in fd:
         d = _parse_line(line)
         _store_line(d, bdd, context, cache)
-    roots = [_node_from_int(k, bdd, cache)
-             for k in context['roots']]
+    roots = context['roots']
+    if hasattr(roots, 'items'):
+        roots = {
+            name: _node_from_int(k, bdd, cache)
+            for name, k in roots.items()}
+    else:
+        roots = [
+            _node_from_int(k, bdd, cache)
+            for k in roots]
     # rm refs to cached nodes
     for uid in cache:
         u = _node_from_int(int(uid), bdd, cache)

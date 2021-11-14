@@ -11,6 +11,10 @@ This specification is implemented by the modules:
 # Copyright 2017 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
+import typing as _ty
+
+
+Yes: _ty.TypeAlias = bool
 
 
 class BDD:

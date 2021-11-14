@@ -82,7 +82,10 @@ def _copy_bdd(u, bdd, cache):
 
 
 def _flip(r, u):
-    """Negate `r` if `u` is negated, else identity."""
+    """Negate `r` if `u` is negated.
+
+    Else return `r`.
+    """
     return ~ r if u.negated else r
 
 
@@ -129,9 +132,14 @@ def _copy_zdd(level, u, target, cache):
 
 
 def dump_json(nodes, file_name):
-    """Write nodes reachable from `nodes` to JSON `file_name`.
+    """Write reachable nodes to JSON file.
 
-    The variable names and order are also dumped to the file.
+    Writes the nodes that are reachable from
+    the roots in `nodes` to the JSON file
+    named `file_name`.
+
+    Also dumps the variable names and the
+    variable order, to the same JSON file.
     """
     tmp_fname = os.path.join(
         SHELVE_DIR, 'temporary_shelf')
@@ -147,7 +155,11 @@ def dump_json(nodes, file_name):
 
 
 def _dump_json(nodes, fd, cache):
-    """Dump BDD as JSON to file `fd`, using `cache`."""
+    """Dump BDD as JSON to file `fd`.
+
+    Use `cache` to keep track of
+    visited nodes.
+    """
     fd.write('{')
     _dump_bdd_info(nodes, fd)
     for u in nodes:
@@ -263,7 +275,7 @@ def _load_json(fd, bdd, load_order, cache):
 
 
 def _parse_line(line):
-    """Return result of parsing JSON from `line`."""
+    """Parse JSON from `line`."""
     line = line.rstrip()
     if line == '{' or line == '}':
         return
@@ -333,7 +345,13 @@ def _decode_node(s):
 
 
 def _node_from_int(uid, bdd, cache):
-    """Return `bdd` node `u` from integer `uid`."""
+    """Return `bdd` node `u` from integer `uid`.
+
+    @type uid: `int`
+    @type bdd: `BDD`
+    @type cache: `dict`-like
+    @rtype: `Function`
+    """
     if uid == -1:
         return bdd.false
     elif uid == 1:

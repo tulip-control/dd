@@ -1855,6 +1855,9 @@ cdef class BDD:
             return self._dump_dddmp(u, filename)
         elif filetype == 'json':
             return _copy.dump_json(roots, filename)
+        elif filetype not in (
+                'pickle', 'pdf', 'png', 'svg'):
+            raise ValueError(filetype)
         bdd = autoref.BDD()
         _copy.copy_vars(self, bdd)
             # preserve levels

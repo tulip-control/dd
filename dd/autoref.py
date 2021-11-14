@@ -268,6 +268,9 @@ class BDD(_abc.BDD):
         if filetype == 'json':
             _copy.dump_json(roots, filename)
             return
+        elif filetype not in (
+                'pickle', 'pdf', 'png', 'svg'):
+            raise ValueError(filetype)
         if roots is not None:
             def mapper(u):
                 return u.node

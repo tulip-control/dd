@@ -160,15 +160,7 @@ def run_setup():
     s = VERSION_FILE_TEXT.format(version=version)
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
-    # build parsers
-    try:
-        from dd import _parser, dddmp
-        logging.getLogger('astutils').setLevel('ERROR')
-        dddmp._rewrite_tables(outputdir=PACKAGE_NAME)
-        _parser._rewrite_tables(outputdir=PACKAGE_NAME)
-    except ImportError:
-        print('WARNING: `dd` could not cache parser tables '
-              '(ignore this if running only for "egg_info").')
+    _build_parsers()
     setuptools.setup(
         name=PACKAGE_NAME,
         version=version,
@@ -188,6 +180,32 @@ def run_setup():
         ext_modules=ext_modules,
         classifiers=CLASSIFIERS,
         keywords=KEYWORDS)
+
+
+def _build_parsers(
+        ) -> None:
+    """Cache each parser's state machine."""
+    if not _parser_requirements_installed():
+        return
+    import dd.dddmp
+    import dd._parser
+    logging.getLogger('astutils').setLevel('ERROR')
+    dd.dddmp._rewrite_tables(outputdir=PACKAGE_NAME)
+    dd._parser._rewrite_tables(outputdir=PACKAGE_NAME)
+
+
+def _parser_requirements_installed(
+        ) -> bool:
+    """Return `True` if parser requirements found."""
+    try:
+        import astutils
+        import ply
+    except ImportError:
+        print(
+            'WARNING: `dd` could not cache parser tables '
+            '(ignore this if running only for metadata information).')
+        return False
+    return True
 
 
 if __name__ == '__main__':

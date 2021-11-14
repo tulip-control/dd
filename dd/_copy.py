@@ -27,7 +27,9 @@ def copy_bdds_from(roots, target):
     @param target: BDD
     """
     cache = dict()
-    return [copy_bdd(u, target, cache) for u in roots]
+    return [
+        copy_bdd(u, target, cache)
+        for u in roots]
 
 
 def copy_bdd(root, target, cache=None):
@@ -49,7 +51,8 @@ def _copy_bdd(u, bdd, cache):
     # terminal ?
     if u == u.bdd.true:
         return bdd.true
-    # could be handled via cache, but frequent case
+    # could be handled via cache,
+    # but frequent case
     if u == u.bdd.false:
         return bdd.false
     # rectify
@@ -112,8 +115,10 @@ def _copy_zdd(level, u, target, cache):
         return cache[k]
     # recurse
     v, w = src._top_cofactor(u, level)
-    low = _copy_zdd(level + 1, v, target, cache)
-    high = _copy_zdd(level + 1, w, target, cache)
+    low = _copy_zdd(
+        level + 1, v, target, cache)
+    high = _copy_zdd(
+        level + 1, w, target, cache)
     # add node
     var = src.var_at_level(level)
     g = target.var(var)
@@ -128,14 +133,16 @@ def dump_json(nodes, file_name):
 
     The variable names and order are also dumped to the file.
     """
-    tmp_fname = os.path.join(SHELVE_DIR, 'temporary_shelf')
+    tmp_fname = os.path.join(
+        SHELVE_DIR, 'temporary_shelf')
     os.makedirs(SHELVE_DIR)
     try:
         with shelve.open(tmp_fname) as cache,\
                 open(file_name, 'w') as fd:
             _dump_json(nodes, fd, cache)
     finally:
-        # `shelve` file naming depends on context
+        # `shelve` file naming
+        # depends on context
         shutil.rmtree(SHELVE_DIR)
 
 
@@ -192,7 +199,8 @@ def _dump_bdd(u, fd, cache):
 def load_json(file_name, bdd, load_order=False):
     """Add BDDs from JSON `file_name` to `bdd`.
 
-    @param load_order: if `True`, then load variable order
+    @param load_order: if `True`,
+        then load variable order
         from `file_name`.
     """
     tmp_fname = os.path.join(
@@ -201,7 +209,8 @@ def load_json(file_name, bdd, load_order=False):
     try:
         with shelve.open(tmp_fname) as cache,\
                 open(file_name, 'r') as fd:
-            nodes = _load_json(fd, bdd, load_order, cache)
+            nodes = _load_json(
+                fd, bdd, load_order, cache)
     finally:
         shutil.rmtree(SHELVE_DIR)
     return nodes
@@ -269,7 +278,9 @@ def _store_line(d, bdd, context, cache):
         return
     order = d.get('level_of_var')
     if order is not None:
-        order = {str(k): v for k, v in order.items()}
+        order = {
+            str(k): v
+            for k, v in order.items()}
         bdd.declare(*order)
         context['level_of_var'] = order
         context['var_at_level'] = {

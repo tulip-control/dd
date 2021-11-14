@@ -250,8 +250,8 @@ class BDD:
         Otherwise, add missing variables.
 
         @type filename: `str`
-        @return: map from dumped to loaded nodes
-        @rtype: `dict`
+        @return: roots of the loaded BDDs
+        @rtype: `list` of nodes
         """
 
     @property

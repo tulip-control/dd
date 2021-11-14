@@ -14,6 +14,10 @@ API:
 - use symbol `#` as operator that means
   the logical negation of `<=>`.
   The symbol `#` no longer signifies comments.
+- return `list` of loaded roots of BDDs,
+  when loading BDDs from Pickle files in:
+  - `dd.autoref.BDD.load()`
+  - `dd.bdd.BDD.load()`
 - raise `ValueError` from:
   - `dd.autoref.BDD.level_of_var()`
   - `dd.bdd.BDD.level_of_var()`

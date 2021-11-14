@@ -985,17 +985,13 @@ def test_dump_load():
     e = r'x /\ ~ y'
     u_dumped = b.add_expr(e)
     b.dump(fname, [u_dumped])
-    b.dump(fname)  # no roots
     # load
     b = BDD(dvars)
     b.add_expr(r'x \/ y')
     u_new = b.add_expr(e)
-    umap = b.load(fname)
-    u_loaded = umap[abs(u_dumped)]
-    if u_dumped < 0:
-        u_loaded = -u_loaded
+    u_loaded, = b.load(fname)
     assert u_loaded == u_new, (
-        u_dumped, u_loaded, u_new, umap)
+        u_dumped, u_loaded, u_new)
     assert b.assert_consistent()
 
 

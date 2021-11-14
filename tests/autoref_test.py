@@ -65,8 +65,11 @@ def test_dump_load():
     bdd.dump(fname, roots=[u])
     # load
     other = _bdd.BDD()
-    umap = other.load(fname)
-    assert len(umap) == 3, umap
+    roots_other = other.load(fname)
+    assert len(roots_other) == 1, roots_other
+    v, = roots_other
+    v_ = other.add_expr(s)
+    assert v == v_, (v, v_)
 
 
 def test_image():

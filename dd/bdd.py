@@ -1579,7 +1579,8 @@ class BDD(dd._abc.BDD):
         succ = ((k, self._succ[k]) for k in nodes)
         d = dict(
             vars=self.vars,
-            succ=dict(succ))
+            succ=dict(succ),
+            roots=roots)
         kw.setdefault('protocol', 2)
         with open(filename, 'wb') as f:
             pickle.dump(d, f, **kw)
@@ -1587,8 +1588,9 @@ class BDD(dd._abc.BDD):
     def load(self, filename, levels=True):
         name = filename.lower()
         if name.endswith('.p'):
-            return self._load_pickle(
+            umap, roots = self._load_pickle(
                 filename, levels=levels)
+            return [umap[u] for u in roots]
         else:
             raise ValueError(
                 f'Unknown file type of "{filename}"')
@@ -1619,7 +1621,7 @@ class BDD(dd._abc.BDD):
                 continue
             # add
             self._load(u, succ, umap, level_map)
-        return umap
+        return umap, d['roots']
 
     def _load(self, u, succ, umap, level_map):
         """Recurse to load BDD `u` from `succ`."""

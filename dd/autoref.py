@@ -297,9 +297,8 @@ class BDD(_abc.BDD):
                 f'Unknown file type of "{filename}"')
 
     def _load_pickle(self, filename, levels=True):
-        umap = self._bdd.load(filename, levels=levels)
-        umap = {u: self._wrap(umap[u]) for u in umap}
-        return umap
+        roots = self._bdd.load(filename, levels=levels)
+        return list(map(self._wrap, roots))
 
     def assert_consistent(self):
         self._bdd.assert_consistent()

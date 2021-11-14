@@ -477,12 +477,11 @@ class BDD(dd._abc.BDD):
         Nodes pointed to by references in `roots` are included.
         Nodes are represented as positive integers.
         """
-        if not roots:
-            return set()
-        visited = {1}
-        for u in roots:
+        abs_roots = set(map(abs, roots))
+        visited = set()
+        for u in abs_roots:
+            visited.add(1)
             self._descendants(u, visited)
-        abs_roots = set(abs(u) for u in roots)
         if not abs_roots.issubset(visited):
             raise AssertionError((abs_roots, visited))
         return visited

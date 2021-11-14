@@ -159,6 +159,16 @@ def test_descendants():
     roots = []
     nodes = b.descendants(roots)
     assert len(nodes) == 0, nodes
+    # empty iterator
+    roots = iter(tuple())
+    reachable = b.descendants(roots)
+    assert reachable == set(), reachable
+    # nonempty iterator
+    roots = iter([u, v])
+    reachable = b.descendants(roots)
+    assert u in reachable, reachable
+    assert v in reachable, reachable
+    assert 1 in reachable, reachable
 
 
 def test_is_essential():

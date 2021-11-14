@@ -48,6 +48,7 @@ import warnings
 
 import dd._abc
 import dd._parser
+import dd._utils as _utils
 # inline:
 # import networkx
 # import pydot
@@ -1575,7 +1576,8 @@ class BDD(dd._abc.BDD):
         if roots is None:
             nodes = self._succ
         else:
-            nodes = self.descendants(roots)
+            values = _utils._values_of(roots)
+            nodes = self.descendants(values)
         succ = ((k, self._succ[k]) for k in nodes)
         d = dict(
             vars=self.vars,
@@ -1587,13 +1589,18 @@ class BDD(dd._abc.BDD):
 
     def load(self, filename, levels=True):
         name = filename.lower()
-        if name.endswith('.p'):
-            umap, roots = self._load_pickle(
-                filename, levels=levels)
-            return [umap[u] for u in roots]
-        else:
+        if not name.endswith('.p'):
             raise ValueError(
                 f'Unknown file type of "{filename}"')
+        umap, roots = self._load_pickle(
+            filename, levels=levels)
+        def map_node(u):
+            v = umap[abs(u)]
+            if u < 0:
+                return - v
+            else:
+                return v
+        return _utils._map_container(map_node, roots)
 
     def _load_pickle(self, filename, levels=True):
         with open(filename, 'rb') as f:

@@ -10,6 +10,7 @@ import warnings
 
 from dd import _abc
 from dd import _copy
+import dd._utils as _utils
 from dd import bdd as _bdd
 
 
@@ -262,11 +263,16 @@ class BDD(_abc.BDD):
                     f'name "{filename}"')
         if filetype == 'json':
             _copy.dump_json(roots, filename)
-        else:
-            if roots is not None:
-                roots = [u.node for u in roots]
-            self._bdd.dump(filename, roots=roots,
-                           filetype=filetype)
+            return
+        if roots is not None:
+            def mapper(u):
+                return u.node
+            roots = _utils._map_container(
+                mapper, roots)
+        self._bdd.dump(
+            filename,
+            roots=roots,
+            filetype=filetype)
 
     def load(self, filename, levels=True):
         """Load nodes from Pickle or JSON file `filename`.
@@ -298,7 +304,7 @@ class BDD(_abc.BDD):
 
     def _load_pickle(self, filename, levels=True):
         roots = self._bdd.load(filename, levels=levels)
-        return list(map(self._wrap, roots))
+        return _utils._map_container(self._wrap, roots)
 
     def assert_consistent(self):
         self._bdd.assert_consistent()

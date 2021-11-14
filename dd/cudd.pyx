@@ -1791,7 +1791,7 @@ cdef class BDD:
             expr = f'(~ {expr})'
         return expr
 
-    cpdef dump(
+    def dump(
             self, filename, roots,
             filetype=None):
         """Write BDDs to `filename`.
@@ -1851,12 +1851,21 @@ cdef class BDD:
             return self._dump_dddmp(u, filename)
         elif filetype == 'json':
             return _copy.dump_json(roots, filename)
+        bdd = autoref.BDD()
+        _copy.copy_vars(self, bdd)
+            # preserve levels
+        if roots is None:
+            root_nodes = None
         else:
-            bdd = autoref.BDD()
-            _copy.copy_vars(self, bdd)
-                # preserve levels
-            v = _copy.copy_bdds_from(roots, bdd)
-            bdd.dump(filename, v, filetype=filetype)
+            cache = dict()
+            def mapper(u):
+                return _copy.copy_bdd(
+                    u, bdd, cache)
+            root_nodes = _utils._map_container(
+                mapper, roots)
+        bdd.dump(
+            filename, root_nodes,
+            filetype=filetype)
 
     cpdef _dump_dddmp(self, Function u, fname):
         """Dump BDD as DDDMP file `fname`."""

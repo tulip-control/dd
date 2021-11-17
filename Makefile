@@ -128,10 +128,8 @@ doc:
 	grip --export doc.md index.html
 
 download_licenses:
-	mkdir -p extern
-	curl -L "https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=COPYING.LIB;hb=HEAD" -o extern/GLIBC_COPYING.LIB
-	curl -L "https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=LICENSES;hb=HEAD" -o extern/GLIBC_LICENSES
-	curl -L "https://raw.githubusercontent.com/python/cpython/3.9/LICENSE" -o extern/PYTHON_LICENSE
+	python -c 'import download; \
+	download.download_licenses()'
 
 clean_all: clean_cudd clean
 

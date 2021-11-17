@@ -1,6 +1,7 @@
 """Retrieve and build dependencies of C extensions."""
 import collections.abc as _abc
 import ctypes
+import functools as _ft
 import hashlib
 import os
 import shutil
@@ -381,6 +382,63 @@ def fetch_cudd(
     fetch(CUDD_URL, CUDD_SHA256, filename)
     untar(filename)
     make_cudd()
+
+
+def download_licenses(
+        ) -> None:
+    """Fetch licenses of dependencies.
+
+    These licenses are included in the wheel of `dd`.
+    The license files are placed in
+    the directory `extern/`.
+    """
+    license_dir = 'extern'
+    if not os.path.isdir(license_dir):
+        os.mkdir(license_dir)
+    join = _ft.partial(os.path.join, license_dir)
+    # download GLIBC licenses
+    glibc_license_file = join('GLIBC_COPYING.LIB')
+    glibc_license_url = '''
+        https://sourceware.org/git/
+        ?p=glibc.git;a=blob_plain;f=COPYING.LIB;hb=HEAD
+        '''
+    _fetch_file(glibc_license_url, glibc_license_file)
+    glibc_licenses_file = join('GLIBC_LICENSES')
+    glibc_licenses_url = '''
+        https://sourceware.org/git/
+        ?p=glibc.git;a=blob_plain;f=LICENSES;hb=HEAD
+        '''
+    _fetch_file(glibc_licenses_url, glibc_licenses_file)
+    # download CPython license
+    py_license_file = join('PYTHON_LICENSE')
+    numbers = sys.version_info[:2]
+    python_version = '.'.join(map(str, numbers))
+    py_license_url = f'''
+        https://raw.githubusercontent.com/
+        python/cpython/{python_version}/LICENSE
+        '''
+    _fetch_file(py_license_url, py_license_file)
+    print('Downloaded license files.')
+
+
+def _fetch_file(
+        url:
+            str,
+        filename:
+            str
+        ) -> None:
+    """Dump `url` to `filename`.
+
+    Removes blankspace from `url`.
+    """
+    url = ''.join(url.split())
+    response = urllib.request.urlopen(url)
+    if response is None:
+        raise urllib.error.URLError(
+            'Error when attempting to open '
+            f'the URL:  {url}')
+    with response, open(filename, 'wb') as fd:
+        fd.write(response.read())
 
 
 if __name__ == '__main__':

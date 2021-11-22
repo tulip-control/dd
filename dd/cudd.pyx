@@ -1855,6 +1855,8 @@ cdef class BDD:
             self._dump_dddmp(u, filename)
             return
         elif filetype == 'json':
+            if roots is None:
+                raise ValueError(roots)
             _copy.dump_json(roots, filename)
             return
         elif filetype not in (

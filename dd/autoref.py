@@ -266,6 +266,8 @@ class BDD(_abc.BDD):
                     'from extension of file '
                     f'name "{filename}"')
         if filetype == 'json':
+            if roots is None:
+                raise ValueError(roots)
             _copy.dump_json(roots, filename)
             return
         elif filetype not in (

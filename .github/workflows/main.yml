@@ -48,3 +48,8 @@ jobs:
                 export -p
                 # run tests
                 make test
+            - name: Run `dd` examples
+              run: |
+                pushd examples/
+                python _test_examples.py
+                popd

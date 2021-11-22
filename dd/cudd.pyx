@@ -1852,9 +1852,11 @@ cdef class BDD:
         if filetype == 'dddmp':
             # single root supported for now
             u, = roots
-            return self._dump_dddmp(u, filename)
+            self._dump_dddmp(u, filename)
+            return
         elif filetype == 'json':
-            return _copy.dump_json(roots, filename)
+            _copy.dump_json(roots, filename)
+            return
         elif filetype not in (
                 'pickle', 'pdf', 'png', 'svg'):
             raise ValueError(filetype)

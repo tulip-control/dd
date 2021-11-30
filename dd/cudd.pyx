@@ -1142,7 +1142,7 @@ cdef class BDD(object):
         i = r.index
         v = Cudd_E(u)
         w = Cudd_T(u)
-        var = self.var_at_level(i)
+        var = self._var_with_index[i]
         p = self._to_expr(v)
         q = self._to_expr(w)
         # pure var ?

@@ -1,6 +1,6 @@
 """Package of algorithms based on decision diagrams."""
 try:
-    from ._version import version as __version__
+    from dd._version import version as __version__
 except ImportError:
     __version__ = None
 try:

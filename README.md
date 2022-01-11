@@ -127,7 +127,7 @@ u = bdd.add_expr(r'x /\ {v}'.format(v=v))
 # satisfying assignments (models):
 # an assignment
 d = bdd.pick(u, care_vars=['x', 'y'])
-# iterate overal all assignments
+# iterate over all assignments
 for d in bdd.pick_iter(u):
     print(d)
 # how many assignments

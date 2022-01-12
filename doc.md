@@ -1117,49 +1117,164 @@ arithmetic and automata, and examples, can be found in the package [`omega`](
 ## Syntax for quantified Boolean formulas
 
 The method `BDD.add_expr` parses the following grammar.
+The TLA+ module `dd_expression_grammar` extends
+the TLA+ module `BNFGrammars`, which is defined on page 184 of
+the book ["Specifying Systems"](
+    https://lamport.azurewebsites.net/tla/book.html).
 
-```
-       # predicate logic
-expr ::= '\A' names ':' expr  # universal quantification (forall)
-         '\E' names ':' expr  # existential quantification (exists)
-         '\S' pairs ':' expr  # renaming of variables (substitution)
+```tla
+------- MODULE dd_expression_grammar -------
+(* Grammar of expressions parsed by the
+function `dd._parser.Parser.parse`.
+*)
+EXTENDS
+    BNFGrammars
 
-       # propositional
 
-       # TLA+ syntax
-       | '~' expr         # negation (not)
-       | expr '/\' expr   # conjunction (and)
-       | expr '\/' expr   # disjunction (or)
-       | expr '=>' expr   # implication (implies)
-       | expr '<=>' expr  # equivalence (if and only if)
-       | expr '#' expr    # difference (negation of `<=>`)
+COMMA == tok(",")
+maybe(x) ==
+    | Nil
+    | x
+comma1(x) ==
+    x & (COMMA & x)^*
 
-       # Promela syntax
-       | '!' expr         # negation
-       | expr '&' expr    # conjunction
-       | expr '|' expr    # disjunction
-       | expr '->' expr   # implication
-       | expr '<->' expr  # equivalence
 
-       # other
-       | expr '^' expr    # xor (exclusive disjunction)
-       | 'ite' '(' expr ',' expr ',' expr ')'
-                          # ternary conditional (if-then-else)
-       | expr '=' expr    #
-       | '(' expr ')'     # parentheses
-       | NAME             # identifier (bit variable)
-       | '@' INTEGER      # BDD node reference
-       | 'FALSE' | 'False' # Boolean constant
-       | 'TRUE' | 'True'   # Boolean constant
+NUMERAL == OneOf("0123456789")
 
-pairs ::= pairs (',' pair)?
-pair ::= NAME '/' NAME
 
-names ::= names (',' name)?
-name ::= NAME
+is_dd_lexer_grammar(L) ==
+    /\ L.A = tok("\\A")
+    /\ L.E = tok("\\E")
+    /\ L.S = tok("\\S")
+    /\ L.COLON = tok(":")
+    /\ L.COMMA = COMMA
+    /\ L.NOT = tok("~")
+    /\ L.AND = tok("/\\")
+    /\ L.OR = tok("\\/")
+    /\ L.IMPLIES = tok("=>")
+    /\ L.IFF = tok("<=>")
+    /\ L.EQ = tok("=")
+    /\ L.NEQ = tok("#")
+    /\ L.EXCLAMATION = tok("!")
+    /\ L.ET = tok("&")
+    /\ L.PIPE = tok("|")
+    /\ L.RARROW = tok("->")
+    /\ L.LR_ARROW = tok("<->")
+    /\ L.CIRCUMFLEX = tok("^")
+    /\ L.SLASH = tok("/")
+    /\ L.AT = tok("@")
+    /\ L.LPAREN = tok("(")
+    /\ L.RPAREN = tok(")")
+    /\ L.FALSE = Tok({
+        "FALSE",
+        "false"
+        })
+    /\ L.TRUE = Tok({
+        "TRUE",
+        "true"
+        })
+    /\ L.ITE = tok("ite")
+    /\ L.NAME =
+        LET
+            LETTER ==
+                | OneOf("abcdefghijklmnopqrstuvwxyz")
+                | OneOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            UNDERSCORE == tok("_")
+            start ==
+                | LETTER
+                | UNDERSCORE
+            DOT == tok(".")
+            PRIME == tok("'")
+            symbol ==
+                | start
+                | NUMERAL
+                | DOT
+                | PRIME
+            tail == symbol^*
+        IN
+            start & tail
+    /\ L.INTEGER =
+        LET
+            DASH == tok("-")
+            _dash == maybe(DASH)
+            numerals == NUMERAL^+
+        IN
+            _dash & numerals
 
-NAME ::= [A-Za-z_][A-za-z0-9_.']*
-INTEGER ::= (-)?[0-9]+
+
+is_dd_parser_grammar(L, G) ==
+    /\ \A symbol \in DOMAIN L:
+        G[symbol] = L[symbol]
+    /\ G.expr =
+        (* predicate logic *)
+        | L.A & G.names & L.COLON & G.expr
+            (* universal quantification ("forall") *)
+        | L.E & G.names & L.COLON & G.expr
+            (* existential quantification ("exists") *)
+        | L.S & G.pairs & G.COLON & G.expr
+            (* renaming of variables ("substitution") *)
+        (* propositional *)
+        (* TLA+ syntax *)
+        | G.NOT & G.expr
+            (* negation ("not") *)
+        | G.expr & G.AND & G.expr
+            (* conjunction ("and") *)
+        | G.expr & G.OR & G.expr
+            (* disjunction ("or") *)
+        | G.expr & G.IMPLIES & G.expr
+            (* implication ("implies") *)
+        | G.expr & G.IFF & G.expr
+            (* equivalence ("if and only if") *)
+        | G.expr & G.NEQ & G.expr
+            (* difference (negation of `<=>`) *)
+        (* Promela syntax *)
+        | L.EXCLAMATION & G.expr
+            (* negation *)
+        | G.expr & L.ET & G.expr
+            (* conjunction *)
+        | G.expr & L.PIPE & G.expr
+            (* disjunction *)
+        | G.expr & L.RARROW & G.expr
+            (* implication *)
+        | G.expr & L.LR_ARROW & G.expr
+            (* equivalence *)
+        (* other *)
+        | G.expr & L.CIRCUMFLEX & G.expr
+            (* xor (exclusive disjunction) *)
+        | L.ITE & L.LPAREN &
+                    G.expr & L.COMMA &
+                    G.expr & L.COMMA &
+                    G.expr &
+                L.RPAREN
+            (* ternary conditional
+            (if-then-else) *)
+        | G.expr & L.EQ & G.expr
+        | L.LPAREN & G.expr & L.RPAREN
+            (* parentheses *)
+        | L.NAME
+            (* identifier (bit variable) *)
+        | L.AT & L.INTEGER
+            (* BDD node reference *)
+        | L.FALSE
+        | L.TRUE
+            (* Boolean constants *)
+    /\ G.names =
+        comma1(L.NAME)
+    /\ G.pairs =
+        comma1(G.pair)
+    /\ G.pair =
+        L.NAME & L.SLASH & L.NAME
+
+
+dd_grammar ==
+    LET
+        L == LeastGrammar(is_dd_lexer_grammar)
+        is_parser_grammar(G) ==
+            is_dd_parser_grammar(L, G)
+    IN
+        LeastGrammar(is_parser_grammar)
+
+============================================
 ```
 
 Comments are written using TLA+ syntax:

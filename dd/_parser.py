@@ -262,8 +262,6 @@ def add_ast(t, bdd):
             qvars, expr = t.operands
             u = add_ast(expr, bdd)
             qvars = {x.value for x in qvars}
-            if t.operator not in (r'\A', r'\E'):
-                raise ValueError(t.operator)
             forall = (t.operator == r'\A')
             return bdd.quantify(
                 u, qvars,

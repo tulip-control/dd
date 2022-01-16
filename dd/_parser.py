@@ -10,8 +10,8 @@ import astutils
 
 _TABMODULE: _ty.Final[str] =\
     'dd._expr_parser_state_machine'
-_QUANTIFIERS = {r'\A', r'\E'}
-_BOOLEANS = {'false', 'true'}
+_TRANSLATOR_CACHE: _ty.Final[str] =\
+    'dd._bdd_translator_state_machine'
 
 
 class _Token(_ty.Protocol):
@@ -539,6 +539,104 @@ class _BDD(_ty.Protocol[
         ...
 
 
+class _Translator(Parser):
+    """Parser for Boolean formulas."""
+
+    def __init__(
+            self,
+            **kw
+            ) -> None:
+        self.tabmodule = _TRANSLATOR_CACHE
+        super().__init__(**kw)
+        self._reset_state()
+
+    def parse(
+            self,
+            expression:
+                str,
+            bdd:
+                _BDD[_Ref]
+            ) -> _Ref:
+        """Return BDD of `expression`.
+
+        The returned BDD is stored in
+        the BDD manager `bdd`.
+        """
+        self._bdd = bdd
+        u = super().parse(expression)
+        self._reset_state()
+        return u
+
+    def _reset_state(
+            self
+            ) -> None:
+        """Set default attribute values."""
+        self._bdd = None
+        has_lr_stack = (
+            self.parser is not None and
+            hasattr(self.parser, 'statestack') and
+            hasattr(self.parser, 'symstack'))
+        if not has_lr_stack:
+            return
+        self.parser.restart()
+            # Avoid references to BDD nodes
+            # remaining in the LR stack,
+            # because this side-effect would
+            # change the reference-counts.
+
+    def _add_bool(
+            self,
+            bool_literal:
+                str):
+        """Return BDD for Boolean values."""
+        value = bool_literal.lower()
+        if value not in {'false', 'true'}:
+            raise ValueError(value)
+        return getattr(self._bdd, value)
+
+    def _add_int(
+            self,
+            numeric_literal:
+                str):
+        """Return BDD with given index."""
+        number = int(numeric_literal)
+        return self._bdd._add_int(number)
+
+    def _add_var(
+            self,
+            name:
+                str):
+        """Return BDD for variable `name`."""
+        return self._bdd.var(name)
+
+    def _apply(
+            self,
+            operator:
+                str,
+            *operands:
+                _ty.Any):
+        """Return BDD from applying `operator`."""
+        match operator:
+            case r'\A' | r'\E':
+                names, expr = operands
+                names = {
+                    x.value
+                    for x in names}
+                forall = (operator == r'\A')
+                return self._bdd.quantify(
+                    expr, names,
+                    forall=forall)
+            case r'\S':
+                subs, expr = operands
+                renaming = {
+                    k.value: v.value
+                    for k, v in subs}
+                return self._bdd.rename(
+                    expr, renaming)
+        return self._bdd.apply(
+            operator, *operands)
+
+
 _parsers = dict()
 
 
@@ -554,70 +652,9 @@ def add_expr(
     `expression`, and returns this node.
     """
     if 'boolean' not in _parsers:
-        _parsers['boolean'] = Parser()
-    tree = _parsers['boolean'].parse(expression)
-    return _add_ast(tree, bdd)
-
-
-def _add_ast(tree, bdd):
-    """Add abstract syntax `tree` to `self`.
-
-    Any AST nodes are acceptable,
-    provided they have attributes:
-      - `"operator"` and `"operands"` for
-        operator nodes
-      - `"value"` equal to:
-        - `"True"` or `"False"` for
-          Boolean constants
-        - a key (var name) passed to
-          `bdd.var()` for variables
-
-    @type tree:
-        `Terminal` or `Operator` of
-        `astutils`
-    @type bdd:
-        object with:
-        - `bdd.false`
-        - `bdd.true`
-        - `bdd.var()`
-        - `bdd.apply()`
-        - `bdd.quantify()`
-    """
-    if tree.type == 'operator':
-        if (tree.operator in _QUANTIFIERS and
-                len(tree.operands) == 2):
-            qvars, expr = tree.operands
-            qvars = {x.value for x in qvars}
-            forall = (tree.operator == r'\A')
-            u = _add_ast(expr, bdd)
-            return bdd.quantify(
-                u, qvars,
-                forall=forall)
-        elif tree.operator == r'\S':
-            expr, rename = tree.operands
-            rename = {
-                k.value: v.value
-                for k, v in rename}
-            u = _add_ast(expr, bdd)
-            return bdd.rename(u, rename)
-        else:
-            operands = [
-                _add_ast(x, bdd)
-                for x in tree.operands]
-            return bdd.apply(
-                tree.operator, *operands)
-    elif tree.type == 'bool':
-        value = tree.value.lower()
-        if value not in _BOOLEANS:
-            raise ValueError(tree.value)
-        return getattr(bdd, value)
-    elif tree.type == 'var':
-        return bdd.var(tree.value)
-    elif tree.type == 'num':
-        i = int(tree.value)
-        return bdd._add_int(i)
-    raise ValueError(
-        f'unknown node type:  {tree.type = }')
+        _parsers['boolean'] = _Translator()
+    translator = _parsers['boolean']
+    return translator.parse(expression, bdd)
 
 
 def _rewrite_tables(
@@ -627,6 +664,8 @@ def _rewrite_tables(
     """Recache state machine of parser."""
     astutils.rewrite_tables(
         Parser, _TABMODULE, outputdir)
+    astutils.rewrite_tables(
+        _Translator, _TRANSLATOR_CACHE, outputdir)
 
 
 def _main(

@@ -138,7 +138,8 @@ class Parser(astutils.Parser):
             p[1], 'num')
 
     def p_negative_number(self, p):
-        """number : MINUS NUMBER %prec UMINUS"""
+        ("""number : MINUS NUMBER """
+         """           %prec UMINUS""")
         x = p[1] + p[2]
         p[0] = self.nodes.Terminal(
             x, 'num')
@@ -165,7 +166,10 @@ class Parser(astutils.Parser):
             p[2], p[1], p[3])
 
     def p_ternary_conditional(self, p):
-        """expr : ITE LPAREN expr COMMA expr COMMA expr RPAREN"""
+        ("""expr : ITE LPAREN """
+         """             expr COMMA """
+         """             expr COMMA """
+         """             expr RPAREN""")
         p[0] = self.nodes.Operator(
             p[1], p[3], p[5], p[7])
 

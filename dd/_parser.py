@@ -43,36 +43,36 @@ class Lexer(astutils.Lexer):
         self.misc = ['NAME', 'NUMBER']
         super().__init__(**kw)
 
-    def t_NAME(self, t):
+    def t_NAME(self, token):
         r"[A-Za-z_][A-za-z0-9_']*"
-        t.type = self.reserved.get(
-            t.value, 'NAME')
-        return t
+        token.type = self.reserved.get(
+            token.value, 'NAME')
+        return token
 
-    def t_AND(self, t):
+    def t_AND(self, token):
         r'\&\&|\&|/\\'
-        t.value = '&'
-        return t
+        token.value = '&'
+        return token
 
-    def t_OR(self, t):
+    def t_OR(self, token):
         r'\|\||\||\\/'
-        t.value = '|'
-        return t
+        token.value = '|'
+        return token
 
-    def t_NOT(self, t):
+    def t_NOT(self, token):
         r'\~|!'
-        t.value = '!'
-        return t
+        token.value = '!'
+        return token
 
-    def t_IMPLIES(self, t):
+    def t_IMPLIES(self, token):
         r'=>|\->'
-        t.value = '=>'
-        return t
+        token.value = '=>'
+        return token
 
-    def t_EQUIV(self, t):
+    def t_EQUIV(self, token):
         r'<=>|<\->'
-        t.value = '<->'
-        return t
+        token.value = '<->'
+        return token
 
     t_XOR = r'\#|\^'
     t_EQUALS = r'='
@@ -89,17 +89,20 @@ class Lexer(astutils.Lexer):
     t_AT = r'@'
     t_ignore = ' \t'
 
-    def t_trailing_comment(self, t):
+    def t_trailing_comment(
+            self, token):
         r'\\\*.*'
         return
 
-    def t_doubly_delimited_comment(self, t):
+    def t_doubly_delimited_comment(
+            self, token):
         r'\(\*[\s\S]*?\*\)'
         return
 
-    def t_newline(self, t):
+    def t_newline(self, token):
         r'\n+'
-        t.lexer.lineno += t.value.count('\n')
+        token.lexer.lineno += (
+            token.value.count('\n'))
 
 
 class Parser(astutils.Parser):

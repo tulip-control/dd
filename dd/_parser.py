@@ -263,16 +263,18 @@ def add_ast(t, bdd):
         if (t.operator in _QUANTIFIERS and
                 len(t.operands) == 2):
             qvars, expr = t.operands
-            u = add_ast(expr, bdd)
             qvars = {x.value for x in qvars}
             forall = (t.operator == r'\A')
+            u = add_ast(expr, bdd)
             return bdd.quantify(
                 u, qvars,
                 forall=forall)
         elif t.operator == r'\S':
             expr, rename = t.operands
+            rename = {
+                k.value: v.value
+                for k, v in rename}
             u = add_ast(expr, bdd)
-            rename = {k.value: v.value for k, v in rename}
             return bdd.rename(u, rename)
         else:
             operands = [

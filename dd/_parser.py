@@ -237,8 +237,8 @@ def add_expr(e, bdd):
     return _add_ast(tree, bdd)
 
 
-def _add_ast(t, bdd):
-    """Add abstract syntax tree `t` to `self`.
+def _add_ast(tree, bdd):
+    """Add abstract syntax `tree` to `self`.
 
     Any AST nodes are acceptable,
     provided they have attributes:
@@ -250,7 +250,7 @@ def _add_ast(t, bdd):
         - a key (var name) passed to
           `bdd.var()` for variables
 
-    @type t: `Terminal` or `Operator` of
+    @type tree: `Terminal` or `Operator` of
         `astutils`
     @type bdd: object with:
       - `bdd.false`
@@ -259,18 +259,18 @@ def _add_ast(t, bdd):
       - `bdd.apply()`
       - `bdd.quantify()`
     """
-    if t.type == 'operator':
-        if (t.operator in _QUANTIFIERS and
-                len(t.operands) == 2):
-            qvars, expr = t.operands
+    if tree.type == 'operator':
+        if (tree.operator in _QUANTIFIERS and
+                len(tree.operands) == 2):
+            qvars, expr = tree.operands
             qvars = {x.value for x in qvars}
-            forall = (t.operator == r'\A')
+            forall = (tree.operator == r'\A')
             u = _add_ast(expr, bdd)
             return bdd.quantify(
                 u, qvars,
                 forall=forall)
-        elif t.operator == r'\S':
-            expr, rename = t.operands
+        elif tree.operator == r'\S':
+            expr, rename = tree.operands
             rename = {
                 k.value: v.value
                 for k, v in rename}
@@ -279,21 +279,21 @@ def _add_ast(t, bdd):
         else:
             operands = [
                 _add_ast(x, bdd)
-                for x in t.operands]
+                for x in tree.operands]
             return bdd.apply(
-                t.operator, *operands)
-    elif t.type == 'bool':
-        value = t.value.lower()
+                tree.operator, *operands)
+    elif tree.type == 'bool':
+        value = tree.value.lower()
         if value not in _BOOLEANS:
-            raise ValueError(t.value)
+            raise ValueError(tree.value)
         return getattr(bdd, value)
-    elif t.type == 'var':
-        return bdd.var(t.value)
-    elif t.type == 'num':
-        i = int(t.value)
+    elif tree.type == 'var':
+        return bdd.var(tree.value)
+    elif tree.type == 'num':
+        i = int(tree.value)
         return bdd._add_int(i)
     raise ValueError(
-        f'unknown node type:  {t.type = }')
+        f'unknown node type:  {tree.type = }')
 
 
 def _rewrite_tables(outputdir='./'):

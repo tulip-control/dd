@@ -190,7 +190,11 @@ class Parser(astutils.Parser):
             self,
             **kw
             ) -> None:
-        self.tabmodule = _TABMODULE
+        tabmodule_is_defined = (
+            hasattr(self, 'tabmodule') and
+            self.tabmodule)
+        if not tabmodule_is_defined:
+            self.tabmodule = _TABMODULE
         self.start = 'expr'
         # low to high
         self.precedence = (

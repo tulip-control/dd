@@ -7,6 +7,7 @@ import astutils
 
 
 TABMODULE = 'dd.bdd_parsetab'
+_QUANTIFIERS = {r'\A', r'\E'}
 
 
 class Lexer(astutils.Lexer):
@@ -258,7 +259,8 @@ def add_ast(t, bdd):
       - `bdd.quantify()`
     """
     if t.type == 'operator':
-        if t.operator in (r'\A', r'\E') and len(t.operands) == 2:
+        if (t.operator in _QUANTIFIERS and
+                len(t.operands) == 2):
             qvars, expr = t.operands
             u = add_ast(expr, bdd)
             qvars = {x.value for x in qvars}

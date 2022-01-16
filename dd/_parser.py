@@ -128,7 +128,7 @@ class Lexer(astutils.Lexer):
     def t_trailing_comment(
             self, token):
         r' \\ \* .* '
-        return
+        return None
 
     def t_doubly_delimited_comment(
             self, token):
@@ -137,7 +137,7 @@ class Lexer(astutils.Lexer):
         [\s\S]*?
         \* \)
         """
-        return
+        return None
 
     def t_newline(
             self, token):

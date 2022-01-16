@@ -227,12 +227,6 @@ _parsers = dict()
 def add_expr(e, bdd):
     """Return node for expression `e`, after adding it.
 
-    If the attribute `_parser` is `None`,
-    then it is attempted to import `tulip.spec`.
-    To avoid this, set `_parser` to a custom parser
-    with a method `parse` that returns a syntax tree
-    that conforms to `add_ast`.
-
     @type expr: `str`
     """
     if 'boolean' not in _parsers:

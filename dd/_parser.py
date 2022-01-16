@@ -8,6 +8,7 @@ import astutils
 
 TABMODULE = 'dd.bdd_parsetab'
 _QUANTIFIERS = {r'\A', r'\E'}
+_BOOLEANS = {'false', 'true'}
 
 
 class Lexer(astutils.Lexer):
@@ -281,12 +282,9 @@ def add_ast(t, bdd):
                 t.operator, *operands)
     elif t.type == 'bool':
         value = t.value.lower()
-        if value == 'false':
-            return bdd.false
-        elif value == 'true':
-            return bdd.true
-        else:
+        if value not in _BOOLEANS:
             raise ValueError(t.value)
+        return getattr(bdd, value)
     elif t.type == 'var':
         return bdd.var(t.value)
     elif t.type == 'num':

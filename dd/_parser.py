@@ -257,7 +257,6 @@ def add_ast(t, bdd):
       - `bdd.apply()`
       - `bdd.quantify()`
     """
-    # operator ?
     if t.type == 'operator':
         if t.operator in (r'\A', r'\E') and len(t.operands) == 2:
             qvars, expr = t.operands

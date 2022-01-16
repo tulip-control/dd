@@ -16,11 +16,16 @@ class Lexer(astutils.Lexer):
 
     def __init__(self, **kw):
         self.reserved = {
-            'ite': 'ITE',
-            'False': 'FALSE',
-            'True': 'TRUE',
-            'FALSE': 'FALSE',
-            'TRUE': 'TRUE'}
+            'ite':
+                'ITE',
+            'False':
+                'FALSE',
+            'True':
+                'TRUE',
+            'FALSE':
+                'FALSE',
+            'TRUE':
+                'TRUE'}
         self.delimiters = [
             'LPAREN',
             'RPAREN',
@@ -40,7 +45,9 @@ class Lexer(astutils.Lexer):
             'FORALL',
             'EXISTS',
             'RENAME']
-        self.misc = ['NAME', 'NUMBER']
+        self.misc = [
+            'NAME',
+            'NUMBER']
         super().__init__(**kw)
 
     def t_NAME(
@@ -147,16 +154,26 @@ class Parser(astutils.Parser):
         self.start = 'expr'
         # low to high
         self.precedence = (
-            ('left', 'COLON'),
-            ('left', 'EQUIV'),
-            ('left', 'IMPLIES'),
-            ('left', 'MINUS'),
-            ('left', 'XOR'),
-            ('left', 'OR'),
-            ('left', 'AND'),
-            ('left', 'EQUALS'),
-            ('right', 'NOT'),
-            ('right', 'UMINUS'))
+            ('left',
+                'COLON'),
+            ('left',
+                'EQUIV'),
+            ('left',
+                'IMPLIES'),
+            ('left',
+                'MINUS'),
+            ('left',
+                'XOR'),
+            ('left',
+                'OR'),
+            ('left',
+                'AND'),
+            ('left',
+                'EQUALS'),
+            ('right',
+                'NOT'),
+            ('right',
+                'UMINUS'))
         kw.setdefault('lexer', Lexer())
         super().__init__(**kw)
 

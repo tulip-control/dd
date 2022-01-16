@@ -233,8 +233,8 @@ def add_expr(e, bdd):
     """
     if 'boolean' not in _parsers:
         _parsers['boolean'] = Parser()
-    t = _parsers['boolean'].parse(e)
-    return add_ast(t, bdd)
+    tree = _parsers['boolean'].parse(e)
+    return add_ast(tree, bdd)
 
 
 def add_ast(t, bdd):

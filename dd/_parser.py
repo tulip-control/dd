@@ -2,6 +2,7 @@
 # Copyright 2015 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
+import collections.abc as _abc
 import logging
 import typing as _ty
 import astutils
@@ -13,10 +14,18 @@ _QUANTIFIERS = {r'\A', r'\E'}
 _BOOLEANS = {'false', 'true'}
 
 
+class _Token(_ty.Protocol):
+    type: str
+    value: str
+
+
 class Lexer(astutils.Lexer):
     """Lexer for Boolean formulae."""
 
-    def __init__(self, **kw):
+    def __init__(
+            self,
+            **kw
+            ) -> None:
         self.reserved = {
             'ite':
                 'ITE',
@@ -53,7 +62,10 @@ class Lexer(astutils.Lexer):
         super().__init__(**kw)
 
     def t_NAME(
-            self, token):
+            self,
+            token:
+                _Token
+            ) -> _Token:
         r"""
         [A-Za-z_]
         [A-za-z0-9_']*
@@ -63,7 +75,10 @@ class Lexer(astutils.Lexer):
         return token
 
     def t_AND(
-            self, token):
+            self,
+            token:
+                _Token
+            ) -> _Token:
         r"""
           \&\&
         | \&
@@ -73,7 +88,10 @@ class Lexer(astutils.Lexer):
         return token
 
     def t_OR(
-            self, token):
+            self,
+            token:
+                _Token
+            ) -> _Token:
         r"""
           \|\|
         | \|
@@ -83,7 +101,10 @@ class Lexer(astutils.Lexer):
         return token
 
     def t_NOT(
-            self, token):
+            self,
+            token:
+                _Token
+            ) -> _Token:
         r"""
           \~
         | !
@@ -92,7 +113,10 @@ class Lexer(astutils.Lexer):
         return token
 
     def t_IMPLIES(
-            self, token):
+            self,
+            token:
+                _Token
+            ) -> _Token:
         r"""
           =>
         | \->
@@ -101,7 +125,10 @@ class Lexer(astutils.Lexer):
         return token
 
     def t_EQUIV(
-            self, token):
+            self,
+            token:
+                _Token
+            ) -> _Token:
         r"""
           <=>
         | <\->
@@ -128,12 +155,18 @@ class Lexer(astutils.Lexer):
     t_ignore = ''.join(['\x20', '\t'])
 
     def t_trailing_comment(
-            self, token):
+            self,
+            token:
+                _Token
+            ) -> None:
         r' \\ \* .* '
         return None
 
     def t_doubly_delimited_comment(
-            self, token):
+            self,
+            token:
+                _Token
+            ) -> None:
         r"""
         \( \*
         [\s\S]*?
@@ -142,7 +175,9 @@ class Lexer(astutils.Lexer):
         return None
 
     def t_newline(
-            self, token):
+            self,
+            token
+            ) -> None:
         r' \n+ '
         token.lexer.lineno += (
             token.value.count('\n'))
@@ -151,7 +186,10 @@ class Lexer(astutils.Lexer):
 class Parser(astutils.Parser):
     """Parser for Boolean formulae."""
 
-    def __init__(self, **kw):
+    def __init__(
+            self,
+            **kw
+            ) -> None:
         self.tabmodule = _TABMODULE
         self.start = 'expr'
         # low to high
@@ -180,7 +218,10 @@ class Parser(astutils.Parser):
         super().__init__(**kw)
 
     def p_bool(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """expr : TRUE
                 | FALSE
         """
@@ -188,18 +229,27 @@ class Parser(astutils.Parser):
             p[1], 'bool')
 
     def p_node(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """expr : AT number"""
         p[0] = p[2]
 
     def p_number(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """number : NUMBER"""
         p[0] = self.nodes.Terminal(
             p[1], 'num')
 
     def p_negative_number(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         ("""number : MINUS NUMBER """
          """           %prec UMINUS""")
         x = p[1] + p[2]
@@ -207,18 +257,27 @@ class Parser(astutils.Parser):
             x, 'num')
 
     def p_var(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """expr : name"""
         p[0] = p[1]
 
     def p_unary(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """expr : NOT expr"""
         p[0] = self.nodes.Operator(
             p[1], p[2])
 
     def p_binary(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """expr : expr AND expr
                 | expr OR expr
                 | expr XOR expr
@@ -231,7 +290,10 @@ class Parser(astutils.Parser):
             p[2], p[1], p[3])
 
     def p_ternary_conditional(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         ("""expr : ITE LPAREN """
          """             expr COMMA """
          """             expr COMMA """
@@ -240,7 +302,10 @@ class Parser(astutils.Parser):
             p[1], p[3], p[5], p[7])
 
     def p_quantifier(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """expr : EXISTS names COLON expr
                 | FORALL names COLON expr
         """
@@ -248,65 +313,160 @@ class Parser(astutils.Parser):
             p[1], p[2], p[4])
 
     def p_rename(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """expr : RENAME subs COLON expr"""
         p[0] = self.nodes.Operator(
             p[1], p[4], p[2])
 
     def p_substitutions_iter(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """subs : subs COMMA sub"""
         u = p[1]
         u.append(p[3])
         p[0] = u
 
     def p_substitutions_end(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """subs : sub"""
         p[0] = [p[1]]
 
     def p_substitution(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """sub : name DIV name"""
         new = p[1]
         old = p[3]
         p[0] = (old, new)
 
     def p_names_iter(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """names : names COMMA name"""
         u = p[1]
         u.append(p[3])
         p[0] = u
 
     def p_names_end(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """names : name"""
         p[0] = [p[1]]
 
     def p_name(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """name : NAME"""
         p[0] = self.nodes.Terminal(
             p[1], 'var')
 
     def p_paren(
-            self, p):
+            self,
+            p:
+                list
+            ) -> None:
         """expr : LPAREN expr RPAREN"""
         p[0] = p[2]
+
+
+_Ref = _ty.TypeVar('_Ref')
+
+
+class _BDD(_ty.Protocol[
+        _Ref]):
+    """Interface of BDD context."""
+
+    @property
+    def false(
+            self
+            ) -> _Ref:
+        ...
+
+    @property
+    def true(
+            self
+            ) -> _Ref:
+        ...
+
+    def var(
+            self,
+            name:
+                str
+            ) -> _Ref:
+        ...
+
+    def apply(
+            self,
+            op:
+                str,
+            u:
+                _Ref,
+            v:
+                _Ref |
+                None=None,
+            w:
+                _Ref |
+                None=None
+            ) -> _Ref:
+        ...
+
+    def quantify(
+            self,
+            u:
+                _Ref,
+            qvars:
+                set[str],
+            forall:
+                bool=False
+            ) -> _Ref:
+        ...
+
+    def rename(
+            self,
+            u:
+                _Ref,
+            renaming:
+                _abc.Mapping
+            ) -> _Ref:
+        ...
+
+    def _add_int(
+            self,
+            number:
+                int
+            ) -> _Ref:
+        ...
 
 
 _parsers = dict()
 
 
-def add_expr(expression, bdd):
+def add_expr(
+        expression:
+            str,
+        bdd:
+            _BDD[_Ref]
+        ) -> _Ref:
     """Return `bdd` node for `expression`.
 
     Creates a node that represents `expression`,
     and returns this node.
-
-    @type expression:
-        `str`
     """
     if 'boolean' not in _parsers:
         _parsers['boolean'] = Parser()
@@ -375,17 +535,17 @@ def _add_ast(tree, bdd):
         f'unknown node type:  {tree.type = }')
 
 
-def _rewrite_tables(outputdir='./'):
-    """Recache state machine of parser.
-
-    @type outputdir:
-        `str`
-    """
+def _rewrite_tables(
+        outputdir:
+            str='./'
+        ) -> None:
+    """Recache state machine of parser."""
     astutils.rewrite_tables(
         Parser, _TABMODULE, outputdir)
 
 
-def _main():
+def _main(
+        ) -> None:
     """Recompute parser state machine.
 
     Cache the state machine in a file.

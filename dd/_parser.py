@@ -280,8 +280,13 @@ def add_ast(t, bdd):
             return bdd.apply(
                 t.operator, *operands)
     elif t.type == 'bool':
-        u = bdd.false if t.value.lower() == 'false' else bdd.true
-        return u
+        value = t.value.lower()
+        if value == 'false':
+            return bdd.false
+        elif value == 'true':
+            return bdd.true
+        else:
+            raise ValueError(t.value)
     elif t.type == 'var':
         return bdd.var(t.value)
     elif t.type == 'num':

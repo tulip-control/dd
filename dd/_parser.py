@@ -304,8 +304,12 @@ def _rewrite_tables(outputdir='./'):
         Parser, TABMODULE, outputdir)
 
 
-if __name__ == '__main__':
+def _main():
     log = logging.getLogger('astutils')
     log.setLevel('DEBUG')
     log.addHandler(logging.StreamHandler())
     _rewrite_tables()
+
+
+if __name__ == '__main__':
+    _main()

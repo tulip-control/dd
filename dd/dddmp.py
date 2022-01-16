@@ -129,8 +129,8 @@ class Parser:
         self.tabmodule = TABMODULE
         self._lexer = Lexer()
         self.tokens = self._lexer.tokens
-        self.build()
         self.reset()
+        self.parser = None
 
     def build(self,
               tabmodule=None,
@@ -154,6 +154,8 @@ class Parser:
 
     def parse(self, filename, debuglog=None):
         """Parse DDDMP file containing BDD."""
+        if self.parser is None:
+            self.build()
         levels, roots = self._parse_header(filename, debuglog)
         self._parse_body(filename)
         return self.bdd, self.n_vars, levels, roots

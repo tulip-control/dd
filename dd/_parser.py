@@ -295,9 +295,8 @@ def add_ast(t, bdd):
         i = int(t.value)
         u = bdd._add_int(i)
         return u
-    else:
-        raise ValueError(
-            f'unknown node type:  {t.type = }')
+    raise ValueError(
+        f'unknown node type:  {t.type = }')
 
 
 def _rewrite_tables(outputdir='./'):

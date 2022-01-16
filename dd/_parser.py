@@ -234,10 +234,10 @@ def add_expr(e, bdd):
     if 'boolean' not in _parsers:
         _parsers['boolean'] = Parser()
     tree = _parsers['boolean'].parse(e)
-    return add_ast(tree, bdd)
+    return _add_ast(tree, bdd)
 
 
-def add_ast(t, bdd):
+def _add_ast(t, bdd):
     """Add abstract syntax tree `t` to `self`.
 
     Any AST nodes are acceptable,
@@ -265,7 +265,7 @@ def add_ast(t, bdd):
             qvars, expr = t.operands
             qvars = {x.value for x in qvars}
             forall = (t.operator == r'\A')
-            u = add_ast(expr, bdd)
+            u = _add_ast(expr, bdd)
             return bdd.quantify(
                 u, qvars,
                 forall=forall)
@@ -274,11 +274,11 @@ def add_ast(t, bdd):
             rename = {
                 k.value: v.value
                 for k, v in rename}
-            u = add_ast(expr, bdd)
+            u = _add_ast(expr, bdd)
             return bdd.rename(u, rename)
         else:
             operands = [
-                add_ast(x, bdd)
+                _add_ast(x, bdd)
                 for x in t.operands]
             return bdd.apply(
                 t.operator, *operands)

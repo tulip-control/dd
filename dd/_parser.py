@@ -229,14 +229,17 @@ class Parser(astutils.Parser):
 _parsers = dict()
 
 
-def add_expr(e, bdd):
-    """Return node for expression `e`, after adding it.
+def add_expr(expression, bdd):
+    """Return `bdd` node for `expression`.
 
-    @type expr: `str`
+    Creates a node that represents `expression`,
+    and returns this node.
+
+    @type expression: `str`
     """
     if 'boolean' not in _parsers:
         _parsers['boolean'] = Parser()
-    tree = _parsers['boolean'].parse(e)
+    tree = _parsers['boolean'].parse(expression)
     return _add_ast(tree, bdd)
 
 

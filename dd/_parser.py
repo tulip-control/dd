@@ -289,8 +289,7 @@ def add_ast(t, bdd):
         return bdd.var(t.value)
     elif t.type == 'num':
         i = int(t.value)
-        u = bdd._add_int(i)
-        return u
+        return bdd._add_int(i)
     raise ValueError(
         f'unknown node type:  {t.type = }')
 

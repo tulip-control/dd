@@ -43,7 +43,8 @@ class Lexer(astutils.Lexer):
 
     def t_NAME(self, t):
         r"[A-Za-z_][A-za-z0-9_']*"
-        t.type = self.reserved.get(t.value, 'NAME')
+        t.type = self.reserved.get(
+            t.value, 'NAME')
         return t
 
     def t_AND(self, t):
@@ -124,7 +125,8 @@ class Parser(astutils.Parser):
         """expr : TRUE
                 | FALSE
         """
-        p[0] = self.nodes.Terminal(p[1], 'bool')
+        p[0] = self.nodes.Terminal(
+            p[1], 'bool')
 
     def p_node(self, p):
         """expr : AT number"""
@@ -132,12 +134,14 @@ class Parser(astutils.Parser):
 
     def p_number(self, p):
         """number : NUMBER"""
-        p[0] = self.nodes.Terminal(p[1], 'num')
+        p[0] = self.nodes.Terminal(
+            p[1], 'num')
 
     def p_negative_number(self, p):
         """number : MINUS NUMBER %prec UMINUS"""
         x = p[1] + p[2]
-        p[0] = self.nodes.Terminal(x, 'num')
+        p[0] = self.nodes.Terminal(
+            x, 'num')
 
     def p_var(self, p):
         """expr : name"""
@@ -145,7 +149,8 @@ class Parser(astutils.Parser):
 
     def p_unary(self, p):
         """expr : NOT expr"""
-        p[0] = self.nodes.Operator(p[1], p[2])
+        p[0] = self.nodes.Operator(
+            p[1], p[2])
 
     def p_binary(self, p):
         """expr : expr AND expr
@@ -156,21 +161,25 @@ class Parser(astutils.Parser):
                 | expr EQUALS expr
                 | expr MINUS expr
         """
-        p[0] = self.nodes.Operator(p[2], p[1], p[3])
+        p[0] = self.nodes.Operator(
+            p[2], p[1], p[3])
 
     def p_ternary_conditional(self, p):
         """expr : ITE LPAREN expr COMMA expr COMMA expr RPAREN"""
-        p[0] = self.nodes.Operator(p[1], p[3], p[5], p[7])
+        p[0] = self.nodes.Operator(
+            p[1], p[3], p[5], p[7])
 
     def p_quantifier(self, p):
         """expr : EXISTS names COLON expr
                 | FORALL names COLON expr
         """
-        p[0] = self.nodes.Operator(p[1], p[2], p[4])
+        p[0] = self.nodes.Operator(
+            p[1], p[2], p[4])
 
     def p_rename(self, p):
         """expr : RENAME subs COLON expr"""
-        p[0] = self.nodes.Operator(p[1], p[4], p[2])
+        p[0] = self.nodes.Operator(
+            p[1], p[4], p[2])
 
     def p_substitutions_iter(self, p):
         """subs : subs COMMA sub"""
@@ -200,7 +209,8 @@ class Parser(astutils.Parser):
 
     def p_name(self, p):
         """name : NAME"""
-        p[0] = self.nodes.Terminal(p[1], 'var')
+        p[0] = self.nodes.Terminal(
+            p[1], 'var')
 
     def p_paren(self, p):
         """expr : LPAREN expr RPAREN"""
@@ -232,12 +242,16 @@ def add_ast(t, bdd):
 
     Any AST nodes are acceptable,
     provided they have attributes:
-      - `"operator"` and `"operands"` for operator nodes
+      - `"operator"` and `"operands"` for
+        operator nodes
       - `"value"` equal to:
-        - `"True"` or `"False"` for Boolean constants
-        - a key (var name) passed to `bdd.var()` for variables
+        - `"True"` or `"False"` for
+          Boolean constants
+        - a key (var name) passed to
+          `bdd.var()` for variables
 
-    @type t: `Terminal` or `Operator` of `astutils`
+    @type t: `Terminal` or `Operator` of
+        `astutils`
     @type bdd: object with:
       - `bdd.false`
       - `bdd.true`
@@ -254,15 +268,20 @@ def add_ast(t, bdd):
             if t.operator not in (r'\A', r'\E'):
                 raise ValueError(t.operator)
             forall = (t.operator == r'\A')
-            return bdd.quantify(u, qvars, forall=forall)
+            return bdd.quantify(
+                u, qvars,
+                forall=forall)
         elif t.operator == r'\S':
             expr, rename = t.operands
             u = add_ast(expr, bdd)
             rename = {k.value: v.value for k, v in rename}
             return bdd.rename(u, rename)
         else:
-            operands = [add_ast(x, bdd) for x in t.operands]
-            return bdd.apply(t.operator, *operands)
+            operands = [
+                add_ast(x, bdd)
+                for x in t.operands]
+            return bdd.apply(
+                t.operator, *operands)
     elif t.type == 'bool':
         u = bdd.false if t.value.lower() == 'false' else bdd.true
         return u
@@ -278,7 +297,8 @@ def add_ast(t, bdd):
 
 
 def _rewrite_tables(outputdir='./'):
-    astutils.rewrite_tables(Parser, TABMODULE, outputdir)
+    astutils.rewrite_tables(
+        Parser, TABMODULE, outputdir)
 
 
 if __name__ == '__main__':

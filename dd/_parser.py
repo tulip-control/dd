@@ -183,7 +183,49 @@ class Lexer(astutils.Lexer):
             token.value.count('\n'))
 
 
-class Parser(astutils.Parser):
+_ParserResult = _ty.TypeVar('_ParserResult')
+
+
+class _ParserProtocol(
+        _ty.Protocol,
+        _ty.Generic[
+            _ParserResult]):
+    """Parser internal interface."""
+
+    def _apply(
+            self,
+            operator:
+                str,
+            *operands:
+                _ty.Any
+            ) -> _ParserResult:
+        ...
+
+    def _add_var(
+            self,
+            name:
+                str
+            ) -> _ParserResult:
+        ...
+
+    def _add_int(
+            self,
+            numeric_literal:
+                str
+            ) -> _ParserResult:
+        ...
+
+    def _add_bool(
+            self,
+            bool_literal:
+                str
+            ) -> _ParserResult:
+        ...
+
+
+class Parser(
+        astutils.Parser,
+        _ParserProtocol):
     """Parser for Boolean formulae."""
 
     def __init__(
@@ -221,6 +263,48 @@ class Parser(astutils.Parser):
         kw.setdefault('lexer', Lexer())
         super().__init__(**kw)
 
+    def _apply(
+            self,
+            operator:
+                str,
+            *operands:
+                _ty.Any):
+        """Return syntax tree of application."""
+        if operator == r'\S':
+            match operands:
+                case subs, expr:
+                    pass
+                case _:
+                    raise AssertionError(operands)
+            return self.nodes.Operator(
+                operator, expr, subs)
+        return self.nodes.Operator(
+            operator, *operands)
+
+    def _add_var(
+            self,
+            name:
+                str):
+        """Return syntax tree for identifier."""
+        return self.nodes.Terminal(
+            name, 'var')
+
+    def _add_int(
+            self,
+            numeric_literal:
+                str):
+        """Return syntax tree of given index."""
+        return self.nodes.Terminal(
+            numeric_literal, 'num')
+
+    def _add_bool(
+            self,
+            bool_literal:
+                str):
+        """Return syntax tree for Boolean."""
+        return self.nodes.Terminal(
+            bool_literal, 'bool')
+
     def p_bool(
             self,
             p:
@@ -229,8 +313,7 @@ class Parser(astutils.Parser):
         """expr : TRUE
                 | FALSE
         """
-        p[0] = self.nodes.Terminal(
-            p[1], 'bool')
+        p[0] = self._add_bool(p[1])
 
     def p_node(
             self,
@@ -246,8 +329,7 @@ class Parser(astutils.Parser):
                 list
             ) -> None:
         """number : NUMBER"""
-        p[0] = self.nodes.Terminal(
-            p[1], 'num')
+        p[0] = self._add_int(p[1])
 
     def p_negative_number(
             self,
@@ -256,9 +338,8 @@ class Parser(astutils.Parser):
             ) -> None:
         ("""number : MINUS NUMBER """
          """           %prec UMINUS""")
-        x = p[1] + p[2]
-        p[0] = self.nodes.Terminal(
-            x, 'num')
+        numeric_literal = f'{p[1]}{p[2]}'
+        p[0] = self._add_int(numeric_literal)
 
     def p_var(
             self,
@@ -266,7 +347,7 @@ class Parser(astutils.Parser):
                 list
             ) -> None:
         """expr : name"""
-        p[0] = p[1]
+        p[0] = self._add_var(p[1].value)
 
     def p_unary(
             self,
@@ -274,7 +355,7 @@ class Parser(astutils.Parser):
                 list
             ) -> None:
         """expr : NOT expr"""
-        p[0] = self.nodes.Operator(
+        p[0] = self._apply(
             p[1], p[2])
 
     def p_binary(
@@ -290,7 +371,7 @@ class Parser(astutils.Parser):
                 | expr EQUALS expr
                 | expr MINUS expr
         """
-        p[0] = self.nodes.Operator(
+        p[0] = self._apply(
             p[2], p[1], p[3])
 
     def p_ternary_conditional(
@@ -302,7 +383,7 @@ class Parser(astutils.Parser):
          """             expr COMMA """
          """             expr COMMA """
          """             expr RPAREN""")
-        p[0] = self.nodes.Operator(
+        p[0] = self._apply(
             p[1], p[3], p[5], p[7])
 
     def p_quantifier(
@@ -313,7 +394,7 @@ class Parser(astutils.Parser):
         """expr : EXISTS names COLON expr
                 | FORALL names COLON expr
         """
-        p[0] = self.nodes.Operator(
+        p[0] = self._apply(
             p[1], p[2], p[4])
 
     def p_rename(
@@ -322,8 +403,8 @@ class Parser(astutils.Parser):
                 list
             ) -> None:
         """expr : RENAME subs COLON expr"""
-        p[0] = self.nodes.Operator(
-            p[1], p[4], p[2])
+        p[0] = self._apply(
+            p[1], p[2], p[4])
 
     def p_substitutions_iter(
             self,

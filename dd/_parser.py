@@ -469,8 +469,8 @@ def add_expr(
         ) -> _Ref:
     """Return `bdd` node for `expression`.
 
-    Creates a node that represents `expression`,
-    and returns this node.
+    Creates in `bdd` a node that represents
+    `expression`, and returns this node.
     """
     if 'boolean' not in _parsers:
         _parsers['boolean'] = Parser()

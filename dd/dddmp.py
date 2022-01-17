@@ -127,8 +127,8 @@ class Parser:
 
     def __init__(self):
         self.tabmodule = TABMODULE
-        self.lexer = Lexer()
-        self.tokens = self.lexer.tokens
+        self._lexer = Lexer()
+        self.tokens = self._lexer.tokens
         self.build()
         self.reset()
 
@@ -142,7 +142,7 @@ class Parser:
             tabmodule = self.tabmodule
         if debug and debuglog is None:
             debuglog = logger
-        self.lexer.build(debug=debug)
+        self._lexer.build(debug=debug)
         self.parser = ply.yacc.yacc(
             module=self,
             start='file',
@@ -170,7 +170,7 @@ class Parser:
                     break
                 a.append(line)
             s = '\n'.join(a)
-            lexer = self.lexer.lexer
+            lexer = self._lexer.lexer
             lexer.input(s)
             r = self.parser.parse(lexer=lexer, debug=debuglog)
         self._assert_consistent()

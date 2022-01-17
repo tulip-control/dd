@@ -1152,14 +1152,14 @@ expr ::= '\A' names ':' expr  # universal quantification (forall)
        | 'FALSE' | 'False' # Boolean constant
        | 'TRUE' | 'True'   # Boolean constant
 
-pairs ::= [pairs] ',' pair
+pairs ::= pairs (',' pair)?
 pair ::= NAME '/' NAME
 
-names ::= [names] ',' name
+names ::= names (',' name)?
 name ::= NAME
 
 NAME ::= [A-Za-z_][A-za-z0-9_.']*
-INTEGER ::= [-][0-9]*
+INTEGER ::= (-)?[0-9]+
 ```
 
 Comments are written using TLA+ syntax:

@@ -47,7 +47,7 @@ VERSION_FILE_TEXT = (
     "version = '{version}'\n")
 PYTHON_REQUIRES = '>=3.11'
 install_requires = [
-    'astutils >= 0.0.1',
+    'astutils >= 0.0.5',
     'networkx >= 2.4',
     'ply >= 3.4, <= 3.10',
     'psutil >= 3.2.2',

@@ -113,7 +113,7 @@ class Parser(astutils.Parser):
             ('left', 'EQUALS'),
             ('right', 'NOT'),
             ('right', 'UMINUS'))
-        self.Lexer = Lexer
+        kw.setdefault('lexer', Lexer())
         super().__init__(**kw)
 
     def p_bool(self, p):

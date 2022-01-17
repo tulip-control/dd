@@ -40,8 +40,8 @@ PROJECT_URLS = {
 VERSION_FILE = '{name}/_version.py'.format(
     name=PACKAGE_NAME)
 MAJOR = 0
-MINOR = 5
-MICRO = 7
+MINOR = 6
+MICRO = 0
 VERSION = '{major}.{minor}.{micro}'.format(
     major=MAJOR, minor=MINOR, micro=MICRO)
 VERSION_FILE_TEXT = (

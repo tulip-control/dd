@@ -243,7 +243,7 @@ cdef class Function(object):
 
     def __dealloc__(self):
         buddy.bdd_delref(self.node)
-        self.node = NULL
+        self.node = -1
 
     def __str__(self):
         n = len(self)

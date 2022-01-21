@@ -500,6 +500,7 @@ for example:
 ```python
 import dd.autoref
 
+
 bdd = dd.autoref.BDD()
 bdd.declare('x', 'y')
 c = [bdd.add_expr(r'x /\ y'), bdd.add_expr(r'x \/ ~ y')]

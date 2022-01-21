@@ -132,8 +132,8 @@ The inverse of `BDD.add_expr` is `BDD.to_expr`:
 
 ```python
 s = bdd.to_expr(u)
->>> s
-'ite(x, y, False)'
+print(s)
+    # 'ite(x, y, False)'
 ```
 
 Lets create the BDD of a more colorful Boolean formula
@@ -198,8 +198,8 @@ u = bdd.add_expr(r'x  \/  (y /\ z)')
 # substitute variables for variables (rename)
 d = dict(x='p', y='q')
 v = bdd.let(d, u)
->>> v.support
-{'p', 'q', 'z'}
+print(f'support = {v.support}')
+    # support = {'p', 'q', 'z'}
 ```
 
 The other forms are similar
@@ -223,8 +223,9 @@ A model is represented as a `dict` that maps variable names to values.
 
 ```python
 u = bdd.add_expr(r'x \/ y')
->>> bdd.pick(u)  # choose an assignment, `u.pick()` works too
-{'x': False, 'y': True}
+assignment = bdd.pick(u)  # choose an assignment, `u.pick()` works too
+print(f'{assignment = }')
+    # assignment = {'x': False, 'y': True}
 ```
 
 When working with BDDs, two issues arise:
@@ -241,8 +242,9 @@ Consider the example
 ```python
 bdd.declare('x', 'y', 'z')
 u = bdd.add_expr(r'x \/ y')
->>> u.support
-{'x', 'y'}
+support = u.support
+print(f'{support = }')
+    # support = {'x', 'y'}
 ```
 
 This tells us that the variables `x` and `y` occur in the formula that the
@@ -258,12 +260,12 @@ mention depends on what you are doing with the assignment in your algorithm.
 u = bdd.add_expr('x')
 # default: variables in support(u)
 models = list(bdd.pick_iter(u))
->>> models
-[{'x': True}]
+print(models)
+    # [{'x': True}]
 # variables in `care_vars`
 models = list(bdd.pick_iter(u, care_vars=['x', 'y']))
->>> models
-[{'x': True, 'y': False}, {'x': True, 'y': True}]
+print(models)
+    # [{'x': True, 'y': False}, {'x': True, 'y': True}]
 ```
 
 By default, `pick_iter` returns assignments to all variables in the support
@@ -292,20 +294,22 @@ number
 ```python
 bdd.declare('x', 'y')
 u = bdd.add_expr('x')
->>> u.count()
-1
+count = u.count()
+print(f'{count = }')
+    # count = 1
 models = list(bdd.pick_iter(u))
->>> models
-[{'x': True}]
+print(models)
+    # [{'x': True}]
 # pass a larger number of variables
->>> u.count(nvars=3)
-4
+count = u.count(nvars=3)
+print(f'{count = }')
+    # count = 4
 models = list(bdd.pick_iter(u, ['x', 'y', 'z']))
->>> models
-[{'x': True, 'y': False, 'z': False},
- {'x': True, 'y': True, 'z': False},
- {'x': True, 'y': False, 'z': True},
- {'x': True, 'y': True, 'z': True}]
+print(models)
+    # [{'x': True, 'y': False, 'z': False},
+    #  {'x': True, 'y': True, 'z': False},
+    #  {'x': True, 'y': False, 'z': True},
+    #  {'x': True, 'y': True, 'z': True}]
 ```
 
 A convenience method for creating a BDD from an assignment `dict` is
@@ -467,8 +471,8 @@ In `autoref.BDD`, the `dict` that maps each defined variable to its
 corresponding level can be obtained also from the attribute `BDD.vars`
 
 ```python
->>> bdd.vars
-{'x': 0, 'y': 1, 'z': 2}
+print(bdd.vars)
+    # {'x': 0, 'y': 1, 'z': 2}
 ```
 
 To copy a node from one BDD manager to another manager
@@ -882,28 +886,31 @@ bdd = _bdd.BDD()
 vrs = [f'x{i}' for i in range(3)]
 vrs.extend(f'y{i}' for i in range(3))
 bdd.declare(*vrs)
->>> bdd.vars
-{'x0': 0, 'x1': 1, 'x2': 2, 'y0': 3, 'y1': 4, 'y2': 5}
+print(bdd.vars)
+    # {'x0': 0, 'x1': 1, 'x2': 2, 'y0': 3, 'y1': 4, 'y2': 5}
 
 s = r'(x0 /\ y0) \/ (x1 /\ y1) \/ (x2 /\ y2)'  # TLA+ syntax
 s = '(x0 & y0) | (x1 & y1) | (x2 & y2)'  # Promela syntax
 u = bdd.add_expr(s)
 bdd.incref(u)
->>> len(bdd)
-22
+number_of_nodes = len(bdd)
+print(f'{number_of_nodes = }')
+    # number_of_nodes = 22
 
 # collect intermediate results produced while making u
 bdd.collect_garbage()
->>> len(bdd)
-15
+number_of_nodes = len(bdd)
+print(f'{number_of_nodes = }')
+    # number_of_nodes = 15
 bdd.dump('before_reordering.pdf')
 
 # invoke variable order optimization by sifting
 _bdd.reorder(bdd)
->>> len(bdd)
-7
->>> bdd.vars
-{'x0': 0, 'x1': 3, 'x2': 5, 'y0': 1, 'y1': 2, 'y2': 4}
+number_of_nodes = len(bdd)
+print(f'{number_of_nodes = }')
+    # number_of_nodes = 7
+print(bdd.vars)
+    # {'x0': 0, 'x1': 3, 'x2': 5, 'y0': 1, 'y1': 2, 'y2': 4}
 bdd.dump('after_reordering.pdf')
 ```
 
@@ -914,11 +921,13 @@ desired variable order as a `dict` to the function `reorder`.
 my_favorite_order = dict(
     x0=0, x1=1, x2=2,
     y0=3, y1=4, y2=5)
->>> len(bdd)
-7
+number_of_nodes = len(bdd)
+print(f'{number_of_nodes = }')
+    # number_of_nodes = 7
 _bdd.reorder(bdd, my_favorite_order)
->>> len(bdd)
-15
+number_of_nodes = len(bdd)
+print(f'{number_of_nodes = }')
+    # number_of_nodes = 15
 ```
 
 (Request such inefficient reordering only if you have some special purpose.)
@@ -1102,8 +1111,9 @@ while q != qold:
 At the end, we obtain
 
 ```python
->>> q.to_expr()
-'(! ite(x0, x1, False))'
+expr = q.to_expr()
+print(expr)
+    # '(! ite(x0, x1, False))'
 ```
 
 which is the set `{0, 1, 2}` (it does not contain 3, because that would
@@ -1374,13 +1384,13 @@ v = umap[abs(u)]
 # complemented ?
 if u < 0:
     v = - v
->>> v
-    -3
-s = mdd.to_expr(v)
->>> print(s)
-    (! if (y in set([0, 1, 3])): (if (x = 0): 1,
-    elif (x = 1): 0),
-    elif (y = 2): 0)
+print(v)
+    # -3
+expr = mdd.to_expr(v)
+print(expr)
+    # (! if (y in set([0, 1, 3])): (if (x = 0): 1,
+    # elif (x = 1): 0),
+    # elif (y = 2): 0)
 
 # plot MDD with graphviz
 mdd.dump('mdd.pdf')

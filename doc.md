@@ -1364,12 +1364,12 @@ MDD integers to BDD bits. Referencing of BDD nodes is necessary,
 because `bdd_to_mdd` invokes garbage collection on the BDD.
 
 ```python
-from dd.bdd import BDD
+import dd.bdd as _bdd
 import dd.mdd as _mdd
 
 
 bits = dict(x=0, y0=1, y1=2)
-bdd = BDD(bits)
+bdd = _bdd.BDD(bits)
 u = bdd.add_expr(r'x \/ (~ y0 /\ y1)')
 bdd.incref(u)
 

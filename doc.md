@@ -1563,5 +1563,5 @@ GitHub in this way will differ, depending on whether `https://` or
 
 ## Copying
 
-This document is copyright 2015-2021 by California Institute of Technology.
+This document is copyright 2015-2022 by California Institute of Technology.
 All rights reserved. Licensed under 3-clause BSD.

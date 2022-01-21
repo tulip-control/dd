@@ -1297,19 +1297,18 @@ Comments are written using TLA+ syntax:
 
 Doubly-delimited comments can span multiple lines.
 
-The token precedence (lowest to highest) and associativity
-(r = right, l = left, n = none) is:
+The token precedence (lowest to highest) and associativity is:
 
-- `:` (l)
-- `<=>, <->` (l)
-- `=>, ->` (l)
-- `-` (l)
-- `#`, `^` (l)
-- `\/, |` (l)
-- `/\, &` (l)
-- `=` (l)
-- `~, !` (r)
-- `-` (r) unary minus, as in `-5`
+- `:` (left)
+- `<=>, <->` (left)
+- `=>, ->` (left)
+- `-` (left)
+- `#`, `^` (left)
+- `\/, |` (left)
+- `/\, &` (left)
+- `=` (left)
+- `~, !`
+- `-` unary minus, as in `-5`
 
 The meaning of a number of operators,
 assuming `a` and `b` take Boolean values:

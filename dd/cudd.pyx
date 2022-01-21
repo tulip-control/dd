@@ -9,7 +9,7 @@ Reference
     "CUDD: CU Decision Diagram Package"
     University of Colorado at Boulder
     v2.5.1, 2015
-    http://vlsi.colorado.edu/~fabio/
+    <http://vlsi.colorado.edu/~fabio/>
 """
 # Copyright 2015 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.

@@ -8,7 +8,7 @@ Reference
     "On the complexity of VLSI implementations and graph representations
     of Boolean functions with application to integer multiplication"
     TOC, 1991
-    https://doi.org/10.1109/12.73590
+    <https://doi.org/10.1109/12.73590>
 """
 from dd import autoref as _bdd
 

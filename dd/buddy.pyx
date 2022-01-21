@@ -8,7 +8,7 @@ Reference
     "BuDDy: Binary Decision Diagram package"
     IT-University of Copenhagen (ITU)
     v2.4, 2002
-    https://sourceforge.net/projects/buddy/
+    <https://sourceforge.net/projects/buddy/>
 """
 # Copyright 2015 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.

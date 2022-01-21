@@ -99,12 +99,12 @@ test:
 	cd tests/; \
 	python -X dev -m pytest -v --continue-on-collection-errors .
 # `pytest -Werror` turns all warnings into errors
-#     https://docs.pytest.org/en/latest/how-to/capture-warnings.html
+#     <https://docs.pytest.org/en/latest/how-to/capture-warnings.html>
 # including pytest warnings about unraisable exceptions:
-#     https://docs.pytest.org/en/latest/how-to/failures.html
-#         #warning-about-unraisable-exceptions-and-unhandled-thread-exceptions
-#     https://docs.pytest.org/en/latest/reference/reference.html
-#         #pytest.PytestUnraisableExceptionWarning
+#     <https://docs.pytest.org/en/latest/how-to/failures.html
+#         #warning-about-unraisable-exceptions-and-unhandled-thread-exceptions>
+#     <https://docs.pytest.org/en/latest/reference/reference.html
+#         #pytest.PytestUnraisableExceptionWarning>
 
 test_abc:
 	python -X dev tests/inspect_cython_signatures.py

@@ -16,7 +16,7 @@ References
     "DDDMP: Decision Diagram DuMP package"
     `cudd-X.Y.Z/dddmp/doc/dddmp-2.0-Letter.ps`, 2004
 
-[2] http://vlsi.colorado.edu/~fabio/CUDD/
+[2] <http://vlsi.colorado.edu/~fabio/CUDD/>
 
 [3] `cudd-X.Y.Z/dddmp/dddmpStoreBdd.c`, lines: 329--331, 345, 954
 

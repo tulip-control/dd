@@ -17,7 +17,7 @@
 # if a wheel file for your operating system
 # and CPython version is available on PyPI.
 # Wheel files (`*.whl`) can be found at:
-#     https://pypi.org/project/dd/#files
+#     <https://pypi.org/project/dd/#files>
 #
 # If there *is* a wheel file on PyPI
 # that matches your operating system and

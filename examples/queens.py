@@ -4,7 +4,7 @@
 Reference
 =========
 
-Henrik R. Andersen
+[1] Henrik R. Andersen
     "An introduction to binary decision diagrams"
     Lecture notes for "Efficient Algorithms and Programs", 1999
     The IT University of Copenhagen

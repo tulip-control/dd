@@ -4,7 +4,7 @@
 Reference
 =========
 
-    Randal Bryant
+[1] Randal Bryant
     "On the complexity of VLSI implementations and graph representations
     of Boolean functions with application to integer multiplication"
     TOC, 1991

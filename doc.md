@@ -113,6 +113,7 @@ First, instantiate a manager and declare variables
 ```python
 from dd import autoref as _bdd
 
+
 bdd = _bdd.BDD()
 bdd.declare('x', 'y', 'z')
 ```
@@ -335,6 +336,7 @@ You can dump a PDF of all nodes in the manager as follows
 ```python
 from dd import autoref as _bdd
 
+
 bdd = _bdd.BDD()
 bdd.declare('x', 'y', 'z')
 u = bdd.add_expr(r'(x /\ y) \/ ~ z')
@@ -380,6 +382,7 @@ using the argument `roots` of the method `BDD.dump`. For example
 
 ```python
 from dd import autoref as _bdd
+
 
 bdd = _bdd.BDD()
 bdd.declare('x', 'y', 'z')
@@ -714,6 +717,7 @@ reference count in `dd.autoref` is:
 ```python
 from dd import autoref
 
+
 bdd = autoref.BDD()
 # ... statements ...
 # raise `AssertionError` if any nodes have nonzero reference count
@@ -808,6 +812,7 @@ Revisiting an earlier example, manual reference counting looks like:
 ```python
 from dd import bdd as _bdd
 
+
 bdd = _bdd.BDD()
 bdd.declare('x', 'y', 'z')
 s = r'(x /\ y) \/ ~ z'  # TLA+ syntax
@@ -857,6 +862,7 @@ Dynamic variable reordering can be enabled by calling:
 ```python
 from dd import bdd as _bdd
 
+
 bdd = _bdd.BDD()
 bdd.configure(reordering=True)
 ```
@@ -869,6 +875,7 @@ invocation. For example:
 
 ```python
 from dd import bdd as _bdd
+
 
 bdd = _bdd.BDD()
 vrs = [f'x{i}' for i in range(3)]
@@ -1049,6 +1056,7 @@ The elevator can move as follows
 ```python
 from dd import autoref as _bdd
 
+
 bdd = _bdd.BDD()
 bdd.declare("x0", "x0'", "x1", "x1'")
 # TLA+ syntax
@@ -1213,6 +1221,7 @@ by adding a method `MDD.add_var`)
 
 ```python
 from dd import mdd as _mdd
+
 
 dvars = dict(
     x=dict(level=0, len=4),

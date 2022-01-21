@@ -7,7 +7,7 @@ Reference
     "Multi-Core BDD Operations for
      Symbolic Reachability"
     PDMC 2012
-    doi:10.1016/j.entcs.2013.07.009
+    <https://doi.org/10.1016/j.entcs.2013.07.009>
     <https://github.com/utwente-fmt/sylvan>
 """
 # Copyright 2016 by California Institute of Technology

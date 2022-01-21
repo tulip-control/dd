@@ -7,7 +7,7 @@ Reference
     "Multi-Core BDD Operations for
      Symbolic Reachability"
     PDMC 2012
-    doi:10.1016/j.entcs.2013.07.009
+    <https://doi.org/10.1016/j.entcs.2013.07.009>
 """
 # Copyright 2016 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.

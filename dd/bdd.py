@@ -7,30 +7,30 @@ References
 Randal E. Bryant
     "Graph-based algorithms for Boolean function manipulation"
     IEEE Transactions on Computers
-    Vol. C-35, No.8, August, 1986, pp.677--690
+    Vol. C-35, No. 8, August, 1986, pages 677--690
 
 Karl S. Brace, Richard L. Rudell, Randal E. Bryant
     "Efficient implementation of a BDD package"
     27th ACM/IEEE Design Automation Conference (DAC), 1990
-    pp.40--45
+    pages 40--45
 
 Richard Rudell
     "Dynamic variable ordering for
     ordered binary decision diagrams"
     IEEE/ACM International Conference on
     Computer-Aided Design (ICCAD), 1993
-    pp.42--47
+    pages 42--47
 
 Christel Baier and Joost-Pieter Katoen
     "Principles of model checking"
     MIT Press, 2008
-    section 6.7, pp.381--421
+    section 6.7, pages 381--421
 
 Fabio Somenzi
     "Binary decision diagrams"
     Calculational system design, Vol.173
     NATO Science Series F: Computer and systems sciences
-    pp.303--366, IOS Press, 1999
+    pages 303--366, IOS Press, 1999
 
 Henrik R. Andersen
     "An introduction to binary decision diagrams"

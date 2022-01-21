@@ -8,13 +8,13 @@ Arvind Srinivasan, Timothy Kam, Sharad Malik, Robert K. Brayton
     "Algorithms for discrete function manipulation"
     IEEE International Conference on
     Computer-Aided Design (ICCAD), 1990
-    pp.92--95
+    pages 92--95
 
 Michael Miller and Rolf Drechsler
     "Implementing a multiple-valued decision diagram package"
     28th International Symposium on
     Multiple-Valued Logic (ISMVL), 1998
-    pp.52--57
+    pages 52--57
 """
 # Copyright 2015 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.

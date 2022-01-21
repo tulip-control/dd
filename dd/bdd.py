@@ -24,7 +24,7 @@ Richard Rudell
 Christel Baier and Joost-Pieter Katoen
     "Principles of model checking"
     MIT Press, 2008
-    section 6.7, pages 381--421
+    Section 6.7, pages 381--421
 
 Fabio Somenzi
     "Binary decision diagrams"

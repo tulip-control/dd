@@ -8,7 +8,7 @@ Henrik R. Andersen
     "An introduction to binary decision diagrams"
     Lecture notes for "Efficient Algorithms and Programs", 1999
     The IT University of Copenhagen
-    Sec.6.1
+    Section 6.1
 """
 import collections.abc as _abc
 import pickle

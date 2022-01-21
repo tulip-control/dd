@@ -7,7 +7,7 @@ References
 Randal E. Bryant
     "Graph-based algorithms for Boolean function manipulation"
     IEEE Transactions on Computers
-    Vol. C-35, No. 8, August, 1986, pages 677--690
+    Volume C-35, No. 8, August, 1986, pages 677--690
 
 Karl S. Brace, Richard L. Rudell, Randal E. Bryant
     "Efficient implementation of a BDD package"

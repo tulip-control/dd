@@ -745,12 +745,15 @@ We discuss now some more details about the pure Python implementation
 in `dd.bdd`. Two interfaces are available:
 
 - convenience: the module
-  [`dd.autoref`](https://github.com/tulip-control/dd/blob/main/dd/autoref.py) wraps
+  [`dd.autoref`](
+    https://github.com/tulip-control/dd/blob/main/dd/autoref.py) wraps
   `dd.bdd` and takes care of reference counting
-  using [`__del__`](https://docs.python.org/3/reference/datamodel.html#object.__del__).
+  using [`__del__`](
+    https://docs.python.org/3/reference/datamodel.html#object.__del__).
 
 - "low level": the module
-  [`dd.bdd`](https://github.com/tulip-control/dd/blob/main/dd/bdd.py) requires that
+  [`dd.bdd`](
+    https://github.com/tulip-control/dd/blob/main/dd/bdd.py) requires that
   the user in/decrement the reference counters associated with nodes that
   are used outside of a `BDD`.
 

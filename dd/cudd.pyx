@@ -2162,7 +2162,8 @@ cpdef count_nodes(functions):
     Sharing is taken into account.
 
     @type functions: `list` of `Function`
-    @rtype: int
+    @rtype:
+        `int`
     """
     cdef DdNode **x
     cdef Function f

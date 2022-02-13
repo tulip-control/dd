@@ -108,10 +108,11 @@ class Lexer:
     def build(self, debug=False, debuglog=None, **kwargs):
         """Create a lexer.
 
-        @param kwargs: Same arguments as C{{ply.lex.lex}}:
+        @param kwargs:
+            Same arguments as `ply.lex.lex`:
 
-          - except for C{{module}} (fixed to C{{self}})
-          - C{{debuglog}} defaults to the logger C{{"{logger}"}}.
+            - except for `module` (fixed to `self`)
+            - `debuglog` defaults to `logger`.
         """
         if debug and debuglog is None:
             debuglog = logging.getLogger(LEX_LOG)

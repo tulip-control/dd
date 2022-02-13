@@ -170,7 +170,8 @@ class MDD:
         """Return node at level `i` with successors in `nodes`.
 
         @param i: level in `range(len(vars))`
-        @type i: int
+        @type i:
+            `int`
         """
         if not (0 <= i < len(self.vars)):
             raise ValueError(i)

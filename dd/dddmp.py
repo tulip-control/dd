@@ -472,7 +472,8 @@ def load(fname):
     To avoid blanks, the levels are re-indexed here.
     This has no effect if `.orderedvarnames` appears in the file.
 
-    DDDMP files are dumped by [CUDD](http://vlsi.colorado.edu/~fabio/CUDD/).
+    DDDMP files are dumped by [CUDD](
+        http://vlsi.colorado.edu/~fabio/CUDD/).
     """
     parser = Parser()
     bdd_succ, n_vars, levels, roots = parser.parse(fname)

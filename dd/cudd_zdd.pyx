@@ -408,7 +408,8 @@ cdef class ZDD:
                   *arg, **kw):
         """Initialize ZDD manager.
 
-        @param memory_estimate: maximum allowed memory, in bytes.
+        @param memory_estimate:
+            maximum allowed memory, in bytes.
         """
         self.manager = NULL  # prepare for `__dealloc__`
         total_memory = psutil.virtual_memory().total
@@ -689,10 +690,12 @@ cdef class ZDD:
         For details read the docstring of the
         method `dd.cudd.BDD.decref`.
 
-        @param recursive: if `True`, then call
+        @param recursive:
+            if `True`, then call
             `Cudd_RecursiveDerefZdd`,
             else call `Cudd_Deref`
-        @param _direct: use this parameter only after
+        @param _direct:
+            use this parameter only after
             reading the source code of the
             Cython file `dd/cudd_zdd.pyx`.
             When `_direct == True`, some of the above
@@ -1108,9 +1111,12 @@ cdef class ZDD:
     def _bdd_to_zdd(self, u):
         """Copy BDD `u` to a ZDD in `self`.
 
-        @param u: node in a `dd.cudd.BDD` manager
-        @type u: `dd.cudd.Function`
-        @rtype: `Function`
+        @param u:
+            node in a `dd.cudd.BDD` manager
+        @type u:
+            `dd.cudd.Function`
+        @rtype:
+            `Function`
         """
         cdef DdNode *r
         bdd = u.bdd
@@ -1122,7 +1128,8 @@ cdef class ZDD:
     def copy(self, u, other):
         """Transfer ZDD with root `u` to `other`.
 
-        @param other: `ZDD` or `BDD` manager
+        @param other:
+            `ZDD` or `BDD` manager
         @type other:
                `dd.cudd_zdd.ZDD`
             or `dd.cudd.BDD`
@@ -1138,13 +1145,16 @@ cdef class ZDD:
             self, definitions, Function u):
         """Replace variables with `definitions` in `u`.
 
-        @param definitions: `dict` mapping variable names (`str`)
+        @param definitions:
+            `dict` mapping variable names (`str`)
             to either:
             - Boolean values (`bool`), or
             - variable names (`str`), or
             - ZDD nodes (`Function`)
-        @type u: `Function`
-        @rtype: `Function`
+        @type u:
+            `Function`
+        @rtype:
+            `Function`
         """
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
@@ -1175,7 +1185,8 @@ cdef class ZDD:
             self, Function u, d):
         """Return cofactor of `u` as defined in `d`.
 
-        @param d: `dict` from variable names (`str`)
+        @param d:
+            `dict` from variable names (`str`)
             to Boolean values (`bool`).
         """
         if self.manager != u.manager:
@@ -1249,7 +1260,8 @@ cdef class ZDD:
             self, Function u, d):
         """Return the composition defined in `d`.
 
-        @param d: `dict` from variable names (`str`)
+        @param d:
+            `dict` from variable names (`str`)
             to ZDD nodes (`Function`).
         """
         if self.manager != u.manager:
@@ -1418,9 +1430,12 @@ cdef class ZDD:
     cpdef _top_cofactor(self, u, level):
         """Return cofactor at `level`.
 
-        @param u: node
-        @type u: `Function`
-        @type level: `int`
+        @param u:
+            node
+        @type u:
+            `Function`
+        @type level:
+            `int`
         """
         u_level = u.level
         if level > u_level:
@@ -1437,7 +1452,8 @@ cdef class ZDD:
     def count(self, Function u, nvars=None):
         """Return nuber of models of node `u`.
 
-        @param nvars: regard `u` as an operator that
+        @param nvars:
+            regard `u` as an operator that
             depends on `nvars` many variables.
 
             If omitted, then assume those in `support(u)`.
@@ -1607,7 +1623,8 @@ cdef class ZDD:
             Function w=None):
         r"""Return as `Function` the result of applying `op`.
 
-        @type op: `str` in
+        @type op:
+            `str` in
             - `'~'`, `'not'`, `'!'`
               (logical negation)
             - `'/\\'`, `'and'`, `'&'`, `'&&'`
@@ -1628,7 +1645,8 @@ cdef class ZDD:
               (existential quantification)
             - `'-'`
               (`a - b` means `a /\ ~ b`)
-        @type u, v, w: `Function`
+        @type u, v, w:
+            `Function`
         """
         if self.manager != u.manager:
             raise ValueError(
@@ -1749,9 +1767,11 @@ cdef class ZDD:
         If `dvars` is a `dict`, then a Boolean value
         `False` results in a negated variable.
 
-        @param dvars: `dict` or container of variables
+        @param dvars:
+            `dict` or container of variables
             as `str`
-        @rtype: Function
+        @rtype:
+            Function
         """
         r = self.true
         for var in dvars:
@@ -1888,9 +1908,12 @@ cdef class ZDD:
             self, Function u, qvars, forall=False):
         """Abstract variables `qvars` in `u`.
 
-        @param u: node
-        @param qvars: `set` of quantified variables
-        @param forall: if `True`,
+        @param u:
+            node
+        @param qvars:
+            `set` of quantified variables
+        @param forall:
+            if `True`,
             then quantify `qvars` universally,
             else existentially.
         """
@@ -2134,11 +2157,16 @@ cdef class ZDD:
         Only the ZDD manager nodes that are reachable from the
         ZDD references in `roots` are included in the diagram.
 
-        @param filename: file name
-        @type filename: `str`, e.g., `"diagram.pdf"`
-        @type filetype: `str`, e.g., `"pdf"`
-        @param roots: container of nodes
-        @type roots: `list` of `Function`
+        @param filename:
+            file name
+        @type filename:
+            `str`, e.g., `"diagram.pdf"`
+        @type filetype:
+            `str`, e.g., `"pdf"`
+        @param roots:
+            container of nodes
+        @type roots:
+            `list` of `Function`
         """
         if filetype is None:
             name = filename.lower()
@@ -2542,7 +2570,8 @@ cdef dict _path_array_to_dict(int *x, dict index_of_var):
 cdef dict _cube_array_to_dict(int *x, dict index_of_var):
     """Return assignment from array of literals `x`.
 
-    @param x: read `dd.cudd._dict_to_cube_array`
+    @param x:
+        read `dd.cudd._dict_to_cube_array`
     """
     d = dict()
     for var, j in index_of_var.items():
@@ -2563,8 +2592,10 @@ cdef dict _cube_array_to_dict(int *x, dict index_of_var):
 def to_nx(u):
     """Return graph for the ZDD rooted at `u`.
 
-    @type u: `Function`
-    @rtype: `networkx.MultiDiGraph`
+    @type u:
+        `Function`
+    @rtype:
+        `networkx.MultiDiGraph`
     """
     import networkx as nx
     g = nx.MultiDiGraph()
@@ -2604,8 +2635,10 @@ def _to_nx(g, u, umap):
 def _to_pydot(roots):
     """Return graph for the ZDD rooted at `u`.
 
-    @type u: `Function`
-    @rtype: `pydot.Dot`
+    @type u:
+        `Function`
+    @rtype:
+        `pydot.Dot`
     """
     global pydot
     import pydot
@@ -2645,10 +2678,12 @@ def _add_nodes_for_zdd_levels(g, roots):
 
     The collection of subgraphs (`h_level` above) is returned.
 
-    @return: subgraphs for the ZDD levels of
+    @return:
+        subgraphs for the ZDD levels of
         nodes reachable from `roots`,
         as a `dict` that maps each ZDD level to a subgraph
-    @rtype: `dict` of `pydot.Subgraph`
+    @rtype:
+        `dict` of `pydot.Subgraph`
     """
     # mapping level -> var
     level_to_var = _collect_var_levels(roots)
@@ -2682,10 +2717,14 @@ def _to_pydot_recurse(
         g, u, umap, subgraphs):
     """Recursively construct a ZDD graph.
 
-    @type g: `pydot.Dot`
-    @type u: `Function`
-    @type visited: `set`
-    @type umap: `set`
+    @type g:
+        `pydot.Dot`
+    @type u:
+        `Function`
+    @type visited:
+        `set`
+    @type umap:
+        `set`
     """
     u_int = int(u)
     # visited ?
@@ -2719,12 +2758,18 @@ def _add_nodes_for_external_references(
         roots, umap, g, h):
     """Add nodes to `g` that represent the references in `roots`.
 
-    @param roots: `list` of external references to ZDD nodes
-    @type roots: `list` of `Function`
-    @param g: ZDD graph
-    @type g: `pydot.Dot`
-    @param h: subgraph of `g`
-    @type h: `pydot.Dot`
+    @param roots:
+        `list` of external references to ZDD nodes
+    @type roots:
+        `list` of `Function`
+    @param g:
+        ZDD graph
+    @type g:
+        `pydot.Dot`
+    @param h:
+        subgraph of `g`
+    @type h:
+        `pydot.Dot`
     """
     for u in roots:
         if u is None:
@@ -2760,9 +2805,12 @@ def _add_pydot_edge(
 def _collect_var_levels(roots):
     """Add variables and levels reachable from `roots`.
 
-    @param roots: container of ZDD nodes
-    @type roots: `list` of `Function`
-    @return: `dict` that maps
+    @param roots:
+        container of ZDD nodes
+    @type roots:
+        `list` of `Function`
+    @return:
+        `dict` that maps
         each level (as `int`) to a variable (as `str`),
         only for levels of nodes that are
         reachable from the ZDD node `u`
@@ -2778,13 +2826,17 @@ def _collect_var_levels(roots):
 def _collect_var_levels_recurse(u, level_to_var, visited):
     """Recursively collect variables and levels.
 
-    @type u: `Function`
-    @param level_to_var: `dict` that maps
+    @type u:
+        `Function`
+    @param level_to_var:
+        `dict` that maps
         each level (as `int`) to a variable (as `str`),
         only for levels of nodes that are
         reachable from the ZDD node `u`
-    @param visited: set of already visited ZDD nodes
-    @type visited: `set` of `int`
+    @param visited:
+        set of already visited ZDD nodes
+    @type visited:
+        `set` of `int`
     """
     u_int = int(u)
     if u_int in visited:
@@ -3172,9 +3224,12 @@ cpdef Function _c_disjoin(
         Function v):
     """Return the disjunction of `u` and `v`.
 
-    @param u, v: ZDD node
-    @type u, v: `Function`
-    @rtype: `Function`
+    @param u, v:
+        ZDD node
+    @type u, v:
+        `Function`
+    @rtype:
+        `Function`
     """
     cdef DdNode *r
     cdef DdManager *mgr
@@ -3325,9 +3380,12 @@ cpdef Function _c_conjoin(
         Function v):
     """Return the conjunction of `u` and `v`.
 
-    @param u, v: ZDD node
-    @type u, v: `Function`
-    @rtype: `Function`
+    @param u, v:
+        ZDD node
+    @type u, v:
+        `Function`
+    @rtype:
+        `Function`
     """
     cdef DdNode *r
     cdef DdManager *mgr
@@ -3455,9 +3513,12 @@ cpdef Function _c_compose(
         Function u, dict dvars):
     """Compute composition of `u` with `dvars`.
 
-    @param u: ZDD node
-    @type u: `Function`
-    @param dvars: `dict` that maps variable
+    @param u:
+        ZDD node
+    @type u:
+        `Function`
+    @param dvars:
+        `dict` that maps variable
         names (`str`) to ZDD nodes (`Function`)
     """
     cdef DdNode *r
@@ -3688,9 +3749,12 @@ cdef bint cuddHashTableQuitZdd(
 cpdef set _c_support(Function u):
     """Compute support of `u`.
 
-    @param u: ZDD node
-    @type u: `Function`
-    @rtype: `set`
+    @param u:
+        ZDD node
+    @type u:
+        `Function`
+    @rtype:
+        `set`
     """
     zdd = u.bdd
     n = max(zdd._var_with_index) + 1

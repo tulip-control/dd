@@ -60,8 +60,10 @@ class BDD(_abc.BDD):
     def _wrap(self, u):
         """Return `Function` for node `u`.
 
-        @param u: node in `self._bdd`
-        @type u: `int`
+        @param u:
+            node in `self._bdd`
+        @type u:
+            `int`
         """
         if u not in self._bdd:
             raise ValueError(u)
@@ -238,8 +240,10 @@ class BDD(_abc.BDD):
         Dumping a JSON file requires that `roots`
         be nonempty.
 
-        @type filename: `str`
-        @type filetype: `str`, e.g., `"pdf"`
+        @type filename:
+            `str`
+        @type filetype:
+            `str`, e.g., `"pdf"`
         @type roots:
             - `list` of nodes, or
             - for JSON or Pickle:
@@ -290,9 +294,12 @@ class BDD(_abc.BDD):
         then load variables at the same levels.
         Otherwise, add missing variables.
 
-        @type filename: `str`
-        @return: roots of the loaded BDDs
-        @rtype: depends on the contents of the file,
+        @type filename:
+            `str`
+        @return:
+            roots of the loaded BDDs
+        @rtype:
+            depends on the contents of the file,
             either:
             - `dict` that maps names (as `str`)
               to nodes, or

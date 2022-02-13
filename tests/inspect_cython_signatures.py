@@ -33,8 +33,10 @@ log = logging.getLogger(__name__)
 def inspect_signatures(spec, imp):
     """Print mismatches of method names or argument names.
 
-    @param spec: the specification
-    @param imp: the implementation
+    @param spec:
+        the specification
+    @param imp:
+        the implementation
     """
     print(f'Specification class: {type(spec)}')
     print(f'Implementation class: {type(imp)}')

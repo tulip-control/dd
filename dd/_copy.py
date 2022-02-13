@@ -39,7 +39,8 @@ class _Ref(_ty.Protocol):
 def copy_vars(source, target):
     """Copy variables, preserving levels.
 
-    @type source, target: `autoref.BDD`
+    @type source, target:
+        `autoref.BDD`
     """
     for var in source.vars:
         level = source.level_of_var(var)
@@ -49,7 +50,8 @@ def copy_vars(source, target):
 def copy_bdds_from(roots, target):
     """Copy BDDs in `roots` to manager `target`.
 
-    @param target: BDD
+    @param target:
+        BDD
     """
     cache = dict()
     return [
@@ -60,8 +62,10 @@ def copy_bdds_from(roots, target):
 def copy_bdd(root, target, cache=None):
     """Copy BDD with `root` to manager `target`.
 
-    @param target: BDD or ZDD
-    @param cache: `dict` for memoizing results
+    @param target:
+        BDD or ZDD
+    @param cache:
+        `dict` for memoizing results
     """
     if cache is None:
         cache = dict()
@@ -71,7 +75,8 @@ def copy_bdd(root, target, cache=None):
 def _copy_bdd(u, bdd, cache):
     """Recurse to copy node `u`` to `bdd`.
 
-    @type cache: `dict`
+    @type cache:
+        `dict`
     """
     # terminal ?
     if u == u.bdd.true:
@@ -117,8 +122,10 @@ def _flip(r, u):
 def copy_zdd(root, target, cache=None):
     """Copy ZDD with `root` to manager `target`.
 
-    @param target: BDD or ZDD
-    @param cache: `dict` for memoizing results
+    @param target:
+        BDD or ZDD
+    @param cache:
+        `dict` for memoizing results
     """
     if cache is None:
         cache = dict()
@@ -129,7 +136,8 @@ def copy_zdd(root, target, cache=None):
 def _copy_zdd(level, u, target, cache):
     """Recurse to copy node `u` to `target`.
 
-    @type cache: `dict`
+    @type cache:
+        `dict`
     """
     src = u.bdd
     # terminal ?
@@ -166,10 +174,12 @@ def dump_json(nodes, file_name):
     Also dumps the variable names and the
     variable order, to the same JSON file.
 
-    @param nodes: `dict` that maps names to
+    @param nodes:
+        `dict` that maps names to
         roots of the BDDs that will be written
         to the JSON file
-    @type nodes: `dict` with `str` keys and
+    @type nodes:
+        `dict` with `str` keys and
         `Function` values
     """
     tmp_fname = os.path.join(
@@ -201,9 +211,11 @@ def _dump_json(nodes, fd, cache):
 def _dump_bdd_info(nodes, fd):
     """Dump variable levels and roots.
 
-    @param nodes: `dict` that maps
+    @param nodes:
+        `dict` that maps
         names to roots of BDDs
-    @type nodes: `dict` with `str` keys
+    @type nodes:
+        `dict` with `str` keys
     """
     roots = _utils._map_container(_node_to_int, nodes)
     u = next(iter(_utils._values_of(nodes)))
@@ -406,10 +418,14 @@ def _decode_node(s):
 def _node_from_int(uid, bdd, cache):
     """Return `bdd` node `u` from integer `uid`.
 
-    @type uid: `int`
-    @type bdd: `BDD`
-    @type cache: `dict`-like
-    @rtype: `Function`
+    @type uid:
+        `int`
+    @type bdd:
+        `BDD`
+    @type cache:
+        `dict`-like
+    @rtype:
+        `Function`
     """
     if uid == -1:
         return bdd.false

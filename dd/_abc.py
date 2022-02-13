@@ -80,14 +80,16 @@ class BDD:
     def support(self, u, as_levels=False):
         """Return `set` of variables that node `u` depends on.
 
-        @param as_levels: if `True`, then return variables
+        @param as_levels:
+            if `True`, then return variables
             as integers, insted of strings
         """
 
     def let(self, definitions, u):
         """Substitute `definitions` for variables in `u`.
 
-        @param definitions: `dict` that maps some variable
+        @param definitions:
+            `dict` that maps some variable
             names to Boolean values, or other variable names,
             or BDD nodes. All values should be of same type.
         """
@@ -101,7 +103,8 @@ class BDD:
     def count(self, u, nvars=None):
         """Return number of models of node `u`.
 
-        @param n: number of variables to assume.
+        @param n:
+            number of variables to assume.
 
             If omitted, then assume those in `support(u)`.
             The levels of variables outside support
@@ -152,7 +155,8 @@ class BDD:
         By default, `care_vars = support(u)`.
         Log a warning if `care_vars < support(u)`.
 
-        @param care_vars: cases:
+        @param care_vars:
+            cases:
 
             1. `None`: return (uniform) assignments that
                include exactly those variables in `support(u)`
@@ -160,7 +164,8 @@ class BDD:
             2. `set`: return (possibly partial) assignments
                that include at least all bits in `set`
 
-        @rtype: generator of `dict(str: bool)`
+        @rtype:
+            generator of `dict(str: bool)`
         """
 
     # def to_bdd(self, expr):
@@ -172,7 +177,8 @@ class BDD:
         If you would like to use your own parser,
         you can use utilities from `dd._parser`.
 
-        @type expr: `str`
+        @type expr:
+            `str`
         """
 
     def to_expr(self, u):
@@ -181,28 +187,35 @@ class BDD:
     def ite(self, g, u, v):
         """Ternary conditional `IF g THEN u ELSE v`.
 
-        @param g: condition
-        @param u: high
-        @param v: low
-        @type g, u, v: nodes
-        @rtype: node
+        @param g:
+            condition
+        @param u:
+            high
+        @param v:
+            low
+        @type g, u, v:
+            nodes
+        @rtype:
+            node
         """
 
     def apply(self, op, u, v=None, w=None):
         r"""Apply operator `op` to nodes `u`, `v`, `w`.
 
-        @type op: `str` in:
-          - `'not'`, `'~'`, `'!'`
-          - `'and'`, `'/\\'`, `'&'`, `'&&'`
-          - `'or'`, `r'\/'`, `'|'`, `'||'`
-          - `'#'`, `'xor'`, `'^'`
-          - `'=>'`, `'->'`, `'implies'`
-          - `'<=>'`, `'<->'`, `'equiv'`
-          - `'diff'`, `'-'`
-          - `r'\A'`, `'forall'`
-          - `r'\E'`, `'exists'`
-          - `'ite'`
-        @type u, v, w: nodes
+        @type op:
+            `str` in:
+            - `'not'`, `'~'`, `'!'`
+            - `'and'`, `'/\\'`, `'&'`, `'&&'`
+            - `'or'`, `r'\/'`, `'|'`, `'||'`
+            - `'#'`, `'xor'`, `'^'`
+            - `'=>'`, `'->'`, `'implies'`
+            - `'<=>'`, `'<->'`, `'equiv'`
+            - `'diff'`, `'-'`
+            - `r'\A'`, `'forall'`
+            - `r'\E'`, `'exists'`
+            - `'ite'`
+        @type u, v, w:
+            nodes
         """
 
     def _add_int(self, i):
@@ -211,7 +224,8 @@ class BDD:
     def cube(self, dvars):
         """Return node for conjunction of literals in `dvars`.
 
-        @param dvars: `dict` that maps each variable to a `bool`
+        @param dvars:
+            `dict` that maps each variable to a `bool`
         """
 
     # TODO: homogeneize i/o API with `dd.cudd`
@@ -239,8 +253,10 @@ class BDD:
         If `roots is None`,
         then all nodes in the manager are dumped.
 
-        @type filename: `str`
-        @type filetype: `str`, e.g., `"pdf"`
+        @type filename:
+            `str`
+        @type filetype:
+            `str`, e.g., `"pdf"`
         @type roots:
             - `list` of nodes, or
             - for Pickle: `dict` that maps
@@ -254,9 +270,12 @@ class BDD:
         then load variables at the same levels.
         Otherwise, add missing variables.
 
-        @type filename: `str`
-        @return: roots of the loaded BDDs
-        @rtype: depends on the contents of the file,
+        @type filename:
+            `str`
+        @return:
+            roots of the loaded BDDs
+        @rtype:
+            depends on the contents of the file,
             either:
             - `dict` that maps names (as `str`)
               to nodes, or
@@ -275,9 +294,11 @@ class BDD:
 def reorder(bdd, order=None):
     """Apply Rudell's sifting algorithm to `bdd`.
 
-    @param order: reorder to this specific order,
+    @param order:
+        reorder to this specific order,
         if `None` then invoke group sifting
-    @type order: `dict: str -> int` that maps
+    @type order:
+        `dict: str -> int` that maps
         variable names to levels
     """
 

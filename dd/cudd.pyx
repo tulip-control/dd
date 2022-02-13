@@ -774,10 +774,12 @@ cdef class BDD:
         then write `del u`, instead of calling
         this method.
 
-        @param recursive: if `True`, then call
+        @param recursive:
+            if `True`, then call
             `Cudd_RecursiveDeref`,
             else call `Cudd_Deref`
-        @param _direct: use this parameter only after
+        @param _direct:
+            use this parameter only after
             reading the source code of the
             Cython file `dd/cudd.pyx`.
             When `_direct == True`, some of the above
@@ -865,22 +867,28 @@ cdef class BDD:
         The name of the variable is
         the string `var`.
 
-        @param var: name of variable
+        @param var:
+            name of variable
             that this function
             will declare
-        @type var: `str`
-        @param level: where the new
+        @type var:
+            `str`
+        @param level:
+            where the new
             variable will be placed
             in the variable order
             of this BDD manager
-        @type level: `int`
-        @return: number that CUDD
+        @type level:
+            `int`
+        @return:
+            number that CUDD
             uses to identify the
             newly created variable.
             This number is also
             called an index of
             the variable.
-        @rtype: `int` >= 0
+        @rtype:
+            `int` >= 0
         """
         cdef DdNode *r
         r = Cudd_bddNewVarAtLevel(
@@ -899,13 +907,17 @@ cdef class BDD:
         named `var`, identified within
         CUDD by the number `index`.
 
-        @param var: name of variable that
+        @param var:
+            name of variable that
             this function will declare
-        @type var: `str`
-        @param index: number that
+        @type var:
+            `str`
+        @param index:
+            number that
             will identify within CUDD
             the newly created variable
-        @type index: `int` >= 0
+        @type index:
+            `int` >= 0
         """
         if var in self.vars:
             raise ValueError(
@@ -1010,9 +1022,12 @@ cdef class BDD:
     cpdef support(self, Function u):
         """Return variables that `u` depends on.
 
-        @type u: `Function`
-        @return: set of variable names
-        @rtype: `set` of `str`
+        @type u:
+            `Function`
+        @return:
+            set of variable names
+        @rtype:
+            `set` of `str`
         """
         if self.manager != u.manager:
             raise ValueError(
@@ -1053,7 +1068,8 @@ cdef class BDD:
     def copy(self, u, other):
         """Transfer BDD with root `u` to `other`.
 
-        @param other: BDD manager
+        @param other:
+            BDD manager
         @type other:
                `dd.cudd.BDD`
             or `dd.autoref.BDD`
@@ -1136,7 +1152,8 @@ cdef class BDD:
             self, Function f, var_sub):
         """Return the composition f|_(var = g).
 
-        @param var_sub: `dict` from
+        @param var_sub:
+            `dict` from
             variable names to nodes.
         """
         n = len(var_sub)
@@ -1205,11 +1222,15 @@ cdef class BDD:
             self, Function f, values):
         """Substitute Booleans for variables.
 
-        @param values: `dict` that maps
+        @param values:
+            `dict` that maps
             variable names to Boolean constants
-        @type values: `dict: str -> bool`
-        @return: result of substitution
-        @rtype: `Function`
+        @type values:
+            `dict: str -> bool`
+        @return:
+            result of substitution
+        @rtype:
+            `Function`
         """
         if self.manager != f.manager:
             raise ValueError(f)
@@ -1370,7 +1391,8 @@ cdef class BDD:
     def count(self, Function u, nvars=None):
         """Return number of models of node `u`.
 
-        @param nvars: regard `u` as
+        @param nvars:
+            regard `u` as
             an operator that depends on
             `nvars`-many variables.
 
@@ -1401,9 +1423,11 @@ cdef class BDD:
             care_vars=None):
         """Return a single assignment.
 
-        @return: assignment of values to
+        @return:
+            assignment of values to
             variables
-        @rtype: `dict` from `str` to `bool`
+        @rtype:
+            `dict` from `str` to `bool`
         """
         return next(
             self.pick_iter(u, care_vars),
@@ -1529,9 +1553,12 @@ cdef class BDD:
             Function w=None):
         """Return the result of applying `op`.
 
-        @type op: `str`
-        @type u, v, w: `Function`
-        @rtype: `Function`
+        @type op:
+            `str`
+        @type u, v, w:
+            `Function`
+        @rtype:
+            `Function`
         """
         if self.manager != u.manager:
             raise ValueError(
@@ -1647,7 +1674,8 @@ cdef class BDD:
     cpdef Function cube(self, dvars):
         """Return node for cube over `dvars`.
 
-        @param dvars: `dict` that maps
+        @param dvars:
+            `dict` that maps
             each variable to a `bool`
         """
         n_cudd_vars = self._number_of_cudd_vars()
@@ -1820,8 +1848,10 @@ cdef class BDD:
         Dumping a DDDMP file requires that `roots`
         contain a single node.
 
-        @type filename: `str`
-        @type filetype: `str`, e.g., `"pdf"`
+        @type filename:
+            `str`
+        @type filetype:
+            `str`, e.g., `"pdf"`
         @type roots:
             - `list` of nodes, or
             - for JSON:
@@ -1924,11 +1954,15 @@ cdef class BDD:
     cpdef load(self, filename):
         """Return `Function` loaded from `filename`.
 
-        @param filename: name of file from
+        @param filename:
+            name of file from
             where the BDD is loaded
-        @type filename: `str`
-        @return: roots of loaded BDDs
-        @rtype: depends on the contents of the file,
+        @type filename:
+            `str`
+        @return:
+            roots of loaded BDDs
+        @rtype:
+            depends on the contents of the file,
             either:
             - `dict` that maps names (as `str`)
               to nodes (as `Function`), or
@@ -2101,7 +2135,8 @@ cpdef reorder(BDD bdd, dvars=None):
 def copy_vars(BDD source, BDD target):
     """Copy variables, preserving CUDD indices.
 
-    @type source, target: `BDD`
+    @type source, target:
+        `BDD`
     """
     for var, index in source._index_of_var.items():
         target.add_var(var, index=index)
@@ -2113,8 +2148,10 @@ cpdef copy_bdd(Function u, BDD target):
     Turns off reordering in `source`
     when checking for missing vars in `target`.
 
-    @type u: `Function` with `u in source`
-    @type source, target: `BDD`
+    @type u:
+        `Function` with `u in source`
+    @type source, target:
+        `BDD`
     """
     logger.debug('++ transfer bdd')
     source = u.bdd
@@ -2161,7 +2198,8 @@ cpdef count_nodes(functions):
 
     Sharing is taken into account.
 
-    @type functions: `list` of `Function`
+    @type functions:
+        `list` of `Function`
     @rtype:
         `int`
     """
@@ -2217,7 +2255,8 @@ def load(file_name, BDD bdd, reordering=False):
       - pickle file name: `file_name.pickle`
       - dddmp file name: `file_name.dddmp`
 
-    @param reordering: if `True`,
+    @param reordering:
+        if `True`,
         then enable reordering during DDDMP load.
     """
     t0 = time.time()
@@ -2243,10 +2282,12 @@ cdef _dict_to_cube_array(
         d, int *x, dict index_of_var):
     """Assign array of literals `x` from assignment `d`.
 
-    @param x: array of literals
+    @param x:
+        array of literals
         0: negated, 1: positive, 2: don't care
         read `Cudd_FirstCube`
-    @param index_of_var: `dict` from variables to `bool`
+    @param index_of_var:
+        `dict` from variables to `bool`
         or `set` of variable names.
     """
     for var in d:
@@ -2274,7 +2315,8 @@ cdef dict _cube_array_to_dict(
         int *x, dict index_of_var):
     """Return assignment from array of literals `x`.
 
-    @param x: read `_dict_to_cube_array`
+    @param x:
+        read `_dict_to_cube_array`
     """
     d = dict()
     for var, j in index_of_var.items():

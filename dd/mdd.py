@@ -139,8 +139,10 @@ class MDD:
     def ite(self, g, u, v):
         """Return node for `if g then u, else v`.
 
-        @type g, u, v: `int`
-        @rtype: `int`
+        @type g, u, v:
+            `int`
+        @rtype:
+            `int`
         """
         # is g terminal ?
         if g == 1:
@@ -169,7 +171,8 @@ class MDD:
     def find_or_add(self, i, *nodes):
         """Return node at level `i` with successors in `nodes`.
 
-        @param i: level in `range(len(vars))`
+        @param i:
+            level in `range(len(vars))`
         @type i:
             `int`
         """
@@ -354,8 +357,10 @@ class MDD:
     def dump(self, fname):
         """Write MDD as a diagram to PDF file `fname`.
 
-        @param fname: file name, ending with the substring `.pdf`.
-        @type fname: `str`
+        @param fname:
+            file name, ending with the substring `.pdf`.
+        @type fname:
+            `str`
 
         The diagram includes all nodes in the MDD.
         The diagram is created using GraphViz.

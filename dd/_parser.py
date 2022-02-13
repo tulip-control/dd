@@ -235,7 +235,8 @@ def add_expr(expression, bdd):
     Creates a node that represents `expression`,
     and returns this node.
 
-    @type expression: `str`
+    @type expression:
+        `str`
     """
     if 'boolean' not in _parsers:
         _parsers['boolean'] = Parser()
@@ -256,14 +257,16 @@ def _add_ast(tree, bdd):
         - a key (var name) passed to
           `bdd.var()` for variables
 
-    @type tree: `Terminal` or `Operator` of
+    @type tree:
+        `Terminal` or `Operator` of
         `astutils`
-    @type bdd: object with:
-      - `bdd.false`
-      - `bdd.true`
-      - `bdd.var()`
-      - `bdd.apply()`
-      - `bdd.quantify()`
+    @type bdd:
+        object with:
+        - `bdd.false`
+        - `bdd.true`
+        - `bdd.var()`
+        - `bdd.apply()`
+        - `bdd.quantify()`
     """
     if tree.type == 'operator':
         if (tree.operator in _QUANTIFIERS and

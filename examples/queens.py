@@ -20,7 +20,8 @@ import dd.bdd as _bdd
 def solve_queens(n):
     """Return set of models for the `n`-queens problem.
 
-    @rtype: `int`, `BDD`
+    @rtype:
+        `int`, `BDD`
     """
     vrs = [_var_str(i, j) for i in range(n) for j in range(n)]
     bdd = _bdd.BDD()
@@ -56,7 +57,8 @@ def at_least_one_queen_per_row(n):
 def at_most_one_queen_per_line(row, n):
     """Return formula as `str`.
 
-    @param row: if `True`, then constrain rows, else columns.
+    @param row:
+        if `True`, then constrain rows, else columns.
     """
     c = list()
     for i in range(n):
@@ -72,7 +74,8 @@ def at_most_one_queen_per_line(row, n):
 def at_most_one_queen_per_diagonal(slash, n):
     """Return formula as `str`.
 
-    @param slash: if `True`, then constrain anti-diagonals,
+    @param slash:
+        if `True`, then constrain anti-diagonals,
         else diagonals.
     """
     c = list()
@@ -99,7 +102,8 @@ def at_most_one_queen_per_diagonal(slash, n):
 def mutex(v):
     """Return formula for at most one variable `True`.
 
-    @param v: iterable of variables as `str`
+    @param v:
+        iterable of variables as `str`
     """
     v = set(v)
     c = list()

@@ -78,7 +78,8 @@ SYLVAN_LINK = [[SYLVAN_PATH, 'src/.libs']]
 def extensions(args):
     """Return C extensions, cythonize as needed.
 
-    @param args: known args from `argparse.parse_known_args`
+    @param args:
+        known args from `argparse.parse_known_args`
     """
     directives = dict(
         language_level=3,

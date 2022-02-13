@@ -313,11 +313,16 @@ class BDD(dd._abc.BDD):
         is not given, or `var` has `level`,
         then return without raising exceptions.
 
-        @param var: name of new variable to declare
-        @type var: `str`
-        @param level: level of new variable to declare
-        @type level: `int`
-        @return: level of variable `var`
+        @param var:
+            name of new variable to declare
+        @type var:
+            `str`
+        @param level:
+            level of new variable to declare
+        @type level:
+            `int`
+        @return:
+            level of variable `var`
         """
         # var already exists ?
         if var in self.vars:
@@ -344,13 +349,19 @@ class BDD(dd._abc.BDD):
         - raise `RuntimeError` if an unexpected
           value of level is found in `self.vars[var]`
 
-        @param var: name of variable
-        @type var: `str`
-        @param level: integer to check as
+        @param var:
+            name of variable
+        @type var:
+            `str`
+        @param level:
+            integer to check as
             level of `var`, or `None`
-        @type level: `int` >= 0
-        @return: level of `var`
-        @rtype: `int` >= 0
+        @type level:
+            `int` >= 0
+        @return:
+            level of `var`
+        @rtype:
+            `int` >= 0
         """
         if var not in self.vars:
             raise ValueError(
@@ -381,11 +392,15 @@ class BDD(dd._abc.BDD):
         next level after the current largest level.
         Otherwise, return the given `level`.
 
-        @param var: name of intended new variable,
+        @param var:
+            name of intended new variable,
             used only to form the `ValueError` message
-        @param level: level of intended new variable
-        @type level: `int`
-        @rtype: `int`
+        @param level:
+            level of intended new variable
+        @type level:
+            `int`
+        @rtype:
+            `int`
         """
         # assume next level is unoccupied
         if level is None:
@@ -441,7 +456,8 @@ class BDD(dd._abc.BDD):
         If `d` is an iterable but not a mapping,
         then an iterable is returned.
 
-        @type d: `dict` or `set`
+        @type d:
+            `dict` or `set`
         """
         if not d:
             return d
@@ -468,7 +484,8 @@ class BDD(dd._abc.BDD):
     def copy(self, u, other):
         """Transfer BDD with root `u` to `other`.
 
-        @type other: `BDD`
+        @type other:
+            `BDD`
         """
         return copy_bdd(u, self, other)
 
@@ -499,8 +516,10 @@ class BDD(dd._abc.BDD):
     def is_essential(self, u, var):
         """Return `True` if `var` is essential for node `u`.
 
-        @param var: level in `vars`
-        @type var: `int`
+        @param var:
+            level in `vars`
+        @type var:
+            `int`
         """
         i = self.vars.get(var)
         if i is None:
@@ -551,7 +570,8 @@ class BDD(dd._abc.BDD):
 
         Where `i` ranges from terminals to root.
 
-        @param skip_terminals: if `True`, then omit
+        @param skip_terminals:
+            if `True`, then omit
             terminal nodes.
         """
         if skip_terminals:
@@ -681,8 +701,10 @@ class BDD(dd._abc.BDD):
     def compose(self, f, var_sub):
         """Return substitutions `var_sub` in `f`.
 
-        @param f: node
-        @param var_sub: `dict` that maps variables to BDD nodes
+        @param f:
+            node
+        @param var_sub:
+            `dict` that maps variables to BDD nodes
         """
         cache = dict()
         if len(var_sub) == 1:
@@ -759,7 +781,8 @@ class BDD(dd._abc.BDD):
     def rename(self, u, dvars):
         """Efficient rename to non-essential neighbors.
 
-        @param dvars: `dict` from variabe levels to variable levels
+        @param dvars:
+            `dict` from variabe levels to variable levels
             or from variable names to variable names
         """
         return rename(u, self, dvars)
@@ -767,8 +790,10 @@ class BDD(dd._abc.BDD):
     def _top_cofactor(self, u, i):
         """Return restriction for assignment to single variable.
 
-        @param u: node
-        @param i: variable level
+        @param u:
+            node
+        @param i:
+            variable level
         """
         # terminal node ?
         if abs(u) == 1:
@@ -792,8 +817,10 @@ class BDD(dd._abc.BDD):
     def cofactor(self, u, values):
         """Substitute Boolean `values` for variables in `u`.
 
-        @param u: node
-        @param values: `dict` that maps var names to `bool`
+        @param u:
+            node
+        @param values:
+            `dict` that maps var names to `bool`
         """
         values = self._map_to_level(values)
         cache = dict()
@@ -845,9 +872,12 @@ class BDD(dd._abc.BDD):
     def quantify(self, u, qvars, forall=False):
         """Return existential or universal abstraction.
 
-        @param u: node
-        @param qvars: `set` of quantified variables
-        @param forall: if `True`,
+        @param u:
+            node
+        @param qvars:
+            `set` of quantified variables
+        @param forall:
+            if `True`,
             then quantify `qvars` universally,
             else existentially.
         """
@@ -935,9 +965,12 @@ class BDD(dd._abc.BDD):
         then it is quickly found in the cached table,
         and the reference returned.
 
-        @param i: level in `range(n_vars - 1)`
-        @param v: low edge
-        @param w: high edge
+        @param i:
+            level in `range(n_vars - 1)`
+        @param v:
+            low edge
+        @param w:
+            high edge
         """
         _request_reordering(self)
         if i < 0:
@@ -1012,7 +1045,8 @@ class BDD(dd._abc.BDD):
         reference count. If no `roots` are given, then
         all nodes are scanned for zero reference counts.
 
-        @type roots: `set`, Caution: it is modified
+        @type roots:
+            `set`, Caution: it is modified
         """
         n = len(self)
         if roots is None:
@@ -1063,8 +1097,10 @@ class BDD(dd._abc.BDD):
         Swapping invokes the garbage collector,
         so be sure to `incref` nodes that should remain.
 
-        @param x, y: variable name or level
-        @type x, y: `str` or `int`
+        @param x, y:
+            variable name or level
+        @type x, y:
+            `str` or `int`
         """
         if all_levels is None:
             self.collect_garbage()
@@ -1221,9 +1257,12 @@ class BDD(dd._abc.BDD):
         This method is similar to the
         method `succ`, but different.
 
-        @type u: `int`
-        @return: (level, low, high)
-        @rtype: `tuple(int, int, int)`
+        @type u:
+            `int`
+        @return:
+            (level, low, high)
+        @rtype:
+            `tuple(int, int, int)`
         """
         i, v, w = self._succ[abs(u)]
         if abs(u) == 1:
@@ -1695,10 +1734,14 @@ class BDD(dd._abc.BDD):
 def _enumerate_minterms(cube, bits):
     """Generator of complete assignments in `cube`.
 
-    @type cube: `dict`
-    @param bits: enumerate over those absent from `cube`
-    @type bits: `set`
-    @rtype: generator of `dict(str: bool)`
+    @type cube:
+        `dict`
+    @param bits:
+        enumerate over those absent from `cube`
+    @type bits:
+        `set`
+    @rtype:
+        generator of `dict(str: bool)`
     """
     if cube is None:
         raise ValueError(cube)
@@ -1722,8 +1765,10 @@ def _enumerate_minterms(cube, bits):
 def _assert_isomorphic_orders(old, new, support):
     """Raise `AssertionError` if not isomorphic.
 
-    @param old, new: levels
-    @param support: `old` and `new` compared after
+    @param old, new:
+        levels
+    @param support:
+        `old` and `new` compared after
         restriction to `support`.
     """
     _assert_valid_ordering(old)
@@ -1756,7 +1801,8 @@ def _assert_valid_ordering(levels):
 def rename(u, bdd, dvars):
     """Rename variables of node `u`.
 
-    @param dvars: `dict` from variabe names to variable names
+    @param dvars:
+        `dict` from variabe names to variable names
     """
     if abs(u) not in bdd:
         raise ValueError(
@@ -1778,7 +1824,8 @@ def rename(u, bdd, dvars):
 def _assert_valid_rename(u, bdd, dvars):
     """Raise `AssertionError` if rename of non-adjacent vars.
 
-    @param dvars: `dict` that maps var levels to var levels
+    @param dvars:
+        `dict` that maps var levels to var levels
     """
     if not dvars:
         return
@@ -1820,14 +1867,20 @@ def _assert_no_overlap(d):
 def image(trans, source, rename, qvars, bdd, forall=False):
     """Return set reachable from `source` under `trans`.
 
-    @param trans: transition relation
-    @param source: the transition must start in this set
-    @param rename: `dict` that maps primed variables in
+    @param trans:
+        transition relation
+    @param source:
+        the transition must start in this set
+    @param rename:
+        `dict` that maps primed variables in
         `trans` to unprimed variables in `trans`.
         Applied to the quantified conjunction of `trans` and `source`.
-    @param qvars: `set` of variables to quantify
-    @param bdd: `BDD`
-    @param forall: if `True`,
+    @param qvars:
+        `set` of variables to quantify
+    @param bdd:
+        `BDD`
+    @param forall:
+        if `True`,
         then quantify `qvars` universally,
         else existentially.
     """
@@ -1862,13 +1915,19 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     Assumes that primed and unprimed variables are neighbors.
     Variables are identified by their levels.
 
-    @param trans: transition relation
-    @param target: the transition must end in this set
-    @param rename: `dict` that maps (unprimed) variables in `target` to
+    @param trans:
+        transition relation
+    @param target:
+        the transition must end in this set
+    @param rename:
+        `dict` that maps (unprimed) variables in `target` to
         (primed) variables in `trans`
-    @param qvars: `set` of variables to quantify
-    @param bdd: `BDD`
-    @param forall: if `True`,
+    @param qvars:
+        `set` of variables to quantify
+    @param bdd:
+        `BDD`
+    @param forall:
+        if `True`,
         then quantify `qvars` universally,
         else existentially.
     """
@@ -1893,11 +1952,14 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     Renaming requires that in each pair
     the variables are adjacent.
 
-    @param u, v: nodes
-    @param umap: renaming of variables in `u`
+    @param u, v:
+        nodes
+    @param umap:
+        renaming of variables in `u`
         that occurs after conjunction of `u` with `v`
         and quantification.
-    @param vmap: renaming of variables in `v`
+    @param vmap:
+        renaming of variables in `v`
         that occurs before conjunction with `u`.
     """
     # controlling values for conjunction ?
@@ -1945,9 +2007,12 @@ def reorder(bdd, order=None):
     Reordering invokes the garbage collector,
     so be sure to `incref` nodes that should remain.
 
-    @param order: if given, then swap vars to obtain this order.
-    @type order: `dict(str: int)` from each var to a level
-    @type bdd: `BDD`
+    @param order:
+        if given, then swap vars to obtain this order.
+    @type order:
+        `dict(str: int)` from each var to a level
+    @type bdd:
+        `BDD`
     """
     len_before = len(bdd)
     if order is None:
@@ -1982,8 +2047,10 @@ def _apply_sifting(bdd):
 def _reorder_var(bdd, var, levels):
     """Reorder by sifting a variable `var`.
 
-    @type bdd: `BDD`
-    @type var: `str`
+    @type bdd:
+        `BDD`
+    @type var:
+        `str`
     """
     if var not in bdd.vars:
         raise ValueError((var, bdd.vars))
@@ -2012,8 +2079,10 @@ def _reorder_var(bdd, var, levels):
 def _shift(bdd, start, end, levels):
     """Shift level `start` to become `end`, by swapping.
 
-    @type bdd: `BDD`
-    @type start, end: `0 <= int < len(bdd.vars)`
+    @type bdd:
+        `BDD`
+    @type start, end:
+        `0 <= int < len(bdd.vars)`
     """
     m = len(bdd.vars)
     if not (0 <= start < m):
@@ -2033,7 +2102,8 @@ def _shift(bdd, start, end, levels):
 def _sort_to_order(bdd, order):
     """Swap variables to obtain the given `order` of variables.
 
-    @type order: `dict`
+    @type order:
+        `dict`
     """
     # TODO: use min number of swaps
     if len(bdd.vars) != len(order):
@@ -2070,7 +2140,8 @@ def _sort_to_order(bdd, order):
 def reorder_to_pairs(bdd, pairs):
     """Reorder variables to make adjacent the given pairs.
 
-    @type pairs: `dict` of variables as `str`
+    @type pairs:
+        `dict` of variables as `str`
     """
     m = 0
     levels = bdd._levels()
@@ -2095,8 +2166,10 @@ def reorder_to_pairs(bdd, pairs):
 def copy_bdd(u, from_bdd, to_bdd):
     """Copy BDD of node `u` `from_bdd` `to_bdd`.
 
-    @param u: node in `from_bdd`
-    @type from_bdd, to_bdd: `BDD`
+    @param u:
+        node in `from_bdd`
+    @type from_bdd, to_bdd:
+        `BDD`
     """
     if from_bdd is to_bdd:
         logger.warning(
@@ -2113,10 +2186,14 @@ def copy_bdd(u, from_bdd, to_bdd):
 def _copy_bdd(u, level_map, old_bdd, bdd, cache):
     """Recurse to copy nodes from `old_bdd` to `bdd`.
 
-    @param u: node in `old_bdd`
-    @type level_map: `dict` that maps old to new levels
-    @type old_bdd, bdd: `BDD`
-    @type cache: `dict`
+    @param u:
+        node in `old_bdd`
+    @type level_map:
+        `dict` that maps old to new levels
+    @type old_bdd, bdd:
+        `BDD`
+    @type cache:
+        `dict`
     """
     # terminal ?
     if abs(u) == 1:
@@ -2169,9 +2246,12 @@ def to_nx(bdd, roots):
         - `value`: `False` for low/"else", `True` for high/"then"
         - `complement`: `True` if target node is negated
 
-    @type bdd: `BDD`
-    @type roots: iterable of edges, each a signed `int`
-    @rtype: `networkx.MultiDiGraph`
+    @type bdd:
+        `BDD`
+    @type roots:
+        iterable of edges, each a signed `int`
+    @rtype:
+        `networkx.MultiDiGraph`
     """
     import networkx as nx
     g = nx.MultiDiGraph()
@@ -2223,8 +2303,10 @@ def to_pydot(roots, bdd):
     The roots are plotted as external references,
     with complemented edges where applicable.
 
-    @type roots: container of BDD nodes
-    @type bdd: `BDD`
+    @type roots:
+        container of BDD nodes
+    @type bdd:
+        `BDD`
     """
     import pydot
     # all nodes ?

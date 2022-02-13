@@ -85,15 +85,18 @@ def _raise_runtimerror_about_ref_count(
     lower bound on a node's reference count is detected
     for a `Function` instance.
 
-    @param ref_count_lb: lower bound on the reference count of
+    @param ref_count_lb:
+        lower bound on the reference count of
         the node that the `Function` instance points to.
         Assert `ref_count_lb <= 0`.
-    @param name: `str` to mention as location where
+    @param name:
+        `str` to mention as location where
         the error was detected. For example:
         ```
         'method `dd.cudd.BDD.decref`'
         ```
-    @param class_name: `str` to mention as name of
+    @param class_name:
+        `str` to mention as name of
         the class of the object where the value
         `ref_count_lb` was found. For example:
         ```

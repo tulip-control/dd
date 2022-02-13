@@ -254,8 +254,10 @@ class Parser:
     def _add_node(self, u, info, index, v, w):
         """Add new node to BDD.
 
-        @type u, index, v, w: `int`
-        @type info: `int` or `"T"`
+        @type u, index, v, w:
+            `int`
+        @type info:
+            `int` or `"T"`
         """
         if v == 0:
             v = None

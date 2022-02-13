@@ -436,7 +436,8 @@ cdef class BDD:
     cpdef Function cube(self, dvars):
         """Return node for cube over `dvars`.
 
-        @param dvars: `dict` that maps each variable to a `bool`.
+        @param dvars:
+            `dict` that maps each variable to a `bool`.
             If `set` given, then all values assumed `True`.
         """
         # TODO: call sylvan cube function
@@ -579,7 +580,8 @@ cpdef reorder(BDD bdd, dvars=None):
 def copy_vars(BDD source, BDD target):
     """Copy variables, preserving Sylvan indices.
 
-    @type source, target: `BDD`
+    @type source, target:
+        `BDD`
     """
     for var, index in source._index_of_var.items():
         target.add_var(var, index=index)

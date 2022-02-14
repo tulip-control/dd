@@ -9,7 +9,6 @@ import pytest
 logger = logging.getLogger(
     'dd.dddmp.parser_logger')
 logger.setLevel(logging.ERROR)
-parser = _dddmp.Parser()
 
 
 def test_lexer():
@@ -32,6 +31,7 @@ def test_parser():
 
 def test_sample0():
     fname = 'sample0.dddmp'
+    parser = _dddmp.Parser()
     bdd, n_vars, ordering, roots = parser.parse(fname)
     assert set(bdd) == set(range(1, 6)), sorted(bdd)
     bdd_ = {
@@ -57,6 +57,7 @@ def test_sample0():
 
 def test_sample1():
     fname = 'sample1.dddmp'
+    parser = _dddmp.Parser()
     parser.build(debug=True)
     bdd, n_vars, ordering, roots = parser.parse(fname)
     assert len(bdd) == 16, len(bdd)

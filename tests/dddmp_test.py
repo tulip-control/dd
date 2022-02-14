@@ -138,7 +138,11 @@ def test_rewrite_tables():
 
 
 def to_nx(bdd, n_vars, ordering, roots):
-    """Convert result of `Parser.parse` to `networkx.MultiDiGraph`.
+    """Convert parsing result to `networkx` graph.
+
+    Convert result of the method
+    `dd.dddmp.Parser.parse()` to an instance of
+    the class `networkx.MultiDiGraph`.
 
     The arguments `bdd`, `n_vars`, `ordering`, `roots`
     are those values that are returned from the method

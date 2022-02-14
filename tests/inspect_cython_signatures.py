@@ -90,7 +90,7 @@ def get_signature(func):
         sig = inspect.signature(func)
     except ValueError:
         warnings.warn(
-            'Compile `cudd` with the compiler directive `binding`'
+            'Compile `dd.cudd` with the compiler directive `binding`'
             f' for the function "{func}"')
         sig = None
     return sig
@@ -105,7 +105,7 @@ def _main():
     # BDD nodes
     print(30 * '-' + '\n')
     u = _abc.Operator
-    # cannot instantiate `cudd.Function`
+    # cannot instantiate `dd.cudd.Function`
     # without a `DdNode` pointer
     b.declare('x')
     v = b.add_expr('x')

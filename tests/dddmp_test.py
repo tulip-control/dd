@@ -7,7 +7,9 @@ import dd.dddmp as _dddmp
 import pytest
 
 
-logging.getLogger('dd.dddmp.parser_logger').setLevel(logging.ERROR)
+logger = logging.getLogger(
+    'dd.dddmp.parser_logger')
+logger.setLevel(logging.ERROR)
 parser = Parser()
 
 

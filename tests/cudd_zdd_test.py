@@ -4,9 +4,9 @@ import os
 import subprocess
 import sys
 
-from dd import cudd
-from dd import cudd_zdd
-from dd import _copy
+import dd.cudd as _cudd
+import dd.cudd_zdd as _cudd_zdd
+import dd._copy as _copy
 import pytest
 
 import common
@@ -15,30 +15,30 @@ import common_cudd
 
 class Tests(common.Tests):
     def setup_method(self):
-        self.DD = cudd_zdd.ZDD
+        self.DD = _cudd_zdd.ZDD
 
 
 class CuddTests(common_cudd.Tests):
     def setup_method(self):
-        self.DD = cudd_zdd.ZDD
-        self.MODULE = cudd_zdd
+        self.DD = _cudd_zdd.ZDD
+        self.MODULE = _cudd_zdd
 
 
 def test_str():
-    bdd =  cudd_zdd.ZDD()
+    bdd =  _cudd_zdd.ZDD()
     with pytest.warns(UserWarning):
         s = str(bdd)
     s + 'must be a string'
 
 
 def test_false():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     u = zdd.false
     assert len(u) == 0, len(u)
 
 
 def test_true():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z', 'w')
     u = zdd.true
     assert u.low is not None
@@ -47,7 +47,7 @@ def test_true():
 
 
 def test_true_node():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y')
     u = zdd.true_node
     assert u.low is None
@@ -56,7 +56,7 @@ def test_true_node():
 
 
 def test_index_at_level():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.add_var('x', 1)
     level = zdd.level_of_var('x')
     assert level == 1, (
@@ -84,7 +84,7 @@ def test_index_at_level():
 
 
 def test_var_level_gaps():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.add_var('x', 2)
     n_vars = len(zdd.vars)
     assert n_vars == 1, n_vars
@@ -112,7 +112,7 @@ def _max_var_level(zdd):
 
 
 def test_gt_var_levels():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.add_var('x', 1)
     level_to_value = {
         0: False,
@@ -130,7 +130,7 @@ def test_gt_var_levels():
 
 
 def test_number_of_cudd_vars_without_gaps():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     # no variables
     _assert_n_vars_max_level(0, 0, None, zdd)
     # 1 declared variable
@@ -144,7 +144,7 @@ def test_number_of_cudd_vars_without_gaps():
 
 
 def test_number_of_cudd_vars_with_gaps():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     # no variables
     _assert_n_vars_max_level(0, 0, None, zdd)
     # 1 declared variable
@@ -177,7 +177,7 @@ def _assert_n_vars_max_level(
 
 
 def test_var():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     x = zdd.var('x')
     x_ = zdd._var_cudd('x')
@@ -192,7 +192,7 @@ def test_var():
 
 def test_support_cudd():
     # support implemented by CUDD
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y')
     zdd._add_bdd_var(0)
     zdd._add_bdd_var(1)
@@ -202,7 +202,7 @@ def test_support_cudd():
 
 
 def test_cudd_cofactor():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y')
     u = zdd.add_expr(r'x /\ ~ y')
     r = zdd._cofactor_cudd(u, 'y', False)
@@ -215,7 +215,7 @@ def test_cudd_cofactor():
 
 
 def test_find_or_add():
-    bdd = cudd_zdd.ZDD()
+    bdd = _cudd_zdd.ZDD()
     bdd.declare('x', 'y', 'z')
     v = bdd.add_expr(r'~ x /\ y /\ ~ z')
     w = bdd.add_expr(r'~ x /\ ~ y /\ z')
@@ -227,7 +227,7 @@ def test_find_or_add():
 
 
 def test_count():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y')
     # FALSE
     u = zdd.false
@@ -242,9 +242,9 @@ def test_count():
 
 
 def test_bdd_to_zdd_copy():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     bdd.declare('x', 'y', 'z')
     u = bdd.add_expr('x')
     v = bdd.copy(u, zdd)
@@ -259,7 +259,7 @@ def test_bdd_to_zdd_copy():
 
 
 def test_len():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     # x
     x = zdd.var('x')
@@ -276,9 +276,9 @@ def test_len():
 
 
 def test_ith_var_without_gaps():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
-    u = cudd_zdd._ith_var('x', zdd)
+    u = _cudd_zdd._ith_var('x', zdd)
     # check ZDD for variable x
     assert u.var == 'x', u.var
     assert u.level == 0, u.level
@@ -297,7 +297,7 @@ def test_ith_var_without_gaps():
     assert w.low == zdd.true_node, (
         w, w.low, zdd.true_node)
     # check ZDD for variable y
-    u = cudd_zdd._ith_var('y', zdd)
+    u = _cudd_zdd._ith_var('y', zdd)
     assert u.var == 'x', u.var
     assert u.level == 0, u.level
     assert u.low == u.high, (
@@ -315,7 +315,7 @@ def test_ith_var_without_gaps():
     assert w.low == zdd.true_node, (
         w, w.low, zdd.true_node)
     # check ZDD for variable z
-    u = cudd_zdd._ith_var('z', zdd)
+    u = _cudd_zdd._ith_var('z', zdd)
     assert u.var == 'x', u.var
     assert u.level == 0, u.level
     assert u.low == u.high, (
@@ -335,19 +335,19 @@ def test_ith_var_without_gaps():
 
 
 def test_ith_var_with_gaps():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.add_var('x', 1)
     with pytest.raises(AssertionError):
         # because 1 declared variable,
         # but 2 CUDD variable indices
-        cudd_zdd._ith_var('x', zdd)
+        _cudd_zdd._ith_var('x', zdd)
     zdd.vars.update(dict(y=0, z=3))
     with pytest.raises(AssertionError):
-        cudd_zdd._ith_var('x', zdd)
+        _cudd_zdd._ith_var('x', zdd)
 
 
 def test_disjunction():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('w', 'x', 'y')
     # x \/ TRUE
     v = zdd.add_expr('x')
@@ -373,7 +373,7 @@ def test_disjunction():
 
 
 def test_conjunction():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     v = zdd.var('x')
     w = zdd.var('y')
@@ -407,12 +407,12 @@ def test_methods_disjoin_conjoin_gaps():
 
 
 def test_method_disjoin():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x')
     v = zdd.var('x')
     level = 1
     with pytest.raises(ValueError):
-        cudd_zdd._call_method_disjoin(
+        _cudd_zdd._call_method_disjoin(
             zdd, level, v, v, dict())
 
 
@@ -476,78 +476,78 @@ def _assert(test):
 
 
 def test_c_disjunction():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('w', 'x', 'y')
     v = zdd.add_expr(r'~ w /\ x')
     w = zdd.add_expr('y')
-    u = cudd_zdd._c_disjoin(v, w)
+    u = _cudd_zdd._c_disjoin(v, w)
     u_ = zdd.add_expr(r'(~ w /\ x) \/ y')
     assert u == u_, len(u)
 
 
 def test_c_conjunction():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     x = zdd.var('x')
     y = zdd.var('y')
-    u = cudd_zdd._c_conjoin(x, y)
+    u = _cudd_zdd._c_conjoin(x, y)
     u_ = zdd.add_expr(r'x /\ y')
     assert u == u_, len(u)
 
 
 def test_c_disjoin_conjoin():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x')
     u = zdd.var('x')
     true = zdd.true_node
     level = 1
     with pytest.raises(AssertionError):
-        cudd_zdd._call_disjoin(level, u, true)
+        _cudd_zdd._call_disjoin(level, u, true)
     with pytest.raises(AssertionError):
-        cudd_zdd._call_conjoin(level, u, true)
+        _cudd_zdd._call_conjoin(level, u, true)
     with pytest.raises(AssertionError):
-        cudd_zdd._call_conjoin(level, true, u)
+        _cudd_zdd._call_conjoin(level, true, u)
 
 
 def test_c_disjoin_conjoin_leaf_check():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     leaf_level = zdd.false.level
     u = zdd.true_node
-    r = cudd_zdd._call_disjoin(
+    r = _cudd_zdd._call_disjoin(
         leaf_level, u, u)
     assert r == u, (r.level, u.level)
     zdd.declare('x')
     v = zdd.var('x')
     with pytest.raises(AssertionError):
-        cudd_zdd._call_disjoin(
+        _cudd_zdd._call_disjoin(
             leaf_level, v, v)
-    r = cudd_zdd._call_conjoin(
+    r = _cudd_zdd._call_conjoin(
         leaf_level, u, u)
     assert r == u, (r.level, u.level)
     with pytest.raises(AssertionError):
-        cudd_zdd._call_conjoin(
+        _cudd_zdd._call_conjoin(
             leaf_level, v, v)
 
 
 def test_c_exist():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     # \E x:  (x /\ ~ y) \/ ~ z
     u = zdd.add_expr(r'(x /\ ~ y) \/ ~ z')
     qvars = ['x']
-    r = cudd_zdd._c_exist(qvars, u)
+    r = _cudd_zdd._c_exist(qvars, u)
     r_ = zdd.exist(qvars, u)
     assert r == r_, len(r)
     # \E x:  x
     u = zdd.add_expr('x')
     qvars = ['x']
-    r = cudd_zdd._c_exist(qvars, u)
+    r = _cudd_zdd._c_exist(qvars, u)
     r_ = zdd.exist(qvars, u)
     assert r == r_, len(r)
 
 
 def test_dump():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'w')
     u = zdd.add_expr('~ w')
     fname = 'not_w.pdf'
@@ -559,10 +559,10 @@ def test_dump():
 
 
 def test_dict_to_zdd():
-    zdd = cudd_zdd.ZDD()
+    zdd = _cudd_zdd.ZDD()
     zdd.declare('x', 'y', 'z')
     qvars = {'x', 'z'}
-    u = cudd_zdd._dict_to_zdd(qvars, zdd)
+    u = _cudd_zdd._dict_to_zdd(qvars, zdd)
     assert len(u) == 2, len(u)
     assert u.var == 'x', u.var
     assert u.low == u.high

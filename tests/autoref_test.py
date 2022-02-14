@@ -1,7 +1,7 @@
 """Tests of the module `dd.autoref`."""
 import logging
 
-from dd import autoref as _bdd
+import dd.autoref as _bdd
 import dd.bdd
 
 import common

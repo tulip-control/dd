@@ -1,9 +1,9 @@
-from dd import cudd
+import dd.cudd as _cudd
 
 
 def test_reordering_setting_restore():
     # Original report at https://github.com/tulip-control/dd/issues/40
-    b = cudd.BDD()
+    b = _cudd.BDD()
     b.configure(reordering=False)
     b.add_var('x')
     b.add_var('y')

@@ -2,16 +2,14 @@
 import logging
 import os
 
-from dd.bdd import BDD as _BDD
-from dd.bdd import preimage
-from dd import autoref
-from dd import bdd as _bdd
+import dd.autoref
+import dd.bdd as _bdd
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import pytest
 
 
-class BDD(_BDD):
+class BDD(_bdd.BDD):
     """Disables refcount check upon shutdown.
 
     This script tests the low-level manager, where
@@ -1230,7 +1228,7 @@ def test_preimage():
     f = g.add_expr('~ x')
     t = g.add_expr('x <=> ~ xp')
     qvars = {1, 3}
-    p = preimage(t, f, rename, qvars, g)
+    p = _bdd.preimage(t, f, rename, qvars, g)
     x = g.add_expr('x')
     assert x == p, (x, p)
     # a cycle
@@ -1242,16 +1240,16 @@ def test_preimage():
         r'((~ x /\ ~ y) => (xp /\ ~ yp)) /\ '
         r'((x /\ ~ y) => (xp /\ yp))')
     f = g.add_expr(r'x /\ y')
-    p = preimage(t, f, rename, qvars, g)
+    p = _bdd.preimage(t, f, rename, qvars, g)
     assert p == g.add_expr(r'x /\ ~ y')
     f = g.add_expr(r'x /\ ~ y')
-    p = preimage(t, f, rename, qvars, g)
+    p = _bdd.preimage(t, f, rename, qvars, g)
     assert p == g.add_expr(r'~ x /\ ~ y')
     # backward reachable set
     f = g.add_expr(r'x /\ y')
     oldf = None
     while oldf != f:
-        p = preimage(t, f, rename, qvars, g)
+        p = _bdd.preimage(t, f, rename, qvars, g)
         oldf = f
         f = g.apply('or', p, oldf)
     assert f == 1
@@ -1259,7 +1257,7 @@ def test_preimage():
     f = g.add_expr(r'x /\ y')
     start = f
     for i in range(4):
-        f = preimage(t, f, rename, qvars, g)
+        f = _bdd.preimage(t, f, rename, qvars, g)
     end = f
     assert start == end
     # forall z exists x, y
@@ -1270,11 +1268,11 @@ def test_preimage():
         r') /\ '
         r'(~ (x /\ y) => False)')
     f = g.add_expr(r'x /\ ~ y')
-    ep = preimage(t, f, rename, qvars, g)
+    ep = _bdd.preimage(t, f, rename, qvars, g)
     p = g.quantify(ep, {'zp'}, forall=True)
     assert p == -1
     f = g.add_expr(r'(x /\ ~ y) \/ (~ x /\ y)')
-    ep = preimage(t, f, rename, qvars, g)
+    ep = _bdd.preimage(t, f, rename, qvars, g)
     p = g.quantify(ep, {'zp'}, forall=True)
     assert p == g.add_expr(r'x /\ y')
 
@@ -1343,7 +1341,7 @@ def _graph_from_dot_recurse(dot_graph, g):
 
 def test_function_wrapper():
     levels = dict(x=0, y=1, z=2)
-    bdd = autoref.BDD(levels)
+    bdd = dd.autoref.BDD(levels)
     u = bdd.add_expr(r'x /\ y')
     assert u.bdd is bdd, (repr(u.bdd), repr(bdd))
     assert abs(u.node) in bdd._bdd, (u.node, bdd._bdd._succ)
@@ -1393,7 +1391,7 @@ def test_function_wrapper():
     n = len(bdd)
     assert n == 1, bdd._bdd._ref
     # properties
-    bdd = autoref.BDD({'x': 0, 'y': 1, 'z': 2})
+    bdd = dd.autoref.BDD({'x': 0, 'y': 1, 'z': 2})
     u = bdd.add_expr(r'x \/ ~ y')
     assert u.level == 0, u.level
     assert u.var == 'x', u.var

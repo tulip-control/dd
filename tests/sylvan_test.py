@@ -1,13 +1,13 @@
 """Tests of the module `dd.sylvan`."""
 import logging
-from dd import sylvan
+import dd.sylvan as _sylvan
 
 
 logging.getLogger('astutils').setLevel('ERROR')
 
 
 def test_len():
-    b = sylvan.BDD()
+    b = _sylvan.BDD()
     # constant
     assert len(b) == 0, len(b)
     u = b.false
@@ -23,7 +23,7 @@ def test_len():
 
 
 def test_true_false():
-    b = sylvan.BDD()
+    b = _sylvan.BDD()
     false = b.false
     true = b.true
     assert false != true
@@ -34,7 +34,7 @@ def test_true_false():
 
 
 def test_add_var():
-    bdd = sylvan.BDD()
+    bdd = _sylvan.BDD()
     bdd.add_var('x')
     bdd.add_var('y')
     jx = bdd._index_of_var['x']
@@ -53,7 +53,7 @@ def test_add_var():
 
 
 def test_insert_var():
-    bdd = sylvan.BDD()
+    bdd = _sylvan.BDD()
     level = 0
     j = bdd.add_var('x', index=level)
     assert j == 0, j  # initially indices = levels
@@ -66,7 +66,7 @@ def test_insert_var():
 
 
 def test_add_expr():
-    bdd = sylvan.BDD()
+    bdd = _sylvan.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
     # ((0 \/ 1) /\ x) \equiv x
@@ -99,7 +99,7 @@ def test_add_expr():
 
 
 def test_support():
-    bdd = sylvan.BDD()
+    bdd = _sylvan.BDD()
     bdd.add_var('x')
     bdd.add_var('y')
     u = bdd.var('x')
@@ -115,7 +115,7 @@ def test_support():
 
 
 def test_compose():
-    bdd = sylvan.BDD()
+    bdd = _sylvan.BDD()
     bdd.add_var('x')
     bdd.add_var('y')
     x = bdd.var('x')
@@ -127,7 +127,7 @@ def test_compose():
 
 
 def test_cofactor():
-    bdd = sylvan.BDD()
+    bdd = _sylvan.BDD()
     bdd.add_var('x')
     x = bdd.var('x')
     # u = bdd.let(dict(x=True), x)
@@ -144,7 +144,7 @@ def test_cofactor():
 
 
 def test_rename():
-    bdd = sylvan.BDD()
+    bdd = _sylvan.BDD()
     # single variable
     bdd.add_var('x')
     bdd.add_var('y')
@@ -169,7 +169,7 @@ def test_rename():
 # The function `test_pick_iter` is copied
 # from `common.Tests.test_pick_iter`.
 def test_pick_iter():
-    b = sylvan.BDD()
+    b = _sylvan.BDD()
     b.add_var('x')
     b.add_var('y')
     # FALSE

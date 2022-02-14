@@ -23,8 +23,8 @@ import inspect
 import logging
 import warnings
 
-from dd import _abc
-from dd import cudd
+import dd._abc as _abc
+import dd.cudd as _cudd
 
 
 log = logging.getLogger(__name__)
@@ -100,7 +100,7 @@ def _main():
     """Check that `dd.cudd.BDD` implements `dd._abc`."""
     # BDD manager
     a = _abc.BDD()
-    b = cudd.BDD()
+    b = _cudd.BDD()
     inspect_signatures(a, b)
     # BDD nodes
     print(30 * '-' + '\n')

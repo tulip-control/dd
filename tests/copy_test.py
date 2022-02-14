@@ -1,12 +1,12 @@
 """Tests of the module `dd._copy`."""
-from dd import autoref
-from dd import cudd
-from dd import _copy
+import dd.autoref as _autoref
+import dd.cudd as _cudd
+import dd._copy as _copy
 
 
 def test_involution():
-    _test_involution(autoref)
-    _test_involution(cudd)
+    _test_involution(_autoref)
+    _test_involution(_cudd)
 
 
 def _test_involution(mod):
@@ -18,8 +18,8 @@ def _test_involution(mod):
 
 
 def test_bdd_mapping():
-    _test_bdd_mapping(autoref)
-    _test_bdd_mapping(cudd)
+    _test_bdd_mapping(_autoref)
+    _test_bdd_mapping(_cudd)
 
 
 def _test_bdd_mapping(mod):
@@ -71,8 +71,8 @@ def _setup(mod):
 
 
 def test_dump_load_same_order():
-    _test_dump_load_same_order(autoref)
-    _test_dump_load_same_order(cudd)
+    _test_dump_load_same_order(_autoref)
+    _test_dump_load_same_order(_cudd)
 
 
 def _test_dump_load_same_order(mod):
@@ -98,8 +98,8 @@ def _test_dump_load_same_order(mod):
 
 
 def test_dump_load_different_order():
-    _test_dump_load_different_order(autoref)
-    _test_dump_load_different_order(cudd)
+    _test_dump_load_different_order(_autoref)
+    _test_dump_load_different_order(_cudd)
 
 
 def _test_dump_load_different_order(mod):

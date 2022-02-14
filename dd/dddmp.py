@@ -33,7 +33,7 @@ import astutils
 import ply.lex
 import ply.yacc
 
-from dd.bdd import BDD
+import dd.bdd as _bdd
 
 
 logger = logging.getLogger(__name__)
@@ -571,7 +571,7 @@ def load(fname):
     new_levels = {var: k for k, var in perm.items()}
     old2new = {levels[var]: new_levels[var] for var in levels}
     # convert
-    bdd = BDD(new_levels)
+    bdd = _bdd.BDD(new_levels)
     umap = {-1: -1, 1: 1}
     for j in range(len(new_levels) - 1, -1, -1):
         for u, (k, v, w) in bdd_succ.items():

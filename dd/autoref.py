@@ -9,9 +9,9 @@ import logging
 import warnings
 
 import dd._abc
-from dd import _copy
+import dd._copy as _copy
 import dd._utils as _utils
-from dd import bdd as _bdd
+import dd.bdd as _bdd
 
 
 log = logging.getLogger(__name__)

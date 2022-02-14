@@ -1,11 +1,11 @@
 """How to print readable statistics."""
 import pprint
 
-from dd import cudd
+import dd.cudd
 
 
 def print_statistics():
-    b = cudd.BDD()
+    b = dd.cudd.BDD()
     b.declare('x', 'y', 'z')
     u = b.add_expr(r'x /\ y /\ z')
     u = b.add_expr(r'x \/ y \/ ~ z')

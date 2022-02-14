@@ -51,7 +51,7 @@ import typing as _ty
 import warnings
 
 import dd._abc
-import dd._parser
+import dd._parser as _parser
 import dd._utils as _utils
 
 
@@ -1740,7 +1740,7 @@ class BDD(dd._abc.BDD):
 
     @_try_to_reorder
     def add_expr(self, expr):
-        return dd._parser.add_expr(expr, self)
+        return _parser.add_expr(expr, self)
 
     def to_expr(self, u):
         if u not in self:

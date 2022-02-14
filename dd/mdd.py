@@ -35,8 +35,7 @@ except ImportError as error:
     _pydot = None
     _pydot_error = error
 
-from dd import bdd as _bdd
-from dd.bdd import to_nx
+import dd.bdd as _bdd
 
 
 logger = logging.getLogger(__name__)
@@ -549,7 +548,7 @@ def _debug_dump(pred, bdd):
     """Dump nodes of `bdd`, coloring nodes in `pred`."""
     if _nx is None:
         raise _nx_error
-    g = to_nx(bdd, roots=bdd._succ)
+    g = _bdd.to_nx(bdd, roots=bdd._succ)
     color = 'red'
     for u in pred:
         if u < 1:

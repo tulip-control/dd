@@ -2,7 +2,6 @@
 import logging
 import os
 
-from dd.dddmp import Lexer, Parser, _rewrite_tables
 import dd.dddmp as _dddmp
 import pytest
 
@@ -10,11 +9,11 @@ import pytest
 logger = logging.getLogger(
     'dd.dddmp.parser_logger')
 logger.setLevel(logging.ERROR)
-parser = Parser()
+parser = _dddmp.Parser()
 
 
 def test_lexer():
-    lexer = Lexer()
+    lexer = _dddmp.Lexer()
     s = '.ghs?5'
     lexer.lexer.input(s)
     tok = lexer.lexer.token()
@@ -24,7 +23,7 @@ def test_lexer():
 
 
 def test_parser():
-    parser = Parser()
+    parser = _dddmp.Parser()
     with pytest.raises(Exception):
         parser.parser.parse(
             input='.mode C',
@@ -141,7 +140,7 @@ def test_rewrite_tables():
         fname = f'{prefix}{ext}'
         if os.path.isfile(fname):
             os.remove(fname)
-    _rewrite_tables()
+    _dddmp._rewrite_tables()
     assert os.path.isfile(f'{prefix}.py')
 
 
@@ -185,10 +184,10 @@ def to_nx(bdd, n_vars, ordering, roots):
 
 
 def test_dump_with_cudd_load_with_dddmp():
-    from dd import cudd
+    import dd.cudd
     fname = 'foo.dddmp'
     # dump
-    bdd = cudd.BDD()
+    bdd = dd.cudd.BDD()
     bdd.declare('y', 'x')
     u = bdd.add_expr(r'x /\ y')
     bdd.dump(fname, [u])

@@ -15,12 +15,12 @@ import urllib.request
 
 
 try:
-    from Cython.Build import cythonize
+    import Cython.Build as _build
     pyx = '.pyx'
 except ImportError:
     print('`import cython` failed')
     pyx = '.c'
-from setuptools.extension import Extension
+import setuptools.extension as _extension
 
 
 EXTENSIONS: _ty.Final = [
@@ -99,25 +99,25 @@ def extensions(args):
     _copy_cudd_license(args)
     _copy_extern_licenses(args)
     extensions = dict(
-        cudd=Extension(
+        cudd=_extension.Extension(
             'dd.cudd',
             sources=[f'dd/cudd{pyx}'],
             include_dirs=_join(cudd_include),
             library_dirs=_join(cudd_link),
             libraries=CUDD_LIB,
             extra_compile_args=cudd_cflags),
-        cudd_zdd=Extension(
+        cudd_zdd=_extension.Extension(
             'dd.cudd_zdd',
             sources=[f'dd/cudd_zdd{pyx}'],
             include_dirs=_join(cudd_include),
             library_dirs=_join(cudd_link),
             libraries=CUDD_LIB,
             extra_compile_args=cudd_cflags),
-        buddy=Extension(
+        buddy=_extension.Extension(
             'dd.buddy',
             sources=[f'dd/buddy{pyx}'],
             libraries=['bdd']),
-        sylvan=Extension(
+        sylvan=_extension.Extension(
             'dd.sylvan',
             sources=[f'dd/sylvan{pyx}'],
             include_dirs=_join(SYLVAN_INCLUDE),
@@ -130,7 +130,7 @@ def extensions(args):
     if pyx == '.pyx':
         ext_modules = list()
         for k, v in extensions.items():
-            c = cythonize(
+            c = _build.cythonize(
                 [v],
                 compiler_directives=directives,
                 compile_time_env=compile_time_env)

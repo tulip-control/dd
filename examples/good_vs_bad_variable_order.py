@@ -10,7 +10,7 @@ Reference
     TOC, 1991
     <https://doi.org/10.1109/12.73590>
 """
-from dd import autoref as _bdd
+import dd.autoref as _bdd
 
 
 def comparing_two_variable_orders():

@@ -1,7 +1,7 @@
 """Tests of the module `dd.cudd`."""
 import logging
 
-from dd import cudd
+import dd.cudd as _cudd
 import pytest
 
 import common
@@ -14,29 +14,29 @@ logging.getLogger('astutils').setLevel('ERROR')
 
 class Tests(common.Tests):
     def setup_method(self):
-        self.DD = cudd.BDD
+        self.DD = _cudd.BDD
 
 
 class BDDTests(common_bdd.Tests):
     def setup_method(self):
-        self.DD = cudd.BDD
+        self.DD = _cudd.BDD
 
 
 class CuddTests(common_cudd.Tests):
     def setup_method(self):
-        self.DD = cudd.BDD
-        self.MODULE = cudd
+        self.DD = _cudd.BDD
+        self.MODULE = _cudd
 
 
 def test_str():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     with pytest.warns(UserWarning):
         s = str(bdd)
     s + 'must be a string'
 
 
 def test_insert_var():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     level = 0
     j = bdd.insert_var('x', level)
     assert j == 0, j  # initially indices = levels
@@ -49,12 +49,12 @@ def test_insert_var():
 
 
 def test_refs():
-    cudd._test_incref()
-    cudd._test_decref()
+    _cudd._test_incref()
+    _cudd._test_decref()
 
 
 def test_len():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     assert len(bdd) == 0, len(bdd)
     u = bdd.true
     assert len(bdd) == 1, len(bdd)
@@ -80,12 +80,12 @@ def test_len():
 
 
 def test_cube_array():
-    cudd._test_dict_to_cube_array()
-    cudd._test_cube_array_to_dict()
+    _cudd._test_dict_to_cube_array()
+    _cudd._test_cube_array_to_dict()
 
 
 def test_dump_load_dddmp():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     for var in ['x', 'y', 'z', 'w']:
         bdd.add_var(var)
     u = bdd.add_expr(r'(x /\ ~ w) \/ z')
@@ -96,7 +96,7 @@ def test_dump_load_dddmp():
 
 
 def test_load_sample0():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     names = ['a', 'b', 'c']
     for var in names:
         bdd.add_var(var)
@@ -110,35 +110,35 @@ def test_load_sample0():
 
 
 def test_and_exists():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
     # (\E x:  x /\ y) \equiv y
     x = bdd.add_expr('x')
     y = bdd.add_expr('y')
     qvars = ['x']
-    r = cudd.and_exists(x, y, qvars)
+    r = _cudd.and_exists(x, y, qvars)
     assert r == y, (r, y)
     # (\E x:  x /\ ~ x) \equiv FALSE
     not_x = bdd.apply('not', x)
-    r = cudd.and_exists(x, not_x, qvars)
+    r = _cudd.and_exists(x, not_x, qvars)
     assert r == bdd.false
 
 
 def test_or_forall():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     for var in ['x', 'y']:
         bdd.add_var(var)
     # (\A x, y:  x \/ ~ y) \equiv FALSE
     x = bdd.var('x')
     not_y = bdd.add_expr('~ y')
     qvars = ['x', 'y']
-    r = cudd.or_forall(x, not_y, qvars)
+    r = _cudd.or_forall(x, not_y, qvars)
     assert r == bdd.false, r
 
 
 def test_swap():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     bdd.declare('x', 'y')
     x = bdd.var('x')
     y = bdd.var('y')
@@ -200,8 +200,8 @@ def test_swap():
 
 def test_copy_bdd_same_indices():
     # each va has same index in each `BDD`
-    bdd = cudd.BDD()
-    other = cudd.BDD()
+    bdd = _cudd.BDD()
+    other = _cudd.BDD()
     assert bdd != other
     dvars = ['x', 'y', 'z']
     for var in dvars:
@@ -209,22 +209,22 @@ def test_copy_bdd_same_indices():
         other.add_var(var)
     s = r'(x /\ y) \/ ~ z'
     u0 = bdd.add_expr(s)
-    u1 = cudd.copy_bdd(u0, other)
-    u2 = cudd.copy_bdd(u1, bdd)
+    u1 = _cudd.copy_bdd(u0, other)
+    u2 = _cudd.copy_bdd(u1, bdd)
     # involution
     assert u0 == u2, (u0, u2)
     # confirm
     w = other.add_expr(s)
     assert w == u1, (w, u1)
     # different nodes
-    u3 = cudd.copy_bdd(other.true, bdd)
+    u3 = _cudd.copy_bdd(other.true, bdd)
     assert u3 != u2, (u3, u2)
 
 
 def test_copy_bdd_different_indices():
     # each var has different index in each `BDD`
-    bdd = cudd.BDD()
-    other = cudd.BDD()
+    bdd = _cudd.BDD()
+    other = _cudd.BDD()
     assert bdd != other
     dvars = ['x', 'y', 'z']
     for var in dvars:
@@ -233,21 +233,21 @@ def test_copy_bdd_different_indices():
         other.add_var(var)
     s = r'(x \/ ~ y) /\ ~ z'
     u0 = bdd.add_expr(s)
-    u1 = cudd.copy_bdd(u0, other)
-    u2 = cudd.copy_bdd(u1, bdd)
+    u1 = _cudd.copy_bdd(u0, other)
+    u2 = _cudd.copy_bdd(u1, bdd)
     # involution
     assert u0 == u2, (u0, u2)
     # confirm
     w = other.add_expr(s)
     assert w == u1, (w, u1)
     # different nodes
-    u3 = cudd.copy_bdd(other.true, bdd)
+    u3 = _cudd.copy_bdd(other.true, bdd)
     assert u3 != u2, (u3, u2)
 
 
 def test_copy_bdd_different_order():
-    bdd = cudd.BDD()
-    other = cudd.BDD()
+    bdd = _cudd.BDD()
+    other = _cudd.BDD()
     assert bdd != other
     dvars = ['x', 'y', 'z', 'w']
     for index, var in enumerate(dvars):
@@ -274,10 +274,10 @@ def test_copy_bdd_different_order():
     # copy
     s = r'(x \/ ~ y) /\ w /\ (z \/ ~ w)'
     u0 = bdd.add_expr(s)
-    u1 = cudd.copy_bdd(u0, other)
-    u2 = cudd.copy_bdd(u1, bdd)
+    u1 = _cudd.copy_bdd(u0, other)
+    u2 = _cudd.copy_bdd(u1, bdd)
     assert u0 == u2, (u0, u2)
-    u3 = cudd.copy_bdd(other.false, bdd)
+    u3 = _cudd.copy_bdd(other.false, bdd)
     assert u3 != u2, (u3, u2)
     # verify
     w = other.add_expr(s)
@@ -285,22 +285,22 @@ def test_copy_bdd_different_order():
 
 
 def test_count_nodes():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     [bdd.add_var(var) for var in ['x', 'y', 'z']]
     u = bdd.add_expr(r'x /\ y')
     v = bdd.add_expr(r'x /\ z')
     assert len(u) == 3, len(u)
     assert len(v) == 3, len(v)
     bdd.reorder(dict(x=0, y=1, z=2))
-    n = cudd.count_nodes([u, v])
+    n = _cudd.count_nodes([u, v])
     assert n == 5, n
     bdd.reorder(dict(z=0, y=1, x=2))
-    n = cudd.count_nodes([u, v])
+    n = _cudd.count_nodes([u, v])
     assert n == 4, n
 
 
 def test_function():
-    bdd = cudd.BDD()
+    bdd = _cudd.BDD()
     bdd.add_var('x')
     # x
     x = bdd.var('x')

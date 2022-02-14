@@ -240,7 +240,10 @@ class BDD(dd._abc.BDD):
         self.decref(1)
             # free ref from `self._init_terminal`
         self.collect_garbage()
-        if not all(v == 0 for v in self._ref.values()):
+        refs_exist = any(
+            v != 0
+            for v in self._ref.values())
+        if refs_exist:
             raise AssertionError(
                 'There are nodes still referenced '
                 'upon shutdown. Details:\n'

@@ -42,8 +42,10 @@ Henrik R. Andersen
 #
 import collections.abc as _abc
 import functools as _ft
+import inspect
 import logging
 import pickle
+import pprint as _pp
 import sys
 import typing as _ty
 import warnings
@@ -243,11 +245,19 @@ class BDD(dd._abc.BDD):
         refs_exist = any(
             v != 0
             for v in self._ref.values())
-        if refs_exist:
-            raise AssertionError(
-                'There are nodes still referenced '
-                'upon shutdown. Details:\n'
-                f'{self._ref}')
+        if not refs_exist:
+            return
+        stack = inspect.stack()
+        stack_str = _pp.pformat(stack)
+        raise AssertionError(
+            'There are nodes still referenced '
+            'upon shutdown. Details:\n'
+            f'{self._ref}\n'
+            f'{self._succ}\n'
+            f'{self.vars}\n'
+            f'{self._ite_table}\n'
+            f'{type(self)}\n'
+            f'{stack_str}')
 
     def __len__(
             self):

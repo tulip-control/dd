@@ -239,8 +239,9 @@ class BDD(dd._abc.BDD):
     def __del__(
             self):
         """Assert that all remaining nodes are garbage."""
-        self.decref(1)
-            # free ref from `self._init_terminal`
+        if self._ref[1] > 0:
+            self.decref(1)
+                # free ref from `self._init_terminal()`
         self.collect_garbage()
         refs_exist = any(
             v != 0

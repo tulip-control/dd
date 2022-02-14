@@ -976,6 +976,30 @@ def test_undeclare_vars():
         bdd.undeclare_vars('z', 'y')
 
 
+def test_del_repeated_calls():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y', 'z')
+    u = bdd.add_expr(r'x /\ y')
+    v = bdd.add_expr(r'y /\ ~ z')
+    assert _references_exist(bdd._ref)
+    bdd.__del__()
+    assert not _references_exist(bdd._ref)
+    assert bdd._ref == {1: 0}, bdd._ref
+    assert set(bdd._succ) == {1}, bdd._succ
+    bdd.__del__()
+    assert bdd._ref == {1: 0}, bdd._ref
+    assert set(bdd._succ) == {1}, bdd._succ
+    bdd.__del__()
+    assert bdd._ref == {1: 0}, bdd._ref
+    assert set(bdd._succ) == {1}, bdd._succ
+
+
+def _references_exist(refs):
+    return any(
+        v != 0
+        for v in refs.values())
+
+
 def test_dump_load():
     prefix = 'test_dump_load'
     fname = f'{prefix}.p'

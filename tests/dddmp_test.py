@@ -2,7 +2,8 @@
 import logging
 import os
 
-from dd.dddmp import Lexer, Parser, load, _rewrite_tables
+from dd.dddmp import Lexer, Parser, _rewrite_tables
+import dd.dddmp as _dddmp
 import pytest
 
 
@@ -64,7 +65,7 @@ def test_sample2():
     # x /\ y
     # where x, y have indices 0, 1
     fname = 'sample2.dddmp'
-    bdd = load(fname)
+    bdd = _dddmp.load(fname)
     n = len(bdd)
     assert n == 3, n
     n_vars = len(bdd.vars)
@@ -89,7 +90,7 @@ def test_sample3():
     # where x, y are at levels 1, 0
     # nodes are labeled with var names
     fname = 'sample3.dddmp'
-    bdd = load(fname)
+    bdd = _dddmp.load(fname)
     n = len(bdd)
     assert n == 3, n
     n_vars = len(bdd.vars)
@@ -103,7 +104,7 @@ def test_sample3():
 def test_load_dddmp():
     # small sample
     fname = 'sample0.dddmp'
-    bdd = load(fname)
+    bdd = _dddmp.load(fname)
     n = len(bdd)
     n_vars = len(bdd.vars)
     assert n == 5, n
@@ -114,7 +115,7 @@ def test_load_dddmp():
     assert u == root, (u, root)
     # larger sample
     fname = 'sample1.dddmp'
-    bdd = load(fname)
+    bdd = _dddmp.load(fname)
     n = len(bdd)
     n_vars = len(bdd.vars)
     assert n == 16, n
@@ -179,7 +180,7 @@ def test_dump_with_cudd_load_with_dddmp():
     u = bdd.add_expr(r'x /\ y')
     bdd.dump(fname, [u])
     # load
-    bdd = load(fname)
+    bdd = _dddmp.load(fname)
     print(bdd.roots)
     u, = bdd.roots
     u_ = bdd.add_expr(r'x /\ y')

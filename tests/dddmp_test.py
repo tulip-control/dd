@@ -26,8 +26,9 @@ def test_lexer():
 def test_parser():
     parser = Parser()
     with pytest.raises(Exception):
-        parser.parser.parse(input='.mode C',
-                            lexer=parser.lexer.lexer)
+        parser.parser.parse(
+            input='.mode C',
+            lexer=parser.lexer.lexer)
 
 
 def test_sample0():
@@ -46,7 +47,8 @@ def test_sample0():
         assert w == w_, (u, v, w, v_, w_)
     # other attributes
     assert n_vars == 50, n_vars
-    assert ordering == {'a': 1, 'b': 2, 'c': 3}, ordering
+    assert ordering == {
+        'a': 1, 'b': 2, 'c': 3}, ordering
     assert roots == {-5}
     # debugging
     # h = to_nx(bdd, n_vars, ordering, roots)
@@ -123,8 +125,9 @@ def test_load_dddmp():
     assert n == 16, n
     assert n_vars == 10, n_vars
     assert bdd.roots == {6, -13, -16}
-    varnames = {'G0', 'G1', 'G2', 'G3', 'G5', 'G6',
-                'G7', 'TMP1', 'TMP2', 'TMP3'}
+    varnames = {
+        'G0', 'G1', 'G2', 'G3', 'G5', 'G6',
+        'G7', 'TMP1', 'TMP2', 'TMP3'}
     bddvars = set(bdd.vars)
     assert bddvars == varnames, bddvars
     assert bdd.assert_consistent()
@@ -152,7 +155,9 @@ def to_nx(bdd, n_vars, ordering, roots):
     `dd.dddmp.Parser.parse`.
     """
     import networkx as nx
-    level2var = {ordering[k]: k for k in ordering}
+    level2var = {
+        ordering[k]: k
+        for k in ordering}
     level2var[n_vars + 1] = 'T'
     h = nx.MultiDiGraph()
     h.roots = roots
@@ -167,8 +172,12 @@ def to_nx(bdd, n_vars, ordering, roots):
             assert w is None
             continue
         complemented = '-1' if v < 0 else ' '
-        h.add_edge(u, abs(v), label=complemented, style='dashed')
-        assert w >= 0, w  # "then" edge cannot be complemented
+        h.add_edge(
+            u, abs(v),
+            label=complemented,
+            style='dashed')
+        assert w >= 0, w
+            # "then" edge cannot be complemented
         h.add_edge(u, w)
     return h
 

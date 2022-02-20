@@ -306,11 +306,21 @@ def _add_ast(tree, bdd):
 
 
 def _rewrite_tables(outputdir='./'):
+    """Recache state machine of parser.
+
+    @type outputdir:
+        `str`
+    """
     astutils.rewrite_tables(
         Parser, TABMODULE, outputdir)
 
 
 def _main():
+    """Recompute parser state machine.
+
+    Cache the state machine in a file.
+    Configure logging.
+    """
     log = logging.getLogger('astutils')
     log.setLevel('DEBUG')
     log.addHandler(logging.StreamHandler())

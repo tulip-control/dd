@@ -79,7 +79,11 @@ def contiguous_levels(
 
 
 def _raise_runtimerror_about_ref_count(
-        ref_count_lb, name, class_name):
+        ref_count_lb,
+        name:
+            str,
+        class_name:
+            str):
     """Raise `RuntimeError` about reference count lower bound.
 
     Call this function when an unexpected nonpositive
@@ -91,13 +95,13 @@ def _raise_runtimerror_about_ref_count(
         the node that the `Function` instance points to.
         Assert `ref_count_lb <= 0`.
     @param name:
-        `str` to mention as location where
+        to mention as location where
         the error was detected. For example:
         ```python
         'method `dd.cudd.BDD.decref`'
         ```
     @param class_name:
-        `str` to mention as name of
+        to mention as name of
         the class of the object where the value
         `ref_count_lb` was found. For example:
         ```python

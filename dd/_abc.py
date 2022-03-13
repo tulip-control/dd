@@ -11,6 +11,7 @@ This specification is implemented by the modules:
 # Copyright 2017 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
+import collections.abc as _abc
 import typing as _ty
 
 
@@ -24,9 +25,23 @@ Level: _ty.TypeAlias = Nat
 VariableLevels: _ty.TypeAlias = dict[
     VariableName,
     Level]
+Ref: _ty.TypeAlias = _ty.TypeVar('Ref')
+Assignment: _ty.TypeAlias = dict[
+    VariableName, bool]
+OperatorSymbol: _ty.TypeAlias = _ty.Literal[
+    'not', '~', '!',
+    'and', '/\\', '&', '&&',
+    'or', r'\/', '|', '||',
+    '#', 'xor', '^',
+    '=>', '->', 'implies',
+    '<=>', '<->', 'equiv',
+    'diff', '-',
+    r'\A', 'forall',
+    r'\E', 'exists',
+    'ite']
 
 
-class BDD(_ty.Protocol):
+class BDD(_ty.Protocol[Ref]):
     """Shared reduced ordered binary decision diagram."""
 
     def __init__(self, levels=None):
@@ -81,27 +96,42 @@ class BDD(_ty.Protocol):
         """Return level of `var`, or `None`."""
 
     @property
-    def var_levels(self):
-        """Return `dict` that maps variables to levels."""
+    def var_levels(
+            self
+            ) -> dict[
+                VariableName,
+                Level]:
+        """Return mapping from variables to levels."""
 
     def copy(self, u, other):
         """Copy operator `u` from `self` to `other` manager."""
 
-    def support(self, u, as_levels=False):
-        """Return `set` of variables that node `u` depends on.
+    def support(
+            self,
+            u:
+                Ref,
+            as_levels=False
+            ) -> (
+                set[VariableName] |
+                set[Level]):
+        """Return variables that node `u` depends on.
 
         @param as_levels:
             if `True`, then return variables
             as integers, insted of strings
         """
 
-    def let(self, definitions, u):
-        """Substitute `definitions` for variables in `u`.
+    def let(
+            self,
+            definitions:
+                dict[VariableName, VariableName] |
+                dict[VariableName, bool] |
+                dict[VariableName, Ref],
+            u):
+        """Substitute variables in `u`.
 
-        @param definitions:
-            `dict` that maps some variable
-            names to Boolean values, or other variable names,
-            or BDD nodes. All values should be of same type.
+        The mapping `definitions` need not have
+        all declared variables as keys.
         """
 
     def forall(self, variables, u):
@@ -122,8 +152,16 @@ class BDD(_ty.Protocol):
             increase the result at the end of recursion.
         """
 
-    def pick(self, u, care_vars=None):
-        r"""Return a single assignment as `dict`.
+    def pick(
+            self,
+            u,
+            care_vars:
+                set[str] |
+                None=None
+            ) -> (
+                Assignment |
+                None):
+        r"""Return a single assignment.
 
         An assignment is a `dict` that maps
         each variable to a `bool`. Examples:
@@ -157,23 +195,26 @@ class BDD(_ty.Protocol):
         """
         return next(self.pick_iter(u, care_vars), None)
 
-    def pick_iter(self, u, care_vars=None):
+    def pick_iter(
+            self,
+            u,
+            care_vars:
+                set |
+                None=None
+            ) -> _abc.Iterator[
+                Assignment]:
         """Return iterator over assignments.
 
         By default, `care_vars = support(u)`.
         Log a warning if `care_vars < support(u)`.
 
-        @param care_vars:
-            cases:
+        CASES:
 
-            1. `None`: return (uniform) assignments that
-               include exactly those variables in `support(u)`
+        1. `None`: return (uniform) assignments that
+           include exactly those variables in `support(u)`
 
-            2. `set`: return (possibly partial) assignments
-               that include at least all bits in `set`
-
-        @rtype:
-            generator of `dict(str: bool)`
+        2. `set`: return (possibly partial) assignments
+           that include at least all bits in `care_vars`
         """
 
     # def to_bdd(
@@ -181,17 +222,28 @@ class BDD(_ty.Protocol):
     #         expr):
     #     raise NotImplementedError('use `add_expr`')
 
-    def add_expr(self, expr):
+    def add_expr(
+            self,
+            expr:
+                str):
         """Return node for expression `expr`.
 
-        @type expr:
-            `str`
+        Nodes are created for the BDD that
+        represents the expression `expr`.
         """
 
     def to_expr(self, u):
         """Return a Boolean expression for node `u`."""
 
-    def ite(self, g, u, v):
+    def ite(
+            self,
+            g:
+                Ref,
+            u:
+                Ref,
+            v:
+                Ref
+            ) -> Ref:
         """Ternary conditional `IF g THEN u ELSE v`.
 
         @param g:
@@ -200,45 +252,44 @@ class BDD(_ty.Protocol):
             high
         @param v:
             low
-        @type g, u, v:
-            nodes
-        @rtype:
-            node
         """
 
-    def apply(self, op, u, v=None, w=None):
-        r"""Apply operator `op` to nodes `u`, `v`, `w`.
+    def apply(
+            self,
+            op:
+                OperatorSymbol,
+            u:
+                Ref,
+            v:
+                Ref |
+                None=None,
+            w:
+                Ref |
+                None=None):
+        r"""Apply operator `op` to nodes `u`, `v`, `w`."""
 
-        @type op:
-            `str` in:
-            - `'not'`, `'~'`, `'!'`
-            - `'and'`, `'/\\'`, `'&'`, `'&&'`
-            - `'or'`, `r'\/'`, `'|'`, `'||'`
-            - `'#'`, `'xor'`, `'^'`
-            - `'=>'`, `'->'`, `'implies'`
-            - `'<=>'`, `'<->'`, `'equiv'`
-            - `'diff'`, `'-'`
-            - `r'\A'`, `'forall'`
-            - `r'\E'`, `'exists'`
-            - `'ite'`
-        @type u, v, w:
-            nodes
-        """
+    def _add_int(
+            self,
+            i:
+                int):
+        """Return node from `i`."""
 
-    def _add_int(self, i):
-        """Return node from integer `i`."""
-
-    def cube(self, dvars):
-        """Return node for conjunction of literals in `dvars`.
-
-        @param dvars:
-            `dict` that maps each variable to a `bool`
-        """
+    def cube(
+            self,
+            dvars:
+                Assignment):
+        """Return node for conjunction of literals in `dvars`."""
 
     # TODO: homogeneize i/o API with `dd.cudd`
     def dump(
-            self, filename, roots=None,
-            filetype=None, **kw):
+            self,
+            filename:
+                str,
+            roots=None,
+            filetype:
+                str |
+                None=None,
+            **kw):
         """Write BDDs to `filename`.
 
         The file type is inferred from the
@@ -260,8 +311,6 @@ class BDD(_ty.Protocol):
         If `roots is None`,
         then all nodes in the manager are dumped.
 
-        @type filename:
-            `str`
         @type filetype:
             `str`, e.g., `"pdf"`
         @type roots:
@@ -270,15 +319,17 @@ class BDD(_ty.Protocol):
               names (as `str`) to nodes
         """
 
-    def load(self, filename, levels=True):
+    def load(
+            self,
+            filename:
+                str,
+            levels=True):
         """Load nodes from Pickle file `filename`.
 
         If `levels is True`,
         then load variables at the same levels.
         Otherwise, add missing variables.
 
-        @type filename:
-            `str`
         @return:
             roots of the loaded BDDs
         @rtype:
@@ -298,15 +349,20 @@ class BDD(_ty.Protocol):
         """Return Boolean constant true."""
 
 
-def reorder(bdd, order=None):
+def reorder(
+        bdd,
+        order:
+            dict[
+                str,
+                int] |
+            None=None):
     """Apply Rudell's sifting algorithm to `bdd`.
 
     @param order:
         reorder to this specific order,
         if `None` then invoke group sifting
     @type order:
-        `dict: str -> int` that maps
-        variable names to levels
+        maps variable names to levels
     """
 
 
@@ -328,8 +384,10 @@ class Operator(_ty.Protocol):
             self):
         return self.node
 
-    def to_expr(self):
-        """Return Boolean expression of function as `str`."""
+    def to_expr(
+            self
+            ) -> str:
+        """Return Boolean expression of function."""
 
     def __int__(
             self):
@@ -441,8 +499,10 @@ class Operator(_ty.Protocol):
         """Return `True` if `self` is a complemented edge."""
 
     @property
-    def support(self):
-        """Return `set` of variables in support."""
+    def support(
+            self
+            ) -> set:
+        """Return variables in support."""
 
     def let(self, **definitions):
         return self.bdd.let(definitions, self)

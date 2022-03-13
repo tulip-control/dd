@@ -59,13 +59,14 @@ class BDD(dd._abc.BDD):
             f'\t {len(self.vars)} BDD variables\n'
             f'\t {len(self)} nodes\n')
 
-    def _wrap(self, u):
+    def _wrap(
+            self,
+            u:
+                int):
         """Return `Function` for node `u`.
 
         @param u:
             node in `self._bdd`
-        @type u:
-            `int`
         """
         if u not in self._bdd:
             raise ValueError(u)
@@ -216,8 +217,13 @@ class BDD(dd._abc.BDD):
         """Recursively remove nodes with zero reference count."""
         self._bdd.collect_garbage()
 
-    def dump(self, filename, roots=None,
-             filetype=None, **kw):
+    def dump(
+            self,
+            filename:
+                str,
+            roots=None,
+            filetype=None,
+            **kw):
         """Write BDDs to `filename`.
 
         The file type is inferred from the
@@ -243,8 +249,6 @@ class BDD(dd._abc.BDD):
         Dumping a JSON file requires that `roots`
         be nonempty.
 
-        @type filename:
-            `str`
         @type filetype:
             `str`, e.g., `"pdf"`
         @type roots:
@@ -290,15 +294,17 @@ class BDD(dd._abc.BDD):
             roots=roots,
             filetype=filetype)
 
-    def load(self, filename, levels=True):
+    def load(
+            self,
+            filename:
+                str,
+            levels=True):
         """Load nodes from Pickle or JSON file `filename`.
 
         If `levels is True`,
         then load variables at the same levels.
         Otherwise, add missing variables.
 
-        @type filename:
-            `str`
         @return:
             roots of the loaded BDDs
         @rtype:

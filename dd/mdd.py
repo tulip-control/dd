@@ -45,6 +45,8 @@ TABMODULE: _ty.Final = (
 PLY_LOG = 'dd.mdd.ply'
 
 
+_Ref: _ty.TypeAlias = int
+_Level: _ty.TypeAlias = int
 class MDD:
     """Shared ordered multi-valued decision diagram.
 
@@ -150,14 +152,16 @@ class MDD:
         """Return level of variable `var`."""
         return self.vars[var]['level']
 
-    def ite(self, g, u, v):
-        """Return node for `if g then u, else v`.
-
-        @type g, u, v:
-            `int`
-        @rtype:
-            `int`
-        """
+    def ite(
+            self,
+            g:
+                _Ref,
+            u:
+                _Ref,
+            v:
+                _Ref
+            ) -> _Ref:
+        """Return node for `if g then u, else v`."""
         # is g terminal ?
         if g == 1:
             return u
@@ -219,13 +223,15 @@ class MDD:
             '`cofactor()`. (here: '
             f'{level = } and {u_level = }')
 
-    def find_or_add(self, i, *nodes):
+    def find_or_add(
+            self,
+            i:
+                _Level,
+            *nodes):
         """Return node at level `i` with successors in `nodes`.
 
         @param i:
             level in `range(len(vars))`
-        @type i:
-            `int`
         """
         if not (0 <= i < len(self.vars)):
             raise ValueError(i)
@@ -404,13 +410,14 @@ class MDD:
         raise ValueError(
             f'unknown operator "{op}"')
 
-    def dump(self, fname):
+    def dump(
+            self,
+            fname:
+                str):
         """Write MDD as a diagram to PDF file `fname`.
 
         @param fname:
             file name, ending with the substring `.pdf`.
-        @type fname:
-            `str`
 
         The diagram includes all nodes in the MDD.
         The diagram is created using GraphViz.

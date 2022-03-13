@@ -354,7 +354,13 @@ class BDD(dd._abc.BDD):
         """Return reference count of edge `u`."""
         return self._ref[abs(u)]
 
-    def add_var(self, var, level=None):
+    def add_var(
+            self,
+            var:
+                str,
+            level:
+                int |
+                None=None):
         """Declare a variable named `var` at `level`.
 
         The new variable is Boolean-valued.
@@ -378,12 +384,8 @@ class BDD(dd._abc.BDD):
 
         @param var:
             name of new variable to declare
-        @type var:
-            `str`
         @param level:
             level of new variable to declare
-        @type level:
-            `int`
         @return:
             level of variable `var`
         """
@@ -401,8 +403,15 @@ class BDD(dd._abc.BDD):
         self._init_terminal(len(self.vars))
         return level
 
-    def _check_var(self, var, level):
-        """Assert that `var` has `level`.
+    def _check_var(
+            self,
+            var:
+                str,
+            level:
+                int |
+                None
+                ) -> int:
+        r"""Assert that `var` has `level`.
 
         Return the level of `var`.
 
@@ -416,17 +425,12 @@ class BDD(dd._abc.BDD):
 
         @param var:
             name of variable
-        @type var:
-            `str`
         @param level:
-            integer to check as
-            level of `var`, or `None`
-        @type level:
-            `int` >= 0
+            level of variable
+            `level \in Nat`
         @return:
-            level of `var`
-        @rtype:
-            `int` >= 0
+            level of variable,
+            `level \in Nat`
         """
         if var not in self.vars:
             raise ValueError(
@@ -444,7 +448,12 @@ class BDD(dd._abc.BDD):
             f'{level} = level != '
             f'level of "{var}" = {var_level}')
 
-    def _next_free_level(self, var, level):
+    def _next_free_level(
+            self,
+            var,
+            level:
+                int
+                ) -> int:
         """Return a free level.
 
         Raise `ValueError`:
@@ -462,10 +471,6 @@ class BDD(dd._abc.BDD):
             used only to form the `ValueError` message
         @param level:
             level of intended new variable
-        @type level:
-            `int`
-        @rtype:
-            `int`
         """
         # assume next level is unoccupied
         if level is None:
@@ -515,16 +520,16 @@ class BDD(dd._abc.BDD):
     def var_levels(self):
         return dict(self.vars)
 
-    def _map_to_level(self, d):
+    def _map_to_level(
+            self,
+            d:
+                dict | set):
         """Map keys of `d` to variable levels.
 
         Uses `self.vars` to map the keys to levels.
 
         If `d` is an iterable but not a mapping,
         then an iterable is returned.
-
-        @type d:
-            `dict` or `set`
         """
         if not d:
             return d
@@ -582,12 +587,12 @@ class BDD(dd._abc.BDD):
             return level
         return min(map(level_of, nodes))
 
-    def copy(self, u, other):
-        """Transfer BDD with root `u` to `other`.
-
-        @type other:
-            `BDD`
-        """
+    def copy(
+            self,
+            u,
+            other:
+                'BDD'):
+        """Transfer BDD with root `u` to `other`."""
         return copy_bdd(u, self, other)
 
     def descendants(self, roots):
@@ -620,14 +625,15 @@ class BDD(dd._abc.BDD):
         self._descendants(w, visited)
         visited.add(r)
 
-    def is_essential(self, u, var):
+    def is_essential(
+            self,
+            u,
+            var:
+                int):
         """Return `True` if `var` is essential for node `u`.
 
         If `var` is a name undeclared in
         `self.vars`, return `False`.
-
-        @type var:
-            `int`
         """
         i = self.vars.get(var)
         if i is None:
@@ -1242,7 +1248,11 @@ class BDD(dd._abc.BDD):
             'full: reached `self.max_nodes` nodes '
             f'({self.max_nodes = }).')
 
-    def collect_garbage(self, roots=None):
+    def collect_garbage(
+            self,
+            roots:
+                set |
+                None=None):
         """Recursively remove unused nodes
 
         A node is unused when
@@ -1251,9 +1261,6 @@ class BDD(dd._abc.BDD):
         Removal starts from the nodes in `roots` with zero
         reference count. If no `roots` are given, then
         all nodes are scanned for zero reference counts.
-
-        @type roots:
-            `set`
         """
         n = len(self)
         if roots is None:
@@ -1317,7 +1324,13 @@ class BDD(dd._abc.BDD):
                 continue
             self._pred[t] = u
 
-    def swap(self, x, y, all_levels=None):
+    def swap(
+            self,
+            x:
+                str | int,
+            y:
+                str | int,
+            all_levels=None):
         """Permute adjacent variables `x` and `y`.
 
         Swapping invokes the garbage collector,
@@ -1325,8 +1338,6 @@ class BDD(dd._abc.BDD):
 
         @param x, y:
             variable name or level
-        @type x, y:
-            `str` or `int`
         """
         if all_levels is None:
             self.collect_garbage()
@@ -1502,7 +1513,11 @@ class BDD(dd._abc.BDD):
             oldsize,
             newsize)
 
-    def _low_high(self, u):
+    def _low_high(
+            self,
+            u:
+                int
+                ) -> tuple[int, int, int]:
         """Return level, low, and high.
 
         If node `u` is a leaf,
@@ -1511,12 +1526,8 @@ class BDD(dd._abc.BDD):
         This method is similar to the
         method `succ`, but different.
 
-        @type u:
-            `int`
         @return:
             (level, low, high)
-        @rtype:
-            `tuple(int, int, int)`
         """
         i, v, w = self._succ[abs(u)]
         if abs(u) == 1:
@@ -2026,15 +2037,15 @@ class BDD(dd._abc.BDD):
         return 1
 
 
-def _enumerate_minterms(cube, bits):
+def _enumerate_minterms(
+        cube:
+            dict,
+        bits:
+            set):
     """Generator of complete assignments in `cube`.
 
-    @type cube:
-        `dict`
     @param bits:
         enumerate over those absent from `cube`
-    @type bits:
-        `set`
     @rtype:
         generator of `dict(str: bool)`
     """
@@ -2328,7 +2339,12 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     return r
 
 
-def reorder(bdd, order=None):
+def reorder(
+        bdd:
+            BDD,
+        order:
+            dict[str, int] |
+            None=None):
     """Apply Rudell's sifting algorithm to reduce `bdd` size.
 
     Reordering invokes the garbage collector,
@@ -2336,10 +2352,8 @@ def reorder(bdd, order=None):
 
     @param order:
         if given, then swap vars to obtain this order.
-    @type order:
-        `dict(str: int)` from each var to a level
-    @type bdd:
-        `BDD`
+        The dictionary `order` maps each
+        variable name to a level.
     """
     len_before = len(bdd)
     if order is None:
@@ -2371,14 +2385,13 @@ def _apply_sifting(bdd):
     logger.info(f'final variable order:\n{bdd.vars}')
 
 
-def _reorder_var(bdd, var, levels):
-    """Reorder by sifting a variable `var`.
-
-    @type bdd:
-        `BDD`
-    @type var:
-        `str`
-    """
+def _reorder_var(
+        bdd:
+            BDD,
+        var:
+            str,
+        levels):
+    """Reorder by sifting a variable `var`."""
     if var not in bdd.vars:
         raise ValueError((var, bdd.vars))
     m = len(bdd)
@@ -2403,13 +2416,25 @@ def _reorder_var(bdd, var, levels):
     return k
 
 
-def _shift(bdd, start, end, levels):
-    """Shift level `start` to become `end`, by swapping.
+def _shift(
+        bdd:
+            BDD,
+        start:
+            int,
+        end:
+            int,
+        levels):
+    r"""Shift level `start` to become `end`, by swapping.
 
-    @type bdd:
-        `BDD`
-    @type start, end:
-        `0 <= int < len(bdd.vars)`
+    ```tla
+    ASSUMPTION
+        LET
+            n_vars == len(bdd.vars)
+            level_range == 0..(n_vars - 1)
+        IN
+            /\ start \in level_range
+            /\ end \in level_range
+    ```
     """
     m = len(bdd.vars)
     if not (0 <= start < m):
@@ -2426,12 +2451,11 @@ def _shift(bdd, start, end, levels):
     return sizes
 
 
-def _sort_to_order(bdd, order):
-    """Swap variables to obtain the given `order` of variables.
-
-    @type order:
-        `dict`
-    """
+def _sort_to_order(
+        bdd,
+        order:
+            dict):
+    """Swap variables to obtain `order`."""
     # TODO: use min number of swaps
     if len(bdd.vars) != len(order):
         raise ValueError(
@@ -2464,11 +2488,14 @@ def _sort_to_order(bdd, order):
     logger.info(f'total swaps: {m}')
 
 
-def reorder_to_pairs(bdd, pairs):
+def reorder_to_pairs(
+        bdd,
+        pairs:
+            dict[str, str]):
     """Reorder variables to make adjacent the given pairs.
 
-    @type pairs:
-        `dict` of variables as `str`
+    @param pairs:
+        has variable names as keys and values
     """
     m = 0
     levels = bdd._levels()
@@ -2490,13 +2517,16 @@ def reorder_to_pairs(bdd, pairs):
     logger.info(f'total swaps: {m}')
 
 
-def copy_bdd(u, from_bdd, to_bdd):
+def copy_bdd(
+        u,
+        from_bdd:
+            BDD,
+        to_bdd:
+            BDD):
     """Copy BDD of node `u` `from_bdd` `to_bdd`.
 
     @param u:
         node in `from_bdd`
-    @type from_bdd, to_bdd:
-        `BDD`
     """
     if from_bdd is to_bdd:
         logger.warning(
@@ -2515,17 +2545,22 @@ def copy_bdd(u, from_bdd, to_bdd):
     return r
 
 
-def _copy_bdd(u, level_map, old_bdd, bdd, cache):
+def _copy_bdd(
+        u,
+        level_map:
+            dict,
+        old_bdd:
+            BDD,
+        bdd:
+            BDD,
+        cache:
+            dict):
     """Recurse to copy nodes from `old_bdd` to `bdd`.
 
     @param u:
         node in `old_bdd`
-    @type level_map:
-        `dict` that maps old to new levels
-    @type old_bdd, bdd:
-        `BDD`
-    @type cache:
-        `dict`
+    @param level_map:
+        maps old to new levels
     """
     # terminal ?
     if abs(u) == 1:
@@ -2577,7 +2612,11 @@ def _flip(r, u):
     return -r if u < 0 else r
 
 
-def to_nx(bdd, roots):
+def to_nx(
+        bdd:
+            BDD,
+        roots:
+            set[int]):
     """Convert node references in `roots` to `networkx.MultiDiGraph`.
 
     The resulting graph has:
@@ -2592,9 +2631,7 @@ def to_nx(bdd, roots):
         - `complement`:
           `True` if target node is negated
 
-    @type bdd:
-        `BDD`
-    @type roots:
+    @param roots:
         iterable of edges, each a signed `int`
     @rtype:
         `networkx.MultiDiGraph`
@@ -2643,7 +2680,11 @@ def to_nx(bdd, roots):
     return g
 
 
-def to_pydot(roots, bdd):
+def to_pydot(
+        roots:
+            _abc.Iterable[int],
+        bdd:
+            BDD):
     """Convert `BDD` to pydot graph.
 
     Nodes are ordered by variable levels in support.
@@ -2655,11 +2696,6 @@ def to_pydot(roots, bdd):
 
     The roots are plotted as external references,
     with complemented edges where applicable.
-
-    @type roots:
-        container of BDD nodes
-    @type bdd:
-        `BDD`
     """
     if _pydot is None:
         raise _pydot_error

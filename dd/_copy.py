@@ -2,6 +2,7 @@
 # Copyright 2016-2018 by California Institute of Technology
 # All rights reserved. Licensed under 3-clause BSD.
 #
+import collections.abc as _abc
 import json
 import os
 import shelve
@@ -36,48 +37,56 @@ class _Ref(_ty.Protocol):
         ...
 
 
-def copy_vars(source, target):
-    """Copy variables, preserving levels.
+_BDD = dd._abc.BDD
 
-    @type source, target:
-        `autoref.BDD`
-    """
+
+def copy_vars(
+        source:
+            _BDD,
+        target:
+            _BDD):
+    """Copy variables, preserving levels."""
     for var in source.vars:
         level = source.level_of_var(var)
         target.add_var(var, level=level)
 
 
-def copy_bdds_from(roots, target):
-    """Copy BDDs in `roots` to manager `target`.
-
-    @param target:
-        BDD
-    """
+def copy_bdds_from(
+        roots,
+        target:
+            _BDD):
+    """Copy BDDs in `roots` to manager `target`."""
     cache = dict()
     return [
         copy_bdd(u, target, cache)
         for u in roots]
 
 
-def copy_bdd(root, target, cache=None):
+def copy_bdd(
+        root,
+        target:
+            _BDD,
+        cache:
+            dict |
+            None=None):
     """Copy BDD with `root` to manager `target`.
 
     @param target:
-        BDD or ZDD
+        BDD or ZDD context
     @param cache:
-        `dict` for memoizing results
+        for memoizing results
     """
     if cache is None:
         cache = dict()
     return _copy_bdd(root, target, cache)
 
 
-def _copy_bdd(u, bdd, cache):
-    """Recurse to copy node `u` to `bdd`.
-
-    @type cache:
-        `dict`
-    """
+def _copy_bdd(
+        u,
+        bdd,
+        cache:
+            dict):
+    """Recurse to copy node `u` to `bdd`."""
     # terminal ?
     if u == u.bdd.true:
         return bdd.true
@@ -119,13 +128,19 @@ def _flip(r, u):
     return ~ r if u.negated else r
 
 
-def copy_zdd(root, target, cache=None):
+def copy_zdd(
+        root,
+        target:
+            _BDD,
+        cache:
+            dict |
+            None=None):
     """Copy ZDD with `root` to manager `target`.
 
     @param target:
-        BDD or ZDD
+        BDD or ZDD context
     @param cache:
-        `dict` for memoizing results
+        for memoizing results
     """
     if cache is None:
         cache = dict()
@@ -133,12 +148,13 @@ def copy_zdd(root, target, cache=None):
     return _copy_zdd(level, root, target, cache)
 
 
-def _copy_zdd(level, u, target, cache):
-    """Recurse to copy node `u` to `target`.
-
-    @type cache:
-        `dict`
-    """
+def _copy_zdd(
+        level,
+        u,
+        target,
+        cache:
+            dict):
+    """Recurse to copy node `u` to `target`."""
     src = u.bdd
     # terminal ?
     if u == src.false:
@@ -164,7 +180,10 @@ def _copy_zdd(level, u, target, cache):
     return r
 
 
-def dump_json(nodes, file_name):
+def dump_json(
+        nodes:
+            dict[str, _Ref],
+        file_name):
     """Write reachable nodes to JSON file.
 
     Writes the nodes that are reachable from
@@ -175,12 +194,9 @@ def dump_json(nodes, file_name):
     variable order, to the same JSON file.
 
     @param nodes:
-        `dict` that maps names to
-        roots of the BDDs that will be written
-        to the JSON file
-    @type nodes:
-        `dict` with `str` keys and
-        `Function` values
+        maps names to roots of
+        the BDDs that will be written to
+        the JSON file
     """
     tmp_fname = os.path.join(
         SHELVE_DIR, 'temporary_shelf')
@@ -208,14 +224,14 @@ def _dump_json(nodes, fd, cache):
     fd.write('\n}\n')
 
 
-def _dump_bdd_info(nodes, fd):
+def _dump_bdd_info(
+        nodes:
+            dict[str, _Ref],
+        fd):
     """Dump variable levels and roots.
 
     @param nodes:
-        `dict` that maps
-        names to roots of BDDs
-    @type nodes:
-        `dict` with `str` keys
+        maps names to roots of BDDs
     """
     roots = _utils._map_container(_node_to_int, nodes)
     u = next(iter(_utils._values_of(nodes)))
@@ -405,8 +421,11 @@ def _make_node(d, bdd, context, cache):
     bdd.incref(u)
 
 
-def _decode_node(s):
-    """Map string `s` to node-like integer."""
+def _decode_node(
+        s:
+            str
+        ) -> int:
+    """Map `s` to node-like number."""
     match s:
         case 'F':
             return -1
@@ -415,18 +434,15 @@ def _decode_node(s):
     return int(s)
 
 
-def _node_from_int(uid, bdd, cache):
-    """Return `bdd` node `u` from integer `uid`.
-
-    @type uid:
-        `int`
-    @type bdd:
-        `BDD`
-    @type cache:
-        `dict`-like
-    @rtype:
-        `Function`
-    """
+def _node_from_int(
+        uid:
+            int,
+        bdd:
+            _BDD,
+        cache:
+            _abc.Mapping
+        ) -> _Ref:
+    """Return `bdd` node represented by `uid`."""
     if uid == -1:
         return bdd.false
     elif uid == 1:
@@ -437,8 +453,11 @@ def _node_from_int(uid, bdd, cache):
     return ~ u if uid < 0 else u
 
 
-def _node_to_int(u):
-    """Return integer representing node `u`."""
+def _node_to_int(
+        u:
+            _Ref
+        ) -> int:
+    """Return numeric representation of `u`."""
     z = _flip(u, u)
     k = int(z)
     return -k if u.negated else k

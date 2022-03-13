@@ -42,7 +42,7 @@ Contains:
   [Promela](https://en.wikipedia.org/wiki/Promela) syntax.
 - Pre/Image computation (relational product).
 - Renaming variables.
-- Zero-suppressed binary decision diagrams (ZDDs) in CUDD
+- Zero-omitted binary decision diagrams (ZDDs) in CUDD
 - Conversion from BDDs to MDDs.
 - Conversion functions to [`networkx`](https://networkx.org) and
   [`pydot`](https://pypi.org/project/pydot) graphs.

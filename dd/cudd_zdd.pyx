@@ -505,7 +505,7 @@ cdef class ZDD:
     def __str__(self):
         d = self.statistics()
         s = (
-            'Zero-suppressed binary decision diagram (CUDD wrapper).\n'
+            'Zero-omitted binary decision diagram (CUDD wrapper).\n'
             '\t {n} live nodes now\n'
             '\t {peak} live nodes at peak\n'
             '\t {n_vars} ZDD variables\n'

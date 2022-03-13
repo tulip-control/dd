@@ -106,7 +106,6 @@ class _ReorderingContext:
 
 class _NeedsReordering(Exception):
     """Raise this to request reordering."""
-    pass
 
 
 class BDD(dd._abc.BDD):

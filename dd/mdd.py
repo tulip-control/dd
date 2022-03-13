@@ -21,6 +21,7 @@ Michael Miller and Rolf Drechsler
 #
 import logging
 import sys
+import typing as _ty
 
 from dd import bdd as _bdd
 from dd.bdd import to_nx
@@ -30,7 +31,8 @@ from dd.bdd import to_nx
 
 
 logger = logging.getLogger(__name__)
-TABMODULE = 'dd.mdd_parsetab'
+TABMODULE: _ty.Final = (
+    'dd.mdd_parser_state_machine')
 PLY_LOG = 'dd.mdd.ply'
 
 

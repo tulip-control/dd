@@ -27,6 +27,7 @@ References
 # All rights reserved. Licensed under BSD-3.
 #
 import logging
+import typing as _ty
 
 import astutils
 import ply.lex
@@ -36,7 +37,7 @@ from dd.bdd import BDD
 
 
 logger = logging.getLogger(__name__)
-TABMODULE = 'dd.dddmp_parsetab'
+TABMODULE: _ty.Final = 'dd._dddmp_parser_state_machine'
 LEX_LOG = 'dd.dddmp.lex_logger'
 YACC_LOG = 'dd.dddmp.yacc_logger'
 PARSER_LOG = 'dd.dddmp.parser_logger'

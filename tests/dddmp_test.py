@@ -128,7 +128,7 @@ def test_load_dddmp():
 
 
 def test_rewrite_tables():
-    prefix = 'dddmp_parsetab'
+    prefix = '_dddmp_parser_state_machine'
     for ext in ('.py', '.pyc'):
         fname = f'{prefix}{ext}'
         if os.path.isfile(fname):

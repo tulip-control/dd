@@ -3,10 +3,12 @@
 # All rights reserved. Licensed under BSD-3.
 #
 import logging
+import typing as _ty
 import astutils
 
 
-TABMODULE = 'dd.bdd_parsetab'
+_TABMODULE: _ty.Final[str] =\
+    'dd._expr_parser_state_machine'
 _QUANTIFIERS = {r'\A', r'\E'}
 _BOOLEANS = {'false', 'true'}
 
@@ -150,7 +152,7 @@ class Parser(astutils.Parser):
     """Parser for Boolean formulae."""
 
     def __init__(self, **kw):
-        self.tabmodule = TABMODULE
+        self.tabmodule = _TABMODULE
         self.start = 'expr'
         # low to high
         self.precedence = (
@@ -380,7 +382,7 @@ def _rewrite_tables(outputdir='./'):
         `str`
     """
     astutils.rewrite_tables(
-        Parser, TABMODULE, outputdir)
+        Parser, _TABMODULE, outputdir)
 
 
 def _main():

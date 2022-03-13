@@ -15,7 +15,7 @@ sylvan/
 .DS_Store
 ._.DS_Store
 *.out
-*parsetab.py
+*_state_machine.py
 *.c
 __pycache__
 *.pyc

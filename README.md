@@ -249,7 +249,12 @@ license.
 The following libraries and their headers were used when building the modules
 `dd.cudd` and `dd.cudd_zdd` that are included in the wheel:
 
-- [Python](https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tgz),
+- Python: <https://www.python.org/ftp/python/3.A.B/Python-3.A.B.tgz>
+  (where `A` and `B` the numerals of
+   the corresponding Python version used;
+   for example `10` and `2` to signify Python 3.10.2).
+  CPython releases are described at:
+    <https://www.python.org/downloads/>
 - [CUDD](https://sourceforge.net/projects/cudd-mirror/files/cudd-3.0.0.tar.gz/download).
 
 The licenses of Python and CUDD are included in the wheel archive.

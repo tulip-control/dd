@@ -44,6 +44,7 @@ import collections.abc as _abc
 import logging
 import pickle
 import sys
+import typing as _ty
 import warnings
 
 import dd._abc
@@ -108,6 +109,23 @@ class _NeedsReordering(Exception):
     """Raise this to request reordering."""
 
 
+_Yes: _ty.TypeAlias = dd._abc.Yes
+_Nat: _ty.TypeAlias = dd._abc.Nat
+_VariableName: _ty.TypeAlias = dd._abc.VariableName
+_Level: _ty.TypeAlias = dd._abc.Level
+_VariableLevels: _ty.TypeAlias = dd._abc.VariableLevels
+_Node: _ty.TypeAlias = _Nat
+_Ref: _ty.TypeAlias = int
+    # ```tla
+    # ASSUME
+    #     _Ref \neq 0
+    # ```
+_Fork: _ty.TypeAlias = tuple[
+    _Level,
+    _Ref | None,
+    _Node | None]
+
+
 class BDD(dd._abc.BDD):
     """Shared ordered binary decision diagram.
 
@@ -134,58 +152,59 @@ class BDD(dd._abc.BDD):
     or call `update_predecessors` prior to calling `ite`.
     """
     # omitted docstrings are inheritted from `super()`
-    # "nat" below means "natural number",
-    # i.e., int >= 0
 
-    def __init__(self, levels=None):
+    def __init__(
+            self,
+            levels:
+                _VariableLevels |
+                None=None
+            ) -> None:
         if levels is None:
             levels = dict()
         _assert_valid_ordering(levels)
-        # (level, low, high) -> node
-        # tuple(nat, int, nat) -> nat
-        self._pred = dict()
-        # node -> (level, low, high)
-        # nat -> tuple(nat, int, nat)
-        self._succ = dict()
-        # reference counters
-        # node -> reference count
-        # nat -> nat
-        self._ref = dict()
+        self._pred: dict[
+            _Fork,
+            _Node
+            ] = dict()
+        self._succ: dict[
+            _Node,
+            _Fork
+            ] = dict()
+        self._ref: dict[
+            _Node,
+            _Nat
+            ] = dict()
         # all smaller positive integers
         # are used as node indices, and
         # no larger integers are used
         # as node indices
-        # nat
-        self._min_free = 2
-        # cache for ternary conditional
-        # ("ite" is an initialism for
-        #  "if-then-else")
-        # (condition, then, else) -> edge
-        # (int, int, int) -> int
-        self._ite_table = dict()
-        # mapping from variable names to
-        # levels of variables
-        # var name -> level
-        # str -> nat
-        self.vars = dict()
-        # mapping from levels of variables
-        # to variable names,
-        # inverse of `self.vars`
-        # level -> var name
-        # nat -> str
-        self._level_to_var = dict()
+        self._min_free: _Nat = 2
+            # minimum number unused as BDD index
+        self._ite_table: dict[
+            tuple[_Ref, _Ref, _Ref],
+            _Ref
+            ] = dict()
+            # `(predicate, then, else) |-> edge`
+            # cache for ternary conditional
+            # ("ite" means "if-then-else")
+        self.vars: _VariableLevels = dict()
+        self._level_to_var: dict[
+            _Level,
+            _VariableName
+            ] = dict()
+            # inverse of `self.vars`
         # handle no vars
         self._init_terminal(len(self.vars))
         # for decorator nesting
-        self._reordering_context = False
+        self._reordering_context: _Yes = False
         # after last reordering
-        self._last_len = None
+        self._last_len: _Nat | None = None
         for var, level in levels.items():
             self.add_var(var, level)
         # set of edges
         # optional
-        self.roots = set()
-        self.max_nodes = sys.maxsize
+        self.roots: set = set()
+        self.max_nodes: _Nat = sys.maxsize
 
     def __copy__(self):
         bdd = BDD(self.vars)

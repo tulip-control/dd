@@ -15,6 +15,15 @@ import typing as _ty
 
 
 Yes: _ty.TypeAlias = bool
+Nat: _ty.TypeAlias = int
+    # ```tla
+    # Nat
+    # ```
+VariableName: _ty.TypeAlias = str
+Level: _ty.TypeAlias = Nat
+VariableLevels: _ty.TypeAlias = dict[
+    VariableName,
+    Level]
 
 
 class BDD:

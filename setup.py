@@ -44,7 +44,7 @@ VERSION = f'{MAJOR}.{MINOR}.{MICRO}'
 VERSION_FILE_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")
-PYTHON_REQUIRES = '>=3.8'
+PYTHON_REQUIRES = '>=3.11'
 install_requires = [
     'astutils >= 0.0.1',
     'networkx >= 2.4',
@@ -62,9 +62,6 @@ CLASSIFIERS = [
     'Operating System :: OS Independent',
     'Programming Language :: Cython',
     'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
     'Topic :: Scientific/Engineering',
     'Topic :: Software Development']
 KEYWORDS = [

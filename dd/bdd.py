@@ -71,7 +71,10 @@ def _request_reordering(bdd):
 
 def _try_to_reorder(func):
     """Decorator that serves reordering requests."""
-    def _wrapper(bdd, *args, **kwargs):
+    def _wrapper(
+            bdd,
+            *args,
+            **kwargs):
         with _ReorderingContext(bdd):
             return func(bdd, *args, **kwargs)
         logger.info('Reordering needed...')

@@ -112,7 +112,11 @@ class Lexer:
     def t_error(self, t):
         raise Exception(f'Illegal character "{t.value[0]}"')
 
-    def build(self, debug=False, debuglog=None, **kwargs):
+    def build(
+            self,
+            debug=False,
+            debuglog=None,
+            **kwargs):
         """Create a lexer.
 
         @param kwargs:

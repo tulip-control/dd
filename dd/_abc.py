@@ -315,7 +315,10 @@ def reorder(bdd, order=None):
 class Operator:
     """Convenience wrapper for edges returned by `BDD`."""
 
-    def __init__(self, node, bdd):
+    def __init__(
+            self,
+            node,
+            bdd):
         if node not in bdd._bdd:
             raise ValueError(node)
         self.bdd = bdd

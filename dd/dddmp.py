@@ -79,27 +79,34 @@ class Lexer:
         self.build(debug=debug)
 
     # token rules
-    t_MINUS = r'\-'
-    t_DOT = r'\.'
-    t_NUMBER = r'\d+'
-    t_ignore = ' \t'
+    t_MINUS = r' \- '
+    t_DOT = r' \. '
+    t_NUMBER = r' \d+ '
+    t_ignore = ''.join(['\x20', '\t'])
 
     def t_KEYWORD(self, t):
-        r"\.[a-zA-Z][a-zA-Z]*"
+        r"""
+        \.
+        [a-zA-Z]
+        [a-zA-Z]*
+        """
         t.type = self.reserved.get(t.value, 'NAME')
         return t
 
     def t_NAME(self, t):
-        r"[a-zA-Z_][a-zA-Z_@0-9'\.]*"
+        r"""
+        [a-zA-Z_]
+        [a-zA-Z_@0-9'\.]*
+        """
         t.type = self.reserved.get(t.value, 'NAME')
         return t
 
     def t_comment(self, t):
-        r'\#.*'
+        r' \# .* '
         return
 
     def t_newline(self, t):
-        r'\n+'
+        r' \n+ '
         t.lexer.lineno += t.value.count('\n')
 
     def t_error(self, t):

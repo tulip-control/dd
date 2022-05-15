@@ -44,63 +44,90 @@ class Lexer(astutils.Lexer):
         super().__init__(**kw)
 
     def t_NAME(self, token):
-        r"[A-Za-z_][A-za-z0-9_']*"
+        r"""
+        [A-Za-z_]
+        [A-za-z0-9_']*
+        """
         token.type = self.reserved.get(
             token.value, 'NAME')
         return token
 
     def t_AND(self, token):
-        r'\&\&|\&|/\\'
+        r"""
+          \&\&
+        | \&
+        | /\\
+        """
         token.value = '&'
         return token
 
     def t_OR(self, token):
-        r'\|\||\||\\/'
+        r"""
+          \|\|
+        | \|
+        | \\/
+        """
         token.value = '|'
         return token
 
     def t_NOT(self, token):
-        r'\~|!'
+        r"""
+          \~
+        | !
+        """
         token.value = '!'
         return token
 
     def t_IMPLIES(self, token):
-        r'=>|\->'
+        r"""
+          =>
+        | \->
+        """
         token.value = '=>'
         return token
 
     def t_EQUIV(self, token):
-        r'<=>|<\->'
+        r"""
+          <=>
+        | <\->
+        """
         token.value = '<->'
         return token
 
-    t_XOR = r'\#|\^'
-    t_EQUALS = r'='
-    t_LPAREN = r'\('
-    t_RPAREN = r'\)'
-    t_MINUS = r'\-'
-    t_NUMBER = r'\d+'
-    t_COMMA = r','
-    t_COLON = r':'
-    t_FORALL = r'\\A'
-    t_EXISTS = r'\\E'
-    t_RENAME = r'\\S'
-    t_DIV = r'/'
-    t_AT = r'@'
-    t_ignore = ' \t'
+    t_XOR = r'''
+          \#
+        | \^
+        '''
+    t_EQUALS = r' = '
+    t_LPAREN = r' \( '
+    t_RPAREN = r' \) '
+    t_MINUS = r' \- '
+    t_NUMBER = r' \d+ '
+    t_COMMA = r' , '
+    t_COLON = r' : '
+    t_FORALL = r' \\ A '
+    t_EXISTS = r' \\ E '
+    t_RENAME = r' \\ S '
+    t_DIV = r' / '
+    t_AT = r' @ '
+    t_ignore = ''.join(['\x20', '\t'])
 
     def t_trailing_comment(
             self, token):
-        r'\\\*.*'
+        r' \\ \* .* '
         return
 
     def t_doubly_delimited_comment(
             self, token):
-        r'\(\*[\s\S]*?\*\)'
+        r"""
+        \( \*
+        [\s\S]*?
+        \* \)
+        """
         return
 
     def t_newline(self, token):
-        r'\n+'
+        r' \n+ '
         token.lexer.lineno += (
             token.value.count('\n'))
 

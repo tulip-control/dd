@@ -63,7 +63,6 @@ from libc.stdio cimport FILE, fdopen, fopen, fclose
 cimport libc.stdint as stdint
 from cpython cimport bool as python_bool
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
-import psutil
 # inline:
 # import networkx
 # import pydot
@@ -412,11 +411,13 @@ cdef class ZDD:
             maximum allowed memory, in bytes.
         """
         self.manager = NULL  # prepare for `__dealloc__`
-        total_memory = psutil.virtual_memory().total
+        total_memory = _utils.total_memory()
         default_memory = DEFAULT_MEMORY
         if memory_estimate is None:
             memory_estimate = default_memory
-        if memory_estimate >= total_memory:
+        if total_memory is None:
+            pass
+        elif memory_estimate >= total_memory:
             memory_example = round(total_memory / 2)
             msg = (
                 'Error in `dd.cudd_zdd.ZDD`: '

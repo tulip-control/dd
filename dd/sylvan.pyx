@@ -24,7 +24,6 @@ from cpython cimport bool as python_bool
 from libcpp cimport bool
 # from libc.stdio cimport FILE, fdopen, fopen, fclose
 # from cpython.mem cimport PyMem_Malloc, PyMem_Free
-import psutil
 
 from dd import _parser
 from dd import bdd as _bdd

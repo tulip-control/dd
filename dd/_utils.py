@@ -3,6 +3,7 @@
 # All rights reserved. Licensed under 3-clause BSD.
 #
 import collections.abc as _abc
+import os
 import textwrap as _tw
 import typing as _ty
 
@@ -181,3 +182,37 @@ def _values_of(
     if isinstance(container, _abc.Mapping):
         return container.values()
     return container
+
+
+def total_memory(
+        ) -> (
+            int |
+            None):
+    """Return number of bytes of memory.
+
+    Requires that:
+    - `SC_PAGE_SIZE` and
+    - `SC_PHYS_PAGES`
+    be readable via `os.sysconf()`.
+    """
+    names = os.sysconf_names
+    has_both = (
+        'SC_PAGE_SIZE' in names and
+        'SC_PHYS_PAGES' in names)
+    if not has_both:
+        print(
+            'skipping check that '
+            'initial memory estimate fits '
+            'in available memory of system, '
+            "because either `'SC_PAGE_SIZE'` or "
+            "`'SC_PHYS_PAGES'` undefined in "
+            '`os.sysconf_names`.')
+        return None
+    page_size = os.sysconf('SC_PAGE_SIZE')
+    n_pages = os.sysconf('SC_PHYS_PAGES')
+    both_defined = (
+        page_size >= 0 and
+        n_pages >= 0)
+    if not both_defined:
+        return None
+    return page_size * n_pages

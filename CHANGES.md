@@ -18,6 +18,10 @@ API:
   when loading BDDs from Pickle files in:
   - `dd.autoref.BDD.load()`
   - `dd.bdd.BDD.load()`
+- in `dd.cudd`, `dd.cudd_zdd`
+  check available memory only in systems where
+  both `SC_PAGE_SIZE` and `SC_PHYS_PAGES` are
+  defined (read `sysconf(3)`).
 - raise `ValueError` from:
   - `dd.autoref.BDD.level_of_var()`
   - `dd.bdd.BDD.level_of_var()`

@@ -4,8 +4,10 @@ import pytest
 
 class Tests:
     def setup_method(self):
-        self.DD = None  # `cudd.BDD` or `cudd_zdd.ZDD`
-        self.MODULE = None  # `cudd` or `cudd_zdd`
+        self.DD = None
+            # `cudd.BDD` or `cudd_zdd.ZDD`
+        self.MODULE = None
+            # `cudd` or `cudd_zdd`
 
     def test_add_var(self):
         bdd = self.DD()
@@ -262,12 +264,14 @@ class Tests:
         u = bdd.add_expr(r'x /\ ~ y')
         # make an erroneous external modification
         assert u.ref == 1, u.ref
-        u._ref = -1  # erroneous value
+        u._ref = -1
+            # erroneous value
         with pytest.raises(AssertionError):
             self.MODULE._test_call_dealloc(u)
         assert u.ref == 1, u.ref
         assert u._ref == -1, u._ref
-        u._ref = 1  # restore
+        u._ref = 1
+            # restore
         del u
         assert len(bdd) == 0, len(bdd)
 

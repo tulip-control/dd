@@ -221,7 +221,8 @@ class BDD(dd._abc.BDD):
 
     def __del__(self):
         """Assert that all remaining nodes are garbage."""
-        self.decref(1)  # free ref from `self._init_terminal`
+        self.decref(1)
+            # free ref from `self._init_terminal`
         self.collect_garbage()
         if not all(v == 0 for v in self._ref.values()):
             raise AssertionError(
@@ -678,7 +679,8 @@ class BDD(dd._abc.BDD):
                 level for var, level in self.vars.items()
                 if var not in vrs}
         # map old to new levels
-        n = 1 + len(self.vars)  # include terminal
+        n = 1 + len(self.vars)
+            # include terminal
         new_levels = [i for i in range(n) if i in full_levels]
         new_levels = {i: new for new, i in enumerate(new_levels)}
         # update variables and level declarations
@@ -934,9 +936,11 @@ class BDD(dd._abc.BDD):
         q = self._quantify(w, j, ordvar, qvars, forall, cache)
         if i in qvars:
             if forall:
-                r = self.ite(p, q, -1)  # conjoin
+                r = self.ite(p, q, -1)
+                    # conjoin
             else:
-                r = self.ite(p, 1, q)  # disjoin
+                r = self.ite(p, 1, q)
+                    # disjoin
         else:
             r = self.find_or_add(i, p, q)
         cache[u] = r
@@ -2008,9 +2012,11 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     # quantified ?
     if z in qvars:
         if forall:
-            r = bdd.ite(p, q, -1)  # conjoin
+            r = bdd.ite(p, q, -1)
+                # conjoin
         else:
-            r = bdd.ite(p, 1, q)  # disjoin
+            r = bdd.ite(p, 1, q)
+                # disjoin
     else:
         if umap is None:
             m = z

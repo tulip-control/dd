@@ -164,9 +164,9 @@ def _parenthesize(string) -> str:
 
 def benchmark(n):
     """Run for `n` queens and print statistics."""
-    t0 = time.time()
+    t0 = time.perf_counter()
     u, bdd = solve_queens(n)
-    t1 = time.time()
+    t1 = time.perf_counter()
     dt = t1 - t0
     s = (
         '------\n'

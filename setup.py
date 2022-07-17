@@ -51,7 +51,7 @@ install_requires = [
     'ply >= 3.4, <= 3.10',
     'psutil >= 3.2.2',
     'pydot >= 1.2.2',
-    'setuptools >= 19.6']
+    'setuptools >= 42.0.0']
 TESTS_REQUIRE = [
     'pytest >= 4.6.11']
 CLASSIFIERS = [

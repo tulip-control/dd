@@ -96,7 +96,8 @@ def get_signature(func):
     return sig
 
 
-if __name__ == '__main__':
+def _main():
+    """Check that `dd.cudd.BDD` implements `dd._abc`."""
     # BDD manager
     a = _abc.BDD()
     b = cudd.BDD()
@@ -109,3 +110,7 @@ if __name__ == '__main__':
     b.declare('x')
     v = b.add_expr('x')
     inspect_signatures(u, v)
+
+
+if __name__ == '__main__':
+    _main()

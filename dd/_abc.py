@@ -26,7 +26,7 @@ VariableLevels: _ty.TypeAlias = dict[
     Level]
 
 
-class BDD:
+class BDD(_ty.Protocol):
     """Shared reduced ordered binary decision diagram."""
 
     def __init__(self, levels=None):
@@ -312,7 +312,7 @@ def reorder(bdd, order=None):
     """
 
 
-class Operator:
+class Operator(_ty.Protocol):
     """Convenience wrapper for edges returned by `BDD`."""
 
     def __init__(

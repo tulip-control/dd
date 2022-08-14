@@ -65,8 +65,13 @@ CLASSIFIERS = [
     'Topic :: Scientific/Engineering',
     'Topic :: Software Development']
 KEYWORDS = [
-    'bdd', 'binary decision diagram', 'decision diagram',
-    'boolean', 'networkx', 'dot', 'graphviz']
+    'bdd',
+    'binary decision diagram',
+    'decision diagram',
+    'boolean',
+    'networkx',
+    'dot',
+    'graphviz']
 
 
 def git_version(version):

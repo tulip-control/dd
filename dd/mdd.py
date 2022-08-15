@@ -199,7 +199,7 @@ class MDD:
         if len(set(nodes)) == 1:
             return r * nodes[0]
         # already exists ?
-        t = (i,) + nodes
+        t = (i, *nodes)
         u = self._pred.get(t)
         if u is not None:
             return r * u

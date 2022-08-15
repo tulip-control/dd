@@ -19,6 +19,7 @@ Michael Miller and Rolf Drechsler
 # Copyright 2015 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
+import itertools as _itr
 import logging
 import sys
 import typing as _ty
@@ -163,8 +164,9 @@ class MDD:
         gc = self._top_cofactor(g, z)
         uc = self._top_cofactor(u, z)
         vc = self._top_cofactor(v, z)
-        nodes = tuple(self.ite(a, b, c)
-                      for a, b, c in zip(gc, uc, vc))
+        nodes = tuple(_itr.starmap(
+            self.ite,
+            zip(gc, uc, vc)))
         w = self.find_or_add(z, nodes)
         # cache
         self._ite_table[t] = w

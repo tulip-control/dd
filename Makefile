@@ -122,6 +122,21 @@ run_examples:
 show_deprecated:
 	python -X dev -Wall -c "from dd import bdd"
 
+typecheck:
+	pytype \
+	    -k \
+	    -v 1 \
+	    -j 'auto' \
+	        dd/*.py \
+	        setup.py \
+	        install.py \
+	        examples/*.py
+	        # tests/*.py
+	        # download.py
+
+clean_type_cache:
+	-rm -rf .pytype/
+
 cudd:
 	pushd cudd-*/; \
 	make build XCFLAGS="\

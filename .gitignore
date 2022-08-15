@@ -1,5 +1,7 @@
 .coverage
 .cache
+.mypy_cache/
+.pytype/
 .pytest_cache/
 todo.txt
 dd/_version.py

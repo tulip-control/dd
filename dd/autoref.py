@@ -87,6 +87,10 @@ class BDD(dd._abc.BDD):
     def decref(self, u, **kw):
         self._bdd.decref(u.node)
 
+    def declare(self, *variables):
+        for var in variables:
+            self.add_var(var)
+
     def add_var(self, var, level=None):
         return self._bdd.add_var(var, level=level)
 

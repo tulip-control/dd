@@ -83,8 +83,6 @@ class BDD(_ty.Protocol[Ref]):
         bdd.declare('x', 'y', 'z')
         ```
         """
-        for var in variables:
-            self.add_var(var)
 
     def var(self, var):
         """Return node for variable named `var`."""

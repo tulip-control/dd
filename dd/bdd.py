@@ -354,6 +354,10 @@ class BDD(dd._abc.BDD):
         """Return reference count of edge `u`."""
         return self._ref[abs(u)]
 
+    def declare(self, *variables):
+        for var in variables:
+            self.add_var(var)
+
     def add_var(
             self,
             var:

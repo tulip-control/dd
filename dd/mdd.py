@@ -172,6 +172,42 @@ class MDD:
         self._ite_table[t] = w
         return w
 
+    def _top_cofactor(self, u, level):
+        """Return topmost cofactors.
+
+        If `level` is the topmost level of `u`,
+        then return successors. Else return
+        copies of `u`.
+        """
+        varname = self.var_at_level(level)
+        n = self.vars[varname]['len']
+        # leaf ?
+        if abs(u) == 1:
+            return (u,) * n
+        u_level, *nodes = self._succ[abs(u)]
+        if level < u_level:
+            return (u,) * n
+        def check(
+                node
+                ) -> int:
+            if node:
+                return node
+            raise AssertionError(node)
+        nodes = map(check, nodes)
+        if level == u_level:
+            if u > 0:
+                return tuple(nodes)
+            if u < 0:
+                return tuple(-v for v in nodes)
+            raise AssertionError(
+                'Expected `u != 0`, '
+                f'but: {u = }')
+        raise AssertionError(
+            'for `u_level < level`, '
+            'call instead the method '
+            '`cofactor()`. (here: '
+            f'{level = } and {u_level = }')
+
     def find_or_add(self, i, *nodes):
         """Return node at level `i` with successors in `nodes`.
 

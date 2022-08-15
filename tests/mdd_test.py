@@ -8,6 +8,19 @@ import dd.mdd
 logger = logging.getLogger(__name__)
 
 
+def test_ite():
+    dvars = dict(
+        x=dict(level=0, len=2),
+        y=dict(level=1, len=2))
+    mdd = dd.mdd.MDD(dvars)
+    u = mdd.find_or_add(0, -1, 1)
+    v = mdd.find_or_add(1, -1, 1)
+    g = mdd.find_or_add(0, -1, 1)
+    r_ = mdd.find_or_add(0, v, 1)
+    r = mdd.ite(g, u, v)
+    assert r == r_, (r, r_)
+
+
 def test_find_or_add():
     dvars = dict(x=dict(level=0, len=4),
                  y=dict(level=1, len=2))

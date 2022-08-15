@@ -302,6 +302,7 @@ class Parser:
         self.var_ids = None
         self.permuted_var_ids = None
         self.aux_var_ids = None
+        self.info2permid = None
 
     def _assert_consistent(self):
         """Check that the loaded attributes are reasonable."""

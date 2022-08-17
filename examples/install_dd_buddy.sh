@@ -18,16 +18,18 @@ files/buddy/BuDDy%202.4/buddy-2.4.tar.gz/download
 curl -L $BUDDY_URL -o $BUDDY_ARCHIVE
 tar -xzf $BUDDY_ARCHIVE
 cd buddy-*/
-./configure  # as described in
-#    the README file of BuDDy
+./configure
+    # as described in
+    # the README file of BuDDy
 make
-make install  # installs to:
-#     `/usr/local/include/` and
-#     `/usr/local/lib/`
-#
-# The installation location can
-# be changed with
-# `./configure --prefix=/where/to/install`
+make install
+    # installs to:
+    # `/usr/local/include/` and
+    # `/usr/local/lib/`
+    #
+    # The installation location can
+    # be changed with
+    # `./configure --prefix=/where/to/install`
 
 
 # Fetch and install `dd`

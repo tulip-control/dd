@@ -11,6 +11,7 @@
 
 
 set -v
+set -e
 # Fetch and install Sylvan
 SYLVAN_ARCHIVE=sylvan.tar.gz
 SYLVAN_URL=https://github.com/\

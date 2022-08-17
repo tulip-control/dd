@@ -26,6 +26,7 @@
 
 
 set -v
+set -e
 pip install dd  # to first install dependencies of `dd`
 pip uninstall -y dd
 pip download --no-deps dd --no-binary dd

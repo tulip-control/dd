@@ -10,6 +10,7 @@
 
 
 set -v
+set -e
 # Fetch and build BuDDy
 BUDDY_ARCHIVE=buddy-2.4.tar.gz
 BUDDY_URL=https://sourceforge.net/projects/buddy/\

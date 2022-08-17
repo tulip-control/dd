@@ -12,24 +12,33 @@
 set -v
 set -e
 # Fetch and build BuDDy
+BUDDY_INSTALL_PREFIX=`pwd`
 BUDDY_ARCHIVE=buddy-2.4.tar.gz
 BUDDY_URL=https://sourceforge.net/projects/buddy/\
 files/buddy/BuDDy%202.4/buddy-2.4.tar.gz/download
 curl -L $BUDDY_URL -o $BUDDY_ARCHIVE
 tar -xzf $BUDDY_ARCHIVE
 pushd buddy-*/
-./configure
+./configure \
+    --prefix=$BUDDY_INSTALL_PREFIX
     # as described in
     # the README file of BuDDy
 make
 make install
-    # installs to:
+    # by default installs to:
     # `/usr/local/include/` and
     # `/usr/local/lib/`
     #
     # The installation location can
     # be changed with
     # `./configure --prefix=/where/to/install`
+export CFLAGS="-I$BUDDY_INSTALL_PREFIX/include"
+export LDFLAGS="-L$BUDDY_INSTALL_PREFIX/lib"
+export LD_LIBRARY_PATH=\
+$BUDDY_INSTALL_PREFIX/lib:$LD_LIBRARY_PATH
+echo $CFLAGS
+echo $LDFLAGS
+echo $LD_LIBRARY_PATH
 popd
 
 

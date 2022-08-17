@@ -17,50 +17,13 @@ jobs:
                     ]
         steps:
             - uses: actions/checkout@v2
-            - name: Install APT packages
-              run: |
-                sudo apt install \
-                    graphviz
             - name: Set up Python ${{ matrix.python-version }}
               uses: actions/setup-python@v2
               with:
                   python-version: ${{ matrix.python-version }}
-            - name: Update Python environment
+            - name: Prepare installation environment
               run: |
-                pip install --upgrade pip setuptools
-            - name: Install setup dependencies
-              run: |
-                # note that installing from `requirements.txt`
-                # would also install packages that
-                # may be absent from where `dd` will be installed
-                pip install cython
-            - name: Display version of GraphViz `dot`
-              run: |
-                dot -V
-            - name: Install `sylvan`
-              run: |
-                # download
-                curl -L \
-                https://github.com/utwente-fmt/sylvan/tarball/v1.0.0 \
-                -o sylvan.tar.gz
-                # checksum
-                echo "9877fe07a8cfe9889152e29624a4c5b283\
-                cb34672ec524ccb3edb313b3057fbf8ef45622a4\
-                9796fae17aa24e0baea5ccfa18f1bc5923e3c552\
-                45ab3e3c1927c8  sylvan.tar.gz" | shasum -a 512 -c -
-                # unpack
-                mkdir sylvan
-                tar xzf sylvan.tar.gz -C sylvan --strip=1
-                cd sylvan
-                autoreconf -fi
-                ./configure
-                make
-                export LD_LIBRARY_PATH=`pwd`/src/.libs:$LD_LIBRARY_PATH
-                echo $LD_LIBRARY_PATH
-                # store values to use in later steps for
-                # environment variables
-                echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" \
-                >> $GITHUB_ENV
+                ./.github/workflows/setup_build_env.sh
             - name: Install `dd`
               run: |
                 set -o posix

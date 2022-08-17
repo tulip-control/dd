@@ -25,7 +25,7 @@ cb34672ec524ccb3edb313b3057fbf8ef45622a4\
 # unpack
 mkdir sylvan
 tar xzf sylvan.tar.gz -C sylvan --strip=1
-cd sylvan
+pushd sylvan
 autoreconf -fi
 ./configure
 make
@@ -36,6 +36,7 @@ export LD_LIBRARY_PATH=`pwd`/src/.libs:$LD_LIBRARY_PATH
 echo $CFLAGS
 echo $LDFLAGS
 echo $LD_LIBRARY_PATH
+popd
 
 
 # Fetch and install `dd`

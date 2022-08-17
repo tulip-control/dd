@@ -17,7 +17,7 @@ BUDDY_URL=https://sourceforge.net/projects/buddy/\
 files/buddy/BuDDy%202.4/buddy-2.4.tar.gz/download
 curl -L $BUDDY_URL -o $BUDDY_ARCHIVE
 tar -xzf $BUDDY_ARCHIVE
-cd buddy-*/
+pushd buddy-*/
 ./configure
     # as described in
     # the README file of BuDDy
@@ -30,6 +30,7 @@ make install
     # The installation location can
     # be changed with
     # `./configure --prefix=/where/to/install`
+popd
 
 
 # Fetch and install `dd`

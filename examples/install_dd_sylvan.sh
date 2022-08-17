@@ -41,6 +41,11 @@ popd
 
 # Fetch and install `dd`
 pip install -r <(echo "dd --install-option='--sylvan'")
+# fetch `dd` source
+pip download \
+    --no-deps dd \
+    --no-binary dd
+tar -xzf dd-*.tar.gz
 # confirm that `dd.sylvan` did get installed
-cd tests/
+cd dd-*/tests/
 python -c 'import dd.sylvan'

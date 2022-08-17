@@ -37,6 +37,11 @@ popd
 pip install -r <(echo "dd --install-option='--buddy'")
     # passes `-lbdd` to the C compiler
 #
+# fetch `dd` source
+pip download \
+    --no-deps dd \
+    --no-binary dd
+tar -xzf dd-*.tar.gz
 # confirm that `dd.buddy` did get installed
-cd tests/
+cd dd-*/tests/
 python -c 'import dd.buddy'

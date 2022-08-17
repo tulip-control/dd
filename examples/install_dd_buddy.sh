@@ -43,5 +43,6 @@ pip download \
     --no-binary dd
 tar -xzf dd-*.tar.gz
 # confirm that `dd.buddy` did get installed
-cd dd-*/tests/
+pushd dd-*/tests/
 python -c 'import dd.buddy'
+popd

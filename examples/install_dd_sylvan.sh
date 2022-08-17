@@ -58,5 +58,6 @@ pip download \
     --no-binary dd
 tar -xzf dd-*.tar.gz
 # confirm that `dd.sylvan` did get installed
-cd dd-*/tests/
+pushd dd-*/tests/
 python -c 'import dd.sylvan'
+popd

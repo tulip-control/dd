@@ -35,8 +35,10 @@ pip download \
     --no-deps dd \
     --no-binary dd
 tar -xzf dd-*.tar.gz
-cd dd-*/
+pushd dd-*/
 python setup.py install --fetch --cudd --cudd_zdd
 # confirm that `dd.cudd` did get installed
-cd tests/
+pushd tests/
 python -c 'import dd.cudd'
+popd
+popd

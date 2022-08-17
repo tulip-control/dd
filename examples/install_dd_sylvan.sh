@@ -12,6 +12,17 @@
 
 set -v
 set -e
+# check for Sylvan build dependencies
+if ! command -v autoreconf &> /dev/null
+then
+    echo "apt install autoconf"
+    exit
+fi
+if ! command -v libtoolize &> /dev/null
+then
+    echo "apt install libtool"
+    exit
+fi
 # Fetch and install Sylvan
 SYLVAN_ARCHIVE=sylvan.tar.gz
 SYLVAN_URL=https://github.com/\

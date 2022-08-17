@@ -96,8 +96,9 @@ develop:
 
 test:
 	set -x; \
-	cd tests/; \
-	python -X dev -m pytest -v --continue-on-collection-errors .
+	pushd tests; \
+	python -X dev -m pytest -v --continue-on-collection-errors . && \
+	popd
 # `pytest -Werror` turns all warnings into errors
 #     <https://docs.pytest.org/en/latest/how-to/capture-warnings.html>
 # including pytest warnings about unraisable exceptions:
@@ -110,25 +111,27 @@ test_abc:
 	python -X dev tests/inspect_cython_signatures.py
 
 run_examples:
-	cd examples/; \
+	pushd examples/; \
 	for script in `ls *.py`;  \
 	do \
 	    echo "Running: $$script"; \
 	    python -X dev $$script; \
-	done;
+	done && \
+	popd
 
 show_deprecated:
 	python -X dev -Wall -c "from dd import bdd"
 
 cudd:
-	cd cudd-*; \
+	pushd cudd-*/; \
 	make build XCFLAGS="\
 	    -fPIC \
 	    -mtune=native \
 	    -DHAVE_IEEE_754 \
 	    -DBSD \
 	    -DSIZEOF_VOID_P=8 \
-	    -DSIZEOF_LONG=8"
+	    -DSIZEOF_LONG=8" && \
+	popd
 
 doc:
 	grip --export doc.md index.html
@@ -140,7 +143,7 @@ download_licenses:
 clean_all: clean_cudd clean
 
 clean_cudd:
-	cd cudd-*; make clean
+	pushd cudd-*/; make clean && popd
 
 clean:
 	-rm -rf build/ dist/ dd.egg-info/

@@ -292,8 +292,9 @@ Tests
 Use [`pytest`](https://pypi.org/project/pytest). Run with:
 
 ```shell
-cd tests/
+pushd tests/
 pytest -v --continue-on-collection-errors .
+popd
 ```
 
 Tests of Cython modules that were not installed will fail.

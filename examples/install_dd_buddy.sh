@@ -9,6 +9,7 @@
 # ./install_dd_buddy.sh
 
 
+set -v
 # Fetch and build BuDDy
 BUDDY_ARCHIVE=buddy-2.4.tar.gz
 BUDDY_URL=https://sourceforge.net/projects/buddy/\

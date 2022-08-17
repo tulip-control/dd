@@ -27,7 +27,7 @@
 
 pip install dd  # to first install dependencies of `dd`
 pip uninstall -y dd
-pip download --no-deps dd
+pip download --no-deps dd --no-binary dd
 tar -xzf dd-*.tar.gz
 cd dd-*/
 python setup.py install --fetch --cudd --cudd_zdd

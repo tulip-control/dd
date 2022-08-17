@@ -57,7 +57,8 @@ jobs:
                 make
                 export LD_LIBRARY_PATH=`pwd`/src/.libs:$LD_LIBRARY_PATH
                 echo $LD_LIBRARY_PATH
-                # store values to use in later steps for environment variables
+                # store values to use in later steps for
+                # environment variables
                 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" \
                 >> $GITHUB_ENV
             - name: Install `dd`

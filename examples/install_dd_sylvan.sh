@@ -30,7 +30,11 @@ autoreconf -fi
 ./configure
 make
 # update the environment variable `LD_LIBRARY_PATH`
+export CFLAGS="-I`pwd`/src"
+export LDFLAGS="-L`pwd`/src/.libs"
 export LD_LIBRARY_PATH=`pwd`/src/.libs:$LD_LIBRARY_PATH
+echo $CFLAGS
+echo $LDFLAGS
 echo $LD_LIBRARY_PATH
 
 

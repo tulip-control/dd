@@ -10,11 +10,11 @@ Henrik R. Andersen
     The IT University of Copenhagen
     Sec.6.1
 """
+import collections.abc as _abc
 import pickle
 import time
 
 import dd.bdd as _bdd
-import omega.logic.syntax as stx
 
 
 def solve_queens(n):
@@ -39,7 +39,7 @@ def queens_formula(n):
     cols = at_most_one_queen_per_line(False, n)
     slash = at_most_one_queen_per_diagonal(True, n)
     backslash = at_most_one_queen_per_diagonal(False, n)
-    s = stx.conj([present, rows, cols, slash, backslash])
+    s = _conjoin([present, rows, cols, slash, backslash])
     return s
 
 
@@ -48,9 +48,9 @@ def at_least_one_queen_per_row(n):
     c = list()
     for i in range(n):
         xijs = [_var_str(i, j) for j in range(n)]
-        s = stx.disj(xijs)
+        s = _disjoin(xijs)
         c.append(s)
-    return stx.conj(c)
+    return _conjoin(c)
 
 
 def at_most_one_queen_per_line(row, n):
@@ -66,7 +66,7 @@ def at_most_one_queen_per_line(row, n):
             xijs = [_var_str(j, i) for j in range(n)]
         s = mutex(xijs)
         c.append(s)
-    return stx.conj(c)
+    return _conjoin(c)
 
 
 def at_most_one_queen_per_diagonal(slash, n):
@@ -93,7 +93,7 @@ def at_most_one_queen_per_diagonal(slash, n):
         xijs = [_var_str(i, j) for i, j in ijs]
         s = mutex(xijs)
         c.append(s)
-    return stx.conj(c)
+    return _conjoin(c)
 
 
 def mutex(v):
@@ -104,15 +104,58 @@ def mutex(v):
     v = set(v)
     c = list()
     for x in v:
-        rest = stx.disj(y for y in v if y != x)
+        rest = _disjoin(y for y in v if y != x)
         s = f'{x} => ~ ({rest})'
         c.append(s)
-    return stx.conj(c)
+    return _conjoin(c)
 
 
 def _var_str(i, j):
     """Return variable for occupancy of cell at {row: i, column: j}."""
     return f'x{i}{j}'
+
+
+def _conjoin(
+        strings:
+            _abc.Iterable
+        ) -> str:
+    """Return conjunction of `strings`."""
+    expr = _apply_infix(
+        strings,
+        operator=r' /\ ')
+    if not expr:
+        expr = 'FALSE'
+    return expr
+
+
+def _disjoin(
+        strings:
+            _abc.Iterable
+        ) -> str:
+    """Return disjunction of `strings`."""
+    expr = _apply_infix(
+        strings,
+        operator=r' \/ ')
+    if not expr:
+        expr = 'TRUE'
+    return expr
+
+
+def _apply_infix(
+        strings:
+            _abc.Iterable,
+        operator:
+            str
+        ) -> str:
+    """Apply infix `operator` to `strings`."""
+    nonempty = filter(None, strings)
+    parenthesized = map(_parenthesize, nonempty)
+    return operator.join(parenthesized)
+
+
+def _parenthesize(string) -> str:
+    """Return `string` within parentheses."""
+    return f'({string})'
 
 
 def benchmark(n):

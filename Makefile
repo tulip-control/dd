@@ -77,16 +77,7 @@ develop:
 test:
 	set -x; \
 	cd tests/; \
-	if test True = `python -c \
-	'import sys; \
-	print(sys.version_info.major > 3 or (\
-	sys.version_info.major == 3 and \
-	sys.version_info.minor >= 7))'`; \
-	then \
-	python -X dev -m pytest -v --continue-on-collection-errors .; \
-	else \
-	python -m pytest -v --continue-on-collection-errors .; \
-	fi
+	python -X dev -m pytest -v --continue-on-collection-errors .
 # `pytest -Werror` turns all warnings into errors
 #     https://docs.pytest.org/en/latest/how-to/capture-warnings.html
 # including pytest warnings about unraisable exceptions:

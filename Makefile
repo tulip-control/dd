@@ -1,6 +1,7 @@
 # build, install, test, release `dd`
 
 
+SHELL := bash
 wheel_file := $(wildcard dist/*.whl)
 temp_file := _temp.txt
 

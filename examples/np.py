@@ -52,7 +52,9 @@ def comparing_two_variable_orders():
 
 
 def list_to_dict(c):
-    return {var: level for level, var in enumerate(c)}
+    return {
+        var: level
+        for level, var in enumerate(c)}
 
 
 def prime(s):

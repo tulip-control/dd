@@ -2375,7 +2375,9 @@ def to_pydot(roots, bdd):
         e = pydot.Edge(str(u), str(v), style='invis')
         g.add_edge(e)
     # add nodes
-    idx2var = {k: v for v, k in bdd.vars.items()}
+    idx2var = {
+        k: v
+        for v, k in bdd.vars.items()}
     # BDD nodes
     def f(x):
         return str(abs(x))

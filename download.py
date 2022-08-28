@@ -1,4 +1,5 @@
 """Retrieve and build dependencies of C extensions."""
+import argparse as _arg
 import collections.abc as _abc
 import ctypes
 import functools as _ft
@@ -73,7 +74,11 @@ SYLVAN_INCLUDE = [
 SYLVAN_LINK = [[SYLVAN_PATH, 'src/.libs']]
 
 
-def extensions(args):
+def extensions(
+        args:
+            _arg.Namespace
+        ) -> list[
+            _extension.Extension]:
     """Return C extensions, cythonize as needed.
 
     @param args:
@@ -98,7 +103,7 @@ def extensions(args):
     cudd_link = [(path, s) for s in CUDD_LINK]
     _copy_cudd_license(args)
     _copy_extern_licenses(args)
-    extensions = dict(
+    c_extensions = dict(
         cudd=_extension.Extension(
             'dd.cudd',
             sources=[f'dd/cudd{pyx}'],
@@ -126,21 +131,24 @@ def extensions(args):
             extra_compile_args=sylvan_cflags))
     for ext in EXTENSIONS:
         if getattr(args, ext) is None:
-            extensions.pop(ext)
+            c_extensions.pop(ext)
     if pyx == '.pyx':
         ext_modules = list()
-        for k, v in extensions.items():
+        for k, v in c_extensions.items():
             c = _build.cythonize(
                 [v],
                 compiler_directives=directives,
                 compile_time_env=compile_time_env)
             ext_modules.append(c[0])
     else:
-        ext_modules = list(extensions.values())
+        ext_modules = list(c_extensions.values())
     return ext_modules
 
 
-def _copy_cudd_license(args):
+def _copy_cudd_license(
+        args:
+            _arg.Namespace
+        ) -> None:
     """Include CUDD's license in wheels."""
     path = args.cudd if args.cudd else CUDD_PATH
     license = os.path.join(path, 'LICENSE')
@@ -154,7 +162,10 @@ def _copy_cudd_license(args):
         os.remove(included)
 
 
-def _copy_extern_licenses(args):
+def _copy_extern_licenses(
+        args:
+            _arg.Namespace
+        ) -> None:
     """Include in wheels licenses related to building CUDD.
 
     To fetch the license files, invoke `make download_licenses`.
@@ -362,7 +373,8 @@ def untar(
     print('-- done unpacking.')
 
 
-def make_cudd():
+def make_cudd(
+        ) -> None:
     """Compile CUDD."""
     path = CUDD_PATH
     cmd = ["./configure", "CFLAGS=-fPIC -std=c99"]

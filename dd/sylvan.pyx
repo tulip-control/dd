@@ -13,24 +13,38 @@ Reference
 # Copyright 2016 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
+import collections.abc as _abc
 import logging
 import pickle
 # import pprint
 # import sys
 import signal
 import time
+import typing as _ty
 
 from cpython cimport bool as python_bool
 from libcpp cimport bool
 # from libc.stdio cimport FILE, fdopen, fopen, fclose
 # from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
+import dd._abc as _dd_abc
 from dd import _parser
 from dd import bdd as _bdd
 from dd cimport c_sylvan as sy
 
 
 logger = logging.getLogger(__name__)
+
+
+_Yes: _ty.TypeAlias = python_bool
+_Nat: _ty.TypeAlias = _dd_abc.Nat
+_Cardinality: _ty.TypeAlias = _dd_abc.Cardinality
+_VariableName: _ty.TypeAlias = _dd_abc.VariableName
+_Level: _ty.TypeAlias = _dd_abc.Level
+_VariableLevels: _ty.TypeAlias = _dd_abc.VariableLevels
+_Assignment: _ty.TypeAlias = _dd_abc.Assignment
+_Renaming: _ty.TypeAlias = _dd_abc.Renaming
+_Formula: _ty.TypeAlias = _dd_abc.Formula
 
 
 # TODO: check for invalid nodes returned by sylvan calls
@@ -51,7 +65,8 @@ cdef class BDD:
     cdef public object _var_with_index
 
     def __cinit__(
-            self):
+            self
+            ) -> None:
         """Initialize BDD manager.
 
         Due to the architecture of `sylvan`,
@@ -73,14 +88,16 @@ cdef class BDD:
     def __init__(
             self,
             memory_estimate=None,
-            initial_cache_size=None):
+            initial_cache_size=None
+            ) -> None:
         # self.configure(reordering=True, max_cache_hard=MAX_CACHE)
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int
         self._var_with_index = dict()
 
     def __dealloc__(
-            self):
+            self
+            ) -> None:
         # n = len(self)
         # if n != 0:
         #     raise AssertionError(
@@ -94,7 +111,9 @@ cdef class BDD:
             self:
                 BDD,
             other:
-                BDD):
+                BDD |
+                None
+            ) -> _Yes:
         """Return `True` if `other` has same manager.
 
         If `other is None`, then return `False`.
@@ -108,7 +127,9 @@ cdef class BDD:
             self:
                 BDD,
             other:
-                BDD):
+                BDD |
+                None
+            ) -> _Yes:
         """Return `True` if `other` has different manager.
 
         If `other is None`, then return `True`.
@@ -119,7 +140,8 @@ cdef class BDD:
         return False
 
     def __len__(
-            self):
+            self
+            ) -> _Cardinality:
         """Return number of nodes with non-zero references."""
         sy.LACE_ME_WRAP
         return sy.sylvan_count_refs()
@@ -127,7 +149,8 @@ cdef class BDD:
     def __contains__(
             self,
             u:
-                Function):
+                Function
+            ) -> _Yes:
         if self is not u.bdd:
             raise ValueError(u)
         try:
@@ -137,12 +160,16 @@ cdef class BDD:
             return False
 
     def __str__(
-            self):
+            self
+            ) -> str:
         return 'Binary decision diagram (Sylvan wrapper)'
 
     def configure(
             self,
-            **kw):
+            **kw
+            ) -> dict[
+                str,
+                _ty.Any]:
         """Has no effect, present for compatibility only.
 
         Compatibility here refers to `BDD` classes in
@@ -191,15 +218,20 @@ cdef class BDD:
 
     def declare(
             self,
-            *variables):
+            *variables:
+                _VariableName
+            ) -> None:
         """Add names in `variables` to `self.vars`."""
         for var in variables:
             self.add_var(var)
 
     cpdef int add_var(
             self,
-            var,
-            index=None):
+            var:
+                _VariableName,
+            index:
+                int |
+                None=None):
         """Return index of variable named `var`.
 
         If a variable named `var` exists,
@@ -231,8 +263,10 @@ cdef class BDD:
 
     cpdef insert_var(
             self,
-            var,
-            level):
+            var:
+                _VariableName,
+            level:
+                _Level):
         """Create a new variable named `var`, at `level`."""
         raise Exception(
             'in `sylvan`, variable indices equal levels.\n'
@@ -241,7 +275,7 @@ cdef class BDD:
     cdef _add_var(
             self,
             var:
-                str,
+                _VariableName,
             index:
                 int):
         """Add to `self` a *new* variable named `var`."""
@@ -264,7 +298,8 @@ cdef class BDD:
 
     cpdef Function var(
             self,
-            var):
+            var:
+                _VariableName):
         """Return node for variable named `var`."""
         if var not in self._index_of_var:
             raise ValueError(
@@ -278,7 +313,9 @@ cdef class BDD:
 
     def var_at_level(
             self,
-            level):
+            level:
+                _Level
+            ) -> _VariableName:
         """Return name of variable at `level`."""
         j = level  # indices equal levels in `sylvan`
         if j not in self._var_with_index:
@@ -294,7 +331,9 @@ cdef class BDD:
 
     def level_of_var(
             self,
-            var):
+            var:
+                _VariableName
+            ) -> _Level:
         """Return level of variable named `var`."""
         if var not in self._index_of_var:
             raise ValueError(
@@ -331,7 +370,10 @@ cdef class BDD:
 
     cpdef Function let(
             self,
-            definitions,
+            definitions:
+                _Renaming |
+                _Assignment |
+                dict[_VariableName, Function],
             u:
                 Function):
         """Replace variables with `definitions` in `u`."""
@@ -360,7 +402,8 @@ cdef class BDD:
             self,
             u:
                 Function,
-            var_sub):
+            var_sub:
+                dict[_VariableName, Function]):
         if self is not u.bdd:
             raise ValueError(u)
         sy.LACE_ME_WRAP
@@ -379,7 +422,8 @@ cdef class BDD:
             self,
             u:
                 Function,
-            values):
+            values:
+                _Assignment):
         """Return the cofactor f|_g."""
         var_sub = {
             var: self.true if value else self.false
@@ -390,7 +434,8 @@ cdef class BDD:
             self,
             u:
                 Function,
-            dvars):
+            dvars:
+                _Renaming):
         """Return node `u` after renaming variables in `dvars`."""
         if self is not u.bdd:
             raise ValueError(u)
@@ -403,7 +448,11 @@ cdef class BDD:
             self,
             u:
                 Function,
-            care_vars=None):
+            care_vars:
+                _abc.Collection[
+                    _VariableName] |
+                None=None
+            ) -> _Assignment:
         """Return a single assignment as `dict`."""
         return next(self.pick_iter(u, care_vars), None)
 
@@ -411,7 +460,12 @@ cdef class BDD:
             self,
             u:
                 Function,
-            care_vars=None):
+            care_vars:
+                _abc.Collection[
+                    _VariableName] |
+                None=None
+            ) -> _abc.Iterable[
+                _Assignment]:
         """Return generator over assignments."""
         support = self.support(u)
         if care_vars is None:
@@ -431,10 +485,15 @@ cdef class BDD:
 
     def _sat_iter(
             self,
-            u,
-            cube,
-            value,
-            support):
+            u:
+                Function,
+            cube:
+                _Assignment,
+            value:
+                _py_bool,
+            support:
+                set[_VariableName]
+            ) -> _Assignment:
         """Recurse to enumerate models."""
         if u.negated:
             value = not value
@@ -481,12 +540,12 @@ cdef class BDD:
 
     cpdef Function apply(
             self,
-            op,
+            op:
+                _dd_abc.OperatorSymbol,
             u:
                 Function,
             v:
-                Function
-                # | None
+                _ty.Optional[Function]
                 =None):
         """Return as `Function` the result of applying `op`."""
         if self is not u.bdd:
@@ -526,11 +585,13 @@ cdef class BDD:
 
     cpdef Function cube(
             self,
-            dvars):
+            dvars:
+                _Assignment |
+                set[_VariableName]):
         """Return node for cube over `dvars`.
 
         @param dvars:
-            `dict` that maps each variable to a `bool`.
+            maps each variable to a `bool`.
             If `set` given, then all values assumed `True`.
         """
         # TODO: call sylvan cube function
@@ -550,8 +611,11 @@ cdef class BDD:
             self,
             u:
                 Function,
-            qvars,
-            forall=False):
+            qvars:
+                _abc.Iterable[
+                    _VariableName],
+            forall:
+                _Yes=False):
         """Abstract variables `qvars` from node `u`."""
         if self is not u.bdd:
             raise ValueError(u)
@@ -567,7 +631,9 @@ cdef class BDD:
 
     cpdef Function forall(
             self,
-            qvars,
+            qvars:
+                _abc.Iterable[
+                    _VariableName],
             u:
                 Function):
         """Quantify `qvars` in `u` universally.
@@ -578,7 +644,9 @@ cdef class BDD:
 
     cpdef Function exist(
             self,
-            qvars,
+            qvars:
+                _abc.Iterable[
+                    _VariableName],
             u:
                 Function):
         """Quantify `qvars` in `u` existentially.
@@ -603,14 +671,17 @@ cdef class BDD:
 
     def add_expr(
             self,
-            expr):
+            expr:
+                _Formula
+            ) -> Function:
         """Return node for `str` expression `e`."""
         return _parser.add_expr(expr, self)
 
     def to_expr(
             self,
             u:
-                Function):
+                Function
+            ) -> _Formula:
         if self is not u.bdd:
             raise ValueError(u)
         raise NotImplementedError()
@@ -619,7 +690,8 @@ cdef class BDD:
             self,
             u:
                 Function,
-            fname):
+            fname:
+                str):
         """Dump BDD as DDDMP file `fname`."""
         if self is not u.bdd:
             raise ValueError(u)
@@ -627,25 +699,29 @@ cdef class BDD:
 
     cpdef load(
             self,
-            fname):
+            fname:
+                str):
         """Return `Function` loaded from file `fname`."""
         raise NotImplementedError()
 
     @property
     def false(
-            self):
+            self
+            ) -> Function:
         """`Function` for Boolean value false."""
         return self._bool(False)
 
     @property
     def true(
-            self):
+            self
+            ) -> Function:
         """`Function` for Boolean value true."""
         return self._bool(True)
 
     cdef Function _bool(
             self,
-            v):
+            v:
+                _py_bool):
         """Return terminal node for Boolean `v`."""
         r: sy.BDD
         if v:
@@ -673,7 +749,8 @@ cpdef Function and_exists(
             Function,
         v:
             Function,
-        qvars):
+        qvars:
+            set[_VariableName]):
     r"""Return `\E qvars:  u /\ v`."""
     if u.bdd is not v.bdd:
         raise ValueError((u, v))
@@ -689,7 +766,8 @@ cpdef Function or_forall(
             Function,
         v:
             Function,
-        qvars):
+        qvars:
+            set[_VariableName]):
     r"""Return `\A qvars:  u \/ v`."""
     if u.bdd is not v.bdd:
         raise ValueError((u, v))
@@ -707,7 +785,9 @@ cpdef Function or_forall(
 cpdef reorder(
         bdd:
             BDD,
-        dvars=None):
+        dvars:
+            _VariableLevels |
+            None=None):
     """Reorder `bdd` to order in `dvars`.
 
     If `dvars` is `None`, then invoke group sifting.
@@ -719,7 +799,8 @@ def copy_vars(
         source:
             BDD,
         target:
-            BDD):
+            BDD
+        ) -> None:
     """Copy variables, preserving Sylvan indices."""
     for var, index in source._index_of_var.items():
         target.add_var(var, index=index)
@@ -790,18 +871,21 @@ cdef class Function:
         sy.sylvan_ref(u)
 
     def __hash__(
-            self):
+            self
+            ) -> int:
         return int(self)
 
     @property
     def _index(
-            self):
+            self
+            ) -> _Nat:
         """Index of `self.node`."""
         return sy.sylvan_var(self.node)
 
     @property
     def var(
-            self):
+            self
+            ) -> _VariableName:
         """Variable at level where this node is."""
         if sy.sylvan_isconst(self.node):
             return None
@@ -809,13 +893,15 @@ cdef class Function:
 
     @property
     def level(
-            self):
+            self
+            ) -> _Level:
         """Level where this node is."""
         raise NotImplementedError
 
     @property
     def ref(
-            self):
+            self
+            ) -> _Cardinality:
         """Sum of reference counts of node and its negation."""
         # u = Cudd_Regular(self.node)
         # return u.ref
@@ -823,7 +909,8 @@ cdef class Function:
 
     @property
     def low(
-            self):
+            self
+            ) -> Function:
         """Return "else" node as `Function`."""
         # propagates complement bit
         u = sy.sylvan_low(self.node)
@@ -831,14 +918,16 @@ cdef class Function:
 
     @property
     def high(
-            self):
+            self
+            ) -> Function:
         """Return "then" node as `Function`."""
         u = sy.sylvan_high(self.node)
         return wrap(self.bdd, u)
 
     @property
     def negated(
-            self):
+            self
+            ) -> _Yes:
         """Return `True` if `self` is a complemented edge."""
         # read the definition of `BDD_HASMARK`
         # in `sylvan_bdd`
@@ -849,17 +938,20 @@ cdef class Function:
 
     @property
     def support(
-            self):
+            self
+            ) -> set[_VariableName]:
         """Return `set` of variables in support."""
         return self.bdd.support(self)
 
     def __dealloc__(
-            self):
+            self
+            ) -> None:
         sy.sylvan_deref(self.node)
         self.node = 0
 
     def __str__(
-            self):
+            self
+            ) -> str:
         return (
             'Function(DdNode with: '
             f'node={self.node}, '
@@ -867,12 +959,14 @@ cdef class Function:
             f'ref_count={None})')
 
     def __len__(
-            self):
+            self
+            ) -> _Cardinality:
         return sy.sylvan_nodecount(self.node)
 
     @property
     def dag_size(
-            self):
+            self
+            ) -> _Cardinality:
         """Return number of BDD nodes.
 
         This is the number of BDD nodes that
@@ -885,27 +979,34 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function |
+                None
+            ) -> _Yes:
         if other is None:
             return False
-        if self.bdd is not other.bdd:
-            raise ValueError((self, other))
-        return self.node == other.node
+        other_: Function = other
+        if self.bdd is not other_.bdd:
+            raise ValueError((self, other_))
+        return self.node == other_.node
 
     def __ne__(
             self:
                 Function,
             other:
-                Function):
+                Function |
+                None
+            ) -> _Yes:
         if other is None:
             return True
-        if self.bdd is not other.bdd:
-            raise ValueError((self, other))
-        return self.node != other.node
+        other_: Function = other
+        if self.bdd is not other_.bdd:
+            raise ValueError((self, other_))
+        return self.node != other_.node
 
     def __invert__(
             self:
-                Function):
+                Function
+            ) -> Function:
         r = sy.sylvan_not(self.node)
         return wrap(self.bdd, r)
 
@@ -913,7 +1014,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> Function:
         if self.bdd is not other.bdd:
             raise ValueError((self, other))
         sy.LACE_ME_WRAP
@@ -924,7 +1026,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> Function:
         if self.bdd is not other.bdd:
             raise ValueError((self, other))
         sy.LACE_ME_WRAP

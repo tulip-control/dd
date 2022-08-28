@@ -74,7 +74,10 @@ KEYWORDS = [
     'graphviz']
 
 
-def git_version(version):
+def git_version(
+        version:
+            str
+        ) -> str:
     """Return version with local version identifier."""
     import git as _git
     repo = _git.Repo('.git')
@@ -103,7 +106,8 @@ def git_version(version):
     return version
 
 
-def parse_args():
+def parse_args(
+        ) -> _arg.Namespace:
     """Return `args` irrelevant to `setuptools`."""
     parser = _arg.ArgumentParser()
     parser.add_argument(
@@ -141,7 +145,8 @@ def read_env_vars(
     return env_vars
 
 
-def run_setup():
+def run_setup(
+        ) -> None:
     """Build parser, get version from `git`, install."""
     env_vars = read_env_vars()
     args = parse_args()
@@ -181,6 +186,7 @@ def run_setup():
         packages=[PACKAGE_NAME],
         package_dir={PACKAGE_NAME: PACKAGE_NAME},
         include_package_data=True,
+        zip_safe=False,
         ext_modules=ext_modules,
         classifiers=CLASSIFIERS,
         keywords=KEYWORDS)

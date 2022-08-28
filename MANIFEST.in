@@ -16,6 +16,7 @@ include tests/sample*.dddmp
 include examples/README.md
 include examples/*.py
 include examples/*.sh
+include dd/py.typed
 include dd/*.pyx
 include dd/*.pxd
 include dd/*.c

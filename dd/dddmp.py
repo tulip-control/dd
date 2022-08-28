@@ -38,9 +38,9 @@ import dd.bdd as _bdd
 
 logger = logging.getLogger(__name__)
 TABMODULE: _ty.Final = 'dd._dddmp_parser_state_machine'
-LEX_LOG = 'dd.dddmp.lex_logger'
-YACC_LOG = 'dd.dddmp.yacc_logger'
-PARSER_LOG = 'dd.dddmp.parser_logger'
+LEX_LOG: _ty.Final = 'dd.dddmp.lex_logger'
+YACC_LOG: _ty.Final = 'dd.dddmp.yacc_logger'
+PARSER_LOG: _ty.Final = 'dd.dddmp.parser_logger'
 
 
 class Lexer:
@@ -551,7 +551,10 @@ class Parser:
         raise Exception(f'Syntax error at "{p}"')
 
 
-def load(fname):
+def load(
+        fname:
+            str
+        ) -> _bdd.BDD:
     """Return a `BDD` loaded from DDDMP file `fname`.
 
     If no `.orderedvarnames` appear in the file,
@@ -593,7 +596,10 @@ def load(fname):
     return bdd
 
 
-def _rewrite_tables(outputdir='./'):
+def _rewrite_tables(
+        outputdir:
+            str='./'
+        ) -> None:
     """Write the parser table file, even if it exists."""
     astutils.rewrite_tables(Parser, TABMODULE, outputdir)
 

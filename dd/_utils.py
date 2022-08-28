@@ -58,7 +58,9 @@ def import_module(
     raise errors[module_name]
 
 
-def print_var_levels(bdd):
+def print_var_levels(
+        bdd
+        ) -> None:
     """Print `bdd` variables ordered by level."""
     n = len(bdd.vars)
     levels = [
@@ -116,11 +118,13 @@ def contiguous_levels(
 
 
 def _raise_runtimerror_about_ref_count(
-        ref_count_lb,
+        ref_count_lb:
+            int,
         name:
             str,
         class_name:
-            str):
+            str
+        ) -> _ty.NoReturn:
     """Raise `RuntimeError` about reference count lower bound.
 
     Call this function when an unexpected nonpositive
@@ -130,7 +134,10 @@ def _raise_runtimerror_about_ref_count(
     @param ref_count_lb:
         lower bound on the reference count of
         the node that the `Function` instance points to.
-        Assert `ref_count_lb <= 0`.
+        ```tla
+        ASSUME
+            ref_count_lb <= 0
+        ```
     @param name:
         to mention as location where
         the error was detected. For example:

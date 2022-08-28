@@ -13,20 +13,39 @@ Reference
 # Copyright 2015 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
+import collections.abc as _abc
 import logging
 import pprint
 import sys
+import typing as _ty
 
+from cpython cimport bool as _py_bool
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
+import cython
 from libc.stdio cimport fdopen, fopen
-from libcpp cimport bool as _c_bool
 
 import dd._abc as _dd_abc
 cimport dd.buddy_ as buddy
 
 
+ctypedef cython.int _c_int
+_Yes: _ty.TypeAlias = _py_bool
+_Cardinality: _ty.TypeAlias = _dd_abc.Cardinality
 _VariableName: _ty.TypeAlias = _dd_abc.VariableName
 _Level: _ty.TypeAlias = _dd_abc.Level
+_Renaming: _ty.TypeAlias = _dd_abc.Renaming
+_OperatorSymbol: _ty.TypeAlias = _ty.Literal[
+    '!',
+    'not',
+    '&',
+    'and',
+    '|',
+    'or',
+    '#',
+    '^',
+    'xor']
+_OPERATOR_SYMBOLS: _ty.Final = set(_ty.get_args(
+    _OperatorSymbol))
 
 
 APPLY_MAP = {
@@ -77,7 +96,8 @@ cdef class BDD:
     cdef public object var_to_index
 
     def __cinit__(
-            self):
+            self
+            ) -> None:
         self.var_to_index = dict()
         if buddy.bdd_isrunning():
             return
@@ -91,11 +111,13 @@ cdef class BDD:
         buddy.bdd_reorder_verbose(1)
 
     def __dealloc__(
-            self):
+            self
+            ) -> None:
         buddy.bdd_done()
 
     def __str__(
-            self):
+            self
+            ) -> str:
         n = buddy.bdd_getnodenum()
         n_alloc = buddy.bdd_getallocnum()
         n_vars = buddy.bdd_varnum()
@@ -107,34 +129,40 @@ cdef class BDD:
         return s
 
     def __len__(
-            self):
+            self
+            ) -> _Cardinality:
         return buddy.bdd_getnodenum()
 
     cdef incref(
             self,
-            int u):
+            u:
+                _c_int):
         buddy.bdd_addref(u)
 
     cdef decref(
             self,
-            int u):
+            u:
+                _c_int):
         buddy.bdd_delref(u)
 
     property false:
 
         def __get__(
-                self):
+                self
+                ) -> Function:
             return self._bool(False)
 
     property true:
 
         def __get__(
-                self):
+                self
+                ) -> Function:
             return self._bool(True)
 
     cdef Function _bool(
             self,
-            b):
+            b:
+                _py_bool):
         if b:
             r = buddy.bdd_true()
         else:
@@ -207,9 +235,13 @@ cdef class BDD:
 
     cpdef Function apply(
             self,
-            op,
-            u,
-            v=None):
+            op:
+                _OperatorSymbol,
+            u:
+                Function,
+            v:
+                Function |
+                None=None):
         """Return as `Function` the result of applying `op`."""
         # unary
         if op in ('!', 'not'):
@@ -229,9 +261,13 @@ cdef class BDD:
 
     cpdef Function quantify(
             self,
-            u,
-            qvars,
-            forall=False):
+            u:
+                Function,
+            qvars:
+                _abc.Iterable[
+                    _VariableName],
+            forall:
+                _Yes=False):
         cube = self.cube(qvars)
         if forall:
             r = buddy.bdd_forall(u, cube)
@@ -241,7 +277,9 @@ cdef class BDD:
 
     cpdef Function cube(
             self,
-            dvars):
+            dvars:
+                _abc.Iterable[
+                    _VariableName]):
         """Return a positive unate cube for `dvars`."""
         n = len(dvars)
         cdef int *x
@@ -262,10 +300,15 @@ cdef class BDD:
 
 
 cpdef Function and_abstract(
-        u,
-        v,
-        qvars,
-        bdd):
+        u:
+            Function,
+        v:
+            Function,
+        qvars:
+            _abc.Iterable[
+                _VariableName],
+        bdd:
+            BDD):
     """Return `? qvars. u & v`."""
     cube = bdd.cube(qvars)
     op = APPLY_MAP['and']
@@ -274,10 +317,15 @@ cpdef Function and_abstract(
 
 
 cpdef Function or_abstract(
-        u,
-        v,
-        qvars,
-        bdd):
+        u:
+            Function,
+        v:
+            Function,
+        qvars:
+            _abc.Iterable[
+                _VariableName],
+        bdd:
+            BDD):
     """Return `! qvars. u | v`."""
     cube = bdd.cube(qvars)
     op = APPLY_MAP['or']
@@ -286,9 +334,13 @@ cpdef Function or_abstract(
 
 
 def rename(
-        u,
-        bdd,
-        dvars):
+        u:
+            Function,
+        bdd:
+            BDD,
+        dvars:
+            _Renaming
+        ) -> Function:
     n = len(dvars)
     cdef int *oldvars
     cdef int *newvars
@@ -331,51 +383,69 @@ cdef class Function:
 
     def __cinit__(
             self,
-            node):
+            node:
+                _c_int
+            ) -> None:
         self.node = node
         buddy.bdd_addref(node)
 
     def __dealloc__(
-            self):
+            self
+            ) -> None:
         buddy.bdd_delref(self.node)
         self.node = -1
 
     def __str__(
-            self):
+            self
+            ) -> str:
         n = len(self)
         return f'Function({self.node}, {n})'
 
     def __len__(
-            self):
+            self
+            ) -> _Cardinality:
         return buddy.bdd_nodecount(self.node)
 
     def __eq__(
             self,
-            other):
+            other:
+                Function |
+                None
+            ) -> _Yes:
         if other is None:
             return False
-        return self.node == other.node
+        other_: Function = other
+        return self.node == other_.node
 
     def __ne__(
             self,
-            other):
+            other:
+                Function |
+                None
+            ) -> _Yes:
         if other is None:
             return True
-        return self.node != other.node
+        other_: Function = other
+        return self.node != other_.node
 
     def __invert__(
-            self):
+            self
+            ) -> Function:
         r = buddy.bdd_not(self.node)
         return Function(r)
 
     def __and__(
             self,
-            other):
+            other:
+                Function
+            ) -> Function:
         r = buddy.bdd_and(self.node, other.node)
         return Function(r)
 
     def __or__(
             self,
-            other):
+            other:
+                Function
+            ) -> Function:
         r = buddy.bdd_or(self.node, other.node)
         return Function(r)

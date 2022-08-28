@@ -15,68 +15,204 @@ import collections.abc as _abc
 import typing as _ty
 
 
+def _literals_of(
+        type_alias:
+            type
+        ) -> set[str]:
+    """Return arguments of `type_alias`.
+
+    Recursive computation.
+    Assumes `str` literals.
+    """
+    return set(_literals_of_recurse(type_alias))
+
+
+def _literals_of_recurse(
+        type_alias:
+            type
+        ) -> _abc.Iterable[str]:
+    """Yield literals of `type_alias`."""
+    args = _ty.get_args(type_alias)
+    literals = set()
+    for arg in args:
+        match arg:
+            case str():
+                yield arg
+            case _:
+                yield from _literals_of_recurse(arg)
+    return literals
+
+
 Yes: _ty.TypeAlias = bool
 Nat: _ty.TypeAlias = int
     # ```tla
     # Nat
     # ```
+Cardinality: _ty.TypeAlias = Nat
+NumberOfBytes: _ty.TypeAlias = Cardinality
 VariableName: _ty.TypeAlias = str
 Level: _ty.TypeAlias = Nat
 VariableLevels: _ty.TypeAlias = dict[
     VariableName,
     Level]
-Ref: _ty.TypeAlias = _ty.TypeVar('Ref')
+Ref = _ty.TypeVar('Ref')
 Assignment: _ty.TypeAlias = dict[
-    VariableName, bool]
-OperatorSymbol: _ty.TypeAlias = _ty.Literal[
-    'not', '~', '!',
-    'and', '/\\', '&', '&&',
-    'or', r'\/', '|', '||',
-    '#', 'xor', '^',
-    '=>', '->', 'implies',
-    '<=>', '<->', 'equiv',
-    'diff', '-',
-    r'\A', 'forall',
-    r'\E', 'exists',
+    VariableName,
+    bool]
+Renaming: _ty.TypeAlias = dict[
+    VariableName,
+    VariableName]
+Fork: _ty.TypeAlias = tuple[
+    Level,
+    Ref | None,
+    Ref | None]
+Formula: _ty.TypeAlias = str
+_UnaryOperatorSymbol: _ty.TypeAlias = _ty.Literal[
+    # negation
+    'not',
+    '~',
+    '!']
+UNARY_OPERATOR_SYMBOLS: _ty.Final = _literals_of(
+    _UnaryOperatorSymbol)
+# These assertions guard against typos in
+# the enumerations.
+if len(UNARY_OPERATOR_SYMBOLS) != 3:
+    raise AssertionError(UNARY_OPERATOR_SYMBOLS)
+_BinaryOperatorSymbol: _ty.TypeAlias = _ty.Literal[
+    # conjunction
+    'and',
+    '/\\',
+    '&',
+    '&&',
+    # disjunction
+    'or',
+    r'\/',
+    '|',
+    '||',
+    # different
+    '#',
+    'xor',
+    '^',
+    # implication
+    '=>',
+    '->',
+    'implies',
+    # equivalence
+    '<=>',
+    '<->',
+    'equiv',
+    # subtraction (i.e., `a /\ ~ b`)
+    'diff',
+    '-',
+    # quantification
+    r'\A',
+    'forall',
+    r'\E',
+    'exists']
+BINARY_OPERATOR_SYMBOLS: _ty.Final = _literals_of(
+    _BinaryOperatorSymbol)
+if len(BINARY_OPERATOR_SYMBOLS) != 23:
+    raise AssertionError(BINARY_OPERATOR_SYMBOLS)
+_TernaryOperatorSymbol: _ty.TypeAlias = _ty.Literal[
+    # ternary conditional
+    # (if-then-else)
     'ite']
+TERNARY_OPERATOR_SYMBOLS: _ty.Final = _literals_of(
+    _TernaryOperatorSymbol)
+if len(TERNARY_OPERATOR_SYMBOLS) != 1:
+    raise AssertionError(TERNARY_OPERATOR_SYMBOLS)
+BDD_OPERATOR_SYMBOLS: _ty.Final = {
+    *UNARY_OPERATOR_SYMBOLS,
+    *BINARY_OPERATOR_SYMBOLS,
+    *TERNARY_OPERATOR_SYMBOLS}
+if len(BDD_OPERATOR_SYMBOLS) != 3 + 23 + 1:
+    raise AssertionError(BDD_OPERATOR_SYMBOLS)
+OperatorSymbol: _ty.TypeAlias = (
+    _UnaryOperatorSymbol |
+    _BinaryOperatorSymbol |
+    _TernaryOperatorSymbol)
+ImageFileType: _ty.TypeAlias = _ty.Literal[
+    'pdf',
+    'png',
+    'svg']
+JSONFileType: _ty.TypeAlias = _ty.Literal[
+    'json']
+PickleFileType: _ty.TypeAlias = _ty.Literal[
+    'pickle']
+BDDFileType: _ty.TypeAlias = (
+    ImageFileType |
+    JSONFileType)
 
 
 class BDD(_ty.Protocol[Ref]):
     """Shared reduced ordered binary decision diagram."""
 
-    def __init__(self, levels=None):
-        # subclasses are not supposed to call `super().__init__()`
-        self.vars = dict()  # overridden
+    vars: VariableLevels
 
-    def __eq__(self, other):
+    def __init__(
+            self,
+            levels:
+                dict |
+                None=None
+            ) -> None:
+        ...
+
+    def __eq__(
+            self,
+            other
+            ) -> Yes:
         """Return `True` if `other` has same manager"""
 
-    def __len__(self):
+    def __len__(
+            self
+            ) -> Cardinality:
         """Return number of nodes."""
 
-    def __contains__(self, u):
+    def __contains__(
+            self,
+            u:
+                Ref
+            ) -> Yes:
         """Return `True` """
 
     def __str__(
-            self):
+            self
+            ) -> str:
         return 'Specification of BDD class.'
 
-    def configure(self, **kw):
+    def configure(
+            self,
+            **kw
+            ) -> dict[
+                str,
+                _ty.Any]:
         """Read and apply parameter values."""
 
-    def statistics(self):
-        """Return `dict` with BDD manager statistics."""
+    def statistics(
+            self
+            ) -> dict[
+                str,
+                _ty.Any]:
+        """Return BDD manager statistics."""
         # default implementation that offers no info
         return dict()
 
-    def succ(self, u):
+    def succ(
+            self,
+            u:
+                Ref
+            ) -> Fork:
         """Return `(level, low, high)` for node `u`.
 
         The manager uses complemented edges,
         so `low` and `high` correspond to the rectified `u`.
         """
 
-    def declare(self, *variables):
+    def declare(
+            self,
+            *variables:
+                VariableName
+            ) -> None:
         """Add names in `variables` to `self.vars`.
 
         ```python
@@ -84,31 +220,50 @@ class BDD(_ty.Protocol[Ref]):
         ```
         """
 
-    def var(self, var):
+    def var(
+            self,
+            var:
+                VariableName
+            ) -> Ref:
         """Return node for variable named `var`."""
 
-    def var_at_level(self, level):
+    def var_at_level(
+            self,
+            level:
+                Level
+            ) -> VariableName:
         """Return variable with `level`."""
 
-    def level_of_var(self, var):
+    def level_of_var(
+            self,
+            var:
+                VariableName
+            ) -> (
+                Level |
+                None):
         """Return level of `var`, or `None`."""
 
     @property
     def var_levels(
             self
-            ) -> dict[
-                VariableName,
-                Level]:
+            ) -> VariableLevels:
         """Return mapping from variables to levels."""
 
-    def copy(self, u, other):
+    def copy(
+            self,
+            u:
+                Ref,
+            other:
+                'BDD'
+            ) -> Ref:
         """Copy operator `u` from `self` to `other` manager."""
 
     def support(
             self,
             u:
                 Ref,
-            as_levels=False
+            as_levels:
+                Yes=False
             ) -> (
                 set[VariableName] |
                 set[Level]):
@@ -123,22 +278,45 @@ class BDD(_ty.Protocol[Ref]):
             self,
             definitions:
                 dict[VariableName, VariableName] |
-                dict[VariableName, bool] |
+                Assignment |
                 dict[VariableName, Ref],
-            u):
+            u:
+                Ref
+            ) -> Ref:
         """Substitute variables in `u`.
 
         The mapping `definitions` need not have
         all declared variables as keys.
         """
 
-    def forall(self, variables, u):
+    def forall(
+            self,
+            variables:
+                _abc.Iterable[
+                    VariableName],
+            u:
+                Ref
+            ) -> Ref:
         """Quantify `variables` in `u` universally."""
 
-    def exist(self, variables, u):
+    def exist(
+            self,
+            variables:
+                _abc.Iterable[
+                    VariableName],
+            u:
+                Ref
+            ) -> Ref:
         """Quantify `variables` in `u` existentially."""
 
-    def count(self, u, nvars=None):
+    def count(
+            self,
+            u:
+                Ref,
+            nvars:
+                Cardinality |
+                None=None
+            ) -> Cardinality:
         """Return number of models of node `u`.
 
         @param n:
@@ -152,9 +330,10 @@ class BDD(_ty.Protocol[Ref]):
 
     def pick(
             self,
-            u,
+            u:
+                Ref,
             care_vars:
-                set[str] |
+                set[VariableName] |
                 None=None
             ) -> (
                 Assignment |
@@ -195,11 +374,12 @@ class BDD(_ty.Protocol[Ref]):
 
     def pick_iter(
             self,
-            u,
+            u:
+                Ref,
             care_vars:
-                set |
+                set[VariableName] |
                 None=None
-            ) -> _abc.Iterator[
+            ) -> _abc.Iterable[
                 Assignment]:
         """Return iterator over assignments.
 
@@ -223,14 +403,19 @@ class BDD(_ty.Protocol[Ref]):
     def add_expr(
             self,
             expr:
-                str):
+                Formula
+            ) -> Ref:
         """Return node for expression `expr`.
 
         Nodes are created for the BDD that
         represents the expression `expr`.
         """
 
-    def to_expr(self, u):
+    def to_expr(
+            self,
+            u:
+                Ref
+            ) -> Formula:
         """Return a Boolean expression for node `u`."""
 
     def ite(
@@ -263,19 +448,22 @@ class BDD(_ty.Protocol[Ref]):
                 None=None,
             w:
                 Ref |
-                None=None):
+                None=None
+            ) -> Ref:
         r"""Apply operator `op` to nodes `u`, `v`, `w`."""
 
     def _add_int(
             self,
             i:
-                int):
+                int
+            ) -> Ref:
         """Return node from `i`."""
 
     def cube(
             self,
             dvars:
-                Assignment):
+                Assignment
+            ) -> Ref:
         """Return node for conjunction of literals in `dvars`."""
 
     # TODO: homogeneize i/o API with `dd.cudd`
@@ -283,11 +471,15 @@ class BDD(_ty.Protocol[Ref]):
             self,
             filename:
                 str,
-            roots=None,
-            filetype:
-                str |
+            roots:
+                dict[str, Ref] |
+                list[Ref] |
                 None=None,
-            **kw):
+            filetype:
+                ImageFileType |
+                None=None,
+            **kw
+            ) -> None:
         """Write BDDs to `filename`.
 
         The file type is inferred from the
@@ -309,19 +501,21 @@ class BDD(_ty.Protocol[Ref]):
         If `roots is None`,
         then all nodes in the manager are dumped.
 
-        @type filetype:
-            `str`, e.g., `"pdf"`
         @type roots:
             - `list` of nodes, or
             - for Pickle: `dict` that maps
-              names (as `str`) to nodes
+              names to nodes
         """
 
     def load(
             self,
             filename:
                 str,
-            levels=True):
+            levels:
+                Yes=True
+            ) -> (
+                dict[str, Ref] |
+                list[Ref]):
         """Load nodes from Pickle file `filename`.
 
         If `levels is True`,
@@ -333,34 +527,36 @@ class BDD(_ty.Protocol[Ref]):
         @rtype:
             depends on the contents of the file,
             either:
-            - `dict` that maps names (as `str`)
+            - `dict` that maps names
               to nodes, or
             - `list` of nodes
         """
 
     @property
-    def false(self):
+    def false(
+            self
+            ) -> Ref:
         """Return Boolean constant false."""
 
     @property
-    def true(self):
+    def true(
+            self
+            ) -> Ref:
         """Return Boolean constant true."""
 
 
 def reorder(
-        bdd,
+        bdd:
+            BDD,
         order:
-            dict[
-                str,
-                int] |
-            None=None):
+            VariableLevels |
+            None=None
+        ) -> None:
     """Apply Rudell's sifting algorithm to `bdd`.
 
     @param order:
         reorder to this specific order,
         if `None` then invoke group sifting
-    @type order:
-        maps variable names to levels
     """
 
 
@@ -370,32 +566,33 @@ class Operator(_ty.Protocol):
     def __init__(
             self,
             node,
-            bdd):
-        if node not in bdd._bdd:
-            raise ValueError(node)
-        self.bdd = bdd
-        self.manager = bdd._bdd
-        self.node = node
-        self.manager.incref(node)
+            bdd
+            ) -> None:
+        self.bdd: BDD
+        self.manager: object
+        self.node: object
 
     def __hash__(
-            self):
+            self
+            ) -> int:
         return self.node
 
     def to_expr(
             self
-            ) -> str:
+            ) -> Formula:
         """Return Boolean expression of function."""
 
     def __int__(
-            self):
+            self
+            ) -> int:
         """Return integer ID of node.
 
         To invert this method call `BDD._add_int`.
         """
 
     def __str__(
-            self):
+            self
+            ) -> str:
         """Return string form of node as `@INT`.
 
         "INT" is an integer that depends on
@@ -409,44 +606,72 @@ class Operator(_ty.Protocol):
         return f'@{int(self)}'
 
     def __len__(
-            self):
+            self
+            ) -> Cardinality:
         """Number of nodes reachable from this node."""
 
     def __del__(
-            self):
+            self
+            ) -> None:
         r"""Dereference node in manager."""
 
-    def __eq__(self, other):
+    def __eq__(
+            self,
+            other
+            ) -> Yes:
         r"""`|= self \equiv other`.
 
         Return `False` if `other is None`.
         """
 
-    def __ne__(self, other):
+    def __ne__(
+            self,
+            other
+            ) -> Yes:
         r"""`~ |= self \equiv other`.
 
         Return `True` if `other is None`.
         """
 
-    def __lt__(self, other):
+    def __lt__(
+            self,
+            other
+            ) -> Yes:
         r"""`(|= self => other) /\ ~ |= self \equiv other`."""
 
-    def __le__(self, other):
+    def __le__(
+            self,
+            other
+            ) -> Yes:
         """`|= self => other`."""
 
-    def __invert__(self):
+    def __invert__(
+            self
+            ) -> 'Operator':
         """Negation `~ self`."""
 
-    def __and__(self, other):
+    def __and__(
+            self,
+            other
+            ) -> 'Operator':
         r"""Conjunction `self /\ other`."""
 
-    def __or__(self, other):
+    def __or__(
+            self,
+            other
+            ) -> 'Operator':
         r"""Disjunction `self \/ other`."""
 
-    def implies(self, other):
+    def implies(
+            self,
+            other
+            ) -> 'Operator':
         """Logical implication `self => other`."""
 
-    def equiv(self, other):
+    def equiv(
+            self,
+            other
+            ) -> 'Operator':
         r"""Logical equivalence `self <=> other`.
 
         The result is *different* from `__eq__`:
@@ -473,46 +698,94 @@ class Operator(_ty.Protocol):
         """
 
     @property
-    def level(self):
+    def level(
+            self
+            ) -> Level:
         """Level where this node currently is."""
 
     @property
-    def var(self):
+    def var(
+            self
+            ) -> (
+                VariableName |
+                None):
         """Variable at level where this node is."""
 
     @property
-    def low(self):
+    def low(
+            self
+            ) -> '''(
+                Operator |
+                None
+                )''':
         """Return "else" node."""
 
     @property
-    def high(self):
+    def high(
+            self
+            ) -> '''(
+                Operator |
+                None
+                )''':
         """Return "then" node."""
 
     @property
-    def ref(self):
+    def ref(
+            self
+            ) -> Cardinality:
         """Sum of reference counts of node and its negation."""
 
     @property
-    def negated(self):
+    def negated(
+            self
+            ) -> Yes:
         """Return `True` if `self` is a complemented edge."""
 
     @property
     def support(
             self
-            ) -> set:
+            ) -> set[
+                VariableName]:
         """Return variables in support."""
 
-    def let(self, **definitions):
+    def let(
+            self,
+            **definitions: '''(
+                VariableName |
+                Operator |
+                bool
+                )'''
+            ) -> 'Operator':
         return self.bdd.let(definitions, self)
 
-    def exist(self, *variables):
+    def exist(
+            self,
+            *variables:
+                VariableName
+            ) -> 'Operator':
         return self.bdd.exist(variables, self)
 
-    def forall(self, *variables):
+    def forall(
+            self,
+            *variables:
+                VariableName
+            ) -> 'Operator':
         return self.bdd.forall(variables, self)
 
-    def pick(self, care_vars=None):
+    def pick(
+            self,
+            care_vars:
+                set[VariableName] |
+                None=None
+            ) -> (
+                Assignment |
+                None):
         return self.bdd.pick(self, care_vars)
 
-    def count(self, nvars=None):
+    def count(
+            self,
+            nvars:
+                Cardinality |
+                None=None
+            ) -> Cardinality:
         return self.bdd.count(self, nvars)

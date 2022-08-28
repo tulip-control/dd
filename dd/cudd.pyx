@@ -38,15 +38,19 @@ from dd import autoref
 from dd import bdd as _bdd
 
 
+_Yes: _ty.TypeAlias = python_bool
 _Nat: _ty.TypeAlias = _dd_abc.Nat
+_Cardinality: _ty.TypeAlias = _dd_abc.Cardinality
+_NumberOfBytes: _ty.TypeAlias = _dd_abc.NumberOfBytes
 _VariableName: _ty.TypeAlias = _dd_abc.VariableName
+_Level: _ty.TypeAlias = _dd_abc.Level
+_VariableLevels: _ty.TypeAlias = _dd_abc.VariableLevels
 _Assignment: _ty.TypeAlias = _dd_abc.Assignment
-_BDDFileType: _ty.TypeAlias = _ty.Literal[
-    'pdf',
-    'png',
-    'svg',
-    'json',
-    'dddmp']
+_Renaming: _ty.TypeAlias = _dd_abc.Renaming
+_Formula: _ty.TypeAlias = _dd_abc.Formula
+_BDDFileType: _ty.TypeAlias = (
+    _dd_abc.BDDFileType |
+    _ty.Literal['dddmp'])
 
 
 cdef extern from 'mtr.h':
@@ -372,10 +376,15 @@ cdef class BDD:
 
     def __cinit__(
             self,
-            memory_estimate=None,
-            initial_cache_size=None,
+            memory_estimate:
+                _NumberOfBytes |
+                None=None,
+            initial_cache_size:
+                _Cardinality |
+                None=None,
             *arg,
-            **kw):
+            **kw
+            ) -> None:
         """Initialize BDD manager.
 
         @param memory_estimate:
@@ -436,8 +445,13 @@ cdef class BDD:
 
     def __init__(
             self,
-            memory_estimate=None,
-            initial_cache_size=None):
+            memory_estimate:
+                _NumberOfBytes |
+                None=None,
+            initial_cache_size:
+                _Cardinality |
+                None=None
+            ) -> None:
         logger.info(f'Using CUDD v{__version__}')
         self.configure(
             reordering=True,
@@ -448,7 +462,8 @@ cdef class BDD:
         self._var_with_index = dict()
 
     def __dealloc__(
-            self):
+            self
+            ) -> None:
         if self.manager is NULL:
             raise RuntimeError(
                 '`self.manager` is `NULL`, '
@@ -476,7 +491,8 @@ cdef class BDD:
             self:
                 BDD,
             other:
-                BDD):
+                _ty.Optional[BDD]
+            ) -> _Yes:
         """Return `True` if `other` has same manager."""
         if other is None:
             return False
@@ -486,20 +502,23 @@ cdef class BDD:
             self:
                 BDD,
             other:
-                BDD):
+                _ty.Optional[BDD]
+            ) -> _Yes:
         if other is None:
             return True
         return self.manager != other.manager
 
     def __len__(
-            self):
+            self
+            ) -> _Cardinality:
         """Number of nodes with nonzero references."""
         return Cudd_CheckZeroRef(self.manager)
 
     def __contains__(
             self,
             u:
-                Function):
+                Function
+            ) -> _Yes:
         if u.manager != self.manager:
             raise ValueError(
                 'undefined containment, because '
@@ -511,7 +530,8 @@ cdef class BDD:
             return False
 
     def __str__(
-            self):
+            self
+            ) -> str:
         d = self.statistics()
         s = (
             'Binary decision diagram '
@@ -535,7 +555,11 @@ cdef class BDD:
     def statistics(
             self:
                 BDD,
-            exact_node_count=False):
+            exact_node_count:
+                _Yes=False
+            ) -> dict[
+                str,
+                _ty.Any]:
         """Return `dict` with CUDD node counts and times.
 
         If `exact_node_count` is `True`, then the
@@ -628,7 +652,10 @@ cdef class BDD:
     def configure(
             self:
                 BDD,
-            **kw):
+            **kw
+            ) -> dict[
+                str,
+                _ty.Any]:
         """Read and apply parameter values.
 
         First read (returned), then apply `kw`.
@@ -789,8 +816,10 @@ cdef class BDD:
             self,
             u:
                 Function,
-            recursive=False,
-            _direct=False):
+            recursive:
+                _Yes=False,
+            _direct:
+                _Yes=False):
         """Decrement the reference count of `u`.
 
         Raise `RuntimeError` if `u._ref <= 0`
@@ -852,7 +881,8 @@ cdef class BDD:
             self,
             u:
                 DdRef,
-            recursive=False):
+            recursive:
+                _Yes=False):
         # There is little point in checking here
         # the reference count of `u`, because
         # doing that relies on the assumption
@@ -874,15 +904,20 @@ cdef class BDD:
 
     def declare(
             self,
-            *variables):
+            *variables:
+                _VariableName
+            ) -> None:
         """Add names in `variables` to `self.vars`."""
         for var in variables:
             self.add_var(var)
 
     cpdef int add_var(
             self,
-            var,
-            index=None):
+            var:
+                _VariableName,
+            index:
+                _Nat |
+                None=None):
         """Return index of variable named `var`.
 
         If a variable named `var` exists,
@@ -915,9 +950,9 @@ cdef class BDD:
     cpdef int insert_var(
             self,
             var:
-                str,
+                _VariableName,
             level:
-                int):
+                _Level):
         """Create new variable at `level`.
 
         The name of the variable is
@@ -997,7 +1032,8 @@ cdef class BDD:
 
     cpdef Function var(
             self,
-            var):
+            var:
+                _VariableName):
         """Return node for variable named `var`."""
         if var not in self._index_of_var:
             raise ValueError(
@@ -1010,7 +1046,9 @@ cdef class BDD:
 
     def var_at_level(
             self,
-            level):
+            level:
+                _Level
+            ) -> _VariableName:
         """Return name of variable at `level`.
 
         Raise `ValueError` if `level` is not
@@ -1029,7 +1067,9 @@ cdef class BDD:
 
     def level_of_var(
             self,
-            var):
+            var:
+                _VariableName
+            ) -> _Level:
         """Return level of variable named `var`.
 
         Raise `ValueError` if `var` is not
@@ -1049,14 +1089,15 @@ cdef class BDD:
 
     @property
     def var_levels(
-            self):
+            self
+            ) -> _VariableLevels:
         return {
             var: self.level_of_var(var)
             for var in self.vars}
 
     def _number_of_cudd_vars(
             self
-            ) -> int:
+            ) -> _Cardinality:
         """Return number of CUDD indices.
 
         Can be `> len(self.vars)`.
@@ -1073,7 +1114,10 @@ cdef class BDD:
 
     def reorder(
             self,
-            var_order=None):
+            var_order:
+                _VariableLevels |
+                None=None
+            ) -> None:
         """Reorder variables to `var_order`.
 
         If `var_order` is `None`,
@@ -1111,12 +1155,22 @@ cdef class BDD:
 
     def group(
             self,
-            vrs):
-        """Couple adjacent variables.
+            vrs:
+                _abc.Mapping[
+                    _VariableName,
+                    _Nat]
+            ) -> None:
+        r"""Couple adjacent variables.
 
         The variables in `vrs` must be at
         levels that form a contiguous
         range.
+
+        ```tla
+        ASSUME
+            \A value \in vrs.values():
+                value >= 2
+        ```
         """
         cdef unsigned int group_low
         cdef unsigned int group_size
@@ -1132,7 +1186,8 @@ cdef class BDD:
 
     def copy(
             self,
-            u,
+            u:
+                Function,
             other:
                 'BDD' |
                 autoref.BDD
@@ -1147,7 +1202,10 @@ cdef class BDD:
 
     cpdef Function let(
             self,
-            definitions,
+            definitions:
+                _Renaming |
+                _Assignment |
+                dict[_VariableName, Function],
             u:
                 Function):
         r"""Substitute variables.
@@ -1241,7 +1299,8 @@ cdef class BDD:
             self,
             f:
                 Function,
-            var,
+            var:
+                _VariableName,
             g:
                 Function):
         """Return single composition."""
@@ -1263,7 +1322,10 @@ cdef class BDD:
             self,
             f:
                 Function,
-            var_sub):
+            var_sub:
+                dict[
+                    _VariableName,
+                    Function]):
         """Return vector composition."""
         if f.manager != self.manager:
             raise ValueError(
@@ -1300,9 +1362,7 @@ cdef class BDD:
             f:
                 Function,
             values:
-                dict[
-                    _VariableName,
-                    python_bool]):
+                _Assignment):
         """Substitute Booleans for variables.
 
         @param values:
@@ -1328,7 +1388,10 @@ cdef class BDD:
             self,
             u:
                 Function,
-            dvars):
+            dvars:
+                dict[
+                    _VariableName,
+                    _VariableName]):
         """Return node `u` after renaming variables.
 
         How to rename the variable is defined
@@ -1354,7 +1417,10 @@ cdef class BDD:
             self,
             u:
                 Function,
-            dvars):
+            dvars:
+                dict[
+                    _VariableName,
+                    _VariableName]):
         """Return result from swapping variable pairs.
 
         The variable pairs are defined in
@@ -1489,7 +1555,10 @@ cdef class BDD:
             self,
             u:
                 Function,
-            nvars=None):
+            nvars:
+                _Cardinality |
+                None=None
+            ) -> _Cardinality:
         """Return number of models of node `u`.
 
         @param nvars:
@@ -1523,10 +1592,11 @@ cdef class BDD:
             self,
             u:
                 Function,
-            care_vars=None
-            ) -> dict[
-                str,
-                python_bool]:
+            care_vars:
+                _abc.Set[
+                    _VariableName] |
+                None=None
+            ) -> _Assignment:
         """Return a single assignment.
 
         @return:
@@ -1541,7 +1611,12 @@ cdef class BDD:
             self,
             u:
                 Function,
-            care_vars=None):
+            care_vars:
+                _abc.Set[
+                    _VariableName] |
+                None=None
+            ) -> _abc.Iterable[
+                _Assignment]:
         """Return iterator over assignments.
 
         The returned iterator is generator-based.
@@ -1596,7 +1671,12 @@ cdef class BDD:
             self,
             u:
                 Function,
-            care_vars=None):
+            care_vars:
+                _abc.Set[
+                    _VariableName] |
+                None=None
+            ) -> _abc.Iterable[
+                _Assignment]:
         """Return iterator over assignments.
 
         The returned iterator is generator-based.
@@ -1628,10 +1708,15 @@ cdef class BDD:
 
     def _sat_iter(
             self,
-            u,
-            cube,
-            value,
-            support):
+            u:
+                Function,
+            cube:
+                _Assignment,
+            value:
+                python_bool,
+            support
+            ) -> _abc.Iterable[
+                _Assignment]:
         """Recurse to enumerate models."""
         if u.negated:
             value = not value
@@ -1660,22 +1745,16 @@ cdef class BDD:
     cpdef Function apply(
             self,
             op:
-                str,
+                _dd_abc.OperatorSymbol,
             u:
                 Function,
             v:
-                Function
-                # | None
+                _ty.Optional[Function]
                 =None,
             w:
-                Function
-                # | None
+                _ty.Optional[Function]
                 =None):
-        """Return the result of applying `op`.
-
-        @rtype:
-            `Function`
-        """
+        """Return the result of applying `op`."""
         if self.manager != u.manager:
             raise ValueError(
                 '`u.manager != self.manager`')
@@ -1774,8 +1853,9 @@ cdef class BDD:
 
     cpdef Function _add_int(
             self,
-            i):
-        """Return node from integer `i`."""
+            i:
+                int):
+        """Return node from `i`."""
         u: DdRef
         if i in (0, 1):
             raise ValueError(i)
@@ -1788,7 +1868,8 @@ cdef class BDD:
     cpdef Function cube(
             self,
             dvars:
-                _Assignment):
+                _abc.Collection[
+                    _VariableName]):
         """Return node for cube over `dvars`."""
         n_cudd_vars = self._number_of_cudd_vars()
         # make cube
@@ -1807,7 +1888,9 @@ cdef class BDD:
 
     cdef Function _cube_from_bdds(
             self,
-            dvars):
+            dvars:
+                _abc.Iterable[
+                    _VariableName]):
         """Return node for cube over `dvars`.
 
         Only positive unate cubes implemented for now.
@@ -1853,8 +1936,11 @@ cdef class BDD:
             self,
             u:
                 Function,
-            qvars,
-            forall=False):
+            qvars:
+                _abc.Iterable[
+                    _VariableName],
+            forall:
+                _Yes=False):
         """Abstract variables `qvars` from node `u`."""
         if u.manager != self.manager:
             raise ValueError(
@@ -1873,7 +1959,9 @@ cdef class BDD:
 
     cpdef Function forall(
             self,
-            variables,
+            variables:
+                _abc.Iterable[
+                    _VariableName],
             u:
                 Function):
         """Quantify `variables` in `u` universally.
@@ -1885,7 +1973,9 @@ cdef class BDD:
 
     cpdef Function exist(
             self,
-            variables,
+            variables:
+                _abc.Iterable[
+                    _VariableName],
             u:
                 Function):
         """Quantify `variables` in `u` existentially.
@@ -1911,8 +2001,10 @@ cdef class BDD:
 
     def add_expr(
             self,
-            expr):
-        """Return node for `str` expression `e`."""
+            expr:
+                _Formula
+            ) -> Function:
+        """Return node for expression `e`."""
         return _parser.add_expr(expr, self)
 
     cpdef str to_expr(
@@ -1958,7 +2050,8 @@ cdef class BDD:
                 list[Function],
             filetype:
                 _BDDFileType |
-                None=None):
+                None=None
+            ) -> None:
         """Write BDDs to `filename`.
 
         The file type is inferred from the
@@ -2043,8 +2136,9 @@ cdef class BDD:
             self,
             u:
                 Function,
-            fname):
-        """Dump BDD as DDDMP file `fname`."""
+            fname:
+                str):
+        """Dump BDD as DDDMP file named `fname`."""
         if u.manager != self.manager:
             raise ValueError(
                 '`u.manager != self.manager`')
@@ -2113,7 +2207,8 @@ cdef class BDD:
 
     cpdef Function _load_dddmp(
             self,
-            filename):
+            filename:
+                str):
         n_declared_vars = len(self._var_with_index)
         n_cudd_vars = self._number_of_cudd_vars()
         if n_declared_vars != n_cudd_vars:
@@ -2161,20 +2256,23 @@ cdef class BDD:
 
     @property
     def false(
-            self):
-        """`Function` for Boolean value false."""
+            self
+            ) -> Function:
+        """Boolean value false."""
         return self._bool(False)
 
     @property
     def true(
-            self):
-        """`Function` for Boolean value true."""
+            self
+            ) -> Function:
+        """Boolean value true."""
         return self._bool(True)
 
     cdef Function _bool(
             self,
-            v):
-        """Return terminal node for Boolean `v`."""
+            v:
+                python_bool):
+        """Return leaf node for Boolean `v`."""
         r: DdRef
         if v:
             r = Cudd_ReadOne(self.manager)
@@ -2241,7 +2339,9 @@ cpdef Function or_forall(
 cpdef reorder(
         bdd:
             BDD,
-        dvars=None):
+        dvars:
+            _VariableLevels |
+            None=None):
     """Reorder `bdd` to order in `dvars`.
 
     If `dvars` is `None`, then invoke group sifting.
@@ -2290,13 +2390,14 @@ def copy_vars(
         source:
             BDD,
         target:
-            BDD):
+            BDD
+        ) -> None:
     """Copy variables, preserving CUDD indices."""
     for var, index in source._index_of_var.items():
         target.add_var(var, index=index)
 
 
-cpdef copy_bdd(
+cpdef Function copy_bdd(
         u:
             Function,
         target:
@@ -2351,15 +2452,12 @@ cpdef copy_bdd(
     return wrap(target, r)
 
 
-cpdef count_nodes(
+cpdef int count_nodes(
         functions:
             list[Function]):
     """Return total nodes used by `functions`.
 
     Sharing is taken into account.
-
-    @rtype:
-        `int`
     """
     cdef DdNode **x
     f: Function
@@ -2388,8 +2486,11 @@ cpdef dict count_nodes_per_level(
 
 
 def dump(
-        u,
-        file_name):
+        u:
+            Function,
+        file_name:
+            str
+        ) -> None:
     """Pickle variable order and dump dddmp file."""
     bdd = u.bdd
     pickle_fname = f'{file_name}.pickle'
@@ -2404,10 +2505,13 @@ def dump(
 
 
 def load(
-        file_name,
+        file_name:
+            str,
         bdd:
             BDD,
-        reordering=False):
+        reordering:
+            _Yes=False
+        ) -> Function:
     """Unpickle variable order and load dddmp file.
 
     Loads the variable order,
@@ -2445,9 +2549,12 @@ def load(
 
 
 cdef _dict_to_cube_array(
-        d,
+        d:
+            _Assignment,
         int *x,
-        dict index_of_var):
+        index_of_var:
+            _Assignment |
+            set[_VariableName]):
     """Assign array of literals `x` from assignment `d`.
 
     @param x:
@@ -2750,18 +2857,23 @@ cdef class Function:
         Cudd_Ref(node)
 
     def __hash__(
-            self):
+            self
+            ) -> int:
         return int(self)
 
     @property
     def _index(
-            self):
+            self
+            ) -> _Nat:
         """Index of `self.node`."""
         return Cudd_NodeReadIndex(self.node)
 
     @property
     def var(
-            self):
+            self
+            ) -> (
+                _VariableName |
+                None):
         """Variable at level where this node is.
 
         If node is constant, return `None`.
@@ -2772,14 +2884,16 @@ cdef class Function:
 
     @property
     def level(
-            self):
+            self
+            ) -> _Level:
         """Level where this node currently is."""
         i = self._index
         return Cudd_ReadPerm(self.manager, i)
 
     @property
     def ref(
-            self):
+            self
+            ) -> _Cardinality:
         """Reference count of node.
 
         Returns the sum of the reference count
@@ -2792,7 +2906,11 @@ cdef class Function:
 
     @property
     def low(
-            self):
+            self
+            ) -> '''
+                Function |
+                None
+                ''':
         """Return "else" node as `Function`."""
         u: DdRef
         if Cudd_IsConstant(self.node):
@@ -2802,7 +2920,11 @@ cdef class Function:
 
     @property
     def high(
-            self):
+            self
+            ) -> '''
+                Function |
+                None
+                ''':
         """Return "then" node as `Function`."""
         u: DdRef
         if Cudd_IsConstant(self.node):
@@ -2812,7 +2934,8 @@ cdef class Function:
 
     @property
     def negated(
-            self):
+            self
+            ) -> _Yes:
         """`True` if this is a complemented edge.
 
         Returns `True` if `self` is
@@ -2823,12 +2946,14 @@ cdef class Function:
     @property
     def support(
             self:
-                BDD):
+                BDD
+            ) -> set[_VariableName]:
         """Return `set` of variables in support."""
         return self.bdd.support(self)
 
     def __dealloc__(
-            self):
+            self
+            ) -> None:
         # when changing this method,
         # update also the function
         # `_test_call_dealloc` below
@@ -2865,7 +2990,8 @@ cdef class Function:
         self.node = NULL
 
     def __int__(
-            self):
+            self
+            ) -> int:
         # inverse is `BDD._add_int`
         if sizeof(stdint.uintptr_t) != sizeof(DdNode *):
             raise AssertionError(
@@ -2879,7 +3005,8 @@ cdef class Function:
         return i
 
     def __repr__(
-            self):
+            self
+            ) -> str:
         u: DdRef
         u = Cudd_Regular(self.node)
         return (
@@ -2890,16 +3017,19 @@ cdef class Function:
             f'int repr: {int(self)}>')
 
     def __str__(
-            self):
+            self
+            ) -> str:
         return f'@{int(self)}'
 
     def __len__(
-            self):
+            self
+            ) -> _Cardinality:
         return Cudd_DagSize(self.node)
 
     @property
     def dag_size(
-            self):
+            self
+            ) -> _Cardinality:
         """Return number of BDD nodes.
 
         This is the number of BDD nodes that
@@ -2912,7 +3042,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                _ty.Optional[Function]
+            ) -> _Yes:
         if other is None:
             return False
         # guard against mixing managers
@@ -2925,7 +3056,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                _ty.Optional[Function]
+            ) -> _Yes:
         if other is None:
             return True
         if self.manager != other.manager:
@@ -2937,7 +3069,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> _Yes:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -2947,7 +3080,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> _Yes:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -2959,7 +3093,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> _Yes:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -2969,7 +3104,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> _Yes:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -2978,7 +3114,8 @@ cdef class Function:
             (self | ~ other) == self.bdd.true)
 
     def __invert__(
-            self):
+            self
+            ) -> Function:
         r: DdRef
         r = Cudd_Not(self.node)
         return wrap(self.bdd, r)
@@ -2987,7 +3124,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> Function:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -2999,7 +3137,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> Function:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -3011,7 +3150,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> Function:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -3024,7 +3164,8 @@ cdef class Function:
             self:
                 Function,
             other:
-                Function):
+                Function
+            ) -> Function:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -3036,31 +3177,46 @@ cdef class Function:
     def let(
             self:
                 Function,
-            **definitions):
+            **definitions:
+                _VariableName |
+                python_bool |
+                Function
+            ) -> Function:
         return self.bdd.let(definitions, self)
 
     def exist(
             self:
                 Function,
-            *variables):
+            *variables:
+                _VariableName
+            ) -> Function:
         return self.bdd.exist(variables, self)
 
     def forall(
             self:
                 Function,
-            *variables):
+            *variables:
+                _VariableName
+            ) -> Function:
         return self.bdd.forall(variables, self)
 
     def pick(
             self:
                 Function,
-            care_vars=None):
+            care_vars:
+                _abc.Set[
+                    _VariableName] |
+                None=None
+            ) -> _Assignment:
         return self.bdd.pick(self, care_vars)
 
     def count(
             self:
                 Function,
-            nvars=None):
+            nvars:
+                _Cardinality |
+                None=None
+            ) -> _Cardinality:
         return self.bdd.count(self, nvars)
 
 

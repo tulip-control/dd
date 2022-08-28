@@ -3,6 +3,7 @@
 # All rights reserved. Licensed under 3-clause BSD.
 #
 import collections.abc as _abc
+import contextlib as _ctx
 import json
 import os
 import shelve
@@ -17,12 +18,83 @@ SHELVE_DIR: _ty.Final = '__shelve__'
 _Yes: _ty.TypeAlias = dd._abc.Yes
 
 
+class _BDD(
+        dd._abc.BDD[dd._abc.Ref],
+        _ty.Protocol):
+    """BDD context."""
+
+    def add_var(
+            self,
+            var:
+                str,
+            level:
+                dd._abc.Level |
+                None=None
+            ) -> dd._abc.Level:
+        ...
+
+    def _top_cofactor(
+            self,
+            u:
+                dd._abc.Ref,
+            level:
+                dd._abc.Level
+            ) -> tuple[
+                dd._abc.Ref,
+                dd._abc.Ref]:
+        ...
+
+    def reorder(
+            self,
+            var_order:
+                dict[
+                    dd._abc.VariableName,
+                    dd._abc.Level] |
+                None=None
+            ) -> None:
+        ...
+
+    def find_or_add(
+            self,
+            level:
+                dd._abc.Level,
+            u:
+                dd._abc.Ref,
+            v:
+                dd._abc.Ref
+            ) -> dd._abc.Ref:
+        ...
+
+    def incref(
+            self,
+            node:
+                dd._abc.Ref
+            ) -> None:
+        ...
+
+    def decref(
+            self,
+            node:
+                dd._abc.Ref,
+            **kw
+            ) -> None:
+        ...
+
+    def assert_consistent(
+            self
+            ) -> None:
+        ...
+
+
+Ref = _ty.TypeVar('Ref')
+
+
 class _Ref(_ty.Protocol):
-    var: str
+    var: str | None
     level: int
-    low: '_Ref'
-    high: '_Ref'
-    bdd: '_BDD'
+    low: '_Ref | None'
+    high: '_Ref | None'
+    bdd: _BDD
     negated: _Yes
     ref: int
 
@@ -37,14 +109,52 @@ class _Ref(_ty.Protocol):
         ...
 
 
-_BDD = dd._abc.BDD
+class _Shelf(
+        _ctx.AbstractContextManager,
+        _ty.Protocol):
+    """Used for type checking."""
+
+    # `_abc.MutableMapping` cannot be
+    # in the bases, because not
+    # itself a `_ty.Protocol`.
+
+    def __setitem__(
+            self,
+            key,
+            value
+            ) -> None:
+        ...
+
+    def __getitem__(
+            self,
+            key):
+        ...
+
+    def __iter__(
+            self
+            ) -> _abc.Iterable:
+        ...
+
+    def __contains__(
+            self,
+            item
+            ) -> _Yes:
+        ...
+
+
+def _open_shelf(
+        name:
+            str
+        ) -> _Shelf:
+    """Wrapper for type-checking."""
+    return shelve.open(name)
 
 
 def copy_vars(
         source:
-            _BDD,
-        target:
-            _BDD):
+            dd._abc.BDD,
+        target
+        ) -> None:
     """Copy variables, preserving levels."""
     for var in source.vars:
         level = source.level_of_var(var)
@@ -52,9 +162,11 @@ def copy_vars(
 
 
 def copy_bdds_from(
-        roots,
+        roots:
+            _abc.Iterable[_Ref],
         target:
-            _BDD):
+            _BDD
+        ) -> list[_Ref]:
     """Copy BDDs in `roots` to manager `target`."""
     cache = dict()
     return [
@@ -63,12 +175,14 @@ def copy_bdds_from(
 
 
 def copy_bdd(
-        root,
+        root:
+            _Ref,
         target:
             _BDD,
         cache:
             dict |
-            None=None):
+            None=None
+        ) -> _Ref:
     """Copy BDD with `root` to manager `target`.
 
     @param target:
@@ -82,10 +196,13 @@ def copy_bdd(
 
 
 def _copy_bdd(
-        u,
-        bdd,
+        u:
+            _Ref,
+        bdd:
+            _BDD,
         cache:
-            dict):
+            dict
+        ) -> _Ref:
     """Recurse to copy node `u` to `bdd`."""
     # terminal ?
     if u == u.bdd.true:
@@ -120,7 +237,12 @@ def _copy_bdd(
     return _flip(r, u)
 
 
-def _flip(r, u):
+def _flip(
+        r:
+            _Ref,
+        u:
+            _Ref
+        ) -> _Ref:
     """Negate `r` if `u` is negated.
 
     Else return `r`.
@@ -129,12 +251,14 @@ def _flip(r, u):
 
 
 def copy_zdd(
-        root,
+        root:
+            _Ref,
         target:
             _BDD,
         cache:
             dict |
-            None=None):
+            None=None
+        ) -> _Ref:
     """Copy ZDD with `root` to manager `target`.
 
     @param target:
@@ -149,13 +273,17 @@ def copy_zdd(
 
 
 def _copy_zdd(
-        level,
-        u,
-        target,
+        level:
+            int,
+        u:
+            _Ref,
+        target:
+            _BDD,
         cache:
-            dict):
+            dict[int, _Ref]
+        ) -> _Ref:
     """Recurse to copy node `u` to `target`."""
-    src = u.bdd
+    src: _BDD = u.bdd
     # terminal ?
     if u == src.false:
         return target.false
@@ -182,8 +310,11 @@ def _copy_zdd(
 
 def dump_json(
         nodes:
-            dict[str, _Ref],
-        file_name):
+            dict[str, Ref] |
+            list[Ref],
+        file_name:
+            str
+        ) -> None:
     """Write reachable nodes to JSON file.
 
     Writes the nodes that are reachable from
@@ -202,7 +333,7 @@ def dump_json(
         SHELVE_DIR, 'temporary_shelf')
     os.makedirs(SHELVE_DIR)
     try:
-        with shelve.open(tmp_fname) as cache,\
+        with _open_shelf(tmp_fname) as cache,\
                 open(file_name, 'w') as fd:
             _dump_json(nodes, fd, cache)
     finally:
@@ -211,7 +342,15 @@ def dump_json(
         shutil.rmtree(SHELVE_DIR)
 
 
-def _dump_json(nodes, fd, cache):
+def _dump_json(
+        nodes:
+            dict[str, _Ref] |
+            list[_Ref],
+        fd:
+            _ty.TextIO,
+        cache:
+            _abc.MutableMapping[str, bool]
+        ) -> None:
     """Dump BDD as JSON to file `fd`.
 
     Use `cache` to keep track of
@@ -226,7 +365,8 @@ def _dump_json(nodes, fd, cache):
 
 def _dump_bdd_info(
         nodes:
-            dict[str, _Ref],
+            dict[str, _Ref] |
+            list[_Ref],
         fd):
     """Dump variable levels and roots.
 
@@ -247,7 +387,16 @@ def _dump_bdd_info(
     fd.write(info)
 
 
-def _dump_bdd(u, fd, cache):
+def _dump_bdd(
+        u:
+            _Ref,
+        fd:
+            _ty.TextIO,
+        cache:
+            _abc.MutableMapping[str, bool]
+        ) -> (
+            int |
+            str):
     """Recursive step of dumping nodes."""
     # terminal ?
     if u == u.bdd.true:
@@ -273,9 +422,11 @@ def _dump_bdd(u, fd, cache):
 
 
 def load_json(
-        file_name,
+        file_name:
+            str,
         bdd,
-        load_order=False
+        load_order:
+            _Yes=False
         ) -> (
             dict[str, _Ref] |
             list[_Ref]):
@@ -293,7 +444,7 @@ def load_json(
         SHELVE_DIR, 'temporary_shelf')
     os.makedirs(SHELVE_DIR)
     try:
-        with shelve.open(tmp_fname) as cache,\
+        with _open_shelf(tmp_fname) as cache,\
                 open(file_name, 'r') as fd:
             nodes = _load_json(
                 fd, bdd, load_order, cache)
@@ -303,13 +454,17 @@ def load_json(
 
 
 def _load_json(
-        fd,
+        fd:
+            _abc.Iterable[str],
         bdd,
-        load_order,
-        cache) -> (
+        load_order:
+            _Yes,
+        cache:
+            _abc.MutableMapping[str, int]
+        ) -> (
             dict[str, _Ref] |
             list[_Ref]):
-    """Load BDDs from JSON file `fd` to manager `bdd`."""
+    """Load BDDs from JSON file `fd` to `bdd`."""
     context = dict(load_order=load_order)
     # if the variable order is going to be loaded,
     # then turn off dynamic reordering,
@@ -361,7 +516,12 @@ def _load_json(
     return roots
 
 
-def _parse_line(line):
+def _parse_line(
+        line:
+            str
+        ) -> (
+            dict |
+            None):
     """Parse JSON from `line`."""
     line = line.rstrip()
     if line == '{' or line == '}':
@@ -371,7 +531,17 @@ def _parse_line(line):
     return json.loads('{' + line + '}')
 
 
-def _store_line(d, bdd, context, cache):
+def _store_line(
+        d:
+            dict |
+            None,
+        bdd:
+            _BDD,
+        context:
+            dict,
+        cache:
+            _abc.MutableMapping[str, int]
+        ) -> None:
     """Interpret data in `d`."""
     if d is None:
         return
@@ -394,7 +564,16 @@ def _store_line(d, bdd, context, cache):
     _make_node(d, bdd, context, cache)
 
 
-def _make_node(d, bdd, context, cache):
+def _make_node(
+        d:
+            dict,
+        bdd:
+            _BDD,
+        context:
+            dict,
+        cache:
+            _abc.MutableMapping[str, int]
+        ) -> None:
     """Create a new node in `bdd` from `d`."""
     (uid, (level, low_id, high_id)), = d.items()
     k, level = map(int, (uid, level))
@@ -440,7 +619,7 @@ def _node_from_int(
         bdd:
             _BDD,
         cache:
-            _abc.Mapping
+            _abc.Mapping[str, int]
         ) -> _Ref:
     """Return `bdd` node represented by `uid`."""
     if uid == -1:

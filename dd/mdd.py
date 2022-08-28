@@ -19,6 +19,7 @@ Michael Miller and Rolf Drechsler
 # Copyright 2015 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
+import collections.abc as _abc
 import itertools as _itr
 import logging
 import sys
@@ -35,17 +36,27 @@ except ImportError as error:
     _pydot = None
     _pydot_error = error
 
+import dd._abc
 import dd.bdd as _bdd
+
+
+if _pydot is not None:
+    _Dot: _ty.TypeAlias = _pydot.Dot
 
 
 logger = logging.getLogger(__name__)
 TABMODULE: _ty.Final = (
     'dd.mdd_parser_state_machine')
-PLY_LOG = 'dd.mdd.ply'
+PLY_LOG: _ty.Final = 'dd.mdd.ply'
 
 
 _Ref: _ty.TypeAlias = int
 _Level: _ty.TypeAlias = int
+_Successors: _ty.TypeAlias = tuple[
+    int |
+    None, ...]
+
+
 class MDD:
     """Shared ordered multi-valued decision diagram.
 
@@ -72,39 +83,58 @@ class MDD:
     #  - len
     #  - level
 
-    def __init__(self, dvars=None):
-        self._pred = dict()
-        self._succ = dict()
-        self._ref = dict()
-        self._max = 1
-        self._ite_table = dict()
+    def __init__(
+            self,
+            dvars:
+                dict[str, dict] |
+                None=None):
+        self._pred: dict[
+            tuple[int, ...],
+            int]= dict()
+        self._succ: dict[
+            int,
+            _Successors
+            ] = dict()
+        self._ref: dict[
+            int, int
+            ] = dict()
+        self._max: int = 1
+        self._ite_table: dict = dict()
         if dvars is None:
             dvars = dict()
         else:
             i = len(dvars)
             self._succ[1] = (i, None)
             self._ref[1] = 0
-        self.vars = dict(dvars)
-        self._level_to_var = None
+        self.vars: dict[str, dict] = dict(dvars)
+        self._level_to_var: dict[
+            _Level, str
+            ] | None = None
         self._parser = None
-        self._free = set()
-        self.max_nodes = sys.maxsize
+        self._free: set[int] = set()
+        self.max_nodes: int = sys.maxsize
 
     def __len__(
             self):
         """Return number of BDD nodes."""
         return len(self._succ)
 
-    def __contains__(self, u):
+    def __contains__(
+            self,
+            u:
+                _Ref
+            ) -> bool:
         """Return `True` if `u` is a BDD node."""
         return abs(u) in self._succ
 
     def __iter__(
-            self):
+            self
+            ) -> _abc.Iterable[int]:
         return iter(self._succ)
 
     def _allocate(
-            self):
+            self
+            ) -> int:
         """Return free integer, mark it as occupied."""
         if self._free:
             return self._free.pop()
@@ -112,7 +142,11 @@ class MDD:
             self._max += 1
             return self._max
 
-    def _release(self, u):
+    def _release(
+            self,
+            u:
+                int
+            ) -> None:
         """Unmark integer from used ones."""
         if u > self._max:
             raise AssertionError(u)
@@ -126,20 +160,36 @@ class MDD:
             raise AssertionError(u)
         self._free.add(u)
 
-    def incref(self, u):
+    def incref(
+            self,
+            u:
+                _Ref
+            ) -> None:
         """Increment reference count of node `abs(u)`."""
         self._ref[abs(u)] += 1
 
-    def decref(self, u):
+    def decref(
+            self,
+            u:
+                _Ref
+            ) -> None:
         """Decrement reference count of node `abs(u)`, with 0 as min."""
         if self._ref[abs(u)] > 0:
             self._ref[abs(u)] -= 1
 
-    def ref(self, u):
+    def ref(
+            self,
+            u:
+                _Ref
+            ) -> int:
         """Return reference count for node `abs(u)`."""
         return self._ref[abs(u)]
 
-    def var_at_level(self, i):
+    def var_at_level(
+            self,
+            i:
+                _Level
+            ) -> str:
         """Return variable with level `i`."""
         if self._level_to_var is None:
             self._level_to_var = {
@@ -147,7 +197,11 @@ class MDD:
                 for var, d in self.vars.items()}
         return self._level_to_var[i]
 
-    def level_of_var(self, var):
+    def level_of_var(
+            self,
+            var:
+                str
+            ) -> _Level:
         """Return level of variable `var`."""
         return self.vars[var]['level']
 
@@ -186,7 +240,15 @@ class MDD:
         self._ite_table[t] = w
         return w
 
-    def _top_cofactor(self, u, level):
+    def _top_cofactor(
+            self,
+            u:
+                _Ref,
+            level:
+                _Level
+            ) -> tuple[
+                _Ref,
+                ...]:
         """Return topmost cofactors.
 
         If `level` is the topmost level of `u`,
@@ -226,7 +288,9 @@ class MDD:
             self,
             i:
                 _Level,
-            *nodes):
+            *nodes:
+                _Ref
+            ) -> _Ref:
         """Return node at level `i` with successors in `nodes`.
 
         @param i:
@@ -269,7 +333,12 @@ class MDD:
             self.incref(v)
         return r * u
 
-    def collect_garbage(self, roots=None):
+    def collect_garbage(
+            self,
+            roots:
+                _abc.Iterable[_Ref] |
+                None=None
+            ) -> None:
         """Recursively remove nodes with zero reference count."""
         if roots is None:
             roots = self._ref
@@ -302,7 +371,11 @@ class MDD:
                     unused.add(abs(v))
         self._ite_table = dict()
 
-    def to_expr(self, u):
+    def to_expr(
+            self,
+            u:
+                _Ref
+            ) -> str:
         if u == 1:
             return str(u)
         elif u == -1:
@@ -337,7 +410,19 @@ class MDD:
         s = f'({s})'
         return s
 
-    def apply(self, op, u, v=None, w=None):
+    def apply(
+            self,
+            op:
+                dd._abc.OperatorSymbol,
+            u:
+                _Ref,
+            v:
+                _Ref |
+                None=None,
+            w:
+                _Ref |
+                None=None
+            ) -> _Ref:
         if u not in self:
             raise ValueError(u)
         if not (v is None or v in self):
@@ -412,7 +497,8 @@ class MDD:
     def dump(
             self,
             fname:
-                str):
+                str
+            ) -> None:
         """Write MDD as a diagram to PDF file `fname`.
 
         @param fname:
@@ -429,14 +515,21 @@ class MDD:
                 f'unknown file extension: {fname}')
 
 
-def bdd_to_mdd(bdd, dvars):
+def bdd_to_mdd(
+        bdd,
+        dvars:
+            dict[str, dict]
+        ) -> tuple[
+            MDD,
+            dict]:
     """Return MDD for given BDD.
 
     Caution: collects garbage.
 
-    `dvars` must map each MDD variable to the
-    corresponding bits in BDD.
-    Also, it should give the order as "level" keys.
+    `dvars` must:
+    - map each MDD variable to
+      the corresponding bits in `bdd`
+    - give the order as "level" keys.
     """
     # i = level in BDD
     # j = level in MDD
@@ -534,7 +627,11 @@ def bdd_to_mdd(bdd, dvars):
     return mdd, umap
 
 
-def _enumerate_integer(bits):
+def _enumerate_integer(
+        bits:
+            list[str]
+        ) -> _abc.Iterator[
+            dict[str, int]]:
     n = len(bits)
     for i in range(int(2**n)):
         values = list(reversed(bin(i).lstrip('-0b').zfill(n)))
@@ -544,7 +641,11 @@ def _enumerate_integer(bits):
         yield d
 
 
-def _debug_dump(pred, bdd):
+def _debug_dump(
+        pred:
+            _abc.Iterable,
+        bdd
+        ) -> None:
     """Dump nodes of `bdd`, coloring nodes in `pred`."""
     if _nx is None:
         raise _nx_error
@@ -568,7 +669,10 @@ def _debug_dump(pred, bdd):
     bdd.dump('bdd.pdf')
 
 
-def to_pydot(mdd):
+def to_pydot(
+        mdd:
+            MDD
+        ) -> '_Dot':
     if _pydot is None:
         raise _pydot_error
     g = _pydot.Dot('mdd', graph_type='digraph')

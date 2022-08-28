@@ -61,7 +61,10 @@ REORDER_FACTOR = 2
 GROWTH_FACTOR = 2
 
 
-def _request_reordering(bdd):
+def _request_reordering(
+        bdd:
+            'BDD'
+        ) -> None:
     """Raise `NeedsReordering` if `len(bdd)` >= threshold."""
     if bdd._last_len is None:
         return
@@ -69,13 +72,22 @@ def _request_reordering(bdd):
         raise _NeedsReordering()
 
 
-def _try_to_reorder(func):
+_Ret = _ty.TypeVar('_Ret')
+_CallablePR: _ty.TypeAlias = _abc.Callable[..., _Ret]
+
+
+def _try_to_reorder(
+        func:
+            _CallablePR
+        ) -> _CallablePR:
     """Decorator that serves reordering requests."""
     @_ft.wraps(func)
     def _wrapper(
-            bdd,
+            bdd:
+                'BDD',
             *args,
-            **kwargs):
+            **kwargs
+            ) -> _Ret:
         with _ReorderingContext(bdd):
             return func(
                 bdd,
@@ -101,7 +113,11 @@ def _try_to_reorder(func):
 class _ReorderingContext:
     """Context manager that tracks decorator nesting."""
 
-    def __init__(self, bdd):
+    def __init__(
+            self,
+            bdd:
+                'BDD'
+            ) -> None:
         self.bdd = bdd
         self.nested = None
 
@@ -110,7 +126,11 @@ class _ReorderingContext:
         self.nested = self.bdd._reordering_context
         self.bdd._reordering_context = True
 
-    def __exit__(self, ex_type, ex_value, tb):
+    def __exit__(
+            self,
+            ex_type,
+            ex_value,
+            tb):
         self.bdd._reordering_context = self.nested
         not_nested = (
             ex_type is _NeedsReordering and
@@ -125,9 +145,12 @@ class _NeedsReordering(Exception):
 
 _Yes: _ty.TypeAlias = dd._abc.Yes
 _Nat: _ty.TypeAlias = dd._abc.Nat
+_Cardinality: _ty.TypeAlias = dd._abc.Cardinality
 _VariableName: _ty.TypeAlias = dd._abc.VariableName
 _Level: _ty.TypeAlias = dd._abc.Level
 _VariableLevels: _ty.TypeAlias = dd._abc.VariableLevels
+_Assignment: _ty.TypeAlias = dd._abc.Assignment
+_Renaming: _ty.TypeAlias = dd._abc.Renaming
 _Node: _ty.TypeAlias = _Nat
 _Ref: _ty.TypeAlias = int
     # ```tla
@@ -138,9 +161,10 @@ _Fork: _ty.TypeAlias = tuple[
     _Level,
     _Ref | None,
     _Node | None]
+_Formula: _ty.TypeAlias = dd._abc.Formula
 
 
-class BDD(dd._abc.BDD):
+class BDD(dd._abc.BDD[_Ref]):
     """Shared ordered binary decision diagram.
 
     The terminal node is 1.
@@ -226,7 +250,9 @@ class BDD(dd._abc.BDD):
         self.roots: set = set()
         self.max_nodes: _Nat = sys.maxsize
 
-    def __copy__(self):
+    def __copy__(
+            self
+            ) -> 'BDD':
         bdd = BDD(self.vars)
         bdd._pred = dict(self._pred)
         bdd._succ = dict(self._succ)
@@ -237,7 +263,8 @@ class BDD(dd._abc.BDD):
         return bdd
 
     def __del__(
-            self):
+            self
+            ) -> None:
         """Assert that all remaining nodes are garbage."""
         if self._ref[1] > 0:
             self.decref(1)
@@ -261,10 +288,15 @@ class BDD(dd._abc.BDD):
             f'{stack_str}')
 
     def __len__(
-            self):
+            self
+            ) -> _Cardinality:
         return len(self._succ)
 
-    def __contains__(self, u):
+    def __contains__(
+            self,
+            u:
+                _Ref
+            ) -> _Yes:
         return abs(u) in self._succ
 
     def __iter__(
@@ -272,14 +304,20 @@ class BDD(dd._abc.BDD):
         return iter(self._succ)
 
     def __str__(
-            self):
+            self
+            ) -> str:
         return (
             'Binary decision diagram:\n'
             '------------------------\n'
             f'var levels: {self.vars}\n'
             f'roots: {self.roots}\n')
 
-    def configure(self, **kw):
+    def configure(
+            self,
+            **kw
+            ) -> dict[
+                str,
+                _ty.Any]:
         """Read and apply parameter values.
 
         First read parameter values (returned as `dict`),
@@ -309,7 +347,11 @@ class BDD(dd._abc.BDD):
             'use `dd.bdd.BDD.vars` '
             'instead of `.ordering`')
 
-    def _init_terminal(self, level):
+    def _init_terminal(
+            self,
+            level:
+                _Level
+            ) -> None:
         """Place constant node `1`.
 
         Used for initialization and to shift node `1` to
@@ -323,15 +365,27 @@ class BDD(dd._abc.BDD):
         self._pred[t] = u
         self._ref.setdefault(u, 1)
 
-    def succ(self, u):
+    def succ(
+            self,
+            u:
+                _Ref
+            ) -> _Fork:
         """Return `(level, low, high)` for `abs(u)`."""
         return self._succ[abs(u)]
 
-    def incref(self, u):
+    def incref(
+            self,
+            u:
+                _Ref
+            ) -> None:
         """Increment reference count of node `u`."""
         self._ref[abs(u)] += 1
 
-    def decref(self, u):
+    def decref(
+            self,
+            u:
+                _Ref
+            ) -> None:
         """Decrement reference count of node `u`,
 
         with 0 as minimum value.
@@ -348,21 +402,30 @@ class BDD(dd._abc.BDD):
             return
         self._ref[abs(u)] -= 1
 
-    def ref(self, u):
+    def ref(
+            self,
+            u:
+                _Ref
+            ) -> _Nat:
         """Return reference count of edge `u`."""
         return self._ref[abs(u)]
 
-    def declare(self, *variables):
+    def declare(
+            self,
+            *variables:
+                _VariableName
+            ) -> None:
         for var in variables:
             self.add_var(var)
 
     def add_var(
             self,
             var:
-                str,
+                _VariableName,
             level:
-                int |
-                None=None):
+                _Level |
+                None=None
+            ) -> _Level:
         """Declare a variable named `var` at `level`.
 
         The new variable is Boolean-valued.
@@ -408,12 +471,12 @@ class BDD(dd._abc.BDD):
     def _check_var(
             self,
             var:
-                str,
+                _VariableName,
             level:
-                int |
+                _Level |
                 None
-                ) -> int:
-        r"""Assert that `var` has `level`.
+            ) -> _Level:
+        """Assert that `var` has `level`.
 
         Return the level of `var`.
 
@@ -429,10 +492,6 @@ class BDD(dd._abc.BDD):
             name of variable
         @param level:
             level of variable
-            `level \in Nat`
-        @return:
-            level of variable,
-            `level \in Nat`
         """
         if var not in self.vars:
             raise ValueError(
@@ -454,8 +513,9 @@ class BDD(dd._abc.BDD):
             self,
             var,
             level:
-                int
-                ) -> int:
+                _Level |
+                None
+            ) -> _Nat:
         """Return a free level.
 
         Raise `ValueError`:
@@ -491,7 +551,11 @@ class BDD(dd._abc.BDD):
             f'new variable "{var}"')
 
     @_try_to_reorder
-    def var(self, var):
+    def var(
+            self,
+            var:
+                _VariableName
+            ) -> _Ref:
         if var not in self.vars:
             raise ValueError(
                 f'undeclared variable "{var}", '
@@ -501,7 +565,11 @@ class BDD(dd._abc.BDD):
         u = self.find_or_add(j, -1, 1)
         return u
 
-    def var_at_level(self, level):
+    def var_at_level(
+            self,
+            level:
+                _Level
+            ) -> _VariableName:
         if level not in self._level_to_var:
             raise ValueError(
                 f'no variable has level:  {level}, '
@@ -509,7 +577,11 @@ class BDD(dd._abc.BDD):
                 f'are:  {self.vars}')
         return self._level_to_var[level]
 
-    def level_of_var(self, var):
+    def level_of_var(
+            self,
+            var:
+                _VariableName
+            ) -> _Level:
         if var not in self.vars:
             raise ValueError(
                 f'name "{var}" is not '
@@ -519,13 +591,51 @@ class BDD(dd._abc.BDD):
         return self.vars[var]
 
     @property
-    def var_levels(self):
+    def var_levels(
+            self
+            ) -> _VariableLevels:
         return dict(self.vars)
+
+    @_ty.overload
+    def _map_to_level(
+            self,
+            d:
+                _abc.Mapping[
+                    _VariableName,
+                    _ty.Any] |
+                _abc.Mapping[
+                    _Level,
+                    _ty.Any]
+            ) -> dict[_Level, bool]:
+        ...
+
+    @_ty.overload
+    def _map_to_level(
+            self,
+            d:
+                _abc.Set[
+                    _VariableName] |
+                _abc.Set
+                    [_Level]
+            ) -> set[_Level]:
+        ...
 
     def _map_to_level(
             self,
             d:
-                dict | set):
+                _abc.Mapping[
+                    _VariableName,
+                    _ty.Any] |
+                _abc.Mapping[
+                    _Level,
+                    _ty.Any] |
+                _abc.Set[
+                    _VariableName] |
+                _abc.Set[
+                    _Level]
+            ) -> (
+                dict[_Level, bool] |
+                set[_Level]):
         """Map keys of `d` to variable levels.
 
         Uses `self.vars` to map the keys to levels.
@@ -533,13 +643,34 @@ class BDD(dd._abc.BDD):
         If `d` is an iterable but not a mapping,
         then an iterable is returned.
         """
+        match d:
+            case _abc.Mapping():
+                d = dict(d)
+            case _abc.Set():
+                d = set(d)
+            case _:
+                raise TypeError(d)
         if not d:
-            return d
+            match d:
+                case dict():
+                    return dict()
+                case set():
+                    return set()
+                case _:
+                    raise TypeError(d)
         # are keys variable names ?
         u = next(iter(d))
         if u not in self.vars:
             self._assert_keys_are_levels(d)
-            return d
+            match d:
+                case dict():
+                    return {
+                        int(k): v
+                        for k, v in d.items()}
+                case set():
+                    return set(map(int, d))
+                case _:
+                    raise ValueError(d)
         if isinstance(d, _abc.Mapping):
             return {
                 self.vars[var]: bool(val)
@@ -562,7 +693,7 @@ class BDD(dd._abc.BDD):
         not_levels = set()
         def key_is_level(
                 key
-                ) -> bool:
+                ) -> _Yes:
             is_level = (
                 key in self._level_to_var)
             if not is_level:
@@ -583,7 +714,11 @@ class BDD(dd._abc.BDD):
             'currently the levels are:\n'
             f'{self._level_to_var = }')
 
-    def _top_var(self, *nodes):
+    def _top_var(
+            self,
+            *nodes:
+                _Ref
+            ) -> _Level:
         def level_of(node):
             level, *_ = self._succ[abs(node)]
             return level
@@ -591,13 +726,19 @@ class BDD(dd._abc.BDD):
 
     def copy(
             self,
-            u,
+            u:
+                _Ref,
             other:
-                'BDD'):
+                'BDD'
+            ) -> _Ref:
         """Transfer BDD with root `u` to `other`."""
         return copy_bdd(u, self, other)
 
-    def descendants(self, roots):
+    def descendants(
+            self,
+            roots:
+                _abc.Iterable[_Ref]
+            ) -> set[_Ref]:
         """Return nodes reachable from `roots`.
 
         Nodes pointed to by references in
@@ -614,7 +755,13 @@ class BDD(dd._abc.BDD):
                 (abs_roots, visited))
         return visited
 
-    def _descendants(self, u, visited):
+    def _descendants(
+            self,
+            u:
+                _Ref,
+            visited:
+                set[_Node]
+            ) -> None:
         r = abs(u)
         if r == 1 or r in visited:
             return
@@ -629,9 +776,11 @@ class BDD(dd._abc.BDD):
 
     def is_essential(
             self,
-            u,
+            u:
+                _Ref,
             var:
-                int):
+                _VariableName
+            ) -> _Yes:
         """Return `True` if `var` is essential for node `u`.
 
         If `var` is a name undeclared in
@@ -657,7 +806,14 @@ class BDD(dd._abc.BDD):
             return True
         return False
 
-    def support(self, u, as_levels=False):
+    def support(
+            self,
+            u:
+                _Ref,
+            as_levels:
+                _Yes=False
+            ) -> set[
+                _VariableName]:
         levels = set()
         nodes = set()
         self._support(u, levels, nodes)
@@ -665,7 +821,14 @@ class BDD(dd._abc.BDD):
             return levels
         return {self.var_at_level(i) for i in levels}
 
-    def _support(self, u, levels, nodes):
+    def _support(
+            self,
+            u:
+                _Ref,
+            levels:
+                set[_Level],
+            nodes:
+                set[_Ref]):
         """Recurse to collect variables in support."""
         # exhausted all vars ?
         if len(levels) == len(self.vars):
@@ -689,7 +852,16 @@ class BDD(dd._abc.BDD):
         self._support(v, levels, nodes)
         self._support(w, levels, nodes)
 
-    def levels(self, skip_terminals=False):
+    def levels(
+            self,
+            skip_terminals:
+                _Yes=False
+            ) -> _abc.Iterable[
+                tuple[
+                    _Ref,
+                    _Level,
+                    _Ref,
+                    _Node]]:
         """Return generator of tuples `(u, i, v, w)`.
 
         Where `i` ranges from terminals to root.
@@ -709,8 +881,11 @@ class BDD(dd._abc.BDD):
                 yield u, i, v, w
 
     def _levels(
-            self):
-        """Return `dict` from levels to `set`s of nodes."""
+            self
+            ) -> dict[
+                _Level,
+                set[_Node]]:
+        """Return mapping from levels to nodes."""
         n = len(self.vars)
         levels = {
             i: set()
@@ -751,7 +926,10 @@ class BDD(dd._abc.BDD):
             bdd.roots.add(p)
         return bdd
 
-    def undeclare_vars(self, *vrs):
+    def undeclare_vars(
+            self,
+            *vrs
+            ) -> set[str]:
         """Remove unused variables `vrs` from `self.vars`.
 
         Asserts that each variable in `vrs` corresponds to
@@ -826,7 +1004,17 @@ class BDD(dd._abc.BDD):
         self._ite_table = dict()
         return rm_vars
 
-    def let(self, definitions, u):
+    def let(
+            self,
+            definitions:
+                _Renaming |
+                _Assignment |
+                dict[
+                    _VariableName,
+                    _Ref],
+            u:
+                _Ref
+            ) -> _Ref:
         d = definitions
         if not d:
             logger.warning(
@@ -849,7 +1037,15 @@ class BDD(dd._abc.BDD):
         return self.rename(u, d)
 
     @_try_to_reorder
-    def compose(self, f, var_sub):
+    def compose(
+            self,
+            f:
+                _Ref,
+            var_sub:
+                dict[
+                    _VariableName,
+                    _Ref]
+            ) -> _Ref:
         """Return substitutions `var_sub` in `f`.
 
         @param f:
@@ -872,7 +1068,19 @@ class BDD(dd._abc.BDD):
                 f, dvars, cache)
         return r
 
-    def _compose(self, f, j, g, cache):
+    def _compose(
+            self,
+            f:
+                _Ref,
+            j:
+                _Level,
+            g:
+                _Ref,
+            cache:
+                dict[
+                    tuple[_Ref, _Ref],
+                    _Ref]
+            ) -> _Ref:
         # terminal ?
         if abs(f) == 1:
             return f
@@ -911,7 +1119,15 @@ class BDD(dd._abc.BDD):
         cache[(f, g)] = r
         return r
 
-    def _vector_compose(self, f, level_sub, cache):
+    def _vector_compose(
+            self,
+            f:
+                _Ref,
+            level_sub:
+                dict[_Level, _Ref],
+            cache:
+                dict[_Node, _Ref]
+            ) -> _Ref:
         # terminal ?
         if abs(f) == 1:
             return f
@@ -949,7 +1165,13 @@ class BDD(dd._abc.BDD):
         return r
 
     @_try_to_reorder
-    def rename(self, u, dvars):
+    def rename(
+            self,
+            u:
+                _Ref,
+            dvars:
+                _Renaming
+            ) -> _Ref:
         """Efficient rename to non-essential neighbors.
 
         @param dvars:
@@ -958,14 +1180,16 @@ class BDD(dd._abc.BDD):
         """
         return rename(u, self, dvars)
 
-    def _top_cofactor(self, u, i):
-        """Return successor pair with respect to level `i`.
-
-        @param u:
-            node
-        @param i:
-            variable level
-        """
+    def _top_cofactor(
+            self,
+            u:
+                _Ref,
+            i:
+                _Level
+            ) -> tuple[
+                _Ref,
+                _Ref]:
+        """Return successor pair with respect to level `i`."""
         # terminal node ?
         if abs(u) == 1:
             return (u, u)
@@ -989,14 +1213,14 @@ class BDD(dd._abc.BDD):
         return (v, w)
 
     @_try_to_reorder
-    def cofactor(self, u, values):
-        """Replace variables in `u` with Boolean `values`.
-
-        @param u:
-            node
-        @param values:
-            `dict` that maps var names to `bool`
-        """
+    def cofactor(
+            self,
+            u:
+                _Ref,
+            values:
+                _Assignment
+            ) -> _Ref:
+        """Replace variables in `u` with Booleans."""
         values = self._map_to_level(values)
         cache = dict()
         ordvar = sorted(values)
@@ -1007,7 +1231,19 @@ class BDD(dd._abc.BDD):
         return self._cofactor(
             u, j, ordvar, values, cache)
 
-    def _cofactor(self, u, j, ordvar, values, cache):
+    def _cofactor(
+            self,
+            u:
+                _Ref,
+            j:
+                _Level,
+            ordvar:
+                list[_Level],
+            values:
+                dict[_Level, bool],
+            cache:
+                dict[_Ref, _Ref]
+            ) -> _Ref:
         """Recurse to compute cofactor."""
         # terminal ?
         if abs(u) == 1:
@@ -1058,13 +1294,22 @@ class BDD(dd._abc.BDD):
         return r
 
     @_try_to_reorder
-    def quantify(self, u, qvars, forall=False):
+    def quantify(
+            self,
+            u:
+                _Ref,
+            qvars:
+                _abc.Iterable[
+                    _VariableName],
+            forall:
+                _Yes=False
+            ) -> _Ref:
         """Return existential or universal abstraction.
 
         @param u:
             node
         @param qvars:
-            `set` of quantified variables
+            quantified variables
         @param forall:
             if `True`,
             then quantify `qvars` universally,
@@ -1079,7 +1324,21 @@ class BDD(dd._abc.BDD):
             qvars, forall,
             cache)
 
-    def _quantify(self, u, j, ordvar, qvars, forall, cache):
+    def _quantify(
+            self,
+            u:
+                _Ref,
+            j:
+                _Level,
+            ordvar:
+                list[_Level],
+            qvars:
+                set[_Level],
+            forall:
+                _Yes,
+            cache:
+                dict[_Ref, _Ref]
+            ) -> _Ref:
         """Recurse to quantify variables."""
         # terminal ?
         if abs(u) == 1:
@@ -1125,23 +1384,53 @@ class BDD(dd._abc.BDD):
         cache[u] = r
         return r
 
-    def forall(self, qvars, u):
+    def forall(
+            self,
+            qvars:
+                _abc.Iterable[
+                    _VariableName],
+            u:
+                _Ref
+            ) -> _Ref:
         return self.quantify(
             u, qvars,
             forall=True)
 
-    def exist(self, qvars, u):
+    def exist(
+            self,
+            qvars:
+                _abc.Iterable[
+                    _VariableName],
+            u:
+                _Ref
+            ) -> _Ref:
         return self.quantify(
             u, qvars,
             forall=False)
 
     @_try_to_reorder
-    def ite(self, g, u, v):
+    def ite(
+            self,
+            g:
+                _Ref,
+            u:
+                _Ref,
+            v:
+                _Ref
+            ) -> _Ref:
         # wrap so reordering can
         # delete unused nodes
         return self._ite(g, u, v)
 
-    def _ite(self, g, u, v):
+    def _ite(
+            self,
+            g:
+                _Ref,
+            u:
+                _Ref,
+            v:
+                _Ref
+            ) -> _Ref:
         """Recurse to compute ternary conditional."""
         # is g terminal ?
         if g == 1:
@@ -1167,7 +1456,15 @@ class BDD(dd._abc.BDD):
         self._ite_table[r] = w
         return w
 
-    def find_or_add(self, i, v, w):
+    def find_or_add(
+            self,
+            i:
+                _Level,
+            v:
+                _Ref,
+            w:
+                _Ref
+            ) -> _Ref:
         """Return reference to specified node.
 
         The returned node is at level `i`
@@ -1238,7 +1535,11 @@ class BDD(dd._abc.BDD):
         self.incref(w)
         return r * u
 
-    def _next_free_int(self, start):
+    def _next_free_int(
+            self,
+            start:
+                _Nat
+            ) -> _Nat:
         """Return smallest unused integer `> start`."""
         if start < 1:
             raise ValueError(
@@ -1253,8 +1554,9 @@ class BDD(dd._abc.BDD):
     def collect_garbage(
             self,
             roots:
-                set |
-                None=None):
+                _abc.Iterable[_Ref] |
+                None=None
+            ) -> None:
         """Recursively remove unused nodes
 
         A node is unused when
@@ -1269,7 +1571,7 @@ class BDD(dd._abc.BDD):
             roots = self._ref
         def is_unused(
                 u
-                ) -> bool:
+                ) -> _Yes:
             return not self._ref[abs(u)]
         unused = filter(
             is_unused, roots)
@@ -1315,7 +1617,9 @@ class BDD(dd._abc.BDD):
         if k < 0:
             raise AssertionError((n, m))
 
-    def update_predecessors(self):
+    def update_predecessors(
+            self
+            ) -> None:
         """Update table `self._pred`.
 
         `self._pred` maps triplets
@@ -1329,10 +1633,19 @@ class BDD(dd._abc.BDD):
     def swap(
             self,
             x:
-                str | int,
+                _VariableName |
+                _Level,
             y:
-                str | int,
-            all_levels=None):
+                _VariableName |
+                _Level,
+            all_levels:
+                dict[
+                    _Level,
+                    set[_Ref]] |
+                None=None
+            ) -> tuple[
+                _Nat,
+                _Nat]:
         """Permute adjacent variables `x` and `y`.
 
         Swapping invokes the garbage collector,
@@ -1364,9 +1677,12 @@ class BDD(dd._abc.BDD):
         # count nodes
         oldsize = len(self._succ)
         # collect levels x and y
-        levels = {
-            x: dict(),
-            y: dict()}
+        levels: dict[
+                _Ref,
+                dict[_Ref, tuple]
+            ] = {
+                x: dict(),
+                y: dict()}
         for j in (x, y):
             for u in all_levels[j]:
                 i, v, w = self._succ[abs(u)]
@@ -1416,6 +1732,12 @@ class BDD(dd._abc.BDD):
         garbage = set()
         xfresh = set()
         for u, (v, w) in levels[x].items():
+            # for type checking
+            match u:
+                case int():
+                    pass
+                case _:
+                    raise AssertionError(u)
             if u in done:
                 continue
             i, _, _ = self._succ[u]
@@ -1518,8 +1840,11 @@ class BDD(dd._abc.BDD):
     def _low_high(
             self,
             u:
-                int
-                ) -> tuple[int, int, int]:
+                _Ref
+            ) -> tuple[
+                _Level,
+                _Ref,
+                _Node]:
         """Return level, low, and high.
 
         If node `u` is a leaf,
@@ -1540,7 +1865,16 @@ class BDD(dd._abc.BDD):
             raise AssertionError(w)
         return i, v, w
 
-    def _swap_cofactor(self, u, y):
+    def _swap_cofactor(
+            self,
+            u:
+                _Ref,
+            y:
+                _Level
+            ) -> tuple[
+                _Level,
+                _Ref,
+                _Ref]:
         """Return cofactor of node `u` wrt level `y`.
 
         If node `u` is above level `y`, that means
@@ -1555,7 +1889,14 @@ class BDD(dd._abc.BDD):
         # moved up
         return (y, v, w)
 
-    def count(self, u, nvars=None):
+    def count(
+            self,
+            u:
+                _Ref,
+            nvars:
+                _Nat |
+                None=None
+            ) -> _Nat:
         n = nvars
         if abs(u) not in self:
             raise ValueError(u)
@@ -1581,9 +1922,39 @@ class BDD(dd._abc.BDD):
             d=dict())
         i, _, _ = self._succ[abs(u)]
         i = map_level[i]
-        return r * 2**i
+        n_models = r * 2**i
+        return self._assert_int(n_models)
 
-    def _sat_len(self, u, map_level, d):
+    @staticmethod
+    def _assert_int(
+            number:
+                _ty.Any
+            ) -> int:
+        """Return `number` if an `int`.
+
+        Raise `AssertionError` otherwise.
+        """
+        match number:
+            case int():
+                return number
+        raise AssertionError(
+            'Expected `int` result, '
+            f'but: {number = }')
+
+    def _sat_len(
+            self,
+            u:
+                _Ref,
+            map_level:
+                dict[
+                    _Level |
+                    _ty.Literal['all'],
+                    _Level],
+            d:
+                dict[
+                    _Node,
+                    _Nat]
+            ) -> _Nat:
         """Recurse to compute the number of models."""
         # terminal ?
         if u == 1:
@@ -1602,7 +1973,7 @@ class BDD(dd._abc.BDD):
             # complement ?
             if u < 0:
                 n = 2**(map_level['all'] - i) - n
-            return n
+            return self._assert_int(n)
         # non-terminal
         nv = self._sat_len(v, map_level, d)
         nw = self._sat_len(w, map_level, d)
@@ -1611,15 +1982,24 @@ class BDD(dd._abc.BDD):
         iv = map_level[iv]
         iw = map_level[iw]
         # sum
-        n = (nv * 2**(iv - i - 1) +
-             nw * 2**(iw - i - 1))
+        n = self._assert_int(
+            nv * 2**(iv - i - 1) +
+            nw * 2**(iw - i - 1))
         d[abs(u)] = n
         # complement ?
         if u < 0:
             n = 2**(map_level['all'] - i) - n
-        return n
+        return self._assert_int(n)
 
-    def pick_iter(self, u, care_vars=None):
+    def pick_iter(
+            self,
+            u:
+                _Ref,
+            care_vars:
+                set[_VariableName] |
+                None=None
+            ) -> _abc.Iterable[
+                _Assignment]:
         # empty ?
         if not self._succ:
             return
@@ -1650,7 +2030,18 @@ class BDD(dd._abc.BDD):
             for m in minterms:
                 yield m
 
-    def _sat_iter(self, u, cube, value):
+    def _sat_iter(
+            self,
+            u:
+                _Ref,
+            cube:
+                dict[
+                    _Level,
+                    bool],
+            value:
+                bool
+            ) -> _abc.Iterable[
+                _Assignment]:
         """Recurse to enumerate models."""
         if u < 0:
             value = not value
@@ -1677,7 +2068,9 @@ class BDD(dd._abc.BDD):
         for x in self._sat_iter(w, d1, value):
             yield x
 
-    def assert_consistent(self):
+    def assert_consistent(
+            self
+            ) -> None:
         """Raise `AssertionError` if not a valid BDD."""
         for root in self.roots:
             if abs(root) not in self._succ:
@@ -1738,10 +2131,18 @@ class BDD(dd._abc.BDD):
                 raise AssertionError(self._ref[u])
 
     @_try_to_reorder
-    def add_expr(self, expr):
+    def add_expr(
+            self,
+            expr:
+                _Formula
+            ) -> _Ref:
         return _parser.add_expr(expr, self)
 
-    def to_expr(self, u):
+    def to_expr(
+            self,
+            u:
+                _Ref
+            ) -> _Formula:
         if u not in self:
             raise ValueError(
                 f'{u} is not a reference to '
@@ -1749,7 +2150,11 @@ class BDD(dd._abc.BDD):
                 f'`self` ({self!r})')
         return self._to_expr(u)
 
-    def _to_expr(self, u):
+    def _to_expr(
+            self,
+            u:
+                _Ref
+            ) -> _Formula:
         if u == 1:
             return 'TRUE'
         if u == -1:
@@ -1772,7 +2177,19 @@ class BDD(dd._abc.BDD):
             s = f'(~ {s})'
         return s
 
-    def apply(self, op, u, v=None, w=None):
+    def apply(
+            self,
+            op:
+                dd._abc.OperatorSymbol,
+            u:
+                _Ref,
+            v:
+                _Ref |
+                None=None,
+            w:
+                _Ref |
+                None=None
+            ) -> _Ref:
         if abs(u) not in self:
             raise ValueError(u)
         if not (v is None or abs(v) in self):
@@ -1848,7 +2265,11 @@ class BDD(dd._abc.BDD):
         raise ValueError(
             f'unknown operator "{op}"')
 
-    def _add_int(self, i):
+    def _add_int(
+            self,
+            i:
+                int
+            ) -> _Ref:
         if i not in self:
             raise ValueError(
                 f'{i = } is not a reference '
@@ -1857,7 +2278,13 @@ class BDD(dd._abc.BDD):
         return i
 
     @_try_to_reorder
-    def cube(self, dvars):
+    def cube(
+            self,
+            dvars:
+                _Assignment |
+                _abc.Iterable[
+                    _VariableName]
+            ) -> _Ref:
         if not isinstance(dvars, dict):
             dvars = {
                 k: True
@@ -1870,8 +2297,20 @@ class BDD(dd._abc.BDD):
             r = self.apply('and', u, r)
         return r
 
-    def dump(self, filename, roots=None,
-             filetype=None, **kw):
+    def dump(
+            self,
+            filename:
+                str,
+            roots:
+                dict[str, _Ref] |
+                list[_Ref] |
+                None=None,
+             filetype:
+                dd._abc.ImageFileType |
+                dd._abc.PickleFileType |
+                None=None,
+            **kw
+            ) -> None:
         if filetype is None:
             name = filename.lower()
             if name.endswith('.pdf'):
@@ -1897,8 +2336,17 @@ class BDD(dd._abc.BDD):
             raise ValueError(
                 f'unknown file type "{filetype}"')
 
-    def _dump_figure(self, roots, filename,
-                     filetype, **kw):
+    def _dump_figure(
+            self,
+            roots:
+                _abc.Iterable[_Ref] |
+                None,
+            filename:
+                str,
+            filetype:
+                dd._abc.ImageFileType,
+            **kw
+            ) -> None:
         """Write BDDs to `filename` as figure."""
         g = to_pydot(roots, self)
         if filetype == 'pdf':
@@ -1911,7 +2359,16 @@ class BDD(dd._abc.BDD):
             raise ValueError(
                 f'Unknown file type of "{filename}"')
 
-    def _dump_bdd(self, roots, filename, **kw):
+    def _dump_bdd(
+            self,
+            roots:
+                dict[str, _Ref] |
+                list[_Ref] |
+                None,
+            filename:
+                str,
+            **kw
+            ) -> None:
         """Write BDDs to `filename` as pickle."""
         if roots is None:
             nodes = self._succ
@@ -1929,7 +2386,15 @@ class BDD(dd._abc.BDD):
         with open(filename, 'wb') as f:
             pickle.dump(d, f, **kw)
 
-    def load(self, filename, levels=True):
+    def load(
+            self,
+            filename:
+                str,
+            levels:
+                _Yes=True
+            ) -> (
+                dict |
+                list):
         name = filename.lower()
         if not name.endswith('.p'):
             raise ValueError(
@@ -1945,7 +2410,15 @@ class BDD(dd._abc.BDD):
         return _utils._map_container(
             map_node, roots)
 
-    def _load_pickle(self, filename, levels=True):
+    def _load_pickle(
+            self,
+            filename:
+                str,
+            levels:
+                _Yes=True
+            ) -> tuple[
+                dict | list,
+                set[_Ref]]:
         with open(filename, 'rb') as f:
             d = pickle.load(f)
         var2level = d['vars']
@@ -1974,7 +2447,17 @@ class BDD(dd._abc.BDD):
                 u, succ, umap, level_map)
         return umap, d['roots']
 
-    def _load(self, u, succ, umap, level_map):
+    def _load(
+            self,
+            u:
+                _Ref,
+            succ:
+                dict,
+            umap:
+                dict,
+            level_map:
+                dict
+            ) -> _Ref:
         """Recurse to load BDD `u` from `succ`."""
         # terminal ?
         if abs(u) == 1:
@@ -2001,7 +2484,12 @@ class BDD(dd._abc.BDD):
             r = -r
         return r
 
-    def _dump_manager(self, filename, **kw):
+    def _dump_manager(
+            self,
+            filename:
+                str,
+            **kw
+            ) -> None:
         """Write `BDD` to `filename` as pickle."""
         d = dict(
             vars=self.vars,
@@ -2016,7 +2504,11 @@ class BDD(dd._abc.BDD):
             pickle.dump(d, f, **kw)
 
     @classmethod
-    def _load_manager(cls, filename):
+    def _load_manager(
+            cls,
+            filename:
+                str
+            ) -> 'BDD':
         """Load `BDD` from pickle file `filename`."""
         with open(filename, 'rb') as f:
             d = pickle.load(f)
@@ -2030,25 +2522,30 @@ class BDD(dd._abc.BDD):
         return bdd
 
     @property
-    def false(self):
+    def false(
+            self
+            ) -> _Ref:
         return -1
 
     @property
-    def true(self):
+    def true(
+            self
+            ) -> _Ref:
         return 1
 
 
 def _enumerate_minterms(
         cube:
-            dict,
+            _Assignment,
         bits:
-            set):
+            _abc.Iterable[
+                _VariableName]
+        ) -> _abc.Iterator[
+            _Assignment]:
     """Generator of complete assignments in `cube`.
 
     @param bits:
         enumerate over those absent from `cube`
-    @rtype:
-        generator of `dict(str: bool)`
     """
     if cube is None:
         raise ValueError(cube)
@@ -2072,7 +2569,14 @@ def _enumerate_minterms(
         yield model
 
 
-def _assert_isomorphic_orders(old, new, support):
+def _assert_isomorphic_orders(
+        old:
+            _VariableLevels,
+        new:
+            _VariableLevels,
+        support:
+            set[_VariableName]
+        ) -> None:
     """Raise `AssertionError` if not isomorphic.
 
     @param old, new:
@@ -2099,7 +2603,10 @@ def _assert_isomorphic_orders(old, new, support):
         raise AssertionError((old, new))
 
 
-def _assert_valid_ordering(levels):
+def _assert_valid_ordering(
+        levels:
+            _VariableLevels
+        ) -> None:
     """Check that `levels` is well-formed.
 
     - bijection
@@ -2117,7 +2624,14 @@ def _assert_valid_ordering(levels):
         raise AssertionError(n, numbers)
 
 
-def rename(u, bdd, dvars):
+def rename(
+        u:
+            _Ref,
+        bdd:
+            BDD,
+        dvars:
+            _Renaming
+        ) -> _Ref:
     """Rename variables of node `u`.
 
     @param dvars:
@@ -2140,7 +2654,16 @@ def rename(u, bdd, dvars):
     return _copy_bdd(u, dvars, bdd, bdd, cache)
 
 
-def _assert_valid_rename(u, bdd, dvars):
+def _assert_valid_rename(
+        u:
+            _Ref,
+        bdd:
+            BDD,
+        dvars:
+            dict[
+                _Level,
+                _Level]
+        ) -> None:
     """Assert renaming to only adjacent variables.
 
     Raise `AssertionError` if
@@ -2157,7 +2680,12 @@ def _assert_valid_rename(u, bdd, dvars):
     _assert_no_overlap(dvars)
 
 
-def _all_adjacent(dvars, bdd):
+def _all_adjacent(
+        dvars:
+            dict,
+        bdd:
+            BDD
+        ) -> _Yes:
     """Return `True` if all levels are adjacent.
 
     The pairs of levels checked for
@@ -2170,7 +2698,14 @@ def _all_adjacent(dvars, bdd):
     return True
 
 
-def _adjacent(i, j, bdd):
+def _adjacent(
+        i:
+            _Level,
+        j:
+            _Level,
+        bdd:
+            BDD
+        ) -> _Yes:
     """Warn if levels `i` and `j` not adjacent."""
     if abs(i - j) == 1:
         return True
@@ -2184,14 +2719,32 @@ def _adjacent(i, j, bdd):
     return False
 
 
-def _assert_no_overlap(d):
+def _assert_no_overlap(
+        d:
+            dict
+        ) -> None:
     """Raise `AssertionError` if keys and values overlap."""
     if any((k in d) for k in d.values()):
         raise AssertionError(
             f'keys and values overlap: {d}')
 
 
-def image(trans, source, rename, qvars, bdd, forall=False):
+def image(
+        trans:
+            _Ref,
+        source:
+            _Ref,
+        rename:
+            _Renaming |
+            dict[_Level, _Level],
+        qvars:
+            _abc.Iterable[_VariableName] |
+            _abc.Iterable[_Level],
+        bdd:
+            BDD,
+        forall:
+            _Yes=False
+        ) -> _Ref:
     """Return set reachable from `source` under `trans`.
 
     @param trans:
@@ -2199,14 +2752,12 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     @param source:
         the transition must start in this set
     @param rename:
-        `dict` that maps primed variables in
+        maps primed variables in
         `trans` to unprimed variables in `trans`.
         Applied to the quantified conjunction of
         `trans` and `source`.
     @param qvars:
-        `set` of variables to quantify
-    @param bdd:
-        `BDD`
+        variables to quantify
     @param forall:
         if `True`,
         then quantify `qvars` universally,
@@ -2239,7 +2790,22 @@ def image(trans, source, rename, qvars, bdd, forall=False):
         qvars, bdd, forall, cache)
 
 
-def preimage(trans, target, rename, qvars, bdd, forall=False):
+def preimage(
+        trans:
+            _Ref,
+        target:
+            _Ref,
+        rename:
+            _Renaming |
+            dict[_Level, _Level],
+        qvars:
+            _abc.Iterable[_VariableName] |
+            _abc.Iterable[_Level],
+        bdd:
+            BDD,
+        forall:
+            _Yes=False
+        ) -> _Ref:
     """Return set that can reach `target` under `trans`.
 
     Also known as the "relational product".
@@ -2252,12 +2818,10 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     @param target:
         the transition must end in this set
     @param rename:
-        `dict` that maps (unprimed) variables in `target` to
+        maps (unprimed) variables in `target` to
         (primed) variables in `trans`
     @param qvars:
-        `set` of variables to quantify
-    @param bdd:
-        `BDD`
+        variables to quantify
     @param forall:
         if `True`,
         then quantify `qvars` universally,
@@ -2279,14 +2843,33 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
         qvars, bdd, forall, cache)
 
 
-def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
+def _image(
+        u:
+            _Ref,
+        v:
+            _Ref,
+        umap:
+            dict |
+            None,
+        vmap:
+            dict |
+            None,
+        qvars:
+            set[_Level],
+        bdd:
+            BDD,
+        forall:
+            _Yes,
+        cache:
+            dict[
+                tuple[_Ref, _Ref],
+                _Ref]
+        ) -> _Ref:
     """Recursive (pre)image computation.
 
     Renaming requires that in each pair
     the variables are adjacent.
 
-    @param u, v:
-        nodes
     @param umap:
         renaming of variables in `u`
         that occurs after conjunction of `u` with `v`
@@ -2344,8 +2927,9 @@ def reorder(
         bdd:
             BDD,
         order:
-            dict[str, int] |
-            None=None):
+            _VariableLevels |
+            None=None
+        ) -> None:
     """Apply Rudell's sifting algorithm to reduce `bdd` size.
 
     Reordering invokes the garbage collector,
@@ -2367,7 +2951,10 @@ def reorder(
         f'from {len_before} to {len_after} nodes.')
 
 
-def _apply_sifting(bdd):
+def _apply_sifting(
+        bdd:
+            BDD
+        ) -> None:
     """Apply Rudell's sifting algorithm."""
     bdd.collect_garbage()
     n = len(bdd)
@@ -2390,8 +2977,12 @@ def _reorder_var(
         bdd:
             BDD,
         var:
-            str,
-        levels):
+            _VariableName,
+        levels:
+            dict[
+                _Level,
+                set[_Ref]]
+        ) -> _Nat:
     """Reorder by sifting a variable `var`."""
     if var not in bdd.vars:
         raise ValueError((var, bdd.vars))
@@ -2421,10 +3012,16 @@ def _shift(
         bdd:
             BDD,
         start:
-            int,
+            _Level,
         end:
-            int,
-        levels):
+            _Level,
+        levels:
+            dict[
+                _Level,
+                set[_Ref]]
+        ) -> dict[
+            _Level,
+            _Level]:
     r"""Shift level `start` to become `end`, by swapping.
 
     ```tla
@@ -2453,9 +3050,11 @@ def _shift(
 
 
 def _sort_to_order(
-        bdd,
+        bdd:
+            BDD,
         order:
-            dict):
+            _VariableLevels
+        ) -> None:
     """Swap variables to obtain `order`."""
     # TODO: use min number of swaps
     if len(bdd.vars) != len(order):
@@ -2490,9 +3089,11 @@ def _sort_to_order(
 
 
 def reorder_to_pairs(
-        bdd,
+        bdd:
+            BDD,
         pairs:
-            dict[str, str]):
+            _Renaming
+        ) -> None:
     """Reorder variables to make adjacent the given pairs.
 
     @param pairs:
@@ -2519,11 +3120,13 @@ def reorder_to_pairs(
 
 
 def copy_bdd(
-        u,
+        u:
+            _Ref,
         from_bdd:
             BDD,
         to_bdd:
-            BDD):
+            BDD
+        ) -> _Ref:
     """Copy BDD of node `u` `from_bdd` `to_bdd`.
 
     @param u:
@@ -2547,15 +3150,17 @@ def copy_bdd(
 
 
 def _copy_bdd(
-        u,
+        u:
+            _Ref,
         level_map:
-            dict,
+            dict[_Level, _Level],
         old_bdd:
             BDD,
         bdd:
             BDD,
         cache:
-            dict):
+            dict[_Node, _Ref]
+        ) -> _Ref:
     """Recurse to copy nodes from `old_bdd` to `bdd`.
 
     @param u:
@@ -2608,7 +3213,12 @@ def _copy_bdd(
     return r
 
 
-def _flip(r, u):
+def _flip(
+        r:
+            _Ref,
+        u:
+            _Ref
+        ) -> _Ref:
     """Flip `r` if `u` is negated, else identity."""
     return -r if u < 0 else r
 
@@ -2617,7 +3227,7 @@ def to_nx(
         bdd:
             BDD,
         roots:
-            set[int]
+            set[_Ref]
         ) -> '_utils.MultiDiGraph':
     """Convert node references in `roots` to graph.
 
@@ -2681,7 +3291,8 @@ def to_nx(
 
 def to_pydot(
         roots:
-            _abc.Iterable[int],
+            _abc.Iterable[_Ref] |
+            None,
         bdd:
             BDD
         ) -> '_utils.Dot':

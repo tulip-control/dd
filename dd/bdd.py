@@ -2431,7 +2431,9 @@ def to_pydot(roots, bdd):
     else:
         nodes = bdd.descendants(roots)
     # show only levels in aggregate support
-    levels = {bdd._succ[abs(u)][0] for u in nodes}
+    levels = {
+        bdd._succ[abs(u)][0]
+        for u in nodes}
     if bdd._succ[1][0] not in levels:
         raise AssertionError(
             'level of node 1 is missing from computed '

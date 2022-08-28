@@ -76,7 +76,10 @@ def _try_to_reorder(func):
             *args,
             **kwargs):
         with _ReorderingContext(bdd):
-            return func(bdd, *args, **kwargs)
+            return func(
+                bdd,
+                *args,
+                **kwargs)
         logger.info('Reordering needed...')
         # disable reordering requests while swapping
         bdd._last_len = None
@@ -84,7 +87,9 @@ def _try_to_reorder(func):
         len_after = len(bdd)
         # try again, reordering disabled to avoid livelock
         with _ReorderingContext(bdd):
-            r = func(bdd, *args, **kwargs)
+            r = func(
+                bdd,
+                *args, **kwargs)
         # enable reordering requests
         bdd._last_len = GROWTH_FACTOR * len_after
         return r
@@ -523,7 +528,8 @@ class BDD(dd._abc.BDD):
             visited.add(1)
             self._descendants(u, visited)
         if not abs_roots.issubset(visited):
-            raise AssertionError((abs_roots, visited))
+            raise AssertionError(
+                (abs_roots, visited))
         return visited
 
     def _descendants(self, u, visited):
@@ -733,12 +739,14 @@ class BDD(dd._abc.BDD):
         if len(var_sub) == 1:
             (var, g), = var_sub.items()
             j = self.level_of_var(var)
-            r = self._compose(f, j, g, cache)
+            r = self._compose(
+                f, j, g, cache)
         else:
             dvars = {
                 self.level_of_var(var): g
                 for var, g in var_sub.items()}
-            r = self._vector_compose(f, dvars, cache)
+            r = self._vector_compose(
+                f, dvars, cache)
         return r
 
     def _compose(self, f, j, g, cache):
@@ -760,13 +768,18 @@ class BDD(dd._abc.BDD):
                 r = -r
         else:
             if i >= j:
-                raise AssertionError((i, j))
+                raise AssertionError(
+                    (i, j))
             k, _, _ = self._succ[abs(g)]
             z = min(i, k)
             f0, f1 = self._top_cofactor(f, z)
             g0, g1 = self._top_cofactor(g, z)
-            p = self._compose(f0, j, g0, cache)
-            q = self._compose(f1, j, g1, cache)
+            p = self._compose(
+                f0, j, g0,
+                cache)
+            q = self._compose(
+                f1, j, g1,
+                cache)
             r = self.find_or_add(z, p, q)
         cache[(f, g)] = r
         return r
@@ -786,8 +799,12 @@ class BDD(dd._abc.BDD):
             return r
         # recurse
         i, v, w = self._succ[abs(f)]
-        p = self._vector_compose(v, level_sub, cache)
-        q = self._vector_compose(w, level_sub, cache)
+        p = self._vector_compose(
+            v, level_sub,
+            cache)
+        q = self._vector_compose(
+            w, level_sub,
+            cache)
         # map this level
         g = level_sub.get(i)
         if g is None:
@@ -852,7 +869,8 @@ class BDD(dd._abc.BDD):
         if abs(u) not in self:
             raise ValueError(
                 f'node {u} not in `self`')
-        return self._cofactor(u, j, ordvar, values, cache)
+        return self._cofactor(
+            u, j, ordvar, values, cache)
 
     def _cofactor(self, u, j, ordvar, values, cache):
         """Recurse to compute cofactor."""
@@ -880,10 +898,19 @@ class BDD(dd._abc.BDD):
             val = values[i]
             if bool(val):
                 v = w
-            r = self._cofactor(v, j, ordvar, values, cache)
+            r = self._cofactor(
+                v, j,
+                ordvar, values,
+                cache)
         else:
-            p = self._cofactor(v, j, ordvar, values, cache)
-            q = self._cofactor(w, j, ordvar, values, cache)
+            p = self._cofactor(
+                v, j,
+                ordvar, values,
+                cache)
+            q = self._cofactor(
+                w, j,
+                ordvar, values,
+                cache)
             r = self.find_or_add(i, p, q)
         # complement ?
         if u < 0:
@@ -908,7 +935,10 @@ class BDD(dd._abc.BDD):
         cache = dict()
         ordvar = sorted(qvars)
         j = 0
-        return self._quantify(u, j, ordvar, qvars, forall, cache)
+        return self._quantify(
+            u, j, ordvar,
+            qvars, forall,
+            cache)
 
     def _quantify(self, u, j, ordvar, qvars, forall, cache):
         """Recurse to quantify variables."""
@@ -932,8 +962,14 @@ class BDD(dd._abc.BDD):
             # exhausted valuation
             return u
         # recurse
-        p = self._quantify(v, j, ordvar, qvars, forall, cache)
-        q = self._quantify(w, j, ordvar, qvars, forall, cache)
+        p = self._quantify(
+            v, j, ordvar,
+            qvars, forall,
+            cache)
+        q = self._quantify(
+            w, j, ordvar,
+            qvars, forall,
+            cache)
         if i in qvars:
             if forall:
                 r = self.ite(p, q, -1)
@@ -947,10 +983,14 @@ class BDD(dd._abc.BDD):
         return r
 
     def forall(self, qvars, u):
-        return self.quantify(u, qvars, forall=True)
+        return self.quantify(
+            u, qvars,
+            forall=True)
 
     def exist(self, qvars, u):
-        return self.quantify(u, qvars, forall=False)
+        return self.quantify(
+            u, qvars,
+            forall=False)
 
     @_try_to_reorder
     def ite(self, g, u, v):
@@ -1142,9 +1182,11 @@ class BDD(dd._abc.BDD):
         if x > y:
             x, y = y, x
         if x >= y:
-            raise ValueError((x, y))
+            raise ValueError(
+                (x, y))
         if abs(x - y) != 1:
-            raise ValueError((x, y))
+            raise ValueError(
+                (x, y))
         # count nodes
         oldsize = len(self._succ)
         # collect levels x and y
@@ -1153,10 +1195,13 @@ class BDD(dd._abc.BDD):
             for u in all_levels[j]:
                 i, v, w = self._succ[abs(u)]
                 if i != j:
-                    raise AssertionError((i, x, y))
-                u_ = self._pred.pop((i, v, w))
+                    raise AssertionError(
+                        (i, x, y))
+                u_ = self._pred.pop(
+                    (i, v, w))
                 if u != u_:
-                    raise AssertionError((u, u_))
+                    raise AssertionError(
+                        (u, u_))
                 levels[j][u] = (v, w)
         # move level y up
         for u, (v, w) in levels[y].items():
@@ -1206,14 +1251,18 @@ class BDD(dd._abc.BDD):
             iw, w0, w1 = self._swap_cofactor(w, y)
             # x node depends on y
             if not (y <= iv and y <= iw):
-                raise AssertionError((iv, iw, y))
+                raise AssertionError(
+                    (iv, iw, y))
             if not (y == iv or y == iw):
-                raise AssertionError((iv, iw, y))
+                raise AssertionError(
+                    (iv, iw, y))
             # complemented edge ?
             if v < 0 and y == iv:
                 v0, v1 = -v0, -v1
-            p = self.find_or_add(y, v0, w0)
-            q = self.find_or_add(y, v1, w1)
+            p = self.find_or_add(
+                y, v0, w0)
+            q = self.find_or_add(
+                y, v1, w1)
             if q < 0:
                 raise AssertionError(q)
             if p == q:
@@ -1226,7 +1275,8 @@ class BDD(dd._abc.BDD):
             r = (x, p, q)
             self._succ[u] = r
             if r in self._pred:
-                raise AssertionError((u, r, levels, self._pred))
+                raise AssertionError(
+                    (u, r, levels, self._pred))
             self._pred[r] = u
             self.incref(p)
             self.incref(q)
@@ -1256,18 +1306,21 @@ class BDD(dd._abc.BDD):
             elif i == y:
                 newx.add(u)
             else:
-                raise AssertionError((u, i, x, y))
+                raise AssertionError(
+                    (u, i, x, y))
         for u in xfresh:
             i, _, _ = self._succ[u]
             if i != y:
-                raise AssertionError((u, i, x, y))
+                raise AssertionError(
+                    (u, i, x, y))
             newx.add(u)
         for u in levels[y]:
             if u not in self._succ:
                 continue
             i, _, _ = self._succ[u]
             if i != x:
-                raise AssertionError((u, i, x, y))
+                raise AssertionError(
+                    (u, i, x, y))
             newy.add(u)
         all_levels[x] = newy
         all_levels[y] = newx
@@ -1328,7 +1381,9 @@ class BDD(dd._abc.BDD):
         old, _, _ = self._succ[1]
         map_level[old] = n
         map_level['all'] = n
-        r = self._sat_len(u, map_level, d=dict())
+        r = self._sat_len(
+            u, map_level,
+            d=dict())
         i, _, _ = self._succ[abs(u)]
         i = map_level[i]
         return r * 2**i
@@ -1424,10 +1479,12 @@ class BDD(dd._abc.BDD):
         pred_values = set(self._pred.values())
         if succ_keys != pred_values:
             raise AssertionError(
-                succ_keys.symmetric_difference(pred_values))
+                succ_keys.symmetric_difference(
+                    pred_values))
         if pred_keys != succ_values:
             raise AssertionError(
-                pred_keys.symmetric_difference(succ_values))
+                pred_keys.symmetric_difference(
+                    succ_values))
         # uniqueness
         n = len(succ_keys)
         n_ = len(succ_values)
@@ -1557,14 +1614,18 @@ class BDD(dd._abc.BDD):
             if w is not None:
                 raise ValueError(w)
             qvars = self.support(u)
-            return self.quantify(v, qvars, forall=True)
+            return self.quantify(
+                v, qvars,
+                forall=True)
         elif op in (r'\E', 'exists'):
             if v is None:
                 raise ValueError(v)
             if w is not None:
                 raise ValueError(w)
             qvars = self.support(u)
-            return self.quantify(v, qvars, forall=False)
+            return self.quantify(
+                v, qvars,
+                forall=False)
         elif op == 'ite':
             if v is None:
                 raise ValueError(v)
@@ -1613,8 +1674,9 @@ class BDD(dd._abc.BDD):
                     'from extension of file '
                     f'name "{filename}"')
         if filetype in ('pdf', 'png', 'svg'):
-            self._dump_figure(roots, filename,
-                              filetype, **kw)
+            self._dump_figure(
+                roots, filename,
+                filetype, **kw)
         elif filetype == 'pickle':
             self._dump_bdd(roots, filename, **kw)
         else:
@@ -1664,7 +1726,8 @@ class BDD(dd._abc.BDD):
                 return - v
             else:
                 return v
-        return _utils._map_container(map_node, roots)
+        return _utils._map_container(
+            map_node, roots)
 
     def _load_pickle(self, filename, levels=True):
         with open(filename, 'rb') as f:
@@ -1691,7 +1754,8 @@ class BDD(dd._abc.BDD):
             if u in umap:
                 continue
             # add
-            self._load(u, succ, umap, level_map)
+            self._load(
+                u, succ, umap, level_map)
         return umap, d['roots']
 
     def _load(self, u, succ, umap, level_map):
@@ -1709,8 +1773,10 @@ class BDD(dd._abc.BDD):
             return r
         i, v, w = succ[abs(u)]
         j = level_map[i]
-        p = self._load(v, succ, umap, level_map)
-        q = self._load(w, succ, umap, level_map)
+        p = self._load(
+            v, succ, umap, level_map)
+        q = self._load(
+            w, succ, umap, level_map)
         r = self.find_or_add(j, p, q)
         if r <= 0:
             raise AssertionError(r)
@@ -1921,7 +1987,8 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     # no overlap and neighbors
     _assert_no_overlap(rename)
     if not _all_adjacent(rename, bdd):
-        logger.warning('BDD.image: not all vars adjacent')
+        logger.warning(
+            'BDD.image: not all vars adjacent')
     # unpriming maps to qvars or outside support of conjunction
     s = bdd.support(trans, as_levels=True)
     s.update(bdd.support(source, as_levels=True))
@@ -1929,8 +1996,9 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     s.intersection_update(rename.values())
     if s:
         raise AssertionError(s)
-    return _image(trans, source, rename_u, rename_v,
-                  qvars, bdd, forall, cache)
+    return _image(
+        trans, source, rename_u, rename_v,
+        qvars, bdd, forall, cache)
 
 
 def preimage(trans, target, rename, qvars, bdd, forall=False):
@@ -1967,8 +2035,9 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     rename_v = rename
     # check
     _assert_valid_rename(target, bdd, rename)
-    return _image(trans, target, rename_u, rename_v,
-                  qvars, bdd, forall, cache)
+    return _image(
+        trans, target, rename_u, rename_v,
+        qvars, bdd, forall, cache)
 
 
 def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
@@ -2007,8 +2076,12 @@ def _image(u, v, umap, vmap, qvars, bdd, forall, cache):
     z = min(iu, iv)
     u0, u1 = bdd._top_cofactor(u, z)
     v0, v1 = bdd._top_cofactor(v, jv + z - iv)
-    p = _image(u0, v0, umap, vmap, qvars, bdd, forall, cache)
-    q = _image(u1, v1, umap, vmap, qvars, bdd, forall, cache)
+    p = _image(
+        u0, v0, umap, vmap, qvars,
+        bdd, forall, cache)
+    q = _image(
+        u1, v1, umap, vmap, qvars,
+        bdd, forall, cache)
     # quantified ?
     if z in qvars:
         if forall:
@@ -2206,7 +2279,10 @@ def copy_bdd(u, from_bdd, to_bdd):
         from_bdd.level_of_var(var): to_bdd.level_of_var(var)
         for var in from_bdd.vars if var in to_bdd.vars}
     cache = dict()
-    r = _copy_bdd(u, level_map, from_bdd, to_bdd, cache)
+    r = _copy_bdd(
+        u, level_map,
+        from_bdd, to_bdd,
+        cache)
     return r
 
 
@@ -2237,8 +2313,14 @@ def _copy_bdd(u, level_map, old_bdd, bdd, cache):
         return r
     # recurse
     jold, v, w = old_bdd._succ[abs(u)]
-    p = _copy_bdd(v, level_map, old_bdd, bdd, cache)
-    q = _copy_bdd(w, level_map, old_bdd, bdd, cache)
+    p = _copy_bdd(
+        v, level_map,
+        old_bdd, bdd,
+        cache)
+    q = _copy_bdd(
+        w, level_map,
+        old_bdd, bdd,
+        cache)
     if p * v <= 0:
         raise AssertionError((p, v))
     if q <= 0:
@@ -2312,8 +2394,14 @@ def to_nx(bdd, roots):
                 raise AssertionError(v)
             if w <= 0:
                 raise AssertionError(w)
-            g.add_edge(u, v, value=False, complement=r)
-            g.add_edge(u, w, value=True, complement=False)
+            g.add_edge(
+                u, v,
+                value=False,
+                complement=r)
+            g.add_edge(
+                u, w,
+                value=True,
+                complement=False)
     return g
 
 
@@ -2348,14 +2436,18 @@ def to_pydot(roots, bdd):
         raise AssertionError(
             'level of node 1 is missing from computed '
             'set of BDD nodes reachable from `roots`')
-    g = pydot.Dot('bdd', graph_type='digraph')
+    g = pydot.Dot(
+        'bdd',
+        graph_type='digraph')
     skeleton = list()
     subgraphs = dict()
     # layer for external BDD references
     layers = [-1] + sorted(levels)
     # add nodes for BDD levels
     for i in layers:
-        h = pydot.Subgraph('', rank='same')
+        h = pydot.Subgraph(
+            '',
+            rank='same')
         g.add_subgraph(h)
         subgraphs[i] = h
         # add phantom node
@@ -2367,12 +2459,17 @@ def to_pydot(roots, bdd):
         else:
             # BDD level
             label = str(i)
-        nd = pydot.Node(name=u, label=label, shape='none')
+        nd = pydot.Node(
+            name=u,
+            label=label,
+            shape='none')
         h.add_node(nd)
     # auxiliary edges for ranking
     for i, u in enumerate(skeleton[:-1]):
         v = skeleton[i + 1]
-        e = pydot.Edge(str(u), str(v), style='invis')
+        e = pydot.Edge(
+            str(u), str(v),
+            style='invis')
         g.add_edge(e)
     # add nodes
     idx2var = {
@@ -2390,7 +2487,9 @@ def to_pydot(roots, bdd):
             var = idx2var[i]
         su = f(u)
         label = f'{var}-{su}'
-        nd = pydot.Node(name=su, label=label)
+        nd = pydot.Node(
+            name=su,
+            label=label)
         # add node to subgraph for level i
         h = subgraphs[i]
         h.add_node(nd)
@@ -2400,16 +2499,23 @@ def to_pydot(roots, bdd):
         sv = f(v)
         sw = f(w)
         vlabel = '-1' if v < 0 else ' '
-        e = pydot.Edge(su, sv, style='dashed', taillabel=vlabel)
+        e = pydot.Edge(
+            su, sv,
+            style='dashed',
+            taillabel=vlabel)
         g.add_edge(e)
-        e = pydot.Edge(su, sw, style='solid')
+        e = pydot.Edge(
+            su, sw,
+            style='solid')
         g.add_edge(e)
     # external references to BDD nodes
     for u in roots:
         i, _, _ = bdd._succ[abs(u)]
         su = f'ref{u}'
         label = f'@{u}'
-        nd = pydot.Node(name=su, label=label)
+        nd = pydot.Node(
+            name=su,
+            label=label)
         # add node to subgraph for level -1
         h = subgraphs[-1]
         h.add_node(nd)
@@ -2418,6 +2524,9 @@ def to_pydot(roots, bdd):
             raise ValueError(f'{u} in `roots`')
         sv = str(abs(u))
         vlabel = '-1' if u < 0 else ' '
-        e = pydot.Edge(su, sv, style='dashed', taillabel=vlabel)
+        e = pydot.Edge(
+            su, sv,
+            style='dashed',
+            taillabel=vlabel)
         g.add_edge(e)
     return g

@@ -338,17 +338,21 @@ class BDD(dd._abc.BDD):
 
 def image(trans, source, rename, qvars, forall=False):
     if trans.bdd is not source.bdd:
-        raise ValueError((trans.bdd, source.bdd))
-    u = _bdd.image(trans.node, source.node, rename,
-                   qvars, trans.manager, forall)
+        raise ValueError(
+            (trans.bdd, source.bdd))
+    u = _bdd.image(
+        trans.node, source.node, rename,
+        qvars, trans.manager, forall)
     return trans.bdd._wrap(u)
 
 
 def preimage(trans, target, rename, qvars, forall=False):
     if trans.bdd is not target.bdd:
-        raise ValueError((trans.bdd, target.bdd))
-    u = _bdd.preimage(trans.node, target.node, rename,
-                      qvars, trans.manager, forall)
+        raise ValueError(
+            (trans.bdd, target.bdd))
+    u = _bdd.preimage(
+        trans.node, target.node, rename,
+        qvars, trans.manager, forall)
     return trans.bdd._wrap(u)
 
 

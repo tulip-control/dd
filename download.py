@@ -43,7 +43,7 @@ CUDD_PATH = os.path.join(
     FILE_PATH,
     f'cudd-{CUDD_VERSION}')
 CUDD_DIRS = ['cudd', 'dddmp', 'epd', 'mtr', 'st', 'util']
-CUDD_INCLUDE = ['.'] + CUDD_DIRS
+CUDD_INCLUDE = ['.', *CUDD_DIRS]
 CUDD_LINK = ['cudd/.libs', 'dddmp/.libs']
 CUDD_LIB = ['cudd', 'dddmp']
 CUDD_CFLAGS = [

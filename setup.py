@@ -121,7 +121,7 @@ def parse_args():
     args.sdist = 'sdist' in unknown
     args.bdist_wheel = 'bdist_wheel' in unknown
     # avoid confusing `setuptools`
-    sys.argv = [sys.argv[0]] + unknown
+    sys.argv = [sys.argv[0], *unknown]
     return args
 
 

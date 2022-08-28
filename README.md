@@ -96,8 +96,10 @@ bdd = BDD()
 bdd.declare('x', 'y', 'z', 'w')
 
 # conjunction (in TLA+ syntax)
-u = bdd.add_expr(r'x /\ y')  # symbols `&`, `|` are supported too
-    # note the "r" before the quote, which signifies a raw string and is
+u = bdd.add_expr(r'x /\ y')
+    # symbols `&`, `|` are supported too
+    # note the "r" before the quote,
+    # which signifies a raw string and is
     # needed to allow for the backslash
 print(u.support)
 # substitute variables for variables (rename)

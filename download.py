@@ -23,14 +23,15 @@ except ImportError:
 from setuptools.extension import Extension
 
 
-EXTENSIONS = ['cudd', 'cudd_zdd', 'buddy', 'sylvan']
+EXTENSIONS: _ty.Final = [
+    'cudd', 'cudd_zdd', 'buddy', 'sylvan']
 # CUDD
-CUDD_VERSION = '3.0.0'
-CUDD_TARBALL = f'cudd-{CUDD_VERSION}.tar.gz'
-CUDD_URL = (
+CUDD_VERSION: _ty.Final = '3.0.0'
+CUDD_TARBALL: _ty.Final = f'cudd-{CUDD_VERSION}.tar.gz'
+CUDD_URL: _ty.Final = (
     'https://sourceforge.net/projects/cudd-mirror/files/'
     f'cudd-{CUDD_VERSION}.tar.gz/download')
-CUDD_SHA256 = (
+CUDD_SHA256: _ty.Final = (
     'b8e966b4562c96a03e7fbea239729587'
     'd7b395d53cadcc39a7203b49cf7eeb69')
 CC = 'gcc'
@@ -38,10 +39,11 @@ FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 CUDD_PATH = os.path.join(
     FILE_PATH,
     f'cudd-{CUDD_VERSION}')
-CUDD_DIRS = ['cudd', 'dddmp', 'epd', 'mtr', 'st', 'util']
+CUDD_DIRS: _ty.Final = [
+    'cudd', 'dddmp', 'epd', 'mtr', 'st', 'util']
 CUDD_INCLUDE = ['.', *CUDD_DIRS]
-CUDD_LINK = ['cudd/.libs', 'dddmp/.libs']
-CUDD_LIB = ['cudd', 'dddmp']
+CUDD_LINK: _ty.Final = ['cudd/.libs', 'dddmp/.libs']
+CUDD_LIB: _ty.Final = ['cudd', 'dddmp']
 CUDD_CFLAGS = [
     # '-arch x86_64',
     '-fPIC',

@@ -12,7 +12,7 @@ import dd._abc
 import dd._utils as _utils
 
 
-SHELVE_DIR = '__shelve__'
+SHELVE_DIR: _ty.Final = '__shelve__'
 _Yes: _ty.TypeAlias = dd._abc.Yes
 
 

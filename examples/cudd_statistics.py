@@ -20,7 +20,7 @@ def format_dict(d):
 
 def format_number(x):
     """Return readable string for `x`."""
-    if 0 < x and x < 1:
+    if 0 < x < 1:
         return f'{x:1.2}'
     return f'{x:_}'
 

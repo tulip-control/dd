@@ -2,7 +2,6 @@
 import pprint
 
 from dd import cudd
-import humanize
 
 
 def print_statistics():
@@ -23,7 +22,7 @@ def format_number(x):
     """Return readable string for `x`."""
     if 0 < x and x < 1:
         return f'{x:1.2}'
-    return humanize.intword(x)
+    return f'{x:_}'
 
 
 if __name__ == '__main__':

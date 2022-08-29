@@ -311,4 +311,4 @@ def test_function():
 
 
 if __name__ == '__main__':
-    test_pick_iter()
+    test_function()

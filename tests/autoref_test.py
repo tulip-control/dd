@@ -195,4 +195,4 @@ def test_func_len():
 
 
 if __name__ == '__main__':
-    test_support()
+    test_str()

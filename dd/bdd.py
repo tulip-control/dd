@@ -47,12 +47,25 @@ import sys
 import typing as _ty
 import warnings
 
+try:
+    import networkx as _nx
+except ImportError as error:
+    _nx = None
+    _nx_error = error
+try:
+    import pydot as _pydot
+except ImportError as error:
+    _pydot = None
+    _pydot_error = error
+
 import dd._abc
 import dd._parser
 import dd._utils as _utils
-# inline:
-# import networkx
-# import pydot
+
+
+if _ty.TYPE_CHECKING:
+    import networkx as _nx
+    import pydot as _pydot
 
 
 logger = logging.getLogger(__name__)
@@ -2362,8 +2375,9 @@ def to_nx(bdd, roots):
     @rtype:
         `networkx.MultiDiGraph`
     """
-    import networkx as nx
-    g = nx.MultiDiGraph()
+    if _nx is None:
+        raise _nx_error
+    g = _nx.MultiDiGraph()
     for root in roots:
         if abs(root) not in bdd:
             raise ValueError(root)
@@ -2423,7 +2437,8 @@ def to_pydot(roots, bdd):
     @type bdd:
         `BDD`
     """
-    import pydot
+    if _pydot is None:
+        raise _pydot_error
     # all nodes ?
     if roots is None:
         nodes = bdd._succ
@@ -2438,7 +2453,7 @@ def to_pydot(roots, bdd):
         raise AssertionError(
             'level of node 1 is missing from computed '
             'set of BDD nodes reachable from `roots`')
-    g = pydot.Dot(
+    g = _pydot.Dot(
         'bdd',
         graph_type='digraph')
     skeleton = list()
@@ -2447,7 +2462,7 @@ def to_pydot(roots, bdd):
     layers = [-1] + sorted(levels)
     # add nodes for BDD levels
     for i in layers:
-        h = pydot.Subgraph(
+        h = _pydot.Subgraph(
             '',
             rank='same')
         g.add_subgraph(h)
@@ -2461,7 +2476,7 @@ def to_pydot(roots, bdd):
         else:
             # BDD level
             label = str(i)
-        nd = pydot.Node(
+        nd = _pydot.Node(
             name=u,
             label=label,
             shape='none')
@@ -2469,7 +2484,7 @@ def to_pydot(roots, bdd):
     # auxiliary edges for ranking
     for i, u in enumerate(skeleton[:-1]):
         v = skeleton[i + 1]
-        e = pydot.Edge(
+        e = _pydot.Edge(
             str(u), str(v),
             style='invis')
         g.add_edge(e)
@@ -2489,7 +2504,7 @@ def to_pydot(roots, bdd):
             var = idx2var[i]
         su = f(u)
         label = f'{var}-{su}'
-        nd = pydot.Node(
+        nd = _pydot.Node(
             name=su,
             label=label)
         # add node to subgraph for level i
@@ -2501,12 +2516,12 @@ def to_pydot(roots, bdd):
         sv = f(v)
         sw = f(w)
         vlabel = '-1' if v < 0 else ' '
-        e = pydot.Edge(
+        e = _pydot.Edge(
             su, sv,
             style='dashed',
             taillabel=vlabel)
         g.add_edge(e)
-        e = pydot.Edge(
+        e = _pydot.Edge(
             su, sw,
             style='solid')
         g.add_edge(e)
@@ -2515,7 +2530,7 @@ def to_pydot(roots, bdd):
         i, _, _ = bdd._succ[abs(u)]
         su = f'ref{u}'
         label = f'@{u}'
-        nd = pydot.Node(
+        nd = _pydot.Node(
             name=su,
             label=label)
         # add node to subgraph for level -1
@@ -2526,7 +2541,7 @@ def to_pydot(roots, bdd):
             raise ValueError(f'{u} in `roots`')
         sv = str(abs(u))
         vlabel = '-1' if u < 0 else ' '
-        e = pydot.Edge(
+        e = _pydot.Edge(
             su, sv,
             style='dashed',
             taillabel=vlabel)

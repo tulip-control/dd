@@ -181,9 +181,6 @@ class BDD(_ty.Protocol):
     def add_expr(self, expr):
         """Return node for expression `expr`.
 
-        If you would like to use your own parser,
-        you can use utilities from `dd._parser`.
-
         @type expr:
             `str`
         """

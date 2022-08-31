@@ -24,11 +24,19 @@ import logging
 import sys
 import typing as _ty
 
+try:
+    import networkx as _nx
+except ImportError as error:
+    _nx = None
+    _nx_error = error
+try:
+    import pydot as _pydot
+except ImportError as error:
+    _pydot = None
+    _pydot_error = error
+
 from dd import bdd as _bdd
 from dd.bdd import to_nx
-# inline:
-# import networkx
-# import pydot
 
 
 logger = logging.getLogger(__name__)
@@ -530,7 +538,8 @@ def _enumerate_integer(bits):
 
 def _debug_dump(pred, bdd):
     """Dump nodes of `bdd`, coloring nodes in `pred`."""
-    import networkx as nx
+    if _nx is None:
+        raise _nx_error
     g = to_nx(bdd, roots=bdd._succ)
     color = 'red'
     for u in pred:
@@ -546,30 +555,31 @@ def _debug_dump(pred, bdd):
         var = bdd.var_at_level(level)
         label = f'{var}-{u}'
         g.add_node(u, label=label)
-    pd = nx.drawing.nx_pydot.to_pydot(g)
+    pd = _nx.drawing.nx_pydot.to_pydot(g)
     pd.write_pdf('bdd_colored.pdf')
     bdd.dump('bdd.pdf')
 
 
 def to_pydot(mdd):
-    import pydot
-    g = pydot.Dot('mdd', graph_type='digraph')
+    if _pydot is None:
+        raise _pydot_error
+    g = _pydot.Dot('mdd', graph_type='digraph')
     skeleton = list()
     subgraphs = dict()
     n = len(mdd.vars) + 1
     for i in range(n):
-        h = pydot.Subgraph('', rank='same')
+        h = _pydot.Subgraph('', rank='same')
         g.add_subgraph(h)
         subgraphs[i] = h
         # add phantom node
         u = f'-{i}'
         skeleton.append(u)
-        nd = pydot.Node(name=u, label=str(i), shape='none')
+        nd = _pydot.Node(name=u, label=str(i), shape='none')
         h.add_node(nd)
     # auxiliary edges for ranking
     for i, u in enumerate(skeleton[:-1]):
         v = skeleton[i + 1]
-        e = pydot.Edge(str(u), str(v), style='invis')
+        e = _pydot.Edge(str(u), str(v), style='invis')
         g.add_edge(e)
     # add nodes
     for u, t in mdd._succ.items():
@@ -584,7 +594,7 @@ def to_pydot(mdd):
             var = mdd.var_at_level(i)
         # add node
         label = f'{var}-{u}'
-        nd = pydot.Node(name=str(u), label=label)
+        nd = _pydot.Node(name=str(u), label=label)
         h = subgraphs[i]  # level i
         h.add_node(nd)
         # add edges
@@ -600,7 +610,7 @@ def to_pydot(mdd):
                 style = 'solid'
             su = str(u)
             sv = str(abs(v))
-            e = pydot.Edge(su, sv, label=label,
+            e = _pydot.Edge(su, sv, label=label,
                            style=style)
             g.add_edge(e)
     return g

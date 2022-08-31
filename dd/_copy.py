@@ -73,7 +73,7 @@ def copy_bdd(root, target, cache=None):
 
 
 def _copy_bdd(u, bdd, cache):
-    """Recurse to copy node `u`` to `bdd`.
+    """Recurse to copy node `u` to `bdd`.
 
     @type cache:
         `dict`

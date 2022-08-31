@@ -179,7 +179,7 @@ class BDD(_ty.Protocol):
     #     raise NotImplementedError('use `add_expr`')
 
     def add_expr(self, expr):
-        """Return node for expression `e`, after adding it.
+        """Return node for expression `expr`.
 
         If you would like to use your own parser,
         you can use utilities from `dd._parser`.

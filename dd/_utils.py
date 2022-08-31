@@ -93,14 +93,14 @@ def _raise_runtimerror_about_ref_count(
     @param name:
         `str` to mention as location where
         the error was detected. For example:
-        ```
+        ```python
         'method `dd.cudd.BDD.decref`'
         ```
     @param class_name:
         `str` to mention as name of
         the class of the object where the value
         `ref_count_lb` was found. For example:
-        ```
+        ```python
         '`dd.cudd.Function`'
         ```
     """

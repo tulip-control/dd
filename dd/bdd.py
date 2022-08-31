@@ -1659,8 +1659,20 @@ class BDD(dd._abc.BDD[_Ref]):
             all_levels = self._levels()
         logger.debug(
             f'swap variables "{x}" and "{y}"')
-        x = self.vars.get(x, x)
-        y = self.vars.get(y, y)
+        if x in self.vars:
+            x = self.vars[x]
+        if y in self.vars:
+            y = self.vars[y]
+        match x:
+            case int():
+                pass
+            case _:
+                raise ValueError(x)
+        match y:
+            case int():
+                pass
+            case _:
+                raise ValueError(y)
         if not (0 <= x < len(self.vars)):
             raise ValueError(x)
         if not (0 <= y < len(self.vars)):

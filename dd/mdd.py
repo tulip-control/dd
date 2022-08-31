@@ -296,9 +296,9 @@ class MDD:
 
     def to_expr(self, u):
         if u == 1:
-            return u
+            return str(u)
         elif u == -1:
-            return 0
+            return '0'
         t = self._succ[abs(u)]
         i = t[0]
         nodes = t[1:]

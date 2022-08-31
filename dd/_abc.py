@@ -159,8 +159,6 @@ class BDD(_ty.Protocol):
     def pick_iter(self, u, care_vars=None):
         """Return iterator over assignments.
 
-        The returned iterator is generator-based.
-
         By default, `care_vars = support(u)`.
         Log a warning if `care_vars < support(u)`.
 

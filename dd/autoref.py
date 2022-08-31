@@ -313,7 +313,20 @@ class BDD(dd._abc.BDD):
             return self._load_pickle(
                 filename, levels=levels)
         elif name.endswith('.json'):
-            return _copy.load_json(filename, self)
+            nodes = _copy.load_json(filename, self)
+            def check(node) -> Function:
+                if isinstance(node, Function):
+                    return node
+                raise AssertionError(node)
+            match nodes:
+                case dict():
+                    return {
+                        k: check(v)
+                        for k, v in nodes.items()}
+                case list():
+                    return list(map(check, nodes))
+                case _:
+                    raise AssertionError(nodes)
         else:
             raise ValueError(
                 f'Unknown file type of "{filename}"')

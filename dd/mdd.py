@@ -528,7 +528,7 @@ def bdd_to_mdd(bdd, dvars):
 
 def _enumerate_integer(bits):
     n = len(bits)
-    for i in range(2**n):
+    for i in range(int(2**n)):
         values = list(reversed(bin(i).lstrip('-0b').zfill(n)))
         d = {bit: int(v) for bit, v in zip(bits, values)}
         for bit in bits[len(values):]:

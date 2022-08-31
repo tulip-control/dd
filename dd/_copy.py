@@ -349,7 +349,7 @@ def _parse_line(line):
     """Parse JSON from `line`."""
     line = line.rstrip()
     if line == '{' or line == '}':
-        return
+        return None
     if line.endswith(','):
         line = line.rstrip(',')
     return json.loads('{' + line + '}')

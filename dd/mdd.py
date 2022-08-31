@@ -167,7 +167,7 @@ class MDD:
         nodes = tuple(_itr.starmap(
             self.ite,
             zip(gc, uc, vc)))
-        w = self.find_or_add(z, nodes)
+        w = self.find_or_add(z, *nodes)
         # cache
         self._ite_table[t] = w
         return w

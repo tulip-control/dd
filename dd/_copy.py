@@ -407,12 +407,12 @@ def _make_node(d, bdd, context, cache):
 
 def _decode_node(s):
     """Map string `s` to node-like integer."""
-    if s == 'F':
-        return -1
-    elif s == 'T':
-        return 1
-    else:
-        return int(s)
+    match s:
+        case 'F':
+            return -1
+        case 'T':
+            return 1
+    return int(s)
 
 
 def _node_from_int(uid, bdd, cache):

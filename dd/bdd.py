@@ -1245,7 +1245,9 @@ class BDD(dd._abc.BDD):
         # count nodes
         oldsize = len(self._succ)
         # collect levels x and y
-        levels = {x: dict(), y: dict()}
+        levels = {
+            x: dict(),
+            y: dict()}
         for j in (x, y):
             for u in all_levels[j]:
                 i, v, w = self._succ[abs(u)]

@@ -589,6 +589,9 @@ class BDD(dd._abc.BDD):
     def is_essential(self, u, var):
         """Return `True` if `var` is essential for node `u`.
 
+        If `var` is a name undeclared in
+        `self.vars`, return `False`.
+
         @param var:
             level in `vars`
         @type var:

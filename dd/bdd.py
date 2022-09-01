@@ -509,11 +509,7 @@ class BDD(dd._abc.BDD):
         # are keys variable names ?
         u = next(iter(d))
         if u not in self.vars:
-            for level in d:
-                if level not in self._level_to_var:
-                    raise AssertionError(
-                        f'level {level} is not in '
-                        f'{self._level_to_var = }')
+            self._assert_keys_are_levels(d)
             return d
         if isinstance(d, _abc.Mapping):
             r = {
@@ -522,6 +518,37 @@ class BDD(dd._abc.BDD):
         else:
             r = {self.vars[k] for k in d}
         return r
+
+    def _assert_keys_are_levels(
+            self,
+            kv:
+                _abc.Iterable
+            ) -> None:
+        """Assert that `kv` values are levels.
+
+        Raise `ValueError` if not.
+        """
+        not_levels = set()
+        def key_is_level(key) -> bool:
+            is_level = (
+                key in self._level_to_var)
+            if not is_level:
+                not_levels.add(key)
+            return is_level
+        keys_are_levels = all(map(
+            key_is_level, kv))
+        if keys_are_levels:
+            return
+        def fmt(key):
+            return (
+                f'key `{key}` '
+                'is not a level')
+        errors = ',\n'.join(map(
+            fmt, not_levels))
+        raise ValueError(
+            f'{errors},\n'
+            'currently the levels are:\n'
+            f'{self._level_to_var = }')
 
     def _top_var(self, *nodes):
         return min(map(lambda x: self._succ[abs(x)][0], nodes))

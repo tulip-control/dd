@@ -564,7 +564,10 @@ class BDD(dd._abc.BDD):
             f'{self._level_to_var = }')
 
     def _top_var(self, *nodes):
-        return min(map(lambda x: self._succ[abs(x)][0], nodes))
+        def level_of(node):
+            level, *_ = self._succ[abs(node)]
+            return level
+        return min(map(level_of, nodes))
 
     def copy(self, u, other):
         """Transfer BDD with root `u` to `other`.

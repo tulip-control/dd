@@ -1726,8 +1726,8 @@ class BDD(dd._abc.BDD):
         return True
 
     @_try_to_reorder
-    def add_expr(self, e):
-        return dd._parser.add_expr(e, self)
+    def add_expr(self, expr):
+        return dd._parser.add_expr(expr, self)
 
     def to_expr(self, u):
         if u not in self:

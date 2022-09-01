@@ -2015,7 +2015,8 @@ def _assert_valid_ordering(levels):
     - bijection
     - contiguous levels
     """
-    # `levels` is a mapping -> each var : single level
+    # `levels` is a mapping from
+    # each variable to a single level
     if not isinstance(levels, _abc.Mapping):
         raise TypeError(levels)
     # levels are contiguous integers ?

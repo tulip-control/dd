@@ -398,9 +398,8 @@ class MDD:
             if w is None:
                 raise ValueError(w)
             return self.ite(u, v, w)
-        else:
-            raise ValueError(
-                f'unknown operator "{op}"')
+        raise ValueError(
+            f'unknown operator "{op}"')
 
     def dump(self, fname):
         """Write MDD as a diagram to PDF file `fname`.

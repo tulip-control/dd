@@ -1692,9 +1692,8 @@ class BDD(dd._abc.BDD):
             if w is None:
                 raise ValueError(w)
             return self.ite(u, v, w)
-        else:
-            raise ValueError(
-                f'unknown operator "{op}"')
+        raise ValueError(
+            f'unknown operator "{op}"')
 
     def _add_int(self, i):
         if i not in self:

@@ -2003,7 +2003,7 @@ def _all_adjacent(dvars, bdd):
 
 
 def _adjacent(i, j, bdd):
-    """Raise `AssertionError` if level `i` not adjacent to `j`."""
+    """Warn if levels `i` and `j` not adjacent."""
     if abs(i - j) == 1:
         return True
     logger.warning((

@@ -1437,7 +1437,9 @@ class BDD(dd._abc.BDD):
             newy.add(u)
         all_levels[x] = newy
         all_levels[y] = newx
-        return (oldsize, newsize)
+        return (
+            oldsize,
+            newsize)
 
     def _low_high(self, u):
         """Return level, low, and high.

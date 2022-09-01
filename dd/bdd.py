@@ -123,7 +123,10 @@ class _ReorderingContext:
 
     def __exit__(self, ex_type, ex_value, tb):
         self.bdd._reordering_context = self.nested
-        if ex_type is _NeedsReordering and not self.nested:
+        not_nested = (
+            ex_type is _NeedsReordering and
+            not self.nested)
+        if not_nested:
             return True
 
 

@@ -151,14 +151,20 @@ class BDD(dd._abc.BDD):
     """Shared ordered binary decision diagram.
 
     The terminal node is 1.
-    Nodes are positive integers, edges signed integers.
-    Complemented edges are represented as negative integers.
-    Values returned by methods are edges, possibly complemented.
+    Nodes are positive integers,
+    edges signed integers.
+    Complemented edges are represented as
+    negative integers.
+    Values returned by methods are edges,
+    possibly complemented.
 
     Attributes:
-      - `vars`: `dict` mapping `variables` to `int` levels
-      - `roots`: (optional) edges
-      - `max_nodes`: raise `Exception` if this limit is reached.
+      - `vars`:
+        `dict` mapping `variables` to `int` levels
+      - `roots`:
+        (optional) edges
+      - `max_nodes`:
+        raise `Exception` if this limit is reached.
         The default value is `sys.maxsize` in Python 3.
         Increase it if needed.
 
@@ -270,7 +276,8 @@ class BDD(dd._abc.BDD):
         First read parameter values (returned as `dict`),
         then apply `kw`. Available keyword arguments:
 
-        - `'reordering'`: if `True` then enable, else disable
+        - `'reordering'`:
+          if `True` then enable, else disable
         """
         d = dict(
             reordering=(self._last_len is not None))
@@ -567,7 +574,8 @@ class BDD(dd._abc.BDD):
     def descendants(self, roots):
         """Return nodes reachable from `roots`.
 
-        Nodes pointed to by references in `roots` are included.
+        Nodes pointed to by references in
+        `roots` are included.
         Nodes are represented as positive integers.
         """
         abs_roots = set(map(abs, roots))
@@ -1441,7 +1449,8 @@ class BDD(dd._abc.BDD):
 
         If node `u` is above level `y`, that means
         it was at level `y` when the swap started.
-        To account for this, `y` is returned as the node level.
+        To account for this,
+        `y` is returned as the node level.
         """
         i, v, w = self._succ[abs(u)]
         if y < i:
@@ -2079,7 +2088,8 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     @param rename:
         `dict` that maps primed variables in
         `trans` to unprimed variables in `trans`.
-        Applied to the quantified conjunction of `trans` and `source`.
+        Applied to the quantified conjunction of
+        `trans` and `source`.
     @param qvars:
         `set` of variables to quantify
     @param bdd:
@@ -2119,7 +2129,8 @@ def preimage(trans, target, rename, qvars, bdd, forall=False):
     """Return set that can reach `target` under `trans`.
 
     Also known as the "relational product".
-    Assumes that primed and unprimed variables are neighbors.
+    Assumes that primed and
+    unprimed variables are neighbors.
     Variables are identified by their levels.
 
     @param trans:
@@ -2466,10 +2477,14 @@ def to_nx(bdd, roots):
     The resulting graph has:
 
       - nodes labeled with:
-        - `level`: `int` from 0 to `len(bdd)`
+        - `level`:
+          `int` from 0 to `len(bdd)`
       - edges labeled with:
-        - `value`: `False` for low/"else", `True` for high/"then"
-        - `complement`: `True` if target node is negated
+        - `value`:
+          `False` for low/"else",
+          `True` for high/"then"
+        - `complement`:
+          `True` if target node is negated
 
     @type bdd:
         `BDD`

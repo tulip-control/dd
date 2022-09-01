@@ -314,7 +314,10 @@ class BDD(dd._abc.BDD):
         self._ref[abs(u)] += 1
 
     def decref(self, u):
-        """Decrement reference count of node `u`, with 0 as min."""
+        """Decrement reference count of node `u`,
+
+        with 0 as minimum value.
+        """
         if self._ref[abs(u)] <= 0:
             n = self._ref[abs(u)]
             warnings.warn(
@@ -491,7 +494,9 @@ class BDD(dd._abc.BDD):
         return dict(self.vars)
 
     def _map_to_level(self, d):
-        """Map keys of `d` to variable levels using `self.vars`.
+        """Map keys of `d` to variable levels.
+
+        Uses `self.vars` to map the keys to levels.
 
         If `d` is an iterable but not a mapping,
         then an iterable is returned.
@@ -673,7 +678,7 @@ class BDD(dd._abc.BDD):
 
         Garbage collection may need to be called before
         calling `undeclare_vars`, in order to collect
-        unreferenced nodes to obtain empty levels.
+        unused nodes to obtain empty levels.
         """
         for var in vrs:
             if var not in self.vars:
@@ -868,7 +873,7 @@ class BDD(dd._abc.BDD):
 
     @_try_to_reorder
     def cofactor(self, u, values):
-        """Substitute Boolean `values` for variables in `u`.
+        """Replace variables in `u` with Boolean `values`.
 
         @param u:
             node
@@ -1007,7 +1012,7 @@ class BDD(dd._abc.BDD):
 
     @_try_to_reorder
     def ite(self, g, u, v):
-        # wrap so reordering can delete unreferenced nodes
+        # wrap so reordering can delete unused nodes
         return self._ite(g, u, v)
 
     def _ite(self, g, u, v):
@@ -1037,7 +1042,10 @@ class BDD(dd._abc.BDD):
         return w
 
     def find_or_add(self, i, v, w):
-        """Return reference to node at level `i` with successors `v, w`.
+        """Return reference to specified node.
+
+        The returned node is at level `i`
+        with successors `v, w`.
 
         If such a node exists already,
         then it is quickly found in the cached table,
@@ -1105,7 +1113,7 @@ class BDD(dd._abc.BDD):
         return r * u
 
     def _next_free_int(self, start):
-        """Return the smallest unused integer larger than `start`."""
+        """Return smallest unused integer `> start`."""
         if start < 1:
             raise ValueError(
                 f'{start} = start < 1')
@@ -1117,7 +1125,10 @@ class BDD(dd._abc.BDD):
             f'({self.max_nodes = }).')
 
     def collect_garbage(self, roots=None):
-        """Recursively remove nodes with zero reference count.
+        """Recursively remove unused nodes
+
+        A node is unused when
+        its reference count is zero.
 
         Removal starts from the nodes in `roots` with zero
         reference count. If no `roots` are given, then
@@ -1163,7 +1174,11 @@ class BDD(dd._abc.BDD):
             raise AssertionError((n, m))
 
     def update_predecessors(self):
-        """Update table that maps (level, low, high) to nodes."""
+        """Update table `self._pred`.
+
+        `self._pred` maps triplets
+        `(level, low, high)` to nodes.
+        """
         for u, t in self._succ.items():
             if abs(u) == 1:
                 continue
@@ -1926,7 +1941,10 @@ def rename(u, bdd, dvars):
 
 
 def _assert_valid_rename(u, bdd, dvars):
-    """Raise `AssertionError` if rename of non-adjacent vars.
+    """Assert renaming to only adjacent variables.
+
+    Raise `AssertionError` if
+    renaming to non-adjacent variables.
 
     @param dvars:
         `dict` that maps var levels to var levels
@@ -1940,7 +1958,12 @@ def _assert_valid_rename(u, bdd, dvars):
 
 
 def _all_adjacent(dvars, bdd):
-    """Return `True` if all levels in `dvars` are adjacent."""
+    """Return `True` if all levels are adjacent.
+
+    The pairs of levels checked for
+    being adjacent are the key-value pairs
+    of the mapping `dvars`.
+    """
     for v, vp in dvars.items():
         if not _adjacent(v, vp, bdd):
             return False

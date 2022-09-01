@@ -811,7 +811,7 @@ class BDD(dd._abc.BDD):
         return rename(u, self, dvars)
 
     def _top_cofactor(self, u, i):
-        """Return restriction for assignment to single variable.
+        """Return successor pair with respect to level `i`.
 
         @param u:
             node

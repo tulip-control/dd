@@ -98,7 +98,8 @@ def _try_to_reorder(func):
         bdd._last_len = None
         reorder(bdd)
         len_after = len(bdd)
-        # try again, reordering disabled to avoid livelock
+        # try again,
+        # reordering disabled to avoid livelock
         with _ReorderingContext(bdd):
             r = func(
                 bdd,
@@ -379,10 +380,12 @@ class BDD(dd._abc.BDD):
             return self._check_var(var, level)
         # level already used ?
         level = self._next_free_level(var, level)
-        # update the mappings between vars and levels
+        # update the mappings between
+        # vars and levels
         self.vars[var] = level
         self._level_to_var[level] = var
-        # move the leaf node to the new bottom level
+        # move the leaf node to
+        # the new bottom level
         self._init_terminal(len(self.vars))
         return level
 
@@ -1076,7 +1079,8 @@ class BDD(dd._abc.BDD):
 
     @_try_to_reorder
     def ite(self, g, u, v):
-        # wrap so reordering can delete unused nodes
+        # wrap so reordering can
+        # delete unused nodes
         return self._ite(g, u, v)
 
     def _ite(self, g, u, v):
@@ -1343,7 +1347,8 @@ class BDD(dd._abc.BDD):
             # possibly dead
             garbage.add(abs(v))
             garbage.add(w)
-            # calling cofactor can fail because y moved
+            # calling cofactor can fail
+            # because y moved
             iv, v0, v1 = self._swap_cofactor(v, y)
             iw, w0, w1 = self._swap_cofactor(w, y)
             # x node depends on y
@@ -1378,7 +1383,8 @@ class BDD(dd._abc.BDD):
             self.incref(p)
             self.incref(q)
             # garbage collection could be interleaved
-            # but only if there is substantial loss of efficiency
+            # but only if there is
+            # substantial loss of efficiency
         # swap x and y in `vars`
         vx = self.var_at_level(x)
         self.vars[vx] = y
@@ -1456,14 +1462,16 @@ class BDD(dd._abc.BDD):
         if y < i:
             return (i, u, u)
         else:
-            # restore index of y node that moved up
+            # restore index of y node that
+            # moved up
             return (y, v, w)
 
     def count(self, u, nvars=None):
         n = nvars
         if abs(u) not in self:
             raise ValueError(u)
-        # index those levels in support separately
+        # index those levels in
+        # support separately
         levels = {
             self.level_of_var(var)
             for var in self.support(u)}
@@ -2113,7 +2121,8 @@ def image(trans, source, rename, qvars, bdd, forall=False):
     if not _all_adjacent(rename, bdd):
         logger.warning(
             'BDD.image: not all vars adjacent')
-    # unpriming maps to qvars or outside support of conjunction
+    # unpriming maps to qvars or
+    # outside support of conjunction
     s = bdd.support(trans, as_levels=True)
     s.update(bdd.support(source, as_levels=True))
     s.difference_update(qvars)

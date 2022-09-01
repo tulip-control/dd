@@ -514,9 +514,12 @@ class BDD(dd._abc.BDD):
         if isinstance(d, _abc.Mapping):
             r = {
                 self.vars[var]: bool(val)
-                for var, val in d.items()}
+                for var, val in
+                    d.items()}
         else:
-            r = {self.vars[k] for k in d}
+            r = {
+                self.vars[k]
+                for k in d}
         return r
 
     def _assert_keys_are_levels(
@@ -665,7 +668,8 @@ class BDD(dd._abc.BDD):
         n = len(self.vars)
         levels = {
             i: set()
-            for var, i in self.vars.items()}
+            for var, i in
+                self.vars.items()}
         levels[n] = set()
         for u, (i, v, w) in self._succ.items():
             levels[i].add(u)
@@ -717,7 +721,10 @@ class BDD(dd._abc.BDD):
                     'a declared variable. '
                     'The declared variables are:\n'
                     f'{self.vars}')
-        full_levels = {i for i, _, _ in self._succ.values()}
+        full_levels = {
+            i
+            for i, _, _ in
+                self._succ.values()}
         # remove only unused variables
         for var in vrs:
             level = self.level_of_var(var)
@@ -730,24 +737,42 @@ class BDD(dd._abc.BDD):
         # keep unused variables not in `vrs`
         if vrs:
             full_levels |= {
-                level for var, level in self.vars.items()
+                level
+                for var, level in
+                    self.vars.items()
                 if var not in vrs}
         # map old to new levels
         n = 1 + len(self.vars)
             # include terminal
-        new_levels = [i for i in range(n) if i in full_levels]
-        new_levels = {i: new for new, i in enumerate(new_levels)}
+        new_levels = [
+            i
+            for i in range(n)
+            if i in full_levels]
+        new_levels = {
+            i: new
+            for new, i in
+                enumerate(new_levels)}
         # update variables and level declarations
-        rm_vars = {var for var, level in self.vars.items()
-                   if level not in full_levels}
-        self.vars = {var: new_levels[old] for var, old in self.vars.items()
-                     if old in full_levels}
-        self._level_to_var = {k: var for var, k in self.vars.items()}
+        rm_vars = {
+            var for var, level in
+                self.vars.items()
+            if level not in full_levels}
+        self.vars = {
+            var: new_levels[old]
+            for var, old in self.vars.items()
+            if old in full_levels}
+        self._level_to_var = {
+            k: var
+            for var, k in self.vars.items()}
         # update node levels
         self._succ = {
             u: (new_levels[i], v, w)
-            for u, (i, v, w) in self._succ.items()}
-        self._pred = {v: k for k, v in self._succ.items()}
+            for u, (i, v, w) in
+                self._succ.items()}
+        self._pred = {
+            v: k
+            for k, v in
+                self._succ.items()}
         # clear cache
         self._ite_table = dict()
         return rm_vars
@@ -792,7 +817,8 @@ class BDD(dd._abc.BDD):
         else:
             dvars = {
                 self.level_of_var(var): g
-                for var, g in var_sub.items()}
+                for var, g in
+                    var_sub.items()}
             r = self._vector_compose(
                 f, dvars, cache)
         return r
@@ -1170,7 +1196,10 @@ class BDD(dd._abc.BDD):
         n = len(self)
         if roots is None:
             roots = self._ref
-        dead = {u for u in roots if not self._ref[abs(u)]}
+        dead = {
+            u
+            for u in roots
+            if not self._ref[abs(u)]}
         # keep terminal
         if 1 in dead:
             dead.remove(1)
@@ -1495,7 +1524,10 @@ class BDD(dd._abc.BDD):
         support = self.support(u)
         if care_vars is None:
             care_vars = support
-        missing = {v for v in support if v not in care_vars}
+        missing = {
+            v
+            for v in support
+            if v not in care_vars}
         if missing:
             logger.warning(
                 'Missing bits:  '
@@ -1706,7 +1738,9 @@ class BDD(dd._abc.BDD):
     @_try_to_reorder
     def cube(self, dvars):
         if not isinstance(dvars, dict):
-            dvars = {k: True for k in dvars}
+            dvars = {
+                k: True
+                for k in dvars}
         # `dvars` keys can be var names or levels
         r = self.true
         for var, val in dvars.items():
@@ -1763,7 +1797,9 @@ class BDD(dd._abc.BDD):
         else:
             values = _utils._values_of(roots)
             nodes = self.descendants(values)
-        succ = ((k, self._succ[k]) for k in nodes)
+        succ = (
+            (k, self._succ[k])
+            for k in nodes)
         d = dict(
             vars=self.vars,
             succ=dict(succ),
@@ -1903,7 +1939,10 @@ def _enumerate_minterms(cube, bits):
     n = len(bits)
     for i in range(2**n):
         values = bin(i).lstrip('-0b').zfill(n)
-        model = {k: bool(int(v)) for k, v in zip(bits, values)}
+        model = {
+            k: bool(int(v))
+            for k, v in
+                zip(bits, values)}
         model.update(cube)
         if len(model) < len(bits):
             raise AssertionError((model, bits))
@@ -1923,8 +1962,16 @@ def _assert_isomorphic_orders(old, new, support):
     """
     _assert_valid_ordering(old)
     _assert_valid_ordering(new)
-    s = {k: v for k, v in old.items() if k in support}
-    t = {k: v for k, v in new.items() if k in support}
+    s = {
+        k: v
+        for k, v in
+            old.items()
+        if k in support}
+    t = {
+        k: v
+        for k, v in
+            new.items()
+        if k in support}
     old = sorted(s, key=s.get)
     new = sorted(t, key=t.get)
     if old != new:
@@ -2343,8 +2390,10 @@ def copy_bdd(u, from_bdd, to_bdd):
             'copying node to same BDD manager')
         return u
     level_map = {
-        from_bdd.level_of_var(var): to_bdd.level_of_var(var)
-        for var in from_bdd.vars if var in to_bdd.vars}
+        from_bdd.level_of_var(var):
+            to_bdd.level_of_var(var)
+        for var in from_bdd.vars
+        if var in to_bdd.vars}
     cache = dict()
     r = _copy_bdd(
         u, level_map,

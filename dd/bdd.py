@@ -700,7 +700,9 @@ class BDD(dd._abc.BDD):
         bdd = BDD(self.vars)
         umap = {1: 1}
         # non-terminals
-        for u, i, v, w in self.levels(skip_terminals=True):
+        levels = self.levels(
+            skip_terminals=True)
+        for u, i, v, w in levels:
             if u <= 0:
                 raise AssertionError(u)
             p, q = umap[abs(v)], umap[abs(w)]
@@ -1552,8 +1554,12 @@ class BDD(dd._abc.BDD):
             logger.warning(
                 'Missing bits:  '
                 f'support - care_vars = {missing}')
-        for cube in self._sat_iter(u, cube, value):
-            for m in _enumerate_minterms(cube, care_vars):
+        cubes = self._sat_iter(
+            u, cube, value)
+        for cube in cubes:
+            minterms = _enumerate_minterms(
+                cube, care_vars)
+            for m in minterms:
                 yield m
 
     def _sat_iter(self, u, cube, value):

@@ -300,7 +300,8 @@ class BDD(dd._abc.BDD):
     @property
     def ordering(self):
         raise DeprecationWarning(
-            'use `dd.bdd.BDD.vars` instead of `.ordering`')
+            'use `dd.bdd.BDD.vars` '
+            'instead of `.ordering`')
 
     def _init_terminal(self, level):
         """Place constant node `1`.
@@ -1377,7 +1378,8 @@ class BDD(dd._abc.BDD):
                 raise AssertionError(q)
             if p == q:
                 raise AssertionError(
-                    'No elimination: node depends on both x and y')
+                    'No elimination: '
+                    'node depends on both x and y')
             if self._succ[abs(p)][0] == y:
                 xfresh.add(abs(p))
             if self._succ[q][0] == y:

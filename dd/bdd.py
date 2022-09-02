@@ -41,6 +41,7 @@ Henrik R. Andersen
 # All rights reserved. Licensed under BSD-3.
 #
 import collections.abc as _abc
+import functools as _ft
 import logging
 import pickle
 import sys
@@ -84,6 +85,7 @@ def _request_reordering(bdd):
 
 def _try_to_reorder(func):
     """Decorator that serves reordering requests."""
+    @_ft.wraps(func)
     def _wrapper(
             bdd,
             *args,

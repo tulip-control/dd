@@ -887,7 +887,7 @@ class BDD(dd._abc.BDD):
         # cached ?
         r = cache.get(abs(f))
         if r is not None:
-            if r <= 0:
+            if r == 0:
                 raise AssertionError(r)
             # complement ?
             if f < 0:

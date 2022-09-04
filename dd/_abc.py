@@ -370,7 +370,8 @@ class BDD(_ty.Protocol[Ref]):
 
         Thin wrapper around `pick_iter`.
         """
-        return next(self.pick_iter(u, care_vars), None)
+        picks = self.pick_iter(u, care_vars)
+        return next(iter(picks), None)
 
     def pick_iter(
             self,

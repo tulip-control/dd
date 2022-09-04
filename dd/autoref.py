@@ -128,9 +128,18 @@ class BDD(dd._abc.BDD[_Ref]):
             u
             ) -> _Fork:
         i, v, w = self._bdd.succ(u.node)
-        v = self._wrap(v)
-        w = self._wrap(w)
-        return i, v, w
+        def wrap(
+                node:
+                    int |
+                    None
+                ) -> _MaybeRef:
+            match node:
+                case None:
+                    return None
+                case int():
+                    return self._wrap(node)
+            raise AssertionError(node)
+        return i, wrap(v), wrap(w)
 
     def incref(
             self,

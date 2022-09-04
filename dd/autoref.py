@@ -249,13 +249,26 @@ class BDD(dd._abc.BDD[_Ref]):
             raise ValueError(u)
         if not definitions:
             return u
-        d = definitions
-        var = next(iter(d))
-        value = d[var]
-        if isinstance(value, Function):
-            d = {
-                var: value.node
-                for var, value in d.items()}
+        var = next(iter(definitions))
+        value = definitions[var]
+        match value:
+            case str() | bool():
+                d = definitions
+            case Function():
+                def node_of(
+                        ref
+                        ) -> int:
+                    if isinstance(ref, Function):
+                        return ref.node
+                    raise ValueError(
+                        'Expected homogeneous type '
+                        'for `dict` values.')
+                d = {
+                    var: node_of(value)
+                    for var, value in
+                        definitions.items()}
+            case _:
+                raise TypeError(value)
         r = self._bdd.let(d, u.node)
         return self._wrap(r)
 

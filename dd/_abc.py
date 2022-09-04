@@ -361,10 +361,16 @@ class Operator(_ty.Protocol):
         r"""Dereference node in manager."""
 
     def __eq__(self, other):
-        r"""`|= self \equiv other`."""
+        r"""`|= self \equiv other`.
+
+        Return `False` if `other is None`.
+        """
 
     def __ne__(self, other):
-        r"""`~ |= self \equiv other`."""
+        r"""`~ |= self \equiv other`.
+
+        Return `True` if `other is None`.
+        """
 
     def __lt__(self, other):
         r"""`(|= self => other) /\ ~ |= self \equiv other`."""

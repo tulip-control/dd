@@ -1315,7 +1315,7 @@ class BDD(dd._abc.BDD[_Ref]):
             then quantify `qvars` universally,
             else existentially.
         """
-        qvars = self._map_to_level(qvars)
+        qvars = self._map_to_level(set(qvars))
         cache = dict()
         ordvar = sorted(qvars)
         j = 0
@@ -2776,7 +2776,7 @@ def image(
         else existentially.
     """
     # map to levels
-    qvars = bdd._map_to_level(qvars)
+    qvars = bdd._map_to_level(set(qvars))
     rename = {
         bdd.vars.get(k, k): bdd.vars.get(v, v)
         for k, v in rename.items()}
@@ -2840,7 +2840,7 @@ def preimage(
         else existentially.
     """
     # map to levels
-    qvars = bdd._map_to_level(qvars)
+    qvars = bdd._map_to_level(set(qvars))
     rename = {
         bdd.vars.get(k, k): bdd.vars.get(v, v)
         for k, v in rename.items()}

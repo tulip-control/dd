@@ -1242,7 +1242,7 @@ class BDD(dd._abc.BDD):
             # decrement reference counters
             self.decref(v)
             self.decref(w)
-            # died ?
+            # unused ?
             if not self._ref[abs(v)] and abs(v) != 1:
                 unused.add(abs(v))
             if not self._ref[w] and w != 1:
@@ -1353,7 +1353,7 @@ class BDD(dd._abc.BDD):
                 raise AssertionError((i, x))
             self.decref(v)
             self.decref(w)
-            # possibly dead
+            # possibly unused
             garbage.add(abs(v))
             garbage.add(w)
             # calling cofactor can fail

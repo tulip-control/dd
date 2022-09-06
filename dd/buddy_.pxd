@@ -90,7 +90,7 @@ cdef extern from 'bdd.h':
     int bdd_setmaxincrease(int size)
     int bdd_setminfreeBDDs(int mf)
     int bdd_getnodenum()
-    int bdd_getallocnum()  # both dead and active
+    int bdd_getallocnum()  # both unused and active
     # reordering
     int bdd_addvarblock(BDD b, int fixed)
     int bdd_intaddvarblock(int first, int last, int fixed)

@@ -528,15 +528,14 @@ class BDD(dd._abc.BDD):
             self._assert_keys_are_levels(d)
             return d
         if isinstance(d, _abc.Mapping):
-            r = {
+            return {
                 self.vars[var]: bool(val)
                 for var, val in
                     d.items()}
         else:
-            r = {
+            return {
                 self.vars[k]
                 for k in d}
-        return r
 
     def _assert_keys_are_levels(
             self,

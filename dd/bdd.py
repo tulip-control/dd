@@ -1527,10 +1527,9 @@ class BDD(dd._abc.BDD):
         i, v, w = self._succ[abs(u)]
         if y < i:
             return (i, u, u)
-        else:
-            # restore index of y node that
-            # moved up
-            return (y, v, w)
+        # restore index of y node that
+        # moved up
+        return (y, v, w)
 
     def count(self, u, nvars=None):
         n = nvars

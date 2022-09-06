@@ -1214,7 +1214,7 @@ class BDD(dd._abc.BDD):
         all nodes are scanned for zero reference counts.
 
         @type roots:
-            `set`, Caution: it is modified
+            `set`
         """
         n = len(self)
         if roots is None:

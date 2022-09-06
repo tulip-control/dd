@@ -605,6 +605,10 @@ class BDD(dd._abc.BDD):
         if r == 1 or r in visited:
             return
         _, v, w = self._succ[r]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         self._descendants(v, visited)
         self._descendants(w, visited)
         visited.add(r)
@@ -628,6 +632,10 @@ class BDD(dd._abc.BDD):
         if i == iu:
             return True
         # u depends on node labeled with var ?
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         if self.is_essential(v, var):
             return True
         if self.is_essential(w, var):
@@ -657,6 +665,10 @@ class BDD(dd._abc.BDD):
             return
         # add var
         i, v, w = self._succ[r]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         levels.add(i)
         # recurse
         self._support(v, levels, nodes)
@@ -852,6 +864,10 @@ class BDD(dd._abc.BDD):
             return cache[(f, g)]
         # independent of j ?
         i, v, w = self._succ[abs(f)]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         # below j ?
         if j < i:
             return f
@@ -893,6 +909,10 @@ class BDD(dd._abc.BDD):
             return r
         # recurse
         i, v, w = self._succ[abs(f)]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         p = self._vector_compose(
             v, level_sub,
             cache)
@@ -934,6 +954,10 @@ class BDD(dd._abc.BDD):
             return (u, u)
         # non-terminal node
         iu, v, w = self._succ[abs(u)]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         # u independent of var ?
         if i < iu:
             return (u, u)
@@ -975,6 +999,10 @@ class BDD(dd._abc.BDD):
         if u in cache:
             return cache[u]
         i, v, w = self._succ[abs(u)]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         n = len(ordvar)
         # skip nonessential variables
         while j < n:
@@ -1042,6 +1070,10 @@ class BDD(dd._abc.BDD):
         if u in cache:
             return cache[u]
         i, v, w = self._succ[abs(u)]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         # complement ?
         if u < 0:
             v, w = -v, -w
@@ -1236,6 +1268,10 @@ class BDD(dd._abc.BDD):
                 raise AssertionError(u)
             # remove
             i, v, w = self._succ.pop(u)
+            if not v:
+                raise AssertionError(v)
+            if not w:
+                raise AssertionError(w)
             u_ = self._pred.pop((i, v, w))
             uref = self._ref.pop(u)
             self._min_free = min(u, self._min_free)
@@ -1336,6 +1372,10 @@ class BDD(dd._abc.BDD):
             i, _, _ = self._succ[u]
             if i != x:
                 raise AssertionError((i, x))
+            if not v:
+                raise AssertionError(v)
+            if not w:
+                raise AssertionError(w)
             iv, v0, v1 = self._low_high(v)
             iw, w0, w1 = self._low_high(w)
             # dependeds on y ?
@@ -1357,6 +1397,10 @@ class BDD(dd._abc.BDD):
             i, _, _ = self._succ[u]
             if i != x:
                 raise AssertionError((i, x))
+            if not v:
+                raise AssertionError(v)
+            if not w:
+                raise AssertionError(w)
             self.decref(v)
             self.decref(w)
             # possibly unused
@@ -1466,6 +1510,10 @@ class BDD(dd._abc.BDD):
         i, v, w = self._succ[abs(u)]
         if abs(u) == 1:
             return i, u, u
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         return i, v, w
 
     def _swap_cofactor(self, u, y):
@@ -1520,6 +1568,10 @@ class BDD(dd._abc.BDD):
         if u == -1:
             return 0
         i, v, w = self._succ[abs(u)]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         i = map_level[i]
         # memoized ?
         if abs(u) in d:
@@ -1589,6 +1641,10 @@ class BDD(dd._abc.BDD):
             return
         # non-terminal
         i, v, w = self._succ[abs(u)]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         d0 = dict(cube)
         d0[i] = False
         d1 = dict(cube)
@@ -1677,6 +1733,10 @@ class BDD(dd._abc.BDD):
         if u == -1:
             return 'FALSE'
         i, v, w = self._succ[abs(u)]
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         var = self._level_to_var[i]
         p = self._to_expr(v)
         q = self._to_expr(w)
@@ -2472,6 +2532,10 @@ def _copy_bdd(u, level_map, old_bdd, bdd, cache):
         return r
     # recurse
     jold, v, w = old_bdd._succ[abs(u)]
+    if not v:
+        raise AssertionError(v)
+    if not w:
+        raise AssertionError(w)
     p = _copy_bdd(
         v, level_map,
         old_bdd, bdd,

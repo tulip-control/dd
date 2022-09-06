@@ -1221,15 +1221,15 @@ class BDD(dd._abc.BDD[_Ref]):
                 _Assignment
             ) -> _Ref:
         """Replace variables in `u` with Booleans."""
-        values = self._map_to_level(values)
+        level_values = self._map_to_level(values)
         cache = dict()
-        ordvar = sorted(values)
+        ordvar = sorted(level_values)
         j = 0
         if abs(u) not in self:
             raise ValueError(
                 f'node {u} not in `self`')
         return self._cofactor(
-            u, j, ordvar, values, cache)
+            u, j, ordvar, level_values, cache)
 
     def _cofactor(
             self,

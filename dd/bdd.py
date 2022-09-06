@@ -1899,6 +1899,10 @@ class BDD(dd._abc.BDD[_Ref]):
             return (i, u, u)
         # restore index of y node that
         # moved up
+        if not v:
+            raise AssertionError(v)
+        if not w:
+            raise AssertionError(w)
         return (y, v, w)
 
     def count(

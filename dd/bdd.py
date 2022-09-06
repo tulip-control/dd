@@ -1221,9 +1221,15 @@ class BDD(dd._abc.BDD):
             roots = self._ref
         def is_unused(u) -> bool:
             return not self._ref[abs(u)]
-        unused = set(filter(
-            is_unused, roots))
+        unused = filter(
+            is_unused, roots)
+        unused = set(map(
+            abs, unused))
         # keep terminal
+        #
+        # Filtering above implies 1 is kept,
+        # except within `__del__()`.
+        # There `roots` happens to be `None`.
         if 1 in unused:
             unused.remove(1)
         while unused:

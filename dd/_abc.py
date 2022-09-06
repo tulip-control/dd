@@ -244,7 +244,7 @@ class BDD(_ty.Protocol):
 
         `filetype` can have the values:
 
-          - `'p'` for Pickle
+          - `'pickle'` for Pickle
           - `'pdf'` for PDF
           - `'png'` for PNG
           - `'svg'` for SVG

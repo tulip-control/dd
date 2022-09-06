@@ -1217,15 +1217,15 @@ class BDD(dd._abc.BDD):
         n = len(self)
         if roots is None:
             roots = self._ref
-        dead = {
+        unused = {
             u
             for u in roots
             if not self._ref[abs(u)]}
         # keep terminal
-        if 1 in dead:
-            dead.remove(1)
-        while dead:
-            u = dead.pop()
+        if 1 in unused:
+            unused.remove(1)
+        while unused:
+            u = unused.pop()
             if u == 1:
                 raise AssertionError(u)
             # remove
@@ -1244,9 +1244,9 @@ class BDD(dd._abc.BDD):
             self.decref(w)
             # died ?
             if not self._ref[abs(v)] and abs(v) != 1:
-                dead.add(abs(v))
+                unused.add(abs(v))
             if not self._ref[w] and w != 1:
-                dead.add(w)
+                unused.add(w)
         self._ite_table = dict()
         m = len(self)
         k = n - m

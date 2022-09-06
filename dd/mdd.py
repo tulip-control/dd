@@ -265,12 +265,12 @@ class MDD:
         """Recursively remove nodes with zero reference count."""
         if roots is None:
             roots = self._ref
-        dead = {u for u in roots if not self.ref(u)}
+        unused = {u for u in roots if not self.ref(u)}
         # keep terminal
-        if 1 in dead:
-            dead.remove(1)
-        while dead:
-            u = dead.pop()
+        if 1 in unused:
+            unused.remove(1)
+        while unused:
+            u = unused.pop()
             if u == 1:
                 raise AssertionError(u)
             # remove
@@ -289,9 +289,9 @@ class MDD:
             nodes = t[1:]
             for v in nodes:
                 self.decref(v)
-                # died ?
+                # unused ?
                 if not self._ref[abs(v)] and abs(v) != 1:
-                    dead.add(abs(v))
+                    unused.add(abs(v))
         self._ite_table = dict()
 
     def to_expr(self, u):

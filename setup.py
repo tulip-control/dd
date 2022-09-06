@@ -76,8 +76,8 @@ KEYWORDS = [
 
 def git_version(version):
     """Return version with local version identifier."""
-    import git
-    repo = git.Repo('.git')
+    import git as _git
+    repo = _git.Repo('.git')
     repo.git.status()
     # assert versions are increasing
     latest_tag = repo.git.describe(
@@ -96,7 +96,7 @@ def git_version(version):
         tag = repo.git.describe(
             match='v[0-9]*', exact_match=True,
             tags=True, dirty=True)
-    except git.GitCommandError:
+    except _git.GitCommandError:
         return f'{version}.dev0+{sha}'
     if tag != f'v{version}':
         raise AssertionError((tag, version))

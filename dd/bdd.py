@@ -615,8 +615,6 @@ class BDD(dd._abc.BDD):
         If `var` is a name undeclared in
         `self.vars`, return `False`.
 
-        @param var:
-            level in `vars`
         @type var:
             `int`
         """

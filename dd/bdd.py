@@ -1606,8 +1606,6 @@ class BDD(dd._abc.BDD):
                 f'{u} is not a reference to '
                 'a BDD node in the BDD manager '
                 f'`self` ({self!r})')
-        cube = dict()
-        value = True
         support = self.support(u)
         if care_vars is None:
             care_vars = support
@@ -1619,6 +1617,8 @@ class BDD(dd._abc.BDD):
             logger.warning(
                 'Missing bits:  '
                 f'support - care_vars = {missing}')
+        cube = dict()
+        value = True
         cubes = self._sat_iter(
             u, cube, value)
         for cube in cubes:

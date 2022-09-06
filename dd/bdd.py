@@ -1219,10 +1219,10 @@ class BDD(dd._abc.BDD):
         n = len(self)
         if roots is None:
             roots = self._ref
-        unused = {
-            u
-            for u in roots
-            if not self._ref[abs(u)]}
+        def is_unused(u) -> bool:
+            return not self._ref[abs(u)]
+        unused = set(filter(
+            is_unused, roots))
         # keep terminal
         if 1 in unused:
             unused.remove(1)

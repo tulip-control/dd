@@ -176,7 +176,9 @@ class BDD(_ty.Protocol):
             generator of `dict(str: bool)`
         """
 
-    # def to_bdd(self, expr):
+    # def to_bdd(
+    #         self,
+    #         expr):
     #     raise NotImplementedError('use `add_expr`')
 
     def add_expr(self, expr):

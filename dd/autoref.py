@@ -42,7 +42,8 @@ class BDD(dd._abc.BDD):
     def __eq__(self, other):
         return (self._bdd is other._bdd)
 
-    def __len__(self):
+    def __len__(
+            self):
         return len(self._bdd)
 
     def __contains__(self, u):
@@ -50,7 +51,8 @@ class BDD(dd._abc.BDD):
             raise ValueError('`self is not u.bdd`')
         return u.node in self._bdd
 
-    def __str__(self):
+    def __str__(
+            self):
         return (
             'Binary decision diagram (`dd.bdd.BDD` wrapper):\n'
             '------------------------\n'
@@ -209,7 +211,8 @@ class BDD(dd._abc.BDD):
         r = self._bdd.cube(dvars)
         return self._wrap(r)
 
-    def collect_garbage(self):
+    def collect_garbage(
+            self):
         """Recursively remove nodes with zero reference count."""
         self._bdd.collect_garbage()
 
@@ -314,7 +317,9 @@ class BDD(dd._abc.BDD):
                 filename, levels=levels)
         elif name.endswith('.json'):
             nodes = _copy.load_json(filename, self)
-            def check(node) -> Function:
+            def check(
+                    node
+                    ) -> Function:
                 if isinstance(node, Function):
                     return node
                 raise AssertionError(node)
@@ -422,24 +427,28 @@ class Function(dd._abc.Operator):
         self.node = node
         self.manager.incref(node)
 
-    def __hash__(self):
+    def __hash__(
+            self):
         return self.node
 
     def to_expr(self):
         """Return Boolean expression of function as `str`."""
         return self.manager.to_expr(self.node)
 
-    def __int__(self):
+    def __int__(
+            self):
         return self.node
 
-    def __len__(self):
+    def __len__(
+            self):
         return len(self.manager.descendants([self.node]))
 
     @property
     def dag_size(self):
         return len(self)
 
-    def __del__(self):
+    def __del__(
+            self):
         """Decrement reference count of `self.node` in `self.bdd`."""
         self.manager.decref(self.node)
 

@@ -401,10 +401,12 @@ cdef class ZDD:
     cdef public object _index_of_var
     cdef public object _var_with_index
 
-    def __cinit__(self,
-                  memory_estimate=None,
-                  initial_cache_size=None,
-                  *arg, **kw):
+    def __cinit__(
+            self,
+            memory_estimate=None,
+            initial_cache_size=None,
+            *arg,
+            **kw):
         """Initialize ZDD manager.
 
         @param memory_estimate:
@@ -445,16 +447,18 @@ cdef class ZDD:
                 'failed to initialize CUDD DdManager')
         self.manager = mgr
 
-    def __init__(self,
-                 memory_estimate=None,
-                 initial_cache_size=None):
+    def __init__(
+            self,
+            memory_estimate=None,
+            initial_cache_size=None):
         logger.info(f'Using CUDD v{__version__}')
         self.configure(reordering=True, max_cache_hard=MAX_CACHE)
         self.vars = set()
         self._index_of_var = dict()  # map: str -> unique fixed int
         self._var_with_index = dict()
 
-    def __dealloc__(self):
+    def __dealloc__(
+            self):
         if self.manager is NULL:
             raise RuntimeError(
                 '`self.manager` is `NULL`, which suggests that '
@@ -467,7 +471,9 @@ cdef class ZDD:
                 'referenced upon shutdown.')
         Cudd_Quit(self.manager)
 
-    def __eq__(ZDD self, ZDD other):
+    def __eq__(
+            ZDD self,
+            ZDD other):
         """Return `True` if `other` has same manager.
 
         If `other is None`, then return `False`.
@@ -476,7 +482,9 @@ cdef class ZDD:
             return False
         return self.manager == other.manager
 
-    def __ne__(ZDD self, ZDD other):
+    def __ne__(
+            ZDD self,
+            ZDD other):
         """Return `True` if `other` has different manager.
 
         If `other is None`, then return `True`.
@@ -485,11 +493,14 @@ cdef class ZDD:
             return True
         return self.manager != other.manager
 
-    def __len__(self):
+    def __len__(
+            self):
         """Return number of nodes with non-zero references."""
         return Cudd_CheckZeroRef(self.manager)
 
-    def __contains__(self, Function u):
+    def __contains__(
+            self,
+            Function u):
         """Return `True` if `u.node` in `self.manager`."""
         if u.manager != self.manager:
             raise ValueError(
@@ -503,7 +514,8 @@ cdef class ZDD:
 
     # This method is similar to
     # the method `dd.cudd.BDD.__str__`.
-    def __str__(self):
+    def __str__(
+            self):
         d = self.statistics()
         s = (
             'Zero-omitted binary decision diagram (CUDD wrapper).\n'
@@ -523,7 +535,9 @@ cdef class ZDD:
 
     # This method is similar to
     # the method `dd.cudd.BDD.statistics`.
-    def statistics(ZDD self, exact_node_count=False):
+    def statistics(
+            ZDD self,
+            exact_node_count=False):
         """Return `dict` with CUDD node counts and times.
 
         For details read the docstring of the method
@@ -587,7 +601,9 @@ cdef class ZDD:
 
     # This method is similar to the method
     # `dd.cudd.BDD.configure`.
-    def configure(self, **kw):
+    def configure(
+            self,
+            **kw):
         """Read and apply parameter values.
 
         For details read the docstring of the method
@@ -654,7 +670,9 @@ cdef class ZDD:
                     f'Unknown parameter "{k}"')
         return d
 
-    cpdef succ(self, Function u):
+    cpdef succ(
+            self,
+            Function u):
         """Return `(level, low, high)` for `u`."""
         if u.manager != self.manager:
             raise ValueError('`u.manager != self.manager`')
@@ -667,7 +685,9 @@ cdef class ZDD:
             raise AssertionError('w.level')
         return i, v, w
 
-    cpdef incref(self, Function u):
+    cpdef incref(
+            self,
+            Function u):
         """Increment the reference count of `u`.
 
         For details read the docstring of the
@@ -684,7 +704,9 @@ cdef class ZDD:
         self._incref(u.node)
 
     cpdef decref(
-            self, Function u, recursive=False,
+            self,
+            Function u,
+            recursive=False,
             _direct=False):
         """Decrement the reference count of `u`.
 
@@ -719,21 +741,31 @@ cdef class ZDD:
         if u._ref == 0:
             u.node = NULL
 
-    cdef _incref(self, DdNode *u):
+    cdef _incref(
+            self,
+            DdNode *u):
         Cudd_Ref(u)
 
-    cdef _decref(self, DdNode *u, recursive=False):
+    cdef _decref(
+            self,
+            DdNode *u,
+            recursive=False):
         if recursive:
             Cudd_RecursiveDerefZdd(self.manager, u)
         else:
             Cudd_Deref(u)
 
-    def declare(self, *variables):
+    def declare(
+            self,
+            *variables):
         """Add names in `variables` to `self.vars`."""
         for var in variables:
             self.add_var(var)
 
-    cpdef add_var(self, var, index=None):
+    cpdef add_var(
+            self,
+            var,
+            index=None):
         """Return index of variable named `var`.
 
         If a variable named `var` exists,
@@ -767,7 +799,10 @@ cdef class ZDD:
         self._add_var(var, j)
         return j
 
-    cdef _add_var(self, str var, int index):
+    cdef _add_var(
+            self,
+            str var,
+            int index):
         """Add to `self` a *new* variable named `var`."""
         if var in self.vars:
             raise ValueError(
@@ -790,7 +825,9 @@ cdef class ZDD:
                 'the attributes `_index_of_var` and '
                 '`_var_with_index` have different length')
 
-    cpdef Function var(self, var):
+    cpdef Function var(
+            self,
+            var):
         """Return node for variable named `var`."""
         if var not in self._index_of_var:
             raise ValueError(
@@ -802,7 +839,9 @@ cdef class ZDD:
         return r
 
     # CUDD implementation of `var`
-    cpdef Function _var_cudd(self, var):
+    cpdef Function _var_cudd(
+            self,
+            var):
         """Return node for variable named `var`."""
         if var not in self._index_of_var:
             raise ValueError(
@@ -813,11 +852,15 @@ cdef class ZDD:
         r = Cudd_zddIthVar(self.manager, j)
         return wrap(self, r)
 
-    def _add_bdd_var(self, j):
+    def _add_bdd_var(
+            self,
+            j):
         """Declare a BDD variable with index `j`."""
         Cudd_bddIthVar(self.manager, j)
 
-    def var_at_level(self, level):
+    def var_at_level(
+            self,
+            level):
         """Return name of variable at `level`.
 
         Raise `ValueError` if `level` is not
@@ -834,7 +877,9 @@ cdef class ZDD:
         var = self._var_with_index[j]
         return var
 
-    def level_of_var(self, var):
+    def level_of_var(
+            self,
+            var):
         """Return level of variable named `var`.
 
         Raise `ValueError` if `var` is not
@@ -853,7 +898,8 @@ cdef class ZDD:
         return level
 
     @property
-    def var_levels(self):
+    def var_levels(
+            self):
         """Return `dict` that maps variables to levels."""
         return {var: self.level_of_var(var)
                 for var in self.vars}
@@ -1012,7 +1058,9 @@ cdef class ZDD:
              CUDD_CONST_INDEX)
             '''))
 
-    def reorder(self, var_order=None):
+    def reorder(
+            self,
+            var_order=None):
         """Reorder variables to `var_order`.
 
         If `var_order` is `None`, then invoke sifting.
@@ -1039,15 +1087,19 @@ cdef class ZDD:
         if r != 1:
             raise RuntimeError('Failed to reorder.')
 
-    def _enable_reordering(self):
+    def _enable_reordering(
+            self):
         """Enable dynamic reordering of ZDDs."""
         Cudd_AutodynEnableZdd(self.manager, CUDD_REORDER_SIFT)
 
-    def _disable_reordering(self):
+    def _disable_reordering(
+            self):
         """Disable dynamic reordering of ZDDs."""
         Cudd_AutodynDisableZdd(self.manager)
 
-    cpdef set support(self, Function u):
+    cpdef set support(
+            self,
+            Function u):
         """Return `set` of variables that `u` depends on.
 
         These are the variables that the Boolean function
@@ -1057,7 +1109,9 @@ cdef class ZDD:
             raise ValueError('`u.manager != self.manager`')
         return _c_support(u)
 
-    cpdef _support_py(self, Function u):
+    cpdef _support_py(
+            self,
+            Function u):
         # Python implementation
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
@@ -1067,7 +1121,12 @@ cdef class ZDD:
         self._support(level, u, support, visited)
         return support
 
-    cdef _support(self, level, Function u, support, visited):
+    cdef _support(
+            self,
+            level,
+            Function u,
+            support,
+            visited):
         """Recurse to compute the support of `u`."""
         # terminal ?
         if u == self.false or self._gt_var_levels(level):
@@ -1089,7 +1148,9 @@ cdef class ZDD:
             self._support(level + 1, w, support, visited)
         visited.add(u)
 
-    cpdef _support_cudd(self, Function f):
+    cpdef _support_cudd(
+            self,
+            Function f):
         """Return `set` of variables that node `f` depends on."""
         if self.manager != f.manager:
             raise ValueError('`f.manager != self.manager`')
@@ -1105,11 +1166,15 @@ cdef class ZDD:
             raise AssertionError(supp)
         return set(supp)
 
-    def _copy_bdd_vars(self, bdd):
+    def _copy_bdd_vars(
+            self,
+            bdd):
         """Copy BDD to ZDD variables."""
         Cudd_zddVarsFromBddVars(self.manager, 1)
 
-    def _bdd_to_zdd(self, u):
+    def _bdd_to_zdd(
+            self,
+            u):
         """Copy BDD `u` to a ZDD in `self`.
 
         @param u:
@@ -1126,7 +1191,10 @@ cdef class ZDD:
         r = Cudd_zddPortFromBdd(self.manager, r)
         return wrap(self, r)
 
-    def copy(self, u, other):
+    def copy(
+            self,
+            u,
+            other):
         """Transfer ZDD with root `u` to `other`.
 
         @param other:
@@ -1143,7 +1211,9 @@ cdef class ZDD:
         return _copy.copy_zdd(u, other)
 
     cpdef Function let(
-            self, definitions, Function u):
+            self,
+            definitions,
+            Function u):
         """Replace variables with `definitions` in `u`.
 
         @param definitions:
@@ -1183,7 +1253,9 @@ cdef class ZDD:
         return self._rename(u, d)
 
     cpdef Function _cofactor_root(
-            self, Function u, d):
+            self,
+            Function u,
+            d):
         """Return cofactor of `u` as defined in `d`.
 
         @param d:
@@ -1204,7 +1276,11 @@ cdef class ZDD:
         return r
 
     cpdef Function _cofactor(
-            self, int level, Function u, d, cache):
+            self,
+            int level,
+            Function u,
+            d,
+            cache):
         """Recursively compute the cofactor of `u`."""
         # terminal ?
         if u == self.false or self._gt_var_levels(level):
@@ -1245,7 +1321,10 @@ cdef class ZDD:
         return r
 
     cpdef Function _cofactor_cudd(
-            self, Function u, str var, value):
+            self,
+            Function u,
+            str var,
+            value):
         """CUDD implementation of cofactor."""
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
@@ -1258,7 +1337,9 @@ cdef class ZDD:
         return wrap(self, r)
 
     cpdef Function _compose_root(
-            self, Function u, d):
+            self,
+            Function u,
+            d):
         """Return the composition defined in `d`.
 
         @param d:
@@ -1278,7 +1359,11 @@ cdef class ZDD:
         return r
 
     cpdef Function _compose(
-            self, int level, Function u, d, cache):
+            self,
+            int level,
+            Function u,
+            d,
+            cache):
         """Recursively compute composition of `u`."""
         if level > u.level:
             raise ValueError(
@@ -1334,7 +1419,10 @@ cdef class ZDD:
         cache[t] = r
         return r
 
-    cpdef Function _rename(self, Function u, d):
+    cpdef Function _rename(
+            self,
+            Function u,
+            d):
         """Return node from renaming in `u` the variables in `d`."""
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
@@ -1343,7 +1431,10 @@ cdef class ZDD:
         return _c_compose(u, rename)
 
     cpdef Function ite(
-            self, Function g, Function u, Function v):
+            self,
+            Function g,
+            Function u,
+            Function v):
         """Ternary conditional `IF g THEN u ELSE v` for ZDDs.
 
         Calls `Cudd_zddIte`.
@@ -1363,7 +1454,10 @@ cdef class ZDD:
         return wrap(self, r)
 
     cpdef Function _ite_recursive(
-            self, Function g, Function u, Function v):
+            self,
+            Function g,
+            Function u,
+            Function v):
         """Recursive call to ternary conditional.
 
         Raises `CouldNotCreateNode` if reordering occurred.
@@ -1382,7 +1476,10 @@ cdef class ZDD:
         return wrap(self, r)
 
     cpdef find_or_add(
-            self, str var, Function low, Function high):
+            self,
+            str var,
+            Function low,
+            Function high):
         """Return node `IF var THEN high ELSE low`."""
         if low.manager != self.manager:
             raise ValueError('`low.manager != self.manager`')
@@ -1412,8 +1509,11 @@ cdef class ZDD:
         return f
 
     cdef DdNode *_find_or_add(
-            self, int index,
-            DdNode *low, DdNode *high) except NULL:
+            self,
+            int index,
+            DdNode *low,
+            DdNode *high
+            ) except NULL:
         """Implementation of method `find_or_add` in C."""
         cdef DdNode *r
         if low is NULL:
@@ -1428,7 +1528,10 @@ cdef class ZDD:
             raise AssertionError('r is NULL')
         return r
 
-    cpdef _top_cofactor(self, u, level):
+    cpdef _top_cofactor(
+            self,
+            u,
+            level):
         """Return cofactor at `level`.
 
         @param u:
@@ -1450,7 +1553,10 @@ cdef class ZDD:
             raise AssertionError('`w is None`')
         return (v, w)
 
-    def count(self, Function u, nvars=None):
+    def count(
+            self,
+            Function u,
+            nvars=None):
         """Return nuber of models of node `u`.
 
         @param nvars:
@@ -1471,7 +1577,11 @@ cdef class ZDD:
         return r * 2**(nvars - n_support)
 
     def _count(
-            self, int level, Function u, support, dict cache):
+            self,
+            int level,
+            Function u,
+            support,
+            dict cache):
         """Recurse to count satisfying assignments."""
         if u == self.false:
             return 0
@@ -1490,7 +1600,10 @@ cdef class ZDD:
         cache[u] = r
         return r
 
-    def _count_cudd(self, Function u, int nvars):
+    def _count_cudd(
+            self,
+            Function u,
+            int nvars):
         """CUDD implementation of `self.count`."""
         # returns different results
         if u.manager != self.manager:
@@ -1505,11 +1618,17 @@ cdef class ZDD:
             raise RuntimeError('overflow of integer type double')
         return r
 
-    def pick(self, Function u, care_vars=None):
+    def pick(
+            self,
+            Function u,
+            care_vars=None):
         """Return a single satisfying assignment as `dict`."""
         return next(self.pick_iter(u, care_vars), None)
 
-    def pick_iter(self, Function u, care_vars=None):
+    def pick_iter(
+            self,
+            Function u,
+            care_vars=None):
         """Return iterator over satisfying assignments.
 
         The returned iterator is generator-based.
@@ -1533,7 +1652,10 @@ cdef class ZDD:
                 yield m
         self.configure(reordering=config['reordering'])
 
-    def _pick_iter_cudd(self, Function u, care_vars=None):
+    def _pick_iter_cudd(
+            self,
+            Function u,
+            care_vars=None):
         """CUDD implementation of `self.pick_iter`."""
         # assigns also to variables outside the support
         if self.manager != u.manager:
@@ -1570,7 +1692,13 @@ cdef class ZDD:
             Cudd_GenFree(gen)
         self.configure(reordering=config['reordering'])
 
-    def _sat_iter(self, level, u, cube, value, support):
+    def _sat_iter(
+            self,
+            level,
+            u,
+            cube,
+            value,
+            support):
         """Recurse to enumerate models."""
         # terminal ?
         if u == self.false or self._gt_var_levels(level):
@@ -1750,7 +1878,9 @@ cdef class ZDD:
         res = wrap(self, r)
         return res
 
-    cpdef _add_int(self, i):
+    cpdef _add_int(
+            self,
+            i):
         """Return node from integer `i`."""
         cdef DdNode *u
         if i in (0, 1):
@@ -1762,7 +1892,9 @@ cdef class ZDD:
         u = <DdNode *><stdint.uintptr_t>i
         return wrap(self, u)
 
-    cpdef Function cube(self, dvars):
+    cpdef Function cube(
+            self,
+            dvars):
         """Return conjunction of variables in `dvars`.
 
         If `dvars` is a `dict`, then a Boolean value
@@ -1791,7 +1923,9 @@ cdef class ZDD:
         return r
 
     cpdef Function _disjoin_root(
-            self, Function u, Function v):
+            self,
+            Function u,
+            Function v):
         """Disjoin `u` and `v`."""
         level = 0
         self.manager.reordered = 1
@@ -1805,7 +1939,11 @@ cdef class ZDD:
         return r
 
     cdef Function _disjoin(
-            self, level, Function u, Function v, cache):
+            self,
+            level,
+            Function u,
+            Function v,
+            cache):
         """Recursively disjoin `u` and `v`.
 
         The recursion starts at `level`.
@@ -1838,7 +1976,9 @@ cdef class ZDD:
         return r
 
     cpdef Function _conjoin_root(
-            self, Function u, Function v):
+            self,
+            Function u,
+            Function v):
         """Conjoin `u` and `v`."""
         level = 0
         self.manager.reordered = 1
@@ -1852,7 +1992,11 @@ cdef class ZDD:
         return r
 
     cdef Function _conjoin(
-            self, level, Function u, Function v, cache):
+            self,
+            level,
+            Function u,
+            Function v,
+            cache):
         """Recursively conjoin `u` and `v`.
 
         The recursion starts at `level`.
@@ -1885,7 +2029,10 @@ cdef class ZDD:
         return r
 
     cpdef Function quantify(
-            self, Function u, qvars, forall=False):
+            self,
+            Function u,
+            qvars,
+            forall=False):
         """Abstract variables `qvars` from node `u`."""
         if u.manager != self.manager:
             raise ValueError('`u.manager != self.manager`')
@@ -1906,7 +2053,10 @@ cdef class ZDD:
         return r
 
     cpdef Function _quantify_root(
-            self, Function u, qvars, forall=False):
+            self,
+            Function u,
+            qvars,
+            forall=False):
         """Abstract variables `qvars` in `u`.
 
         @param u:
@@ -1928,7 +2078,10 @@ cdef class ZDD:
         return r
 
     cpdef Function _quantify_using_cube_root(
-            self, Function u, qvars, forall=False):
+            self,
+            Function u,
+            qvars,
+            forall=False):
         """Abstract variables `qvars` in `u`.
 
         This implementation usses a ZDD to represent
@@ -1945,7 +2098,12 @@ cdef class ZDD:
         return r
 
     def _quantify_using_cube(
-            self, level, u, cube, forall, cache):
+            self,
+            level,
+            u,
+            cube,
+            forall,
+            cache):
         """Recurse to quantify variables.
 
         This implementation uses a ZDD to represent
@@ -1979,7 +2137,12 @@ cdef class ZDD:
         return r
 
     def _quantify(
-            self, level, u, qvars, forall, cache):
+            self,
+            level,
+            u,
+            qvars,
+            forall,
+            cache):
         """Recurse to quantify variables."""
         if (level > u.level):
             raise ValueError(
@@ -2025,7 +2188,12 @@ cdef class ZDD:
         return r
 
     def _quantify_optimized(
-            self, level, u, qvars, forall, cache):
+            self,
+            level,
+            u,
+            qvars,
+            forall,
+            cache):
         """Recurse to quantify variables."""
         # terminal ?
         if u == self.false or self._gt_var_levels(level):
@@ -2058,21 +2226,28 @@ cdef class ZDD:
         cache[u] = r
         return r
 
-    cpdef Function forall(self, variables, Function u):
+    cpdef Function forall(
+            self,
+            variables,
+            Function u):
         """Quantify `variables` in `u` universally.
 
         Wraps method `quantify` to be more readable.
         """
         return self.quantify(u, variables, forall=True)
 
-    cpdef Function exist(self, variables, Function u):
+    cpdef Function exist(
+            self,
+            variables,
+            Function u):
         """Quantify `variables` in `u` existentially.
 
         Wraps method `quantify` to be more readable.
         """
         return self.quantify(u, variables, forall=False)
 
-    cpdef assert_consistent(self):
+    cpdef assert_consistent(
+            self):
         """Raise `AssertionError` if not consistent."""
         if Cudd_DebugCheck(self.manager) != 0:
             raise AssertionError('`Cudd_DebugCheck` errored')
@@ -2105,11 +2280,15 @@ cdef class ZDD:
                 f'{self._var_with_index = }\n'
                 f'{self._index_of_var = }')
 
-    def add_expr(self, expr):
+    def add_expr(
+            self,
+            expr):
         """Return node for `str` expression `e`."""
         return _parser.add_expr(expr, self)
 
-    cpdef str to_expr(self, Function u):
+    cpdef str to_expr(
+            self,
+            Function u):
         """Return a Boolean expression for node `u`."""
         if u.manager != self.manager:
             raise ValueError('`u.manager != self.manager`')
@@ -2117,7 +2296,11 @@ cdef class ZDD:
         level = 0
         return self._to_expr(level, u, cache)
 
-    cpdef str _to_expr(self, level, Function u, dict cache):
+    cpdef str _to_expr(
+            self,
+            level,
+            Function u,
+            dict cache):
         """Recursively compute an expression."""
         if u == self.false:
             return 'FALSE'
@@ -2138,7 +2321,11 @@ cdef class ZDD:
         cache[u] = s
         return s
 
-    cpdef dump(self, filename, roots, filetype=None):
+    cpdef dump(
+            self,
+            filename,
+            roots,
+            filetype=None):
         """Write ZDD as a diagram to file `filename`.
 
         The file type is inferred from the
@@ -2192,8 +2379,12 @@ cdef class ZDD:
                 'supports writing diagrams as '
                 'PDF, PNG, or SVG files.')
 
-    def _dump_figure(self, roots, filename,
-                     filetype, **kw):
+    def _dump_figure(
+            self,
+            roots,
+            filename,
+            filetype,
+            **kw):
         """Write BDDs to `filename` as figure."""
         pd = _to_pydot(roots)
         if filetype == 'pdf':
@@ -2206,11 +2397,15 @@ cdef class ZDD:
             raise ValueError(
                 f'Unknown file type of "{filename}"')
 
-    cpdef load(self, filename):
+    cpdef load(
+            self,
+            filename):
         raise NotImplementedError()
 
     # Same with the method `dd.cudd.BDD._cube_to_dict`.
-    cpdef _cube_to_dict(self, Function f):
+    cpdef _cube_to_dict(
+            self,
+            Function f):
         """Recurse to collect indices of support variables."""
         if f.manager != self.manager:
             raise ValueError('`f.manager != self.manager`')
@@ -2225,7 +2420,8 @@ cdef class ZDD:
         return d
 
     @property
-    def false(self):
+    def false(
+            self):
         """`Function` for Boolean value FALSE.
 
         Relevant properties:
@@ -2234,7 +2430,8 @@ cdef class ZDD:
         return self._bool(False)
 
     @property
-    def true(self):
+    def true(
+            self):
         """`Function` for Boolean value TRUE.
 
         Read also the docstring of the
@@ -2246,7 +2443,8 @@ cdef class ZDD:
         return self._bool(True)
 
     @property
-    def true_node(self):
+    def true_node(
+            self):
         """Return the constant ZDD node for TRUE.
 
         Compare with the property `true`,
@@ -2273,7 +2471,9 @@ cdef class ZDD:
         r = DD_ONE(self.manager)
         return wrap(self, r)
 
-    cdef Function _bool(self, v):
+    cdef Function _bool(
+            self,
+            v):
         """Return terminal node for Boolean `v`."""
         cdef DdNode *r
         if v:
@@ -2283,7 +2483,9 @@ cdef class ZDD:
         return wrap(self, r)
 
 
-cdef Function wrap(ZDD bdd, DdNode *node):
+cdef Function wrap(
+        ZDD bdd,
+        DdNode *node):
     """Return a `Function` that wraps `node`."""
     # because `@classmethod` unsupported
     f = Function()
@@ -2305,7 +2507,10 @@ cdef class Function:
     cdef DdNode *node
     cdef public int _ref
 
-    cdef init(self, DdNode *node, ZDD zdd):
+    cdef init(
+            self,
+            DdNode *node,
+            ZDD zdd):
         if node is NULL:
             raise ValueError('`DdNode *node` is `NULL` pointer.')
         self.zdd = zdd
@@ -2316,16 +2521,19 @@ cdef class Function:
         self._ref = 1  # lower bound on reference count
         Cudd_Ref(node)
 
-    def __hash__(self):
+    def __hash__(
+            self):
         return int(self)
 
     @property
-    def _index(self):
+    def _index(
+            self):
         """Index of `self.node`."""
         return Cudd_NodeReadIndex(self.node)
 
     @property
-    def var(self):
+    def var(
+            self):
         """Variable at level where this node is.
 
         If node is constant, return `None`.
@@ -2335,18 +2543,21 @@ cdef class Function:
         return self.zdd._var_with_index[self._index]
 
     @property
-    def level(self):
+    def level(
+            self):
         """Level where this node currently is."""
         i = self._index
         return Cudd_ReadPermZdd(self.manager, i)
 
     @property
-    def ref(self):
+    def ref(
+            self):
         """Reference count of node."""
         return self.node.ref
 
     @property
-    def low(self):
+    def low(
+            self):
         """Return "else" node as `Function`."""
         if cuddIsConstant(self.node):
             return None
@@ -2362,7 +2573,8 @@ cdef class Function:
         return wrap(self.zdd, u)
 
     @property
-    def high(self):
+    def high(
+            self):
         """Return "then" node as `Function`."""
         if cuddIsConstant(self.node):
             return None
@@ -2378,17 +2590,20 @@ cdef class Function:
         return wrap(self.zdd, u)
 
     @property
-    def negated(self):
+    def negated(
+            self):
         raise Exception(
             'No complemented edges for ZDDs in CUDD, '
             'only for BDDs.')
 
     @property
-    def support(ZDD self):
+    def support(
+            ZDD self):
         """Return `set` of variables in support."""
         return self.zdd.support(self)
 
-    def __dealloc__(self):
+    def __dealloc__(
+            self):
         # when changing this method,
         # update also the function
         # `_test_call_dealloc` below
@@ -2415,7 +2630,8 @@ cdef class Function:
         # avoid future access to deallocated memory
         self.node = NULL
 
-    def __int__(self):
+    def __int__(
+            self):
         # inverse is `ZDD._add_int`
         if sizeof(stdint.uintptr_t) != sizeof(DdNode *):
             raise RuntimeError(
@@ -2428,7 +2644,8 @@ cdef class Function:
             raise AssertionError(i)
         return i
 
-    def __repr__(self):
+    def __repr__(
+            self):
         return (
             f'<dd.cudd_zdd.Function at {hex(id(self))}, '
             'wrapping a (ZDD) DdNode with '
@@ -2436,17 +2653,20 @@ cdef class Function:
             f'ref count: {self.ref}, '
             f'int repr: {int(self)}>')
 
-    def __str__(self):
+    def __str__(
+            self):
         return f'@{int(self)}'
 
-    def __len__(self):
+    def __len__(
+            self):
         # The function `Cudd_zddDagSize`
         # is deprecated because it duplicates
         # the function `Cudd_DagSize`.
         return Cudd_zddDagSize(self.node)
 
     @property
-    def dag_size(self):
+    def dag_size(
+            self):
         """Return number of ZDD nodes.
 
         This is the number of ZDD nodes that
@@ -2455,7 +2675,9 @@ cdef class Function:
         """
         return len(self)
 
-    def __eq__(Function self, Function other):
+    def __eq__(
+            Function self,
+            Function other):
         if other is None:
             return False
         # guard against mixing managers
@@ -2464,7 +2686,9 @@ cdef class Function:
                 '`self.manager != other.manager`')
         return self.node == other.node
 
-    def __ne__(Function self, Function other):
+    def __ne__(
+            Function self,
+            Function other):
         if other is None:
             return True
         if self.manager != other.manager:
@@ -2472,13 +2696,17 @@ cdef class Function:
                 '`self.manager != other.manager`')
         return self.node != other.node
 
-    def __le__(Function self, Function other):
+    def __le__(
+            Function self,
+            Function other):
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
         return (other | ~ self) == self.zdd.true
 
-    def __lt__(Function self, Function other):
+    def __lt__(
+            Function self,
+            Function other):
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -2486,13 +2714,17 @@ cdef class Function:
             self.node != other.node and
             (other | ~ self) == self.zdd.true)
 
-    def __ge__(Function self, Function other):
+    def __ge__(
+            Function self,
+            Function other):
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
         return (self | ~ other) == self.zdd.true
 
-    def __gt__(Function self, Function other):
+    def __gt__(
+            Function self,
+            Function other):
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
@@ -2500,7 +2732,8 @@ cdef class Function:
             self.node != other.node and
             (self | ~ other) == self.zdd.true)
 
-    def __invert__(self):
+    def __invert__(
+            self):
         cdef DdNode *r
         r = Cudd_zddDiff(
             self.manager,
@@ -2508,19 +2741,25 @@ cdef class Function:
             self.node)
         return wrap(self.zdd, r)
 
-    def __and__(Function self, Function other):
+    def __and__(
+            Function self,
+            Function other):
         if self.manager != other.manager:
             raise ValueError('`self.manager != other.manager`')
         r = Cudd_zddIntersect(self.manager, self.node, other.node)
         return wrap(self.zdd, r)
 
-    def __or__(Function self, Function other):
+    def __or__(
+            Function self,
+            Function other):
         if self.manager != other.manager:
             raise ValueError('`self.manager != other.manager`')
         r = Cudd_zddUnion(self.manager, self.node, other.node)
         return wrap(self.zdd, r)
 
-    def implies(Function self, Function other):
+    def implies(
+            Function self,
+            Function other):
         if self.manager != other.manager:
             raise ValueError('`self.manager != other.manager`')
         r = Cudd_zddIte(
@@ -2528,27 +2767,41 @@ cdef class Function:
             other.node, Cudd_ReadZddOne(self.manager, 0))
         return wrap(self.zdd, r)
 
-    def equiv(Function self, Function other):
+    def equiv(
+            Function self,
+            Function other):
         return self.zdd.apply('<=>', self, other)
 
-    def let(Function self, **definitions):
+    def let(
+            Function self,
+            **definitions):
         return self.zdd.let(definitions, self)
 
-    def exist(Function self, *variables):
+    def exist(
+            Function self,
+            *variables):
         return self.zdd.exist(variables, self)
 
-    def forall(Function self, *variables):
+    def forall(
+            Function self,
+            *variables):
         return self.zdd.forall(variables, self)
 
-    def pick(Function self, care_vars=None):
+    def pick(
+            Function self,
+            care_vars=None):
         return self.zdd.pick(self, care_vars)
 
-    def count(Function self, nvars=None):
+    def count(
+            Function self,
+            nvars=None):
         return self.zdd.count(self, nvars)
 
 
 # Similar to the function `dd.cudd._cube_array_to_dict`
-cdef dict _path_array_to_dict(int *x, dict index_of_var):
+cdef dict _path_array_to_dict(
+        int *x,
+        dict index_of_var):
     """Return assignment from array of literals `x`."""
     d = dict()
     for var, j in index_of_var.items():
@@ -2568,7 +2821,9 @@ cdef dict _path_array_to_dict(int *x, dict index_of_var):
 
 # Copy of the function `dd.cudd._cube_array_to_dict`
 # TODO: place in a header file, if used in this module
-cdef dict _cube_array_to_dict(int *x, dict index_of_var):
+cdef dict _cube_array_to_dict(
+        int *x,
+        dict index_of_var):
     """Return assignment from array of literals `x`.
 
     @param x:
@@ -2590,7 +2845,8 @@ cdef dict _cube_array_to_dict(int *x, dict index_of_var):
     return d
 
 
-def to_nx(u):
+def to_nx(
+        u):
     """Return graph for the ZDD rooted at `u`.
 
     @type u:
@@ -2604,7 +2860,10 @@ def to_nx(u):
     return g
 
 
-def _to_nx(g, u, umap):
+def _to_nx(
+        g,
+        u,
+        umap):
     """Recursively construct a ZDD graph."""
     u_int = int(u)
     # visited ?
@@ -2633,7 +2892,8 @@ def _to_nx(g, u, umap):
     g.add_edge(u_nd, w_nd, taillabel='1', style='solid')
 
 
-def _to_pydot(roots):
+def _to_pydot(
+        roots):
     """Return graph for the ZDD rooted at `u`.
 
     @type u:
@@ -2660,7 +2920,9 @@ def _to_pydot(roots):
     return g
 
 
-def _add_nodes_for_zdd_levels(g, roots):
+def _add_nodes_for_zdd_levels(
+        g,
+        roots):
     """Create nodes and subgraphs for ZDD levels.
 
     For each level of any ZDD node reachable from `roots`,
@@ -2715,7 +2977,10 @@ def _add_nodes_for_zdd_levels(g, roots):
 
 
 def _to_pydot_recurse(
-        g, u, umap, subgraphs):
+        g,
+        u,
+        umap,
+        subgraphs):
     """Recursively construct a ZDD graph.
 
     @type g:
@@ -2756,7 +3021,10 @@ def _to_pydot_recurse(
 
 
 def _add_nodes_for_external_references(
-        roots, umap, g, h):
+        roots,
+        umap,
+        g,
+        h):
     """Add nodes to `g` that represent the references in `roots`.
 
     @param roots:
@@ -2787,14 +3055,20 @@ def _add_nodes_for_external_references(
             style='dashed')
 
 
-def _add_pydot_node(g, node_name, **kw):
+def _add_pydot_node(
+        g,
+        node_name,
+        **kw):
     """Add a node to the `pydot` graph `g`."""
     node = pydot.Node(name=str(node_name), **kw)
     g.add_node(node)
 
 
 def _add_pydot_edge(
-        g, source_node_name, target_node_name, **kw):
+        g,
+        source_node_name,
+        target_node_name,
+        **kw):
     """Add an edge to the `pydot` graph `g`."""
     edge = pydot.Edge(
         str(source_node_name),
@@ -2803,7 +3077,8 @@ def _add_pydot_edge(
     g.add_edge(edge)
 
 
-def _collect_var_levels(roots):
+def _collect_var_levels(
+        roots):
     """Add variables and levels reachable from `roots`.
 
     @param roots:
@@ -2824,7 +3099,10 @@ def _collect_var_levels(roots):
     return level_to_var
 
 
-def _collect_var_levels_recurse(u, level_to_var, visited):
+def _collect_var_levels_recurse(
+        u,
+        level_to_var,
+        visited):
     """Recursively collect variables and levels.
 
     @type u:
@@ -2855,7 +3133,9 @@ def _collect_var_levels_recurse(u, level_to_var, visited):
     _collect_var_levels_recurse(w, level_to_var, visited)
 
 
-cpdef Function _dict_to_zdd(qvars, zdd):
+cpdef Function _dict_to_zdd(
+        qvars,
+        zdd):
     """Return a ZDD that is TRUE over `qvars`.
 
     This ZDD has nodes at levels of variables in
@@ -2869,7 +3149,9 @@ cpdef Function _dict_to_zdd(qvars, zdd):
     return r
 
 
-cpdef set _cube_to_universe_root(Function cube, zdd):
+cpdef set _cube_to_universe_root(
+        Function cube,
+        zdd):
     """Map the conjunction `cube` to its support."""
     qvars = set()
     _cube_to_universe(cube, qvars, zdd)
@@ -2879,7 +3161,10 @@ cpdef set _cube_to_universe_root(Function cube, zdd):
     return qvars
 
 
-cpdef _cube_to_universe(Function cube, qvars, zdd):
+cpdef _cube_to_universe(
+        Function cube,
+        qvars,
+        zdd):
     """Recursively map `cube` to its support."""
     if cube == zdd.false:
         return
@@ -2893,7 +3178,9 @@ cpdef _cube_to_universe(Function cube, qvars, zdd):
     _cube_to_universe(cube.high, qvars, zdd)
 
 
-cpdef Function _ith_var(var, zdd):
+cpdef Function _ith_var(
+        var,
+        zdd):
     """Return ZDD of variable `var`.
 
     This function requires that declared variables
@@ -2949,7 +3236,8 @@ cpdef Function _c_forall(
 cdef DdNode *_forall_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode *cube) except NULL:
+        DdNode *cube
+        ) except NULL:
     r"""Root of recursion for \A."""
     if mgr is NULL:
         raise AssertionError('`mgr is NULL`')
@@ -2986,7 +3274,8 @@ cdef DdNode *_forall(
         DdManager *mgr,
         int level,
         DdNode *u,
-        DdNode *cube) except? NULL:
+        DdNode *cube
+        ) except? NULL:
     r"""Recursive \A.
 
     Asserts that:
@@ -3075,7 +3364,8 @@ cpdef Function _c_exist(
 cdef DdNode *_exist_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode *cube) except NULL:
+        DdNode *cube
+        ) except NULL:
     r"""Root of recursion for \E."""
     if mgr is NULL:
         raise AssertionError('`mgr is NULL`')
@@ -3110,7 +3400,8 @@ cdef DdNode *_exist(
         DdManager *mgr,
         int level,
         DdNode *u,
-        DdNode *cube) except? NULL:
+        DdNode *cube
+        ) except? NULL:
     r"""Recursive \E.
 
     Asserts that:
@@ -3191,7 +3482,8 @@ cdef DdNode *_find_or_add(
         DdManager *mgr,
         int index,
         DdNode *v,
-        DdNode *w) except? NULL:
+        DdNode *w
+        ) except? NULL:
     """Find node in table or add new node.
 
     Calls `cuddUniqueInterZdd` and
@@ -3243,7 +3535,8 @@ cpdef Function _c_disjoin(
 cdef DdNode *_disjoin_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode *v) except NULL:
+        DdNode *v
+        ) except NULL:
     """Return the disjunction of `u` and `v`."""
     if mgr is NULL:
         raise AssertionError('`mgr is NULL`')
@@ -3296,7 +3589,8 @@ cdef DdNode *_disjoin(
         DdManager *mgr,
         int level,
         DdNode *u,
-        DdNode *v) except? NULL:
+        DdNode *v
+        ) except? NULL:
     """Recursively disjoin `u` and `v`.
 
     Asserts that:
@@ -3399,7 +3693,8 @@ cpdef Function _c_conjoin(
 cdef DdNode *_conjoin_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode *v) except NULL:
+        DdNode *v
+        ) except NULL:
     """Return the conjunction of `u` and `v`."""
     if mgr is NULL:
         raise AssertionError('`mgr is NULL`')
@@ -3436,7 +3731,8 @@ cdef DdNode *_conjoin(
         DdManager *mgr,
         int level,
         DdNode *u,
-        DdNode *v) except? NULL:
+        DdNode *v
+        ) except? NULL:
     """Recursively conjoin `u` and `v`.
 
     Asserts that:
@@ -3511,7 +3807,8 @@ cdef DdNode *_conjoin(
 
 
 cpdef Function _c_compose(
-        Function u, dict dvars):
+        Function u,
+        dict dvars):
     """Compute composition of `u` with `dvars`.
 
     @param u:
@@ -3570,7 +3867,8 @@ cpdef Function _c_compose(
 cdef DdNode *_compose_root(
         DdManager *mgr,
         DdNode *u,
-        DdNode **vector) except NULL:
+        DdNode **vector
+        ) except NULL:
     """Root of recursive composition."""
     if mgr is NULL:
         raise AssertionError('`mgr is NULL`')
@@ -3612,7 +3910,8 @@ cdef DdNode *_compose(
         # DdHashTable *table,
         dict table,
         DdNode *u,
-        DdNode **vector) except? NULL:
+        DdNode **vector
+        ) except? NULL:
     """Recursively compute composition.
 
     The composition is defined in the
@@ -3717,7 +4016,8 @@ cdef DdNode *_compose(
 
 # This function is similar to `cuddHashTableQuit`.
 cdef bint cuddHashTableQuitZdd(
-        DdHashTable * hash) except False:
+        DdHashTable * hash
+        ) except False:
     """Shutdown a hash table.
 
     This function calls `Cudd_RecursiveDerefZdd()`.
@@ -3747,7 +4047,8 @@ cdef bint cuddHashTableQuitZdd(
     return True
 
 
-cpdef set _c_support(Function u):
+cpdef set _c_support(
+        Function u):
     """Compute support of `u`.
 
     @param u:
@@ -3783,7 +4084,8 @@ cdef bint _support(
         DdManager *mgr,
         int level,
         DdNode *u,
-        int *support) except False:
+        int *support
+        ) except False:
     """Recursively compute the support."""
     if level < 0:
         raise AssertionError(
@@ -3819,7 +4121,9 @@ cdef bint _support(
     return True
 
 
-cdef bint _clear_markers(DdNode *u) except False:
+cdef bint _clear_markers(
+        DdNode *u
+        ) except False:
     """Recursively clear complementation bits."""
     if u is NULL:
         raise AssertionError('`u is NULL`')
@@ -3834,7 +4138,8 @@ cdef bint _clear_markers(DdNode *u) except False:
     return True
 
 
-cpdef _test_call_dealloc(Function u):
+cpdef _test_call_dealloc(
+        Function u):
     """Duplicates the code of `Function.__dealloc__`.
 
     For details read the docstring of the function

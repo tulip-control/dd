@@ -46,7 +46,9 @@ PARSER_LOG = 'dd.dddmp.parser_logger'
 class Lexer:
     """Token rules to build LTL lexer."""
 
-    def __init__(self, debug=False):
+    def __init__(
+            self,
+            debug=False):
         reserved = {
             'ver':
                 'VERSION',
@@ -103,7 +105,8 @@ class Lexer:
     t_NUMBER = r' \d+ '
     t_ignore = ''.join(['\x20', '\t'])
 
-    def t_KEYWORD(self, t):
+    def t_KEYWORD(
+            self, t):
         r"""
         \.
         [a-zA-Z]
@@ -112,7 +115,8 @@ class Lexer:
         t.type = self.reserved.get(t.value, 'NAME')
         return t
 
-    def t_NAME(self, t):
+    def t_NAME(
+            self, t):
         r"""
         [a-zA-Z_]
         [a-zA-Z_@0-9'\.]*
@@ -120,15 +124,18 @@ class Lexer:
         t.type = self.reserved.get(t.value, 'NAME')
         return t
 
-    def t_comment(self, t):
+    def t_comment(
+            self, t):
         r' \# .* '
         return
 
-    def t_newline(self, t):
+    def t_newline(
+            self, t):
         r' \n+ '
         t.lexer.lineno += t.value.count('\n')
 
-    def t_error(self, t):
+    def t_error(
+            self, t):
         raise Exception(f'Illegal character "{t.value[0]}"')
 
     def build(
@@ -156,19 +163,21 @@ class Lexer:
 class Parser:
     """Production rules to build LTL parser."""
 
-    def __init__(self):
+    def __init__(
+            self):
         self.tabmodule = TABMODULE
         self._lexer = Lexer()
         self.tokens = self._lexer.tokens
         self.reset()
         self.parser = None
 
-    def build(self,
-              tabmodule=None,
-              outputdir=None,
-              write_tables=False,
-              debug=False,
-              debuglog=None):
+    def build(
+            self,
+            tabmodule=None,
+            outputdir=None,
+            write_tables=False,
+            debug=False,
+            debuglog=None):
         if tabmodule is None:
             tabmodule = self.tabmodule
         if debug and debuglog is None:
@@ -183,7 +192,10 @@ class Parser:
             debug=debug,
             debuglog=debuglog)
 
-    def parse(self, filename, debuglog=None):
+    def parse(
+            self,
+            filename,
+            debuglog=None):
         """Parse DDDMP file containing BDD."""
         if self.parser is None:
             self.build()
@@ -191,7 +203,10 @@ class Parser:
         self._parse_body(filename)
         return self.bdd, self.n_vars, levels, roots
 
-    def _parse_header(self, filename, debuglog):
+    def _parse_header(
+            self,
+            filename,
+            debuglog):
         self.reset()
         if debuglog is None:
             debuglog = logging.getLogger(PARSER_LOG)
@@ -259,7 +274,9 @@ class Parser:
         roots = set(self.rootids)
         return levels, roots
 
-    def _parse_body(self, filename):
+    def _parse_body(
+            self,
+            filename):
         # parse nodes (large but very uniform)
         with open(filename, 'r') as f:
             for line in f:
@@ -281,7 +298,13 @@ class Parser:
         if len(self.bdd) != self.n_nodes:
             raise AssertionError((len(self.bdd), self.n_nodes))
 
-    def _add_node(self, u, info, index, v, w):
+    def _add_node(
+            self,
+            u,
+            info,
+            index,
+            v,
+            w):
         """Add new node to BDD.
 
         @type u, index, v, w:
@@ -303,7 +326,8 @@ class Parser:
         # swap to (low, high), as used in `dd.bdd`
         self.bdd[u] = (level, w, v)
 
-    def reset(self):
+    def reset(
+            self):
         self.bdd = dict()
         self.algebraic_dd = None
         self.var_extra_info = None
@@ -322,7 +346,8 @@ class Parser:
         self.aux_var_ids = None
         self.info2permid = None
 
-    def _assert_consistent(self):
+    def _assert_consistent(
+            self):
         """Check that the loaded attributes are reasonable."""
         if self.support_vars is not None:
             if len(self.support_vars) != self.n_support_vars:
@@ -358,17 +383,21 @@ class Parser:
                 self.n_roots,
                 self.rootids))
 
-    def p_file(self, p):
+    def p_file(
+            self, p):
         """file : lines"""
         p[0] = True
 
-    def p_lines_iter(self, p):
+    def p_lines_iter(
+            self, p):
         """lines : lines line"""
 
-    def p_lines_end(self, p):
+    def p_lines_end(
+            self, p):
         """lines : line"""
 
-    def p_line(self, p):
+    def p_line(
+            self, p):
         """line : version
                 | mode
                 | varinfo
@@ -387,10 +416,12 @@ class Parser:
                 | rootnames
         """
 
-    def p_version(self, p):
+    def p_version(
+            self, p):
         """version : VERSION name MINUS number DOT number"""
 
-    def p_text_mode(self, p):
+    def p_text_mode(
+            self, p):
         """mode : FILEMODE NAME"""
         f = p[2]
         if f == 'A':
@@ -401,99 +432,122 @@ class Parser:
         else:
             raise Exception(f'unknown DDDMP format: {f}')
 
-    def p_varinfo(self, p):
+    def p_varinfo(
+            self, p):
         """varinfo : VARINFO number"""
         self.var_extra_info = p[2]
 
-    def p_dd_name(self, p):
+    def p_dd_name(
+            self, p):
         """diagram_name : DD name"""
         self.bdd_name = p[2]
 
-    def p_num_nodes(self, p):
+    def p_num_nodes(
+            self, p):
         """nnodes : NNODES number"""
         self.n_nodes = p[2]
 
-    def p_num_vars(self, p):
+    def p_num_vars(
+            self, p):
         """nvars : NVARS number"""
         self.n_vars = p[2]
 
-    def p_nsupport_vars(self, p):
+    def p_nsupport_vars(
+            self, p):
         """nsupportvars : NSUPPVARS number"""
         self.n_support_vars = p[2]
 
-    def p_support_varnames(self, p):
+    def p_support_varnames(
+            self, p):
         """supportvars : SUPPVARNAMES varnames"""
         self.support_vars = p[2]
 
-    def p_ordered_varnames(self, p):
+    def p_ordered_varnames(
+            self, p):
         """orderedvars : ORDEREDVARNAMES varnames"""
         self.ordered_vars = p[2]
 
-    def p_varnames_iter(self, p):
+    def p_varnames_iter(
+            self, p):
         """varnames : varnames varname"""
         p[1].append(p[2])
         p[0] = p[1]
 
-    def p_varnames_end(self, p):
+    def p_varnames_end(
+            self, p):
         """varnames : varname"""
         p[0] = [p[1]]
 
-    def p_varname(self, p):
+    def p_varname(
+            self, p):
         """varname : name
                    | number
         """
         p[0] = p[1]
 
-    def p_var_ids(self, p):
+    def p_var_ids(
+            self, p):
         """varids : IDS integers"""
         self.var_ids = p[2]
 
-    def p_permuted_ids(self, p):
+    def p_permuted_ids(
+            self, p):
         """permids : PERMIDS integers"""
         self.permuted_var_ids = p[2]
 
-    def p_aux_ids(self, p):
+    def p_aux_ids(
+            self, p):
         """auxids : AUXIDS integers"""
         self.aux_var_ids = p[2]
 
-    def p_integers_iter(self, p):
+    def p_integers_iter(
+            self, p):
         """integers : integers number"""
         p[1].append(p[2])
         p[0] = p[1]
 
-    def p_integers_end(self, p):
+    def p_integers_end(
+            self, p):
         """integers : number"""
         p[0] = [p[1]]
 
-    def p_num_roots(self, p):
+    def p_num_roots(
+            self, p):
         """nroots : NROOTS number"""
         self.n_roots = p[2]
 
-    def p_root_ids(self, p):
+    def p_root_ids(
+            self, p):
         """rootids : ROOTIDS integers"""
         self.rootids = p[2]
 
-    def p_root_names(self, p):
+    def p_root_names(
+            self, p):
         """rootnames : ROOTNAMES varnames"""
         raise NotImplementedError
 
-    def p_algebraic_dd(self, p):
+    def p_algebraic_dd(
+            self, p):
         """algdd : ADD"""
         self.algebraic_dd = True
 
-    def p_number(self, p):
+    def p_number(
+            self, p):
         """number : NUMBER"""
         p[0] = int(p[1])
 
-    def p_neg_number(self, p):
+    def p_neg_number(
+            self, p):
         """number : MINUS NUMBER"""
         p[0] = -int(p[2])
 
-    def p_expression_name(self, p):
+    def p_expression_name(
+            self, p):
         """name : NAME"""
         p[0] = p[1]
 
-    def p_error(self, p):
+    def p_error(
+            self, p):
         raise Exception(f'Syntax error at "{p}"')
 
 

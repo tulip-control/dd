@@ -42,7 +42,8 @@ class BDD(_ty.Protocol):
     def __contains__(self, u):
         """Return `True` """
 
-    def __str__(self):
+    def __str__(
+            self):
         return 'Specification of BDD class.'
 
     def configure(self, **kw):
@@ -321,19 +322,22 @@ class Operator(_ty.Protocol):
         self.node = node
         self.manager.incref(node)
 
-    def __hash__(self):
+    def __hash__(
+            self):
         return self.node
 
     def to_expr(self):
         """Return Boolean expression of function as `str`."""
 
-    def __int__(self):
+    def __int__(
+            self):
         """Return integer ID of node.
 
         To invert this method call `BDD._add_int`.
         """
 
-    def __str__(self):
+    def __str__(
+            self):
         """Return string form of node as `@INT`.
 
         "INT" is an integer that depends on
@@ -346,10 +350,12 @@ class Operator(_ty.Protocol):
         """
         return f'@{int(self)}'
 
-    def __len__(self):
+    def __len__(
+            self):
         """Number of nodes reachable from this node."""
 
-    def __del__(self):
+    def __del__(
+            self):
         r"""Dereference node in manager."""
 
     def __eq__(self, other):

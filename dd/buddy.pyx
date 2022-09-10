@@ -66,7 +66,8 @@ cdef class BDD:
 
     cdef public object var_to_index
 
-    def __cinit__(self):
+    def __cinit__(
+            self):
         self.var_to_index = dict()
         if buddy.bdd_isrunning():
             return
@@ -79,10 +80,12 @@ cdef class BDD:
         buddy.bdd_autoreorder(BDD_REORDER_SIFT)
         buddy.bdd_reorder_verbose(1)
 
-    def __dealloc__(self):
+    def __dealloc__(
+            self):
         buddy.bdd_done()
 
-    def __str__(self):
+    def __str__(
+            self):
         n = buddy.bdd_getnodenum()
         n_alloc = buddy.bdd_getallocnum()
         n_vars = buddy.bdd_varnum()
@@ -93,33 +96,44 @@ cdef class BDD:
             f'\t {n_vars} BDD variables\n')
         return s
 
-    def __len__(self):
+    def __len__(
+            self):
         return buddy.bdd_getnodenum()
 
-    cdef incref(self, int u):
+    cdef incref(
+            self,
+            int u):
         buddy.bdd_addref(u)
 
-    cdef decref(self, int u):
+    cdef decref(
+            self,
+            int u):
         buddy.bdd_delref(u)
 
     property false:
 
-        def __get__(self):
+        def __get__(
+                self):
             return self._bool(False)
 
     property true:
 
-        def __get__(self):
+        def __get__(
+                self):
             return self._bool(True)
 
-    cdef _bool(self, b):
+    cdef _bool(
+            self,
+            b):
         if b:
             r = buddy.bdd_true()
         else:
             r = buddy.bdd_false()
         return Function(r)
 
-    cpdef int add_var(self, str var):
+    cpdef int add_var(
+            self,
+            str var):
         """Return index for variable `var`."""
         j = self.var_to_index.get(var)
         if j is not None:
@@ -130,7 +144,9 @@ cdef class BDD:
         buddy.bdd_intaddvarblock(j, j, 0)
         return j
 
-    cpdef Function var(self, str var):
+    cpdef Function var(
+            self,
+            str var):
         """Return BDD for variable `var`."""
         if var not in self.var_to_index:
             raise ValueError(
@@ -143,7 +159,9 @@ cdef class BDD:
         buddy.bdd_intaddvarblock(j, j, 0)
         return Function(r)
 
-    cpdef int level_of_var(self, str var):
+    cpdef int level_of_var(
+            self,
+            str var):
         """Return level of variable `var`."""
         if var not in self.var_to_index:
             raise ValueError(
@@ -154,7 +172,9 @@ cdef class BDD:
         level = buddy.bdd_var2level(j)
         return level
 
-    cpdef str var_at_level(self, int level):
+    cpdef str var_at_level(
+            self,
+            int level):
         """Return variable at `level`."""
         index = buddy.bdd_level2var(level)
         # unknown variable error ?
@@ -171,17 +191,25 @@ cdef class BDD:
         var = index_to_var[index]
         return var
 
-    def level(self, var):
+    def level(
+            self,
+            var):
         raise DeprecationWarning(
             'use the method `dd.buddy.BDD.level_of_var` '
             'instead of the method `dd.buddy.BDD.level`')
 
-    def at_level(self, level):
+    def at_level(
+            self,
+            level):
         raise DeprecationWarning(
             'use the method `dd.buddy.BDD.var_at_level` '
             'instead of the method `dd.buddy.BDD.at_level`')
 
-    cpdef apply(self, op, u, v=None):
+    cpdef apply(
+            self,
+            op,
+            u,
+            v=None):
         """Return as `Function` the result of applying `op`."""
         # unary
         if op in ('!', 'not'):
@@ -199,7 +227,11 @@ cdef class BDD:
             r = buddy.bdd_xor(u.node, v.node)
         return Function(r)
 
-    cpdef quantify(self, u, qvars, forall=False):
+    cpdef quantify(
+            self,
+            u,
+            qvars,
+            forall=False):
         cube = self.cube(qvars)
         if forall:
             r = buddy.bdd_forall(u, cube)
@@ -207,7 +239,9 @@ cdef class BDD:
             r = buddy.bdd_exist(u, cube)
         return Function(r)
 
-    cpdef cube(self, dvars):
+    cpdef cube(
+            self,
+            dvars):
         """Return a positive unate cube for `dvars`."""
         n = len(dvars)
         cdef int *x
@@ -221,12 +255,17 @@ cdef class BDD:
             PyMem_Free(x)
         return Function(r)
 
-    cpdef assert_consistent(self):
+    cpdef assert_consistent(
+            self):
         # TODO: implement this
         pass
 
 
-cpdef and_abstract(u, v, qvars, bdd):
+cpdef and_abstract(
+        u,
+        v,
+        qvars,
+        bdd):
     """Return `? qvars. u & v`."""
     cube = bdd.cube(qvars)
     op = APPLY_MAP['and']
@@ -234,7 +273,11 @@ cpdef and_abstract(u, v, qvars, bdd):
     return Function(r)
 
 
-cpdef or_abstract(u, v, qvars, bdd):
+cpdef or_abstract(
+        u,
+        v,
+        qvars,
+        bdd):
     """Return `! qvars. u | v`."""
     cube = bdd.cube(qvars)
     op = APPLY_MAP['or']
@@ -242,7 +285,10 @@ cpdef or_abstract(u, v, qvars, bdd):
     return Function(r)
 
 
-def rename(u, bdd, dvars):
+def rename(
+        u,
+        bdd,
+        dvars):
     n = len(dvars)
     cdef int *oldvars
     cdef int *newvars
@@ -283,39 +329,53 @@ cdef class Function:
     cdef object __weakref__
     cdef public int node
 
-    def __cinit__(self, node):
+    def __cinit__(
+            self,
+            node):
         self.node = node
         buddy.bdd_addref(node)
 
-    def __dealloc__(self):
+    def __dealloc__(
+            self):
         buddy.bdd_delref(self.node)
         self.node = -1
 
-    def __str__(self):
+    def __str__(
+            self):
         n = len(self)
         return f'Function({self.node}, {n})'
 
-    def __len__(self):
+    def __len__(
+            self):
         return buddy.bdd_nodecount(self.node)
 
-    def __eq__(self, other):
+    def __eq__(
+            self,
+            other):
         if other is None:
             return False
         return self.node == other.node
 
-    def __ne__(self, other):
+    def __ne__(
+            self,
+            other):
         if other is None:
             return True
         return self.node != other.node
 
-    def __invert__(self):
+    def __invert__(
+            self):
         r = buddy.bdd_not(self.node)
         return Function(r)
 
-    def __and__(self, other):
+    def __and__(
+            self,
+            other):
         r = buddy.bdd_and(self.node, other.node)
         return Function(r)
 
-    def __or__(self, other):
+    def __or__(
+            self,
+            other):
         r = buddy.bdd_or(self.node, other.node)
         return Function(r)

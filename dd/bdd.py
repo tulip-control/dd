@@ -119,7 +119,8 @@ class _ReorderingContext:
         self.bdd = bdd
         self.nested = None
 
-    def __enter__(self):
+    def __enter__(
+            self):
         self.nested = self.bdd._reordering_context
         self.bdd._reordering_context = True
 
@@ -249,7 +250,8 @@ class BDD(dd._abc.BDD):
         bdd.max_nodes = self.max_nodes
         return bdd
 
-    def __del__(self):
+    def __del__(
+            self):
         """Assert that all remaining nodes are garbage."""
         self.decref(1)
             # free ref from `self._init_terminal`
@@ -260,16 +262,19 @@ class BDD(dd._abc.BDD):
                 'upon shutdown. Details:\n'
                 f'{self._ref}')
 
-    def __len__(self):
+    def __len__(
+            self):
         return len(self._succ)
 
     def __contains__(self, u):
         return abs(u) in self._succ
 
-    def __iter__(self):
+    def __iter__(
+            self):
         return iter(self._succ)
 
-    def __str__(self):
+    def __str__(
+            self):
         return (
             'Binary decision diagram:\n'
             '------------------------\n'
@@ -300,7 +305,8 @@ class BDD(dd._abc.BDD):
         return d
 
     @property
-    def ordering(self):
+    def ordering(
+            self):
         raise DeprecationWarning(
             'use `dd.bdd.BDD.vars` '
             'instead of `.ordering`')
@@ -547,7 +553,9 @@ class BDD(dd._abc.BDD):
         Raise `ValueError` if not.
         """
         not_levels = set()
-        def key_is_level(key) -> bool:
+        def key_is_level(
+                key
+                ) -> bool:
             is_level = (
                 key in self._level_to_var)
             if not is_level:
@@ -692,7 +700,8 @@ class BDD(dd._abc.BDD):
                     continue
                 yield u, i, v, w
 
-    def _levels(self):
+    def _levels(
+            self):
         """Return `dict` from levels to `set`s of nodes."""
         n = len(self.vars)
         levels = {
@@ -706,7 +715,8 @@ class BDD(dd._abc.BDD):
         return levels
 
     @_try_to_reorder
-    def reduction(self):
+    def reduction(
+            self):
         """Return copy reduced with respect to `self.vars`.
 
         This function has educational value.
@@ -1248,7 +1258,9 @@ class BDD(dd._abc.BDD):
         n = len(self)
         if roots is None:
             roots = self._ref
-        def is_unused(u) -> bool:
+        def is_unused(
+                u
+                ) -> bool:
             return not self._ref[abs(u)]
         unused = filter(
             is_unused, roots)

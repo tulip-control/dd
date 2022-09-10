@@ -89,7 +89,8 @@ class MDD:
         self._free = set()
         self.max_nodes = sys.maxsize
 
-    def __len__(self):
+    def __len__(
+            self):
         """Return number of BDD nodes."""
         return len(self._succ)
 
@@ -97,10 +98,12 @@ class MDD:
         """Return `True` if `u` is a BDD node."""
         return abs(u) in self._succ
 
-    def __iter__(self):
+    def __iter__(
+            self):
         return iter(self._succ)
 
-    def _allocate(self):
+    def _allocate(
+            self):
         """Return free integer, mark it as occupied."""
         if self._free:
             return self._free.pop()

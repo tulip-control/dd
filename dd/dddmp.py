@@ -48,24 +48,42 @@ class Lexer:
 
     def __init__(self, debug=False):
         reserved = {
-            'ver': 'VERSION',
-            'add': 'ADD',
-            'mode': 'FILEMODE',
-            'varinfo': 'VARINFO',
-            'dd': 'DD',
-            'nnodes': 'NNODES',
-            'nvars': 'NVARS',
-            'orderedvarnames': 'ORDEREDVARNAMES',
-            'nsuppvars': 'NSUPPVARS',
-            'suppvarnames': 'SUPPVARNAMES',
-            'ids': 'IDS',
-            'permids': 'PERMIDS',
-            'auxids': 'AUXIDS',
-            'nroots': 'NROOTS',
-            'rootids': 'ROOTIDS',
-            'rootnames': 'ROOTNAMES',
-            # 'nodes': 'NODES',
-            # 'end': 'END'
+            'ver':
+                'VERSION',
+            'add':
+                'ADD',
+            'mode':
+                'FILEMODE',
+            'varinfo':
+                'VARINFO',
+            'dd':
+                'DD',
+            'nnodes':
+                'NNODES',
+            'nvars':
+                'NVARS',
+            'orderedvarnames':
+                'ORDEREDVARNAMES',
+            'nsuppvars':
+                'NSUPPVARS',
+            'suppvarnames':
+                'SUPPVARNAMES',
+            'ids':
+                'IDS',
+            'permids':
+                'PERMIDS',
+            'auxids':
+                'AUXIDS',
+            'nroots':
+                'NROOTS',
+            'rootids':
+                'ROOTIDS',
+            'rootnames':
+                'ROOTNAMES',
+            # 'nodes':
+            #     'NODES',
+            # 'end':
+            #     'END'
             }
         self.reserved = {
             f'.{k}': v

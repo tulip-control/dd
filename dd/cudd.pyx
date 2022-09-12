@@ -1936,11 +1936,11 @@ cdef class BDD:
 
         `filetype` can have the values:
 
-          - `'pdf'` for PDF
-          - `'png'` for PNG
-          - `'svg'` for SVG
-          - `'json'` for JSON
-          - `'dddmp'` for DDDMP (of CUDD)
+        - `'pdf'` for PDF
+        - `'png'` for PNG
+        - `'svg'` for SVG
+        - `'json'` for JSON
+        - `'dddmp'` for DDDMP (of CUDD)
 
         If `filetype is None`, then `filename`
         must have an extension that matches

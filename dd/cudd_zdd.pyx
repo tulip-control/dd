@@ -52,6 +52,7 @@ Reference
 import itertools as _itr
 import logging
 import textwrap as _tw
+import typing as _ty
 import warnings
 
 from cpython cimport bool as python_bool
@@ -69,6 +70,10 @@ from dd import bdd as _bdd
 
 ctypedef cython.int _c_level
 ctypedef cython.int _c_int
+BDDFileType: _ty.TypeAlias = _ty.Literal[
+    'pdf',
+    'png',
+    'svg']
 
 
 cdef extern from 'cuddInt.h':
@@ -1185,15 +1190,14 @@ cdef class ZDD:
 
     def _bdd_to_zdd(
             self,
-            u):
+            u
+            ) -> Function:
         """Copy BDD `u` to a ZDD in `self`.
 
         @param u:
             node in a `dd.cudd.BDD` manager
         @type u:
             `dd.cudd.Function`
-        @rtype:
-            `Function`
         """
         r: DdRef
         bdd = u.bdd
@@ -1223,19 +1227,20 @@ cdef class ZDD:
 
     cpdef Function let(
             self,
-            definitions,
+            definitions:
+                dict[str, str] |
+                dict[str, python_bool] |
+                dict[str, Function],
             u:
                 Function):
         """Replace variables with `definitions` in `u`.
 
         @param definitions:
-            `dict` mapping variable names (`str`)
+            maps variable names
             to either:
-            - Boolean values (`bool`), or
-            - variable names (`str`), or
-            - ZDD nodes (`Function`)
-        @type u:
-            `Function`
+            - Boolean values, or
+            - variable names, or
+            - ZDD nodes
         @rtype:
             `Function`
         """
@@ -1268,12 +1273,12 @@ cdef class ZDD:
             self,
             u:
                 Function,
-            d):
+            d:
+                dict[str, python_bool]):
         """Return cofactor of `u` as defined in `d`.
 
         @param d:
-            `dict` from variable names (`str`)
-            to Boolean values (`bool`).
+            maps variable names to Boolean values
         """
         if self.manager != u.manager:
             raise ValueError('`u.manager != self.manager`')
@@ -1563,17 +1568,11 @@ cdef class ZDD:
 
     cpdef _top_cofactor(
             self,
-            u,
-            level):
-        """Return cofactor at `level`.
-
-        @param u:
-            node
-        @type u:
-            `Function`
-        @type level:
-            `int`
-        """
+            u:
+                Function,
+            level:
+                int):
+        """Return cofactor at `level`."""
         u_level = u.level
         if level > u_level:
             raise ValueError((level, u_level))
@@ -1823,8 +1822,6 @@ cdef class ZDD:
               (existential quantification)
             - `'-'`
               (`a - b` means `a /\ ~ b`)
-        @type u, v, w:
-            `Function`
         """
         if self.manager != u.manager:
             raise ValueError(
@@ -2388,9 +2385,14 @@ cdef class ZDD:
 
     cpdef dump(
             self,
-            filename,
-            roots,
-            filetype=None):
+            filename:
+                str,
+            roots:
+                list[Function],
+            filetype:
+                str
+                # | None
+                =None):
         """Write ZDD as a diagram to file `filename`.
 
         The file type is inferred from the
@@ -2411,15 +2413,10 @@ cdef class ZDD:
         ZDD references in `roots` are included in the diagram.
 
         @param filename:
-            file name
-        @type filename:
-            `str`, e.g., `"diagram.pdf"`
-        @type filetype:
-            `str`, e.g., `"pdf"`
+            file name,
+            e.g., `"diagram.pdf"`
         @param roots:
             container of nodes
-        @type roots:
-            `list` of `Function`
         """
         if filetype is None:
             name = filename.lower()
@@ -2944,14 +2941,10 @@ cdef dict _cube_array_to_dict(
 
 
 def to_nx(
-        u):
-    """Return graph for the ZDD rooted at `u`.
-
-    @type u:
-        `Function`
-    @rtype:
-        `networkx.MultiDiGraph`
-    """
+        u:
+            Function
+        ) -> '_utils.MultiDiGraph':
+    """Return graph for the ZDD rooted at `u`."""
     _nx = _utils.import_module('networkx')
     g = _nx.MultiDiGraph()
     _to_nx(g, u, umap=dict())
@@ -2991,12 +2984,9 @@ def _to_nx(
 
 
 def _to_pydot(
-        roots):
-    """Return graph for the ZDD rooted at `u`.
-
-    @rtype:
-        `pydot.Dot`
-    """
+        roots
+        ) -> '_utils.Dot':
+    """Return graph for the ZDD rooted at `u`."""
     global _pydot
     _pydot = _utils.import_module('pydot')
     if not roots:
@@ -3018,7 +3008,8 @@ def _to_pydot(
 
 def _add_nodes_for_zdd_levels(
         g,
-        roots):
+        roots
+        ) -> dict:
     """Create nodes and subgraphs for ZDD levels.
 
     For each level of any ZDD node reachable from `roots`,
@@ -3038,11 +3029,9 @@ def _add_nodes_for_zdd_levels(
     The collection of subgraphs (`h_level` above) is returned.
 
     @return:
-        subgraphs for the ZDD levels of
-        nodes reachable from `roots`,
+        subgraphs (as `pydot.Subgraph`) for
+        the ZDD levels of nodes reachable from `roots`,
         as a `dict` that maps each ZDD level to a subgraph
-    @rtype:
-        `dict` of `pydot.Subgraph`
     """
     # mapping level -> var
     level_to_var = _collect_var_levels(roots)
@@ -3073,19 +3062,14 @@ def _add_nodes_for_zdd_levels(
 
 
 def _to_pydot_recurse(
-        g,
-        u,
-        umap,
+        g:
+            '_utils.Dot',
+        u:
+            Function,
+        umap:
+            dict,
         subgraphs):
-    """Recursively construct a ZDD graph.
-
-    @type g:
-        `pydot.Dot`
-    @type u:
-        `Function`
-    @type umap:
-        `dict`
-    """
+    """Recursively construct a ZDD graph."""
     u_int = int(u)
     # visited ?
     if u_int in umap:
@@ -3115,24 +3099,21 @@ def _to_pydot_recurse(
 
 
 def _add_nodes_for_external_references(
-        roots,
+        roots:
+            list[Function],
         umap,
-        g,
-        h):
+        g:
+            '_utils.Dot',
+        h:
+            '_utils.Dot'):
     """Add nodes to `g` that represent the references in `roots`.
 
     @param roots:
-        `list` of external references to ZDD nodes
-    @type roots:
-        `list` of `Function`
+        external references to ZDD nodes
     @param g:
         ZDD graph
-    @type g:
-        `pydot.Dot`
     @param h:
         subgraph of `g`
-    @type h:
-        `pydot.Dot`
     """
     for u in roots:
         if u is None:
@@ -3172,13 +3153,12 @@ def _add_pydot_edge(
 
 
 def _collect_var_levels(
-        roots):
+        roots:
+            list[Function]):
     """Add variables and levels reachable from `roots`.
 
     @param roots:
         container of ZDD nodes
-    @type roots:
-        `list` of `Function`
     @return:
         `dict` that maps
         each level (as `int`) to a variable (as `str`),
@@ -3194,22 +3174,20 @@ def _collect_var_levels(
 
 
 def _collect_var_levels_recurse(
-        u,
-        level_to_var,
-        visited):
+        u:
+            Function,
+        level_to_var:
+            dict[int, str],
+        visited:
+            set[int]):
     """Recursively collect variables and levels.
 
-    @type u:
-        `Function`
     @param level_to_var:
-        `dict` that maps
-        each level (as `int`) to a variable (as `str`),
+        maps each level to a variable,
         only for levels of nodes that are
         reachable from the ZDD node `u`
     @param visited:
-        set of already visited ZDD nodes
-    @type visited:
-        `set` of `int`
+        already visited ZDD nodes
     """
     u_int = int(u)
     if u_int in visited:
@@ -3638,8 +3616,6 @@ cpdef Function _c_disjoin(
 
     @param u, v:
         ZDD node
-    @type u, v:
-        `Function`
     @rtype:
         `Function`
     """
@@ -3806,8 +3782,6 @@ cpdef Function _c_conjoin(
 
     @param u, v:
         ZDD node
-    @type u, v:
-        `Function`
     @rtype:
         `Function`
     """
@@ -3947,16 +3921,11 @@ cpdef Function _c_compose(
         u:
             Function,
         dvars:
-            dict):
+            dict[str, Function]):
     """Compute composition of `u` with `dvars`.
 
-    @param u:
-        ZDD node
-    @type u:
-        `Function`
     @param dvars:
-        `dict` that maps variable
-        names (`str`) to ZDD nodes (`Function`)
+        maps variable names to ZDD nodes
     """
     r: DdRef
     cdef DdManager *mgr
@@ -4197,8 +4166,6 @@ cpdef set _c_support(
 
     @param u:
         ZDD node
-    @type u:
-        `Function`
     @rtype:
         `set`
     """

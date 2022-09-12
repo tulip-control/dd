@@ -721,11 +721,7 @@ def copy_vars(
             BDD,
         target:
             BDD):
-    """Copy variables, preserving Sylvan indices.
-
-    @type source, target:
-        `BDD`
-    """
+    """Copy variables, preserving Sylvan indices."""
     for var, index in source._index_of_var.items():
         target.add_var(var, index=index)
 

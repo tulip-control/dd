@@ -14,12 +14,14 @@ Reference
 # Copyright 2015 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
+import collections.abc as _abc
 import logging
 import pickle
 import pprint
 import sys
 import textwrap as _tw
 import time
+import typing as _ty
 import warnings
 
 from cpython cimport bool as python_bool
@@ -28,11 +30,23 @@ cimport libc.stdint as stdint
 from libc.stdio cimport FILE, fdopen, fopen, fclose
 from libcpp cimport bool
 
+import dd._abc as _dd_abc
 from dd import _copy
 from dd import _parser
 from dd import _utils
 from dd import autoref
 from dd import bdd as _bdd
+
+
+_Nat: _ty.TypeAlias = _dd_abc.Nat
+_VariableName: _ty.TypeAlias = _dd_abc.VariableName
+_Assignment: _ty.TypeAlias = _dd_abc.Assignment
+_BDDFileType: _ty.TypeAlias = _ty.Literal[
+    'pdf',
+    'png',
+    'svg',
+    'json',
+    'dddmp']
 
 
 cdef extern from 'mtr.h':
@@ -900,8 +914,10 @@ cdef class BDD:
 
     cpdef insert_var(
             self,
-            var,
-            level):
+            var:
+                str,
+            level:
+                int):
         """Create new variable at `level`.
 
         The name of the variable is
@@ -911,15 +927,11 @@ cdef class BDD:
             name of variable
             that this function
             will declare
-        @type var:
-            `str`
         @param level:
             where the new
             variable will be placed
             in the variable order
             of this BDD manager
-        @type level:
-            `int`
         @return:
             number that CUDD
             uses to identify the
@@ -942,8 +954,10 @@ cdef class BDD:
 
     cdef _add_var(
             self,
-            str var,
-            int index):
+            var:
+                _VariableName,
+            index:
+                _Nat):
         """Declare new variable `var`.
 
         Adds to `self` a *new* variable
@@ -953,14 +967,10 @@ cdef class BDD:
         @param var:
             name of variable that
             this function will declare
-        @type var:
-            `str`
         @param index:
             number that
             will identify within CUDD
             the newly created variable
-        @type index:
-            `int` >= 0
         """
         if var in self.vars:
             raise ValueError(
@@ -1077,8 +1087,6 @@ cdef class BDD:
                 Function):
         """Return variables that `u` depends on.
 
-        @type u:
-            `Function`
         @return:
             set of variable names
         @rtype:
@@ -1125,18 +1133,13 @@ cdef class BDD:
     def copy(
             self,
             u,
-            other):
-        """Transfer BDD with root `u` to `other`.
-
-        @param other:
-            BDD manager
-        @type other:
-               `dd.cudd.BDD`
-            or `dd.autoref.BDD`
-        @rtype:
-               `dd.cudd.Function`
-            or `dd.autoref.Function`
-        """
+            other:
+                'BDD' |
+                autoref.BDD
+            ) -> (
+                Function |
+                autoref.Function):
+        """Transfer BDD with root `u` to `other`."""
         if isinstance(other, BDD):
             return copy_bdd(u, other)
         else:
@@ -1215,12 +1218,12 @@ cdef class BDD:
             self,
             f:
                 Function,
-            var_sub):
+            var_sub:
+                dict):
         """Return the composition f|_(var = g).
 
         @param var_sub:
-            `dict` from
-            variable names to nodes.
+            maps variable names to nodes.
         """
         n = len(var_sub)
         if n == 0:
@@ -1296,14 +1299,14 @@ cdef class BDD:
             self,
             f:
                 Function,
-            values):
+            values:
+                dict[
+                    _VariableName,
+                    python_bool]):
         """Substitute Booleans for variables.
 
         @param values:
-            `dict` that maps
-            variable names to Boolean constants
-        @type values:
-            `dict: str -> bool`
+            maps variable names to Boolean constants
         @return:
             result of substitution
         @rtype:
@@ -1451,7 +1454,7 @@ cdef class BDD:
     cpdef Function find_or_add(
             self,
             var:
-                str,
+                _VariableName,
             low:
                 Function,
             high:
@@ -1520,14 +1523,15 @@ cdef class BDD:
             self,
             u:
                 Function,
-            care_vars=None):
+            care_vars=None
+            ) -> dict[
+                str,
+                python_bool]:
         """Return a single assignment.
 
         @return:
             assignment of values to
             variables
-        @rtype:
-            `dict` from `str` to `bool`
         """
         return next(
             self.pick_iter(u, care_vars),
@@ -1655,7 +1659,8 @@ cdef class BDD:
 
     cpdef Function apply(
             self,
-            op,
+            op:
+                str,
             u:
                 Function,
             v:
@@ -1668,10 +1673,6 @@ cdef class BDD:
                 =None):
         """Return the result of applying `op`.
 
-        @type op:
-            `str`
-        @type u, v, w:
-            `Function`
         @rtype:
             `Function`
         """
@@ -1786,13 +1787,9 @@ cdef class BDD:
 
     cpdef Function cube(
             self,
-            dvars):
-        """Return node for cube over `dvars`.
-
-        @param dvars:
-            `dict` that maps
-            each variable to a `bool`
-        """
+            dvars:
+                _Assignment):
+        """Return node for cube over `dvars`."""
         n_cudd_vars = self._number_of_cudd_vars()
         # make cube
         cube: DdRef
@@ -1954,9 +1951,14 @@ cdef class BDD:
 
     def dump(
             self,
-            filename,
-            roots,
-            filetype=None):
+            filename:
+                str,
+            roots:
+                dict[str, Function] |
+                list[Function],
+            filetype:
+                _BDDFileType |
+                None=None):
         """Write BDDs to `filename`.
 
         The file type is inferred from the
@@ -1983,15 +1985,9 @@ cdef class BDD:
         Dumping a DDDMP file requires that `roots`
         contain a single node.
 
-        @type filename:
-            `str`
-        @type filetype:
-            `str`, e.g., `"pdf"`
-        @type roots:
-            - `list` of nodes, or
-            - for JSON:
-              `dict` that maps names (as `str`)
-              to nodes
+        @param roots:
+            For JSON: a mapping from
+            names to nodes.
         """
         if filetype is None:
             name = filename.lower()
@@ -2092,14 +2088,13 @@ cdef class BDD:
 
     cpdef load(
             self,
-            filename):
+            filename:
+                str):
         """Return `Function` loaded from `filename`.
 
         @param filename:
             name of file from
             where the BDD is loaded
-        @type filename:
-            `str`
         @return:
             roots of loaded BDDs
         @rtype:
@@ -2296,11 +2291,7 @@ def copy_vars(
             BDD,
         target:
             BDD):
-    """Copy variables, preserving CUDD indices.
-
-    @type source, target:
-        `BDD`
-    """
+    """Copy variables, preserving CUDD indices."""
     for var, index in source._index_of_var.items():
         target.add_var(var, index=index)
 
@@ -2315,10 +2306,10 @@ cpdef copy_bdd(
     Turns off reordering in `source`
     when checking for missing vars in `target`.
 
-    @type u:
-        `Function` with `u in source`
-    @type source, target:
-        `BDD`
+    ```tla
+    ASSUME
+        u in source
+    ```
     """
     logger.debug('++ transfer bdd')
     source = u.bdd
@@ -2361,13 +2352,12 @@ cpdef copy_bdd(
 
 
 cpdef count_nodes(
-        functions):
+        functions:
+            list[Function]):
     """Return total nodes used by `functions`.
 
     Sharing is taken into account.
 
-    @type functions:
-        `list` of `Function`
     @rtype:
         `int`
     """

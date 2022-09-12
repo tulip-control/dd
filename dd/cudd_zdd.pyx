@@ -2901,13 +2901,13 @@ def _to_pydot(
     @rtype:
         `pydot.Dot`
     """
-    global pydot
-    import pydot
+    global _pydot
+    import pydot as _pydot
     if not roots:
         raise ValueError(
             f'No `roots` given:  {roots}')
     assert roots, roots
-    g = pydot.Dot('zdd', graph_type='digraph')
+    g = _pydot.Dot('zdd', graph_type='digraph')
     # construct graphs
     subgraphs = _add_nodes_for_zdd_levels(g, roots)
     # mapping CUDD ZDD node ID -> node name in `pydot` graph
@@ -2955,7 +2955,7 @@ def _add_nodes_for_zdd_levels(
     subgraphs = dict()
     level_node_names = list()
     for level in sorted(level_to_var):
-        h = pydot.Subgraph('', rank='same')
+        h = _pydot.Subgraph('', rank='same')
         g.add_subgraph(h)
         subgraphs[level] = h
         # add phantom node
@@ -3060,7 +3060,7 @@ def _add_pydot_node(
         node_name,
         **kw):
     """Add a node to the `pydot` graph `g`."""
-    node = pydot.Node(name=str(node_name), **kw)
+    node = _pydot.Node(name=str(node_name), **kw)
     g.add_node(node)
 
 
@@ -3070,7 +3070,7 @@ def _add_pydot_edge(
         target_node_name,
         **kw):
     """Add an edge to the `pydot` graph `g`."""
-    edge = pydot.Edge(
+    edge = _pydot.Edge(
         str(source_node_name),
         str(target_node_name),
         **kw)

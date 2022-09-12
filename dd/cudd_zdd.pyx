@@ -2987,8 +2987,6 @@ def _to_pydot_recurse(
         `pydot.Dot`
     @type u:
         `Function`
-    @type visited:
-        `set`
     @type umap:
         `set`
     """

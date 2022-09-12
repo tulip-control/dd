@@ -49,7 +49,7 @@ Reference
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import itertools
+import itertools as _itr
 import logging
 import textwrap as _tw
 import warnings
@@ -2969,7 +2969,7 @@ def _add_nodes_for_zdd_levels(
             label = str(level)
         _add_pydot_node(h, u, label=label, shape='none')
     # auxiliary edges for ranking of levels
-    a, a1 = itertools.tee(level_node_names)
+    a, a1 = _itr.tee(level_node_names)
     next(a1, None)
     for u, v in zip(a, a1):
         _add_pydot_edge(g, u, v, style='invis')

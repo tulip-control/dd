@@ -2896,8 +2896,6 @@ def _to_pydot(
         roots):
     """Return graph for the ZDD rooted at `u`.
 
-    @type u:
-        `Function`
     @rtype:
         `pydot.Dot`
     """

@@ -5,7 +5,25 @@
 import collections.abc as _abc
 import os
 import textwrap as _tw
+import types
 import typing as _ty
+
+try:
+    import networkx as _nx
+except ImportError as error:
+    _nx = None
+    _nx_error = error
+try:
+    import pydot as _pydot
+except ImportError as error:
+    _pydot = None
+    _pydot_error = error
+
+
+if _nx is not None:
+    MultiDiGraph: _ty.TypeAlias = _nx.MultiDiGraph
+if _pydot is not None:
+    Dot: _ty.TypeAlias = _pydot.Dot
 
 
 # The mapping from values of argument `op` of
@@ -19,6 +37,25 @@ _CY_SYMBOLS: _ty.Final = {
     1: '<=',
     4: '>',
     5: '>='}
+
+
+def import_module(
+        module_name:
+            str
+        ) -> types.ModuleType:
+    """Return module with `module_name`, if present.
+
+    Raise `ImportError` otherwise.
+    """
+    modules = dict(
+        networkx=_nx,
+        pydot=_pydot)
+    if module_name in modules:
+        return modules[module_name]
+    errors = dict(
+        networkx=_nx_error,
+        pydot=_pydot_error)
+    raise errors[module_name]
 
 
 def print_var_levels(bdd):

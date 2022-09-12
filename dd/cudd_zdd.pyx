@@ -64,9 +64,6 @@ from dd import _copy
 from dd import _parser
 from dd import _utils
 from dd import bdd as _bdd
-# inline:
-# import networkx
-# import pydot
 
 
 cdef extern from 'cuddInt.h':
@@ -2846,7 +2843,7 @@ def to_nx(
     @rtype:
         `networkx.MultiDiGraph`
     """
-    import networkx as _nx
+    _nx = _utils.import_module('networkx')
     g = _nx.MultiDiGraph()
     _to_nx(g, u, umap=dict())
     return g
@@ -2892,7 +2889,7 @@ def _to_pydot(
         `pydot.Dot`
     """
     global _pydot
-    import pydot as _pydot
+    _pydot = _utils.import_module('pydot')
     if not roots:
         raise ValueError(
             f'No `roots` given:  {roots}')

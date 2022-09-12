@@ -48,25 +48,9 @@ import sys
 import typing as _ty
 import warnings
 
-try:
-    import networkx as _nx
-except ImportError as error:
-    _nx = None
-    _nx_error = error
-try:
-    import pydot as _pydot
-except ImportError as error:
-    _pydot = None
-    _pydot_error = error
-
 import dd._abc
 import dd._parser
 import dd._utils as _utils
-
-
-if _ty.TYPE_CHECKING:
-    import networkx as _nx
-    import pydot as _pydot
 
 
 logger = logging.getLogger(__name__)
@@ -2620,8 +2604,9 @@ def to_nx(
         bdd:
             BDD,
         roots:
-            set[int]):
-    """Convert node references in `roots` to `networkx.MultiDiGraph`.
+            set[int]
+        ) -> '_utils.MultiDiGraph':
+    """Convert node references in `roots` to graph.
 
     The resulting graph has:
 
@@ -2637,11 +2622,8 @@ def to_nx(
 
     @param roots:
         iterable of edges, each a signed `int`
-    @rtype:
-        `networkx.MultiDiGraph`
     """
-    if _nx is None:
-        raise _nx_error
+    _nx = _utils.import_module('networkx')
     g = _nx.MultiDiGraph()
     for root in roots:
         if abs(root) not in bdd:
@@ -2688,7 +2670,8 @@ def to_pydot(
         roots:
             _abc.Iterable[int],
         bdd:
-            BDD):
+            BDD
+        ) -> '_utils.Dot':
     """Convert `BDD` to pydot graph.
 
     Nodes are ordered by variable levels in support.
@@ -2701,8 +2684,7 @@ def to_pydot(
     The roots are plotted as external references,
     with complemented edges where applicable.
     """
-    if _pydot is None:
-        raise _pydot_error
+    _pydot = _utils.import_module('pydot')
     # all nodes ?
     if roots is None:
         nodes = bdd._succ

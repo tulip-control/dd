@@ -2854,8 +2854,8 @@ def to_nx(
     @rtype:
         `networkx.MultiDiGraph`
     """
-    import networkx as nx
-    g = nx.MultiDiGraph()
+    import networkx as _nx
+    g = _nx.MultiDiGraph()
     _to_nx(g, u, umap=dict())
     return g
 

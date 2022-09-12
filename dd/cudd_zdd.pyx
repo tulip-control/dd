@@ -2986,7 +2986,7 @@ def _to_pydot_recurse(
     @type u:
         `Function`
     @type umap:
-        `set`
+        `dict`
     """
     u_int = int(u)
     # visited ?

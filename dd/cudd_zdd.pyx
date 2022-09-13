@@ -1904,7 +1904,7 @@ cdef class ZDD:
             `dict` or container of variables
             as `str`
         @rtype:
-            Function
+            `Function`
         """
         r = self.true
         for var in dvars:

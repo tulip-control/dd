@@ -2305,11 +2305,14 @@ cpdef Function and_exists(
             Function,
         v:
             Function,
-        qvars):
+        qvars:
+            _abc.Iterable[
+                _VariableName]):
     r"""Return `\E qvars:  u /\ v`."""
     if u.manager != v.manager:
         raise ValueError(
             '`u.manager != v.manager`')
+    qvars = set(qvars)
     cube = u.bdd.cube(qvars)
     r = Cudd_bddAndAbstract(
         u.manager, u.node, v.node, cube.node)
@@ -2321,11 +2324,14 @@ cpdef Function or_forall(
             Function,
         v:
             Function,
-        qvars):
+        qvars:
+            _abc.Iterable[
+                _VariableName]):
     r"""Return `\A qvars:  u \/ v`."""
     if u.manager != v.manager:
         raise ValueError(
             '`u.manager != v.manager`')
+    qvars = set(qvars)
     cube = u.bdd.cube(qvars)
     r = Cudd_bddAndAbstract(
         u.manager,

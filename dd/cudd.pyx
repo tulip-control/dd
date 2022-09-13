@@ -2073,11 +2073,9 @@ cdef class BDD:
         @return:
             roots of loaded BDDs
         @rtype:
-            depends on the contents of the file,
-            either:
-            - `dict` that maps names (as `str`)
-              to nodes (as `Function`), or
-            - `list` of `Function`
+            depends on the contents of the file:
+            | `dict[str, Function]`
+            | `list[Function]`
         """
         if filename.lower().endswith('.dddmp'):
             r = self._load_dddmp(filename)

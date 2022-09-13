@@ -1200,13 +1200,13 @@ cdef class ZDD:
         @param other:
             `ZDD` or `BDD` manager
         @type other:
-               `dd.cudd_zdd.ZDD`
-            or `dd.cudd.BDD`
-            or `dd.autoref.BDD`
+            | `dd.cudd_zdd.ZDD`
+            | `dd.cudd.BDD`
+            | `dd.autoref.BDD`
         @rtype:
-               `dd.cudd_zdd.Function`
-            or `dd.cudd.Function`
-            or `dd.autoref.Function`
+            | `dd.cudd_zdd.Function`
+            | `dd.cudd.Function`
+            | `dd.autoref.Function`
         """
         return _copy.copy_zdd(u, other)
 

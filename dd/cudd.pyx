@@ -2481,7 +2481,7 @@ cdef wrap(
 
 
 cdef class Function:
-    """Wrapper of `DdNode` from CUDD.
+    r"""Wrapper of `DdNode` from CUDD.
 
     Attributes (those that are properties are
     described in their docstrings):

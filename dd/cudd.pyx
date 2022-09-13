@@ -2181,7 +2181,7 @@ cpdef Function and_exists(
         Function u,
         Function v,
         qvars):
-    """Return `? qvars. u & v`."""
+    r"""Return `\E qvars:  u /\ v`."""
     if u.manager != v.manager:
         raise ValueError(
             '`u.manager != v.manager`')
@@ -2195,7 +2195,7 @@ cpdef Function or_forall(
         Function u,
         Function v,
         qvars):
-    """Return `! qvars. u | v`."""
+    r"""Return `\A qvars:  u \/ v`."""
     if u.manager != v.manager:
         raise ValueError(
             '`u.manager != v.manager`')

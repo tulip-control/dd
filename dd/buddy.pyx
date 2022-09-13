@@ -131,7 +131,7 @@ cdef class BDD:
                 self):
             return self._bool(True)
 
-    cdef _bool(
+    cdef Function _bool(
             self,
             b):
         if b:
@@ -204,7 +204,7 @@ cdef class BDD:
         var = index_to_var[index]
         return var
 
-    cpdef apply(
+    cpdef Function apply(
             self,
             op,
             u,
@@ -226,7 +226,7 @@ cdef class BDD:
             r = buddy.bdd_xor(u.node, v.node)
         return Function(r)
 
-    cpdef quantify(
+    cpdef Function quantify(
             self,
             u,
             qvars,
@@ -238,7 +238,7 @@ cdef class BDD:
             r = buddy.bdd_exist(u, cube)
         return Function(r)
 
-    cpdef cube(
+    cpdef Function cube(
             self,
             dvars):
         """Return a positive unate cube for `dvars`."""
@@ -260,7 +260,7 @@ cdef class BDD:
         pass
 
 
-cpdef and_abstract(
+cpdef Function and_abstract(
         u,
         v,
         qvars,
@@ -272,7 +272,7 @@ cpdef and_abstract(
     return Function(r)
 
 
-cpdef or_abstract(
+cpdef Function or_abstract(
         u,
         v,
         qvars,

@@ -743,7 +743,7 @@ cdef class BDD:
                     f'Unknown parameter "{k}"')
         return d
 
-    cpdef succ(
+    cpdef tuple succ(
             self,
             u:
                 Function):
@@ -879,7 +879,7 @@ cdef class BDD:
         for var in variables:
             self.add_var(var)
 
-    cpdef add_var(
+    cpdef int add_var(
             self,
             var,
             index=None):
@@ -912,7 +912,7 @@ cdef class BDD:
         self._add_var(var, j)
         return j
 
-    cpdef insert_var(
+    cpdef int insert_var(
             self,
             var:
                 str,
@@ -1081,7 +1081,7 @@ cdef class BDD:
         """
         reorder(self, var_order)
 
-    cpdef support(
+    cpdef set support(
             self,
             u:
                 Function):
@@ -1772,7 +1772,7 @@ cdef class BDD:
                     max_cache=config['max_cache_hard']))
         return wrap(self, r)
 
-    cpdef _add_int(
+    cpdef Function _add_int(
             self,
             i):
         """Return node from integer `i`."""
@@ -1828,7 +1828,7 @@ cdef class BDD:
             PyMem_Free(x)
         return wrap(self, cube)
 
-    cpdef _cube_to_dict(
+    cpdef dict _cube_to_dict(
             self,
             f:
                 Function):
@@ -2111,7 +2111,7 @@ cdef class BDD:
             raise ValueError(
                 f'Unknown file type "{filename}"')
 
-    cpdef _load_dddmp(
+    cpdef Function _load_dddmp(
             self,
             filename):
         n_declared_vars = len(self._var_with_index)
@@ -2375,10 +2375,10 @@ cpdef count_nodes(
     return k
 
 
-cpdef count_nodes_per_level(
+cpdef dict count_nodes_per_level(
         bdd:
             BDD):
-    """Return `dict` that maps each var to a node count."""
+    """Return mapping of each var to a node count."""
     d = dict()
     for var in bdd.vars:
         level = bdd.level_of_var(var)
@@ -2504,7 +2504,7 @@ cdef dict _cube_array_to_dict(
     return d
 
 
-cdef wrap(
+cdef Function wrap(
         bdd:
             BDD,
         node:

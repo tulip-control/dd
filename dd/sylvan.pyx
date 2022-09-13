@@ -164,7 +164,7 @@ cdef class BDD:
             max_vars=None)
         return d
 
-    cpdef succ(
+    cpdef tuple succ(
             self,
             u:
                 Function):
@@ -197,7 +197,7 @@ cdef class BDD:
         for var in variables:
             self.add_var(var)
 
-    cpdef add_var(
+    cpdef int add_var(
             self,
             var,
             index=None):
@@ -726,7 +726,7 @@ def copy_vars(
         target.add_var(var, index=index)
 
 
-cdef wrap(
+cdef Function wrap(
         bdd:
             BDD,
         node:

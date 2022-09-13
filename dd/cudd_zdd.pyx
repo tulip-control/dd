@@ -676,7 +676,7 @@ cdef class ZDD:
                     f'Unknown parameter "{k}"')
         return d
 
-    cpdef succ(
+    cpdef tuple succ(
             self,
             u:
                 Function):
@@ -773,7 +773,7 @@ cdef class ZDD:
         for var in variables:
             self.add_var(var)
 
-    cpdef add_var(
+    cpdef int add_var(
             self,
             var,
             index=None):
@@ -1122,7 +1122,7 @@ cdef class ZDD:
             raise ValueError('`u.manager != self.manager`')
         return _c_support(u)
 
-    cpdef _support_py(
+    cpdef set _support_py(
             self,
             u:
                 Function):
@@ -1163,7 +1163,7 @@ cdef class ZDD:
             self._support(level + 1, w, support, visited)
         visited.add(u)
 
-    cpdef _support_cudd(
+    cpdef set _support_cudd(
             self,
             f:
                 Function):
@@ -1507,7 +1507,7 @@ cdef class ZDD:
             raise CouldNotCreateNode()
         return wrap(self, r)
 
-    cpdef find_or_add(
+    cpdef Function find_or_add(
             self,
             var:
                 str,
@@ -1566,7 +1566,7 @@ cdef class ZDD:
             raise AssertionError('r is NULL')
         return r
 
-    cpdef _top_cofactor(
+    cpdef tuple _top_cofactor(
             self,
             u:
                 Function,
@@ -1924,7 +1924,7 @@ cdef class ZDD:
         res = wrap(self, r)
         return res
 
-    cpdef _add_int(
+    cpdef Function _add_int(
             self,
             i):
         """Return node from integer `i`."""
@@ -2465,7 +2465,7 @@ cdef class ZDD:
         raise NotImplementedError()
 
     # Same with the method `dd.cudd.BDD._cube_to_dict`.
-    cpdef _cube_to_dict(
+    cpdef dict _cube_to_dict(
             self,
             f:
                 Function):
@@ -4286,7 +4286,7 @@ cpdef _test_call_dealloc(
     self.node = NULL
 
 
-cpdef _call_method_disjoin(
+cpdef Function _call_method_disjoin(
         zdd:
             ZDD,
         level:
@@ -4303,7 +4303,7 @@ cpdef _call_method_disjoin(
     return zdd._disjoin(level, u, v, cache)
 
 
-cpdef _call_method_conjoin(
+cpdef Function _call_method_conjoin(
         zdd:
             ZDD,
         level:
@@ -4320,7 +4320,7 @@ cpdef _call_method_conjoin(
     return zdd._conjoin(level, u, v, cache)
 
 
-cpdef _call_disjoin(
+cpdef Function _call_disjoin(
         level:
             int,
         u:
@@ -4339,7 +4339,7 @@ cpdef _call_disjoin(
     return wrap(u.bdd, r)
 
 
-cpdef _call_conjoin(
+cpdef Function _call_conjoin(
         level:
             int,
         u:

@@ -1076,7 +1076,7 @@ cdef class BDD:
         @return:
             set of variable names
         @rtype:
-            `set` of `str`
+            `set[str]`
         """
         if self.manager != u.manager:
             raise ValueError(

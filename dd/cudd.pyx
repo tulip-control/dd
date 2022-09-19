@@ -35,15 +35,6 @@ from dd import autoref
 from dd import bdd as _bdd
 
 
-IF USE_CYSIGNALS:
-    from cysignals.signals cimport sig_on, sig_off
-ELSE:
-    # for non-POSIX systems
-    noop = lambda: None
-    sig_on = noop
-    sig_off = noop
-
-
 cdef extern from 'mtr.h':
     struct MtrNode_:
         pass
@@ -1706,18 +1697,14 @@ cdef class BDD:
             if w is not None:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
-            sig_on()
             r = Cudd_bddUnivAbstract(
                 mgr, v.node, u.node)
-            sig_off()
         elif op in (r'\E', 'exists'):
             if w is not None:
                 raise ValueError(
                     f'`w is not None`, but: {w}')
-            sig_on()
             r = Cudd_bddExistAbstract(
                 mgr, v.node, u.node)
-            sig_off()
         # ternary
         elif op == 'ite':
             if v is None:
@@ -1839,15 +1826,11 @@ cdef class BDD:
         cube = self.cube(c)
         # quantify
         if forall:
-            sig_on()
             r = Cudd_bddUnivAbstract(
                 mgr, u.node, cube.node)
-            sig_off()
         else:
-            sig_on()
             r = Cudd_bddExistAbstract(
                 mgr, u.node, cube.node)
-            sig_off()
         return wrap(self, r)
 
     cpdef Function forall(

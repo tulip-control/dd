@@ -69,15 +69,6 @@ from dd import bdd as _bdd
 # import pydot
 
 
-IF USE_CYSIGNALS:
-    from cysignals.signals cimport sig_on, sig_off
-ELSE:
-    # for non-POSIX systems
-    noop = lambda: None
-    sig_on = noop
-    sig_off = noop
-
-
 cdef extern from 'cuddInt.h':
     char* CUDD_VERSION
     int CUDD_CONST_INDEX

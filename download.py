@@ -15,10 +15,6 @@ import urllib.request
 
 
 try:
-    import cysignals
-except ImportError:
-    cysignals = None
-try:
     from Cython.Build import cythonize
     pyx = '.pyx'
 except ImportError:
@@ -86,11 +82,7 @@ def extensions(args):
         embedsignature=True)
     cudd_cflags = list(CUDD_CFLAGS)
     sylvan_cflags = list()
-    # detect optional `cysignals` (unless dist)
-    compile_time_env = dict(
-        USE_CYSIGNALS=not (
-            cysignals is None or
-            args.sdist or args.bdist_wheel))
+    compile_time_env = dict()
     # tell gcc to compile line tracing
     if args.linetrace:
         print('compile Cython extensions with line tracing')

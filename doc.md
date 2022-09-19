@@ -1566,9 +1566,6 @@ GitHub in this way will differ, depending on whether `https://` or
 - Press `Ctrl + \` on Linux and Darwin to quit the Python process when
   CUDD computations take a long time. Read `stty -a` for your settings.
 
-- To use `Ctrl + C` (`KeyboardInterrupt`) to interrupt CUDD computations
-  that take a long time, install `cysignals`, then build `dd.cudd`.
-
 - If you are interested in exploring other decision diagram packages,
   you can find [a list at `github.com/johnyf/tool_lists/`](
     https://github.com/johnyf/tool_lists/blob/main/bdd.md).

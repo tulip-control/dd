@@ -1261,7 +1261,7 @@ cdef class ZDD:
         r: DdRef
         bdd = u.bdd
         u_ = bdd.copy(u, self)
-        r = <DdNode *>u_.node
+        r = <DdRef>u_.node
         r = Cudd_zddPortFromBdd(self.manager, r)
         return wrap(self, r)
 
@@ -2039,7 +2039,7 @@ cdef class ZDD:
         # invert `Function.__int__`
         if 2 <= i:
             i -= 2
-        u = <DdNode *><stdint.uintptr_t>i
+        u = <DdRef><stdint.uintptr_t>i
         return wrap(self, u)
 
     cpdef Function cube(
@@ -2625,7 +2625,7 @@ cdef class ZDD:
             raise ValueError('`f.manager != self.manager`')
         n = self._number_of_cudd_vars()
         cdef int *x
-        x = <int *> PyMem_Malloc(n * sizeof(DdNode *))
+        x = <int *> PyMem_Malloc(n * sizeof(DdRef))
         try:
             Cudd_BddToCubeArray(self.manager, f.node, x)
             d = _cube_array_to_dict(x, self._index_of_var)
@@ -2873,7 +2873,7 @@ cdef class Function:
             self
             ) -> int:
         # inverse is `ZDD._add_int`
-        if sizeof(stdint.uintptr_t) != sizeof(DdNode *):
+        if sizeof(stdint.uintptr_t) != sizeof(DdRef):
             raise RuntimeError(
                 'expected equal pointer sizes')
         i = <stdint.uintptr_t>self.node
@@ -3542,7 +3542,7 @@ cpdef Function _c_forall(
 
 # changes to the function `_exist_root`
 # are copied here
-cdef DdNode *_forall_root(
+cdef DdRef _forall_root(
         DdManager *mgr,
         u:
             DdRef,
@@ -3565,7 +3565,7 @@ cdef DdNode *_forall_root(
     return r
 
 
-cdef DdNode *_forall_cache_id(
+cdef DdRef _forall_cache_id(
         DdManager *mgr,
         u:
             DdRef,
@@ -3584,7 +3584,7 @@ cdef DdNode *_forall_cache_id(
 
 # changes to the function `_exist`
 # are copied here
-cdef DdNode *_forall(
+cdef DdRef _forall(
         DdManager *mgr,
         level:
             _c_level,
@@ -3681,7 +3681,7 @@ cpdef Function _c_exist(
     return wrap(u.bdd, r)
 
 
-cdef DdNode *_exist_root(
+cdef DdRef _exist_root(
         DdManager *mgr,
         u:
             DdRef,
@@ -3704,7 +3704,7 @@ cdef DdNode *_exist_root(
     return r
 
 
-cdef DdNode *_exist_cache_id(
+cdef DdRef _exist_cache_id(
         DdManager *mgr,
         u:
             DdRef,
@@ -3724,7 +3724,7 @@ cdef DdNode *_exist_cache_id(
         'as cache key.')
 
 
-cdef DdNode *_exist(
+cdef DdRef _exist(
         DdManager *mgr,
         level:
             _c_level,
@@ -3809,7 +3809,7 @@ cdef DdNode *_exist(
     return r
 
 
-cdef DdNode *_find_or_add(
+cdef DdRef _find_or_add(
         DdManager *mgr,
         index:
             _c_int,
@@ -3866,7 +3866,7 @@ cpdef Function _c_disjoin(
     return wrap(u.bdd, r)
 
 
-cdef DdNode *_disjoin_root(
+cdef DdRef _disjoin_root(
         DdManager *mgr,
         u:
             DdRef,
@@ -3900,7 +3900,7 @@ cdef DdNode *_disjoin_root(
 # in a way that passing `_disjoin_root()`
 # to the C function `cuddCacheLookup2Zdd()`
 # raises a Cython compilation error.
-cdef DdNode *_disjoin_cache_id(
+cdef DdRef _disjoin_cache_id(
         DdManager *mgr,
         u:
             DdRef,
@@ -3924,7 +3924,7 @@ cdef DdNode *_disjoin_cache_id(
 # Those cases are due to reaching the point where
 # the tables need to be resized, and reordering
 # invoked.
-cdef DdNode *_disjoin(
+cdef DdRef _disjoin(
         DdManager *mgr,
         level:
             _c_level,
@@ -4026,7 +4026,7 @@ cpdef Function _c_conjoin(
     return wrap(u.bdd, r)
 
 
-cdef DdNode *_conjoin_root(
+cdef DdRef _conjoin_root(
         DdManager *mgr,
         u:
             DdRef,
@@ -4051,7 +4051,7 @@ cdef DdNode *_conjoin_root(
 
 # Similar to function `_disjoin_cache_id()`.
 # This function is used for the hash in cache.
-cdef DdNode *_conjoin_cache_id(
+cdef DdRef _conjoin_cache_id(
         DdManager *mgr,
         u:
             DdRef,
@@ -4068,7 +4068,7 @@ cdef DdNode *_conjoin_cache_id(
     """
 
 
-cdef DdNode *_conjoin(
+cdef DdRef _conjoin(
         DdManager *mgr,
         level:
             _c_level,
@@ -4170,10 +4170,10 @@ cpdef Function _c_compose(
         contiguous = _utils.contiguous_levels(
             '_c_compose', zdd)
         raise AssertionError(f'{counts}\n{contiguous}')
-    # convert `dvars` to `DdNode **`
-    cdef DdNode **vector
-    vector = <DdNode **> PyMem_Malloc(
-        n_cudd_vars * sizeof(DdNode *))
+    # convert `dvars` to `DdRef *`
+    cdef DdRef *vector
+    vector = <DdRef *> PyMem_Malloc(
+        n_cudd_vars * sizeof(DdRef))
     for var in zdd.vars:
         i = zdd._index_of_var[var]
         if var in dvars:
@@ -4203,11 +4203,11 @@ cpdef Function _c_compose(
     return wrap(u.bdd, r)
 
 
-cdef DdNode *_compose_root(
+cdef DdRef _compose_root(
         DdManager *mgr,
         u:
             DdRef,
-        DdNode **vector
+        DdRef *vector
         ) except NULL:
     """Root of recursive composition."""
     if mgr is NULL:
@@ -4236,7 +4236,7 @@ cdef DdNode *_compose_root(
         # cuddHashTableQuitZdd(table)
         for nd in table.values():
             Cudd_RecursiveDerefZdd(mgr,
-                <DdNode *><stdint.uintptr_t>nd)
+                <DdRef><stdint.uintptr_t>nd)
         if r is not NULL:
             cuddDeref(r)
     if r is NULL:
@@ -4244,7 +4244,7 @@ cdef DdNode *_compose_root(
     return r
 
 
-cdef DdNode *_compose(
+cdef DdRef _compose(
         DdManager *mgr,
         level:
             _c_level,
@@ -4253,7 +4253,7 @@ cdef DdNode *_compose(
             dict,
         u:
             DdRef,
-        DdNode **vector
+        DdRef *vector
         ) except? NULL:
     """Recursively compute composition.
 
@@ -4280,7 +4280,7 @@ cdef DdNode *_compose(
         return r
     t = (<stdint.uintptr_t>u, level)
     if t in table:
-        return <DdNode *><stdint.uintptr_t>table[t]
+        return <DdRef><stdint.uintptr_t>table[t]
     # r = cuddHashTableLookup1(table, u)
     # if r is not NULL:
     #     return r

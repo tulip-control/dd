@@ -1331,13 +1331,13 @@ cdef class BDD:
             raise ValueError(
                 '`f.manager != self.manager`')
         r: DdRef
-        cdef DdNode **x
+        cdef DdRef *x
         g: Function
         n_cudd_vars = self._number_of_cudd_vars()
         if n_cudd_vars <= 0:
             raise AssertionError(n_cudd_vars)
-        x = <DdNode **> PyMem_Malloc(
-            n_cudd_vars *sizeof(DdNode *))
+        x = <DdRef *> PyMem_Malloc(
+            n_cudd_vars *sizeof(DdRef))
         for var in self.vars:
             j = self._index_of_var[var]
             if var in var_sub:
@@ -1460,10 +1460,10 @@ cdef class BDD:
         #
         # call swapping
         n = len(dvars)
-        cdef DdNode **x = <DdNode **> PyMem_Malloc(
-            n * sizeof(DdNode *))
-        cdef DdNode **y = <DdNode **> PyMem_Malloc(
-            n * sizeof(DdNode *))
+        cdef DdRef *x = <DdRef *> PyMem_Malloc(
+            n * sizeof(DdRef))
+        cdef DdRef *y = <DdRef *> PyMem_Malloc(
+            n * sizeof(DdRef))
         r: DdRef
         cdef DdManager *mgr = u.manager
         f: Function
@@ -1862,7 +1862,7 @@ cdef class BDD:
         # invert `Function.__int__`
         if 2 <= i:
             i -= 2
-        u = <DdNode *><stdint.uintptr_t>i
+        u = <DdRef><stdint.uintptr_t>i
         return wrap(self, u)
 
     cpdef Function cube(
@@ -1898,9 +1898,9 @@ cdef class BDD:
         n = len(dvars)
         # make cube
         cube: DdRef
-        cdef DdNode **x
-        x = <DdNode **> PyMem_Malloc(
-            n * sizeof(DdNode *))
+        cdef DdRef *x
+        x = <DdRef *> PyMem_Malloc(
+            n * sizeof(DdRef))
         for i, var in enumerate(dvars):
             f = self.var(var)
             x[i] = f.node
@@ -1922,7 +1922,7 @@ cdef class BDD:
         n_cudd_vars = self._number_of_cudd_vars()
         cdef int *x
         x = <int *> PyMem_Malloc(
-            n_cudd_vars * sizeof(DdNode *))
+            n_cudd_vars * sizeof(DdRef))
         try:
             Cudd_BddToCubeArray(
                 self.manager, f.node, x)
@@ -2465,11 +2465,11 @@ cpdef int count_nodes(
 
     Sharing is taken into account.
     """
-    cdef DdNode **x
+    cdef DdRef *x
     f: Function
     n = len(functions)
-    x = <DdNode **> PyMem_Malloc(
-        n * sizeof(DdNode *))
+    x = <DdRef *> PyMem_Malloc(
+        n * sizeof(DdRef))
     for i, f in enumerate(functions):
         x[i] = f.node
     try:
@@ -2999,7 +2999,7 @@ cdef class Function:
             self
             ) -> int:
         # inverse is `BDD._add_int`
-        if sizeof(stdint.uintptr_t) != sizeof(DdNode *):
+        if sizeof(stdint.uintptr_t) != sizeof(DdRef):
             raise AssertionError(
                 'mismatch of sizes')
         i = <stdint.uintptr_t>self.node

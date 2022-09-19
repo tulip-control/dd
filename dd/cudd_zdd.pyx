@@ -3485,6 +3485,9 @@ cdef DdNode *_exist_cache_id(
     - `cuddCacheLookup2Zdd()`
     -  `cuddCacheInsert2()`
     """
+    raise NotImplementedError(
+        'This function is used only '
+        'as cache key.')
 
 
 cdef DdNode *_exist(

@@ -603,9 +603,9 @@ cdef class BDD:
 
     def add_expr(
             self,
-            e):
+            expr):
         """Return node for `str` expression `e`."""
-        return _parser.add_expr(e, self)
+        return _parser.add_expr(expr, self)
 
     def to_expr(
             self,

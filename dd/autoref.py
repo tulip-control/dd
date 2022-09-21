@@ -402,8 +402,6 @@ class BDD(dd._abc.BDD[_Ref]):
         elif w is None:
             if v not in self:
                 raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             r = self._bdd.apply(op, u.node, v.node)
         else:
             if v not in self:

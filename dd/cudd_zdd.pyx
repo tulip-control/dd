@@ -54,15 +54,16 @@ import logging
 import textwrap as _tw
 import warnings
 
+from cpython cimport bool as python_bool
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
+cimport libc.stdint as stdint
+from libc.stdio cimport FILE, fdopen, fopen, fclose
+from libcpp cimport bool
+
 from dd import _copy
 from dd import _parser
 from dd import _utils
 from dd import bdd as _bdd
-from libcpp cimport bool
-from libc.stdio cimport FILE, fdopen, fopen, fclose
-cimport libc.stdint as stdint
-from cpython cimport bool as python_bool
-from cpython.mem cimport PyMem_Malloc, PyMem_Free
 # inline:
 # import networkx
 # import pydot

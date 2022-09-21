@@ -12,8 +12,8 @@ Reference
 # Copyright 2016 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.
 #
-from libcpp cimport bool
 cimport libc.stdint as stdint
+from libcpp cimport bool
 
 
 cdef extern from 'lace.h':

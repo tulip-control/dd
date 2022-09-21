@@ -544,6 +544,9 @@ cdef class BDD:
                 _ty.Optional[Function]
                 =None):
         """Return as `Function` the result of applying `op`."""
+        if op not in _dd_abc.BDD_OPERATOR_SYMBOLS:
+            raise ValueError(
+                f'unknown operator: "{op}"')
         if self is not u.bdd:
             raise ValueError(u)
         r: sy.BDD

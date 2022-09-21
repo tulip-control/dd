@@ -2206,6 +2206,8 @@ class BDD(dd._abc.BDD[_Ref]):
                 _Ref |
                 None=None
             ) -> _Ref:
+        if op not in dd._abc.BDD_OPERATOR_SYMBOLS:
+            raise ValueError(op)
         if abs(u) not in self:
             raise ValueError(u)
         if not (v is None or abs(v) in self):

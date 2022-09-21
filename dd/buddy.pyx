@@ -243,6 +243,9 @@ cdef class BDD:
                 Function |
                 None=None):
         """Return as `Function` the result of applying `op`."""
+        if op not in _OPERATOR_SYMBOLS:
+            raise ValueError(
+                f'unknown operator: "{op}"')
         # unary
         if op in ('!', 'not'):
             if v is not None:

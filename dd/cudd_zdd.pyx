@@ -62,6 +62,7 @@ cimport libc.stdint as stdint
 from libc.stdio cimport FILE, fdopen, fopen, fclose
 from libcpp cimport bool
 
+import dd._abc as _dd_abc
 from dd import _copy
 from dd import _parser
 from dd import _utils
@@ -70,6 +71,7 @@ from dd import bdd as _bdd
 
 ctypedef cython.int _c_level
 ctypedef cython.int _c_int
+_VariableName: _ty.TypeAlias = _dd_abc.VariableName
 BDDFileType: _ty.TypeAlias = _ty.Literal[
     'pdf',
     'png',
@@ -2111,14 +2113,14 @@ cdef class ZDD:
             self,
             u:
                 Function,
-            qvars,
+            qvars:
+                _abc.Container[
+                    _VariableName],
             forall=False):
         """Abstract variables `qvars` in `u`.
 
         @param u:
             node
-        @param qvars:
-            `set` of quantified variables
         @param forall:
             if `True`,
             then quantify `qvars` universally,

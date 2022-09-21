@@ -295,8 +295,7 @@ cdef class BDD:
 
     cpdef assert_consistent(
             self):
-        # TODO: implement this
-        pass
+        raise NotImplementedError('TODO')
 
 
 cpdef Function and_abstract(

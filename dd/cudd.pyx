@@ -1755,6 +1755,12 @@ cdef class BDD:
                 _ty.Optional[Function]
                 =None):
         """Return the result of applying `op`."""
+        binary_but_w = (
+            op != 'ite' and
+            w is not None)
+        if binary_but_w:
+            raise ValueError(
+                f'`w is not None`, but: {w}')
         if self.manager != u.manager:
             raise ValueError(
                 '`u.manager != self.manager`')
@@ -1773,55 +1779,28 @@ cdef class BDD:
             if v is not None:
                 raise ValueError(
                     f'`v is not None`, but: {v}')
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_Not(u.node)
         # binary
         elif op in ('and', '/\\', '&', '&&'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_bddAnd(mgr, u.node, v.node)
         elif op in ('or', r'\/', '|', '||'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_bddOr(mgr, u.node, v.node)
         elif op in ('#', 'xor', '^'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_bddXor(mgr, u.node, v.node)
         elif op in ('=>', '->', 'implies'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_bddIte(
                 mgr, u.node, v.node,
                 Cudd_ReadOne(mgr))
         elif op in ('<=>', '<->', 'equiv'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_bddXnor(mgr, u.node, v.node)
         elif op in ('diff', '-'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_bddIte(
                 mgr, u.node, Cudd_Not(v.node),
                 Cudd_ReadLogicZero(mgr))
         elif op in (r'\A', 'forall'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_bddUnivAbstract(
                 mgr, v.node, u.node)
         elif op in (r'\E', 'exists'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_bddExistAbstract(
                 mgr, v.node, u.node)
         # ternary

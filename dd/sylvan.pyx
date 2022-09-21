@@ -16,16 +16,12 @@ Reference
 import collections.abc as _abc
 import logging
 import pickle
-# import pprint
-# import sys
 import signal
 import time
 import typing as _ty
 
 from cpython cimport bool as python_bool
 from libcpp cimport bool
-# from libc.stdio cimport FILE, fdopen, fopen, fclose
-# from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 import dd._abc as _dd_abc
 from dd import _parser

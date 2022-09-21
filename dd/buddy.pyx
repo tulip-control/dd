@@ -19,7 +19,7 @@ import sys
 
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from libc.stdio cimport fdopen, fopen
-from libcpp cimport bool
+from libcpp cimport bool as _c_bool
 
 import dd._abc as _dd_abc
 cimport dd.buddy_ as buddy

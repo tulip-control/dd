@@ -542,6 +542,9 @@ cdef class BDD:
                 Function,
             v:
                 _ty.Optional[Function]
+                =None,
+            w:
+                _ty.Optional[Function]
                 =None):
         """Return as `Function` the result of applying `op`."""
         if op not in _dd_abc.BDD_OPERATOR_SYMBOLS:
@@ -555,6 +558,8 @@ cdef class BDD:
         if op in ('~', 'not', '!'):
             if v is not None:
                 raise ValueError(v)
+            if w is not None:
+                raise ValueError(w)
             r = sy.sylvan_not(u.node)
         elif v is None:
             raise ValueError(v)
@@ -577,6 +582,14 @@ cdef class BDD:
             r = sy.sylvan_forall(u.node, v.node)
         elif op in (r'\E', 'exists'):
             r = sy.sylvan_exists(u.node, v.node)
+        elif op == 'ite':
+            if w is None:
+                raise ValueError(w)
+            if w.bdd is not self:
+                raise ValueError(w)
+            r = sy.sylvan_ite(u.node, v.node, w.node)
+        if op != 'ite' and w is not None:
+            raise ValueError(w)
         if r == sy.sylvan_invalid:
             raise ValueError(
                 f'unknown operator: "{op}"')

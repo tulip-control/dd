@@ -138,8 +138,7 @@ cdef class BDD:
 
     def __str__(
             self):
-        s = 'Binary decision diagram (Sylvan wrapper)'
-        return s
+        return 'Binary decision diagram (Sylvan wrapper)'
 
     def configure(
             self,

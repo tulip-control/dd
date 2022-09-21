@@ -395,19 +395,17 @@ class BDD(dd._abc.BDD[_Ref]):
             ) -> _Ref:
         if u not in self:
             raise ValueError(u)
+        if v is None and w is not None:
+            raise ValueError(w)
+        if v is not None and v not in self:
+            raise ValueError(v)
+        if w is not None and w not in self:
+            raise ValueError(w)
         if v is None:
-            if w is not None:
-                raise ValueError(w)
             r = self._bdd.apply(op, u.node)
         elif w is None:
-            if v not in self:
-                raise ValueError(v)
             r = self._bdd.apply(op, u.node, v.node)
         else:
-            if v not in self:
-                raise ValueError(v)
-            if w not in self:
-                raise ValueError(w)
             r = self._bdd.apply(op, u.node, v.node, w.node)
         return self._wrap(r)
 

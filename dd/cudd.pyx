@@ -1780,6 +1780,9 @@ cdef class BDD:
                 raise ValueError(
                     f'`v is not None`, but: {v}')
             r = Cudd_Not(u.node)
+        elif v is None:
+            raise ValueError(
+                '`v is None`')
         # binary
         elif op in ('and', '/\\', '&', '&&'):
             r = Cudd_bddAnd(mgr, u.node, v.node)
@@ -1805,9 +1808,6 @@ cdef class BDD:
                 mgr, v.node, u.node)
         # ternary
         elif op == 'ite':
-            if v is None:
-                raise ValueError(
-                    '`v is None`')
             if w is None:
                 raise ValueError(
                     '`w is None`')

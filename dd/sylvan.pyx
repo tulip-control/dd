@@ -835,13 +835,13 @@ cdef class Function:
     Attributes (those that are properties are
     described in their docstrings):
 
-      - `_index`
-      - `var`
-      - `low`
-      - `high`
-      - `negated`
-      - `support`
-      - `dag_size`
+    - `_index`
+    - `var`
+    - `low`
+    - `high`
+    - `negated`
+    - `support`
+    - `dag_size`
 
     In Python, use as:
 

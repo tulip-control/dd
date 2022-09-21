@@ -195,20 +195,6 @@ cdef class BDD:
         var = index_to_var[index]
         return var
 
-    def level(
-            self,
-            var):
-        raise DeprecationWarning(
-            'use the method `dd.buddy.BDD.level_of_var` '
-            'instead of the method `dd.buddy.BDD.level`')
-
-    def at_level(
-            self,
-            level):
-        raise DeprecationWarning(
-            'use the method `dd.buddy.BDD.var_at_level` '
-            'instead of the method `dd.buddy.BDD.at_level`')
-
     cpdef apply(
             self,
             op,

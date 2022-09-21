@@ -1755,6 +1755,9 @@ cdef class BDD:
                 _ty.Optional[Function]
                 =None):
         """Return the result of applying `op`."""
+        if op not in _dd_abc.BDD_OPERATOR_SYMBOLS:
+            raise ValueError(
+                f'unknown operator: "{op}"')
         binary_but_w = (
             op != 'ite' and
             w is not None)

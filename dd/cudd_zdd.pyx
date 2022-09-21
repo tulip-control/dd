@@ -1926,6 +1926,9 @@ cdef class ZDD:
             - `'-'`
               (`a - b` means `a /\ ~ b`)
         """
+        if op not in _dd_abc.BDD_OPERATOR_SYMBOLS:
+            raise ValueError(
+                f'unknown operator: "{op}"')
         if self.manager != u.manager:
             raise ValueError(
                 'node `u` is from different ZDD manager')

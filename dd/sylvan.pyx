@@ -20,7 +20,7 @@ import signal
 import time
 import typing as _ty
 
-from cpython cimport bool as python_bool
+from cpython cimport bool as _py_bool
 from libcpp cimport bool
 
 import dd._abc as _dd_abc
@@ -32,7 +32,7 @@ from dd cimport c_sylvan as sy
 logger = logging.getLogger(__name__)
 
 
-_Yes: _ty.TypeAlias = python_bool
+_Yes: _ty.TypeAlias = _py_bool
 _Nat: _ty.TypeAlias = _dd_abc.Nat
 _Cardinality: _ty.TypeAlias = _dd_abc.Cardinality
 _VariableName: _ty.TypeAlias = _dd_abc.VariableName
@@ -381,7 +381,7 @@ cdef class BDD:
             return u
         var = next(iter(d))
         value = d[var]
-        if isinstance(value, python_bool):
+        if isinstance(value, _py_bool):
             return self._cofactor(u, d)
         elif isinstance(value, Function):
             return self._compose(u, d)

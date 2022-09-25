@@ -1834,14 +1834,11 @@ cdef class BDD:
             self,
             i:
                 int):
-        """Return node from `i`."""
-        u: DdRef
-        if i in (0, 1):
-            raise ValueError(i)
-        # invert `Function.__int__`
-        if 2 <= i:
-            i -= 2
-        u = <DdRef><stdint.uintptr_t>i
+        """Return node from `i`.
+
+        Inverse of `Function.__int__()`.
+        """
+        u: DdRef = _int_to_ddref(i)
         return wrap(self, u)
 
     cpdef Function cube(
@@ -2977,17 +2974,8 @@ cdef class Function:
     def __int__(
             self
             ) -> int:
-        # inverse is `BDD._add_int`
-        if sizeof(stdint.uintptr_t) != sizeof(DdRef):
-            raise AssertionError(
-                'mismatch of sizes')
-        i = <stdint.uintptr_t>self.node
-        # 0, 1 are true and false in logic syntax
-        if 0 <= i:
-            i += 2
-        if i in (0, 1):
-            raise AssertionError(i)
-        return i
+        """Inverse of `BDD._add_int()`."""
+        return _ddref_to_int(self.node)
 
     def __repr__(
             self
@@ -3203,6 +3191,41 @@ cdef class Function:
                 None=None
             ) -> _Cardinality:
         return self.bdd.count(self, nvars)
+
+
+cdef _ddref_to_int(
+        node:
+            DdRef):
+    """Convert node pointer to numeric index.
+
+    Inverse of `_int_to_ddref()`.
+    """
+    if sizeof(stdint.uintptr_t) != sizeof(DdRef):
+        raise AssertionError(
+            'mismatch of sizes')
+    index = <stdint.uintptr_t>node
+    # 0, 1 used to represent TRUE and FALSE
+    # in syntax of expressions
+    if 0 <= index:
+        index += 2
+    if index in (0, 1):
+        raise AssertionError(index)
+    return index
+
+
+cdef DdRef _int_to_ddref(
+        index:
+            int):
+    """Convert numeric index to node pointer.
+
+    Inverse of `_ddref_to_int()`.
+    """
+    if index in (0, 1):
+        raise ValueError(index)
+    if 2 <= index:
+        index -= 2
+    u: DdRef = <DdRef><stdint.uintptr_t>index
+    return u
 
 
 """Tests and test wrappers for C functions."""

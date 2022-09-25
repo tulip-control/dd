@@ -194,5 +194,13 @@ def test_func_len():
     assert n == 3, n
 
 
+def test_dd_version():
+    import dd
+    assert hasattr(dd, '__version__')
+    version = dd.__version__
+    assert version is not None
+    assert isinstance(version, str), version
+
+
 if __name__ == '__main__':
     test_str()

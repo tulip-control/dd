@@ -1991,20 +1991,26 @@ cdef class BDD:
         if u.manager != self.manager:
             raise ValueError(
                 '`u.manager != self.manager`')
-        return self._to_expr(u.node)
+        cache = dict()
+        return self._to_expr(u.node, cache)
 
     cdef str _to_expr(
             self,
             u:
-                DdRef):
+                DdRef,
+            cache:
+                dict[int, str]):
         if u == Cudd_ReadLogicZero(self.manager):
             return 'FALSE'
         if u == Cudd_ReadOne(self.manager):
             return 'TRUE'
+        u_index = _ddref_to_int(u)
+        if u_index in cache:
+            return cache[u_index]
         v = Cudd_E(u)
         w = Cudd_T(u)
-        p = self._to_expr(v)
-        q = self._to_expr(w)
+        p = self._to_expr(v, cache)
+        q = self._to_expr(w, cache)
         r = Cudd_Regular(u)
         var = self._var_with_index[r.index]
         # pure var ?
@@ -2015,6 +2021,7 @@ cdef class BDD:
         # complemented ?
         if Cudd_IsComplement(u):
             expr = f'(~ {expr})'
+        cache[u_index] = expr
         return expr
 
     def dump(

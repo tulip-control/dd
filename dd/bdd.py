@@ -2164,25 +2164,30 @@ class BDD(dd._abc.BDD[_Ref]):
                 f'{u} is not a reference to '
                 'a BDD node in the BDD manager '
                 f'`self` ({self!r})')
-        return self._to_expr(u)
+        cache = dict()
+        return self._to_expr(u, cache)
 
     def _to_expr(
             self,
             u:
-                _Ref
+                _Ref,
+            cache:
+                dict[int, str]
             ) -> _Formula:
         if u == 1:
             return 'TRUE'
         if u == -1:
             return 'FALSE'
+        if u in cache:
+            return cache[u]
         level, v, w = self._succ[abs(u)]
         if not v:
             raise AssertionError(v)
         if not w:
             raise AssertionError(w)
         var = self._level_to_var[level]
-        p = self._to_expr(v)
-        q = self._to_expr(w)
+        p = self._to_expr(v, cache)
+        q = self._to_expr(w, cache)
         # pure var ?
         if p == 'FALSE' and q == 'TRUE':
             expr = var
@@ -2191,6 +2196,7 @@ class BDD(dd._abc.BDD[_Ref]):
         # complemented ?
         if u < 0:
             expr = f'(~ {expr})'
+        cache[u] = expr
         return expr
 
     def apply(

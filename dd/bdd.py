@@ -2175,12 +2175,12 @@ class BDD(dd._abc.BDD[_Ref]):
             return 'TRUE'
         if u == -1:
             return 'FALSE'
-        i, v, w = self._succ[abs(u)]
+        level, v, w = self._succ[abs(u)]
         if not v:
             raise AssertionError(v)
         if not w:
             raise AssertionError(w)
-        var = self._level_to_var[i]
+        var = self._level_to_var[level]
         p = self._to_expr(v)
         q = self._to_expr(w)
         # pure var ?

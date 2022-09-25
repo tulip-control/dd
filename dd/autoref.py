@@ -745,7 +745,11 @@ class Function(dd._abc.Operator):
             self
             ) -> None:
         """Decrement reference count of `self.node` in `self.bdd`."""
-        self.manager.decref(self.node)
+        if self.node is None:
+            return
+        node = self.node
+        self.node = None
+        self.manager.decref(node)
 
     def __eq__(
             self,

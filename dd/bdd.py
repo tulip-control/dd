@@ -2185,13 +2185,13 @@ class BDD(dd._abc.BDD[_Ref]):
         q = self._to_expr(w)
         # pure var ?
         if p == 'FALSE' and q == 'TRUE':
-            s = var
+            expr = var
         else:
-            s = f'ite({var}, {q}, {p})'
+            expr = f'ite({var}, {q}, {p})'
         # complemented ?
         if u < 0:
-            s = f'(~ {s})'
-        return s
+            expr = f'(~ {expr})'
+        return expr
 
     def apply(
             self,

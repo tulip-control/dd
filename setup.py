@@ -1,5 +1,5 @@
 """Installation script."""
-import argparse
+import argparse as _arg
 import logging
 import os
 import sys
@@ -105,7 +105,7 @@ def git_version(version):
 
 def parse_args():
     """Return `args` irrelevant to `setuptools`."""
-    parser = argparse.ArgumentParser()
+    parser = _arg.ArgumentParser()
     parser.add_argument(
         '--fetch', action='store_true',
         help='download cudd from its website')

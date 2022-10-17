@@ -111,15 +111,20 @@ def parse_args(
     """Return `args` irrelevant to `setuptools`."""
     parser = _arg.ArgumentParser()
     parser.add_argument(
-        '--fetch', action='store_true',
+        '--fetch',
+        action='store_true',
         help='download cudd from its website')
     parser.add_argument(
-        '--linetrace', action='store_true',
+        '--linetrace',
+        action='store_true',
         help='use line tracing for Cython extensions')
     for opt in download.EXTENSIONS:
         parser.add_argument(
-            f'--{opt}', default=None,
-            const='', type=str, nargs='?',
+            f'--{opt}',
+            default=None,
+            const='',
+            type=str,
+            nargs='?',
             help=f'build Cython extension {opt}')
     args, unknown = parser.parse_known_args()
     args.sdist = 'sdist' in unknown

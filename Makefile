@@ -91,9 +91,6 @@ reinstall_sylvan: uninstall wheel_deps
 uninstall:
 	pip uninstall -y dd
 
-develop:
-	python setup.py develop
-
 test:
 	set -x; \
 	pushd tests; \

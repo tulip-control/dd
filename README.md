@@ -82,7 +82,6 @@ the file [`CHANGES.md`](
 Examples
 ========
 
-
 The module `dd.autoref` wraps the pure-Python BDD implementation `dd.bdd`.
 The API of `dd.cudd` is almost identical to `dd.autoref`.
 You can skip details about `dd.bdd`, unless you want to implement recursive

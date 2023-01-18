@@ -1057,16 +1057,15 @@ class BDD(dd._abc.BDD[_Ref]):
         if len(var_sub) == 1:
             (var, g), = var_sub.items()
             j = self.level_of_var(var)
-            r = self._compose(
+            return self._compose(
                 f, j, g, cache)
         else:
             dvars = {
                 self.level_of_var(var): g
                 for var, g in
                     var_sub.items()}
-            r = self._vector_compose(
+            return self._vector_compose(
                 f, dvars, cache)
-        return r
 
     def _compose(
             self,

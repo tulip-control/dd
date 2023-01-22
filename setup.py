@@ -34,10 +34,7 @@ PROJECT_URLS = {
     'Source Code':
         'https://github.com/tulip-control/dd'}
 VERSION_FILE = f'{PACKAGE_NAME}/_version.py'
-MAJOR = 0
-MINOR = 6
-MICRO = 0
-VERSION = f'{MAJOR}.{MINOR}.{MICRO}'
+VERSION = '0.6.0'
 VERSION_FILE_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")

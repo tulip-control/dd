@@ -6,8 +6,6 @@ read the file [1] included in the CUDD distribution [2].
 The text file format details can be found
 by reading the source code [3].
 
-For the `slugs` exporter, read [4].
-
 
 References
 ==========
@@ -19,9 +17,6 @@ References
 [2] <http://vlsi.colorado.edu/~fabio/CUDD/>
 
 [3] `cudd-X.Y.Z/dddmp/dddmpStoreBdd.c`, lines: 329--331, 345, 954
-
-[4] `src/BFAbstractionLibrary/BFCuddManager.cpp`
-    method: `BFBddManager.writeBDDToFile`
 """
 # Copyright 2014 by California Institute of Technology
 # All rights reserved. Licensed under BSD-3.

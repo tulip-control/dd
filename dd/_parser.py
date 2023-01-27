@@ -69,7 +69,7 @@ class Lexer(astutils.Lexer):
             ) -> _Token:
         r"""
         [A-Za-z_]
-        [A-za-z0-9_']*
+        [A-Za-z0-9_']*
         """
         token.type = self.reserved.get(
             token.value, 'NAME')

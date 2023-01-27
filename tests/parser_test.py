@@ -1,7 +1,9 @@
 """Tests of module `dd._parser`."""
 # This file is released in the public domain.
 #
-import logging as _log
+import collections.abc as _abc
+import itertools as _itr
+import logging
 import math
 import sys
 import typing as _ty
@@ -11,6 +13,45 @@ import dd._parser
 import pytest
 
 import iterative_recursive_flattener as _flattener
+
+
+_log = logging.getLogger(__name__)
+
+
+def _make_parser_test_expressions(
+        ) -> _abc.Iterable[str]:
+    """Yield test formulas."""
+    expressions = [
+        '~ FALSE',
+        '~ TRUE',
+        '! FALSE',
+        '! TRUE',
+        '@15',
+        '@-24',
+        r'FALSE /\ TRUE',
+        r'TRUE /\ FALSE',
+        r'FALSE \/ TRUE',
+        r'TRUE \/ FALSE',
+        r'TRUE \/ TRUE \/ FALSE',
+        'TRUE # FALSE',
+        'TRUE && TRUE',
+        'FALSE || TRUE',
+        'TRUE & FALSE',
+        'FALSE | TRUE',
+        'TRUE ^ FALSE',
+        r'\E x, y, z:  TRUE ^ x => y',
+        r'\A y:  y \/ x',
+        r'(TRUE) => (FALSE /\ TRUE)',
+        'TRUE <=> TRUE',
+        '~ (FALSE <=> FALSE)',
+        'ite(FALSE, FALSE, TRUE)',
+        " var_name' => x' ",
+        ]
+    def rm_blanks(expr):
+        return expr.replace('\x20', '')
+    return _itr.chain(
+        expressions,
+        map(rm_blanks, expressions))
 
 
 BDD_TRANSLATION_TEST_EXPRESSIONS: _ty.Final = [
@@ -33,33 +74,8 @@ BDD_TRANSLATION_TEST_EXPRESSIONS: _ty.Final = [
     'b <-> a',
     r'(a \/ b) & c',
     ]
-PARSER_TEST_EXPRESSIONS: _ty.Final = [
-    '~ FALSE',
-    '~ TRUE',
-    '! FALSE',
-    '! TRUE',
-    '@15',
-    '@-24',
-    r'FALSE /\ TRUE',
-    r'TRUE /\ FALSE',
-    r'FALSE \/ TRUE',
-    r'TRUE \/ FALSE',
-    r'TRUE \/ TRUE \/ FALSE',
-    'TRUE # FALSE',
-    'TRUE && TRUE',
-    'FALSE || TRUE',
-    'TRUE & FALSE',
-    'FALSE | TRUE',
-    'TRUE ^ FALSE',
-    r'\E x, y, z:  TRUE ^ x => y',
-    r'\A y:  y \/ x',
-    r'(TRUE) => (FALSE /\ TRUE)',
-    'TRUE <=> TRUE',
-    '~ (FALSE <=> FALSE)',
-    'ite(FALSE, FALSE, TRUE)',
-    " var_name' => x' ",
-    ]
-_log = _log.getLogger(__name__)
+PARSER_TEST_EXPRESSIONS: _ty.Final = list(
+    _make_parser_test_expressions())
 
 
 def test_all_parsers_same_results():

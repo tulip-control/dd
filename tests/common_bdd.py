@@ -1,4 +1,6 @@
 """Common tests for `autoref`, `cudd`."""
+# This file is released in the public domain.
+#
 import os
 
 

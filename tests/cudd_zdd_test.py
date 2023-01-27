@@ -1,4 +1,6 @@
 """Tests of the module `dd.cudd_zdd`."""
+# This file is released in the public domain.
+#
 import inspect
 import os
 import subprocess

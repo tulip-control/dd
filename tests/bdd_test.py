@@ -1,4 +1,6 @@
 """Tests of the module `dd.bdd`."""
+# This file is released in the public domain.
+#
 import logging
 import os
 

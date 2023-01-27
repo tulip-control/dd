@@ -1,4 +1,6 @@
 """Tests of the module `dd._copy`."""
+# This file is released in the public domain.
+#
 import dd.autoref as _autoref
 import dd.cudd as _cudd
 import dd._copy as _copy

@@ -1,4 +1,6 @@
 """Tests of the module `dd.autoref`."""
+# This file is released in the public domain.
+#
 import logging
 
 import dd.autoref as _bdd

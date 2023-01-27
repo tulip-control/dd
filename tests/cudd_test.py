@@ -1,4 +1,6 @@
 """Tests of the module `dd.cudd`."""
+# This file is released in the public domain.
+#
 import logging
 
 import dd.cudd as _cudd

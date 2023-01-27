@@ -1,4 +1,6 @@
 """Common tests for `cudd`, `cudd_zdd`."""
+# This file is released in the public domain.
+#
 import pytest
 
 

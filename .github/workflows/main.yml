@@ -27,7 +27,7 @@ jobs:
             - name: Install `dd`
               run: |
                 set -o posix
-                echo "Exported environment variables:"
+                echo 'Exported environment variables:'
                 export -p
                 export \
                     DD_FETCH=1 \
@@ -44,7 +44,7 @@ jobs:
             - name: Run `dd` tests
               run: |
                 set -o posix
-                echo "Exported environment variables:"
+                echo 'Exported environment variables:'
                 export -p
                 # run tests
                 make test

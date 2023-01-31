@@ -107,7 +107,7 @@ test:
 test_abc:
 	python -X dev tests/inspect_cython_signatures.py
 
-run_examples:
+test_examples:
 	pushd examples/; \
 	for script in `ls *.py`;  \
 	do \

@@ -39,7 +39,7 @@ VERSION_FILE_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")
 PYTHON_REQUIRES = '>=3.11'
-install_requires = [
+INSTALL_REQUIRES = [
     'astutils >= 0.0.5',
     'networkx >= 2.4',
     'ply >= 3.4, <= 3.10',
@@ -191,7 +191,7 @@ def run_setup(
         project_urls=PROJECT_URLS,
         license='BSD',
         python_requires=PYTHON_REQUIRES,
-        install_requires=install_requires,
+        install_requires=INSTALL_REQUIRES,
         tests_require=TESTS_REQUIRE,
         packages=[PACKAGE_NAME],
         package_dir={PACKAGE_NAME: PACKAGE_NAME},

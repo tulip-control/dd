@@ -2243,6 +2243,13 @@ cdef class Function(object):
         r = Cudd_bddOr(self.manager, self.node, other.node)
         return wrap(self.bdd, r)
 
+    def __xor__(Function self, Function other):
+        if self.manager != other.manager:
+            raise ValueError(
+                '`self.manager != other.manager`')
+        r = Cudd_bddXor(self.manager, self.node, other.node)
+        return wrap(self.bdd,r)
+
     def implies(Function self, Function other):
         if self.manager != other.manager:
             raise ValueError(

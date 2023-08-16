@@ -211,6 +211,7 @@ cdef extern from '_cudd_addendum.c':
 cdef CUDD_UNIQUE_SLOTS = 2**8
 cdef CUDD_CACHE_SLOTS = 2**18
 cdef CUDD_REORDER_GROUP_SIFT = 14
+cdef CUDD_REORDER_SIFT = 4
 cdef CUDD_OUT_OF_MEM = -1
 cdef MAX_CACHE = <unsigned int> - 1  # entries
 __version__ = CUDD_VERSION.decode('utf-8')
@@ -1618,7 +1619,7 @@ cpdef reorder(BDD bdd, dvars=None):
     """
     # invoke sifting ?
     if dvars is None:
-        Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_GROUP_SIFT, 1)
+        Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_SIFT, 1)
         return
     # partial reorderings not supported for now
     if len(dvars) != len(bdd.vars):

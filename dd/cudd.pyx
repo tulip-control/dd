@@ -1619,6 +1619,7 @@ cpdef reorder(BDD bdd, dvars=None):
     """
     # invoke sifting ?
     if dvars is None:
+        # Cudd_ReduceHeap(bdd.manager,CUDD_REORDER_GROUP_SIFT,1)
         Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_SIFT, 1)
         return
     # partial reorderings not supported for now

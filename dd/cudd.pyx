@@ -210,8 +210,28 @@ cdef extern from '_cudd_addendum.c':
         DdNode *f, int *renaming)
 cdef CUDD_UNIQUE_SLOTS = 2**8
 cdef CUDD_CACHE_SLOTS = 2**18
-cdef CUDD_REORDER_GROUP_SIFT = 14
+cdef CUDD_REORDER_SAME = 0
+cdef CUDD_REORDER_NONE = 1
+cdef CUDD_REORDER_RANDOM = 2
+cdef CUDD_REORDER_RANDOM_PIVOT = 3
 cdef CUDD_REORDER_SIFT = 4
+cdef CUDD_REORDER_SIFT_CONVERGE = 5 
+cdef CUDD_REORDER_SYMM_SIFT = 6
+cdef CUDD_REORDER_SYMM_SIFT_CONV = 7
+cdef CUDD_REORDER_WINDOW2 = 8
+cdef CUDD_REORDER_WINDOW3 = 9
+cdef CUDD_REORDER_WINDOW4 = 10
+cdef CUDD_REORDER_WINDOW2_CONV = 11
+cdef CUDD_REORDER_WINDOW3_CONV = 12
+cdef CUDD_REORDER_WINDOW4_CONV = 13
+cdef CUDD_REORDER_GROUP_SIFT = 14
+cdef CUDD_REORDER_GROUP_SIFT_CONV = 15
+cdef CUDD_REORDER_ANNEALING = 16
+cdef CUDD_REORDER_GENETIC = 17
+cdef CUDD_REORDER_LINEAR = 18
+cdef CUDD_REORDER_LINEAR_CONVERGE = 19
+cdef CUDD_REORDER_LAZY_SIFT = 20
+cdef CUDD_REORDER_EXACT = 21
 cdef CUDD_OUT_OF_MEM = -1
 cdef MAX_CACHE = <unsigned int> - 1  # entries
 __version__ = CUDD_VERSION.decode('utf-8')
@@ -1612,15 +1632,16 @@ cpdef Function or_forall(Function u, Function v, qvars):
     return wrap(u.bdd, r)
 
 
-cpdef reorder(BDD bdd, dvars=None):
+cpdef reorder(BDD bdd, dvars=None,
+              Cudd_ReorderingType=CUDD_REORDER_GROUP_SIFT):
     """Reorder `bdd` to order in `dvars`.
 
     If `dvars` is `None`, then invoke group sifting.
     """
     # invoke sifting ?
     if dvars is None:
-        # Cudd_ReduceHeap(bdd.manager,CUDD_REORDER_GROUP_SIFT,1)
-        Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_SIFT, 1)
+        Cudd_ReduceHeap(bdd.manager,Cudd_ReorderingType,1)
+        # Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_SIFT, 1)
         return
     # partial reorderings not supported for now
     if len(dvars) != len(bdd.vars):

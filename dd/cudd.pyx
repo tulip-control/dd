@@ -836,12 +836,13 @@ cdef class BDD(object):
             var: self.level_of_var(var)
             for var in self.vars}
 
-    def reorder(self, var_order=None):
+    def reorder(self, var_order=None,Cudd_ReorderingType = CUDD_REORDER_GROUP_SHIFT):
         """Reorder variables to `var_order`.
 
         If `var_order` is `None`, then invoke sifting.
         """
-        reorder(self, var_order)
+        reorder(self, var_order = var_order,
+                Cudd_ReorderingType = Cudd_ReorderingType)
 
     cpdef support(self, Function f):
         """Return `set` of variables that node `f` depends on."""

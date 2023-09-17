@@ -661,9 +661,7 @@ pass a smaller initial memory estimate, for example
 cudd.BDD(memory_estimate=0.5 * 2**30)
 ```
 
-The package [`humanize`](https://pypi.org/project/humanize/) is useful for
-reading memory sizes, for example
-`humanize.naturalsize(1073741824, binary=True)` returns `'1.0 GiB'`.
+Note that `2**30` bits is 1 gi*bi*byte (GiB), not 1 gi*ga*byte (GB).
 Relevant reading about [gigabyte](https://en.wikipedia.org/wiki/Gigabyte),
 [IEC prefixes for binary multiples](
     https://en.wikipedia.org/wiki/Binary_prefix#IEC_prefixes), and

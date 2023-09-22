@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 
-import pkg_resources as _pkg
 import setuptools
 
 import download
@@ -85,8 +84,8 @@ def git_version(
     # assert versions are increasing
     latest_tag = repo.git.describe(
         match='v[0-9]*', tags=True, abbrev=0)
-    latest_version = _pkg.parse_version(latest_tag)
-    given_version = _pkg.parse_version(version)
+    latest_version = _parse_version(latest_tag[1:])
+    given_version = _parse_version(version)
     if latest_version > given_version:
         raise AssertionError(
             (latest_tag, version))
@@ -104,6 +103,18 @@ def git_version(
     if tag != f'v{version}':
         raise AssertionError((tag, version))
     return version
+
+
+def _parse_version(
+        version:
+            str
+        ) -> tuple[
+            int, int, int]:
+    """Return numeric version."""
+    numerals = version.split('.')
+    if len(numerals) != 3:
+        raise ValueError(numerals)
+    return tuple(map(int, numerals))
 
 
 def parse_args(

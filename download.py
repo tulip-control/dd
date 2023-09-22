@@ -101,8 +101,11 @@ def extensions(
     path = args.cudd if args.cudd else CUDD_PATH
     cudd_include = [(path, s) for s in CUDD_INCLUDE]
     cudd_link = [(path, s) for s in CUDD_LINK]
-    _copy_cudd_license(args)
-    _copy_extern_licenses(args)
+    try:
+        _copy_cudd_license(args)
+        _copy_extern_licenses(args)
+    except FileNotFoundError:
+        print('license files of build dependencies not found')
     c_extensions = dict(
         cudd=_extension.Extension(
             'dd.cudd',

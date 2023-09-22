@@ -7,9 +7,6 @@ import sys
 import setuptools
 
 import download
-# inline:
-# from dd import _parser, dddmp
-# import git
 
 
 PACKAGE_NAME = 'dd'

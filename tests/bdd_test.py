@@ -93,9 +93,9 @@ def test_var():
 
 def test_assert_consistent():
     g = two_vars_xy()
-    assert g.assert_consistent()
+    g.assert_consistent()
     g = x_or_y()
-    assert g.assert_consistent()
+    g.assert_consistent()
     g._succ[2] = (5, 1, 2)
     with pytest.raises(AssertionError):
         g.assert_consistent()
@@ -110,7 +110,7 @@ def test_assert_consistent():
     with pytest.raises(AssertionError):
         g.assert_consistent()
     g = x_and_y()
-    assert g.assert_consistent()
+    g.assert_consistent()
 
 
 def test_level_to_variable():
@@ -723,7 +723,7 @@ def test_swap():
     assert n == 3, n
     assert nold == n, nold
     assert g.vars == {'y': 0, 'x': 1}, g.vars
-    assert g.assert_consistent()
+    g.assert_consistent()
     # functions remain invariant
     x_ = g.add_expr('x')
     y_ = g.add_expr('y')
@@ -741,7 +741,7 @@ def test_swap():
     assert g.vars == {'y': 0, 'x': 1}, g.vars
     u_ = g.add_expr(r'x /\ y')
     assert u == u_, (u, u_)
-    assert g.assert_consistent()
+    g.assert_consistent()
     # reference counts unchanged
     assert g._ref[abs(u)] == 1
     # x /\ ~ y
@@ -757,7 +757,7 @@ def test_swap():
     assert n == 3, n
     assert nold == n, nold
     assert g.vars == {'x': 1, 'y': 0}
-    assert g.assert_consistent()
+    g.assert_consistent()
     u_ = g.add_expr(e)
     # function u must have remained unaffected
     assert u_ == u, (u, u_, g._succ)
@@ -767,7 +767,7 @@ def test_swap():
     assert n == 3, n
     assert nold == n, nold
     assert g.vars == {'x': 0, 'y': 1}
-    assert g.assert_consistent()
+    g.assert_consistent()
     u_ = g.add_expr(e)
     assert u_ == u, (u, u_, g._succ)
     # Figs. 6.24, 6.25 Baier 2008
@@ -786,7 +786,7 @@ def test_swap():
     g.swap('y1', 'z3')  # z1, z2, z3, y1, y2, y3
     n = len(g)
     assert n == 15, n
-    assert g.assert_consistent()
+    g.assert_consistent()
     new_ordering = {
         'z1': 0, 'z2': 1, 'z3': 2,
         'y1': 3, 'y2': 4, 'y3': 5}
@@ -945,7 +945,7 @@ def test_undeclare_vars():
     assert rm_vars == rm_vars_, (rm_vars, rm_vars_)
     bdd_vars_ = dict(x=0, y=1, w=2)
     assert bdd.vars == bdd_vars_, bdd.vars
-    assert bdd.assert_consistent()
+    bdd.assert_consistent()
     # nonempty `vrs` with all empty levels
     bdd = BDD()
     bdd.declare('x', 'y', 'z', 'w')
@@ -955,7 +955,7 @@ def test_undeclare_vars():
     assert rm_vars == rm_vars_, (rm_vars, rm_vars_)
     bdd_vars_ = dict(y=0, w=1)
     assert bdd.vars == bdd_vars_, bdd.vars
-    assert bdd.assert_consistent()
+    bdd.assert_consistent()
     # nonempty `vrs` without all empty levels
     bdd = BDD()
     bdd.declare('x', 'y', 'z', 'w')
@@ -965,7 +965,7 @@ def test_undeclare_vars():
     assert rm_vars == rm_vars_, (rm_vars, rm_vars_)
     bdd_vars_ = dict(x=0, y=1, w=2)
     assert bdd.vars == bdd_vars_, bdd.vars
-    assert bdd.assert_consistent()
+    bdd.assert_consistent()
     # remove only unused variables
     bdd = BDD()
     bdd.declare('x', 'y', 'z', 'w')
@@ -1014,7 +1014,7 @@ def test_dump_load():
     u_loaded, = b.load(fname)
     assert u_loaded == u_new, (
         u_dumped, u_loaded, u_new)
-    assert b.assert_consistent()
+    b.assert_consistent()
 
 
 def test_dump_load_manager():
@@ -1026,7 +1026,7 @@ def test_dump_load_manager():
     fname = f'{prefix}.p'
     g._dump_manager(fname)
     h = g._load_manager(fname)
-    assert g.assert_consistent()
+    g.assert_consistent()
     u_ = h.add_expr(e)
     assert u == u_, (u, u_)
     # h.dump(f'{prefix}.pdf')

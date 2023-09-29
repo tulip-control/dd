@@ -1736,7 +1736,6 @@ class BDD(dd._abc.BDD):
                 raise AssertionError(u)
             if self._ref[u] < 0:
                 raise AssertionError(self._ref[u])
-        return True
 
     @_try_to_reorder
     def add_expr(self, expr):

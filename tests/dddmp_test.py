@@ -131,7 +131,7 @@ def test_load_dddmp():
         'G7', 'TMP1', 'TMP2', 'TMP3'}
     bddvars = set(bdd.vars)
     assert bddvars == varnames, bddvars
-    assert bdd.assert_consistent()
+    bdd.assert_consistent()
 
 
 def test_rewrite_tables():

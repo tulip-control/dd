@@ -43,7 +43,6 @@ INSTALL_REQUIRES = [
     'astutils >= 0.0.5',
     'networkx >= 2.4',
     'ply >= 3.4, <= 3.10',
-    'pydot >= 1.2.2',
     'setuptools >= 65.6.0']
 TESTS_REQUIRE = [
     'pytest >= 4.6.11']

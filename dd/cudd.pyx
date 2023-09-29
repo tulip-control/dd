@@ -2059,6 +2059,8 @@ cdef class BDD:
                 filetype = 'png'
             elif name.endswith('.svg'):
                 filetype = 'svg'
+            elif name.endswith('.dot'):
+                filetype = 'dot'
             elif name.endswith('.p'):
                 raise ValueError(
                     'pickling unsupported '
@@ -2082,8 +2084,8 @@ cdef class BDD:
                 raise ValueError(roots)
             _copy.dump_json(roots, filename)
             return
-        elif filetype not in (
-                'pickle', 'pdf', 'png', 'svg'):
+        elif (filetype != 'pickle' and
+                filetype not in _utils.DOT_FILE_TYPES):
             raise ValueError(filetype)
         bdd = autoref.BDD()
         _copy.copy_vars(self, bdd)

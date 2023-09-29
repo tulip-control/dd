@@ -2539,12 +2539,14 @@ cdef class ZDD:
                 filetype = 'png'
             elif name.endswith('.svg'):
                 filetype = 'svg'
+            elif name.endswith('.dot'):
+                filetype = 'dot'
             else:
                 raise ValueError(
                     'cannot infer file type '
                     'from extension of file '
                     f'name "{filename}"')
-        if filetype in ('pdf', 'png', 'svg'):
+        if filetype in _utils.DOT_FILE_TYPES:
             self._dump_figure(
                 roots, filename, filetype)
         else:
@@ -2565,16 +2567,11 @@ cdef class ZDD:
             **kw
             ) -> None:
         """Write BDDs to `filename` as figure."""
-        pd = _to_pydot(roots)
-        if filetype == 'pdf':
-            pd.write_pdf(filename, **kw)
-        elif filetype == 'png':
-            pd.write_png(filename, **kw)
-        elif filetype == 'svg':
-            pd.write_svg(filename, **kw)
-        else:
-            raise ValueError(
-                f'Unknown file type of "{filename}"')
+        g = _to_dot(roots)
+        g.dump(
+            filename,
+            filetype=filetype,
+            **kw)
 
     cpdef load(
             self,
@@ -3158,24 +3155,23 @@ def _to_nx(
     g.add_edge(u_nd, w_nd, taillabel='1', style='solid')
 
 
-def _to_pydot(
+def _to_dot(
         roots:
             _abc.Collection[Function]
-        ) -> '_utils.Dot':
+        ) -> _utils.DotGraph:
     """Return graph for the ZDD rooted at `u`."""
-    global _pydot
-    _pydot = _utils.import_module('pydot')
     if not roots:
         raise ValueError(
             f'No `roots` given:  {roots}')
     assert roots, roots
-    g = _pydot.Dot('zdd', graph_type='digraph')
+    g = _utils.DotGraph(
+        graph_type='digraph')
     # construct graphs
     subgraphs = _add_nodes_for_zdd_levels(g, roots)
-    # mapping CUDD ZDD node ID -> node name in `pydot` graph
+    # mapping CUDD ZDD node ID -> node name in DOT graph
     umap = dict()
     for u in roots:
-        _to_pydot_recurse(
+        _to_dot_recurse(
             g, u, umap, subgraphs)
     _add_nodes_for_external_references(
         roots, umap, g, subgraphs[-1])
@@ -3188,7 +3184,7 @@ def _add_nodes_for_zdd_levels(
             _abc.Collection[Function]
         ) -> dict[
             int,
-            _ty.Any]:
+            _utils.DotGraph]:
     """Create nodes and subgraphs for ZDD levels.
 
     For each level of any ZDD node reachable from `roots`,
@@ -3208,9 +3204,8 @@ def _add_nodes_for_zdd_levels(
     The collection of subgraphs (`h_level` above) is returned.
 
     @return:
-        subgraphs (as `pydot.Subgraph`) for
-        the ZDD levels of nodes reachable from `roots`,
-        as a `dict` that maps each ZDD level to a subgraph
+        mapping from each ZDD level to a subgraph,
+        for the ZDD levels of nodes reachable from `roots`.
     """
     # mapping level -> var
     level_to_var = _collect_var_levels(roots)
@@ -3219,11 +3214,12 @@ def _add_nodes_for_zdd_levels(
     subgraphs = dict()
     level_node_names = list()
     for level in sorted(level_to_var):
-        h = _pydot.Subgraph('', rank='same')
-        g.add_subgraph(h)
+        h = _utils.DotGraph(
+            rank='same')
+        g.subgraphs.append(h)
         subgraphs[level] = h
         # add phantom node
-        u = f'L{level}'
+        u = f'"L{level}"'
         level_node_names.append(u)
         if level == -1:
             # layer for external ZDD references
@@ -3231,24 +3227,31 @@ def _add_nodes_for_zdd_levels(
         else:
             # ZDD level
             label = str(level)
-        _add_pydot_node(h, u, label=label, shape='none')
+        h.add_node(
+            u,
+            label=label,
+            shape='none')
     # auxiliary edges for ranking of levels
     a, a1 = _itr.tee(level_node_names)
     next(a1, None)
     for u, v in zip(a, a1):
-        _add_pydot_edge(g, u, v, style='invis')
+        g.add_edge(
+            u, v,
+            style='invis')
     return subgraphs
 
 
-def _to_pydot_recurse(
+def _to_dot_recurse(
         g:
-            '_utils.Dot',
+            _utils.DotGraph,
         u:
             Function,
         umap:
             dict[int, int],
         subgraphs:
-            dict[_Level, _ty.Any]
+            dict[
+                _Level,
+                _utils.DotGraph]
         ) -> None:
     """Recursively construct a ZDD graph."""
     u_int = int(u)
@@ -3261,7 +3264,9 @@ def _to_pydot_recurse(
     else:
         label = u.var
     h = subgraphs[u.level]
-    _add_pydot_node(h, u_nd, label=label)
+    h.add_node(
+        u_nd,
+        label=label)
     if u.var is None:
         return
     v, w = u.low, u.high
@@ -3271,12 +3276,18 @@ def _to_pydot_recurse(
         raise AssertionError(w)
     v_int = int(v)
     w_int = int(w)
-    _to_pydot_recurse(g, v, umap, subgraphs)
-    _to_pydot_recurse(g, w, umap, subgraphs)
+    _to_dot_recurse(g, v, umap, subgraphs)
+    _to_dot_recurse(g, w, umap, subgraphs)
     v_nd = umap[v_int]
     w_nd = umap[w_int]
-    _add_pydot_edge(g, u_nd, v_nd, taillabel='0', style='dashed')
-    _add_pydot_edge(g, u_nd, w_nd, taillabel='1', style='solid')
+    g.add_edge(
+        u_nd, v_nd,
+        taillabel='0',
+        style='dashed')
+    g.add_edge(
+        u_nd, w_nd,
+        taillabel='1',
+        style='solid')
 
 
 def _add_nodes_for_external_references(
@@ -3285,9 +3296,9 @@ def _add_nodes_for_external_references(
         umap:
             dict[int, int],
         g:
-            '_utils.Dot',
+            _utils.DotGraph,
         h:
-            '_utils.Dot'
+            _utils.DotGraph
         ) -> None:
     """Add nodes to `g` that represent the references in `roots`.
 
@@ -3306,35 +3317,13 @@ def _add_nodes_for_external_references(
         # add node to subgraph at level -1
         ref_nd = f'ref{int(u)}'
         label = f'@{int(u)}'
-        _add_pydot_node(h, ref_nd, label=label)
+        h.add_node(
+            ref_nd,
+            label=label)
         # add edge from external reference to ZDD node
-        _add_pydot_edge(
-            g, ref_nd, u_nd,
+        g.add_edge(
+            ref_nd, u_nd,
             style='dashed')
-
-
-def _add_pydot_node(
-        g,
-        node_name,
-        **kw
-        ) -> None:
-    """Add a node to the `pydot` graph `g`."""
-    node = _pydot.Node(name=str(node_name), **kw)
-    g.add_node(node)
-
-
-def _add_pydot_edge(
-        g,
-        source_node_name,
-        target_node_name,
-        **kw
-        ) -> None:
-    """Add an edge to the `pydot` graph `g`."""
-    edge = _pydot.Edge(
-        str(source_node_name),
-        str(target_node_name),
-        **kw)
-    g.add_edge(edge)
 
 
 def _collect_var_levels(

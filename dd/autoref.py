@@ -486,12 +486,14 @@ class BDD(dd._abc.BDD[_Ref]):
                 filetype = 'png'
             elif name.endswith('.svg'):
                 filetype = 'svg'
+            elif name.endswith('.dot'):
+                filetype = 'dot'
             elif name.endswith('.p'):
                 filetype = 'pickle'
             elif name.endswith('.json'):
                 filetype = 'json'
             else:
-                raise Exception(
+                raise ValueError(
                     'cannot infer file type '
                     'from extension of file '
                     f'name "{filename}"')
@@ -500,8 +502,8 @@ class BDD(dd._abc.BDD[_Ref]):
                 raise ValueError(roots)
             _copy.dump_json(roots, filename)
             return
-        elif filetype not in (
-                'pickle', 'pdf', 'png', 'svg'):
+        elif (filetype != 'pickle' and
+                filetype not in _utils.DOT_FILE_TYPES):
             raise ValueError(filetype)
         if roots is not None:
             def mapper(u):

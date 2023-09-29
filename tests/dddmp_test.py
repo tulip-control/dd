@@ -50,9 +50,7 @@ def test_sample0():
         'a': 1, 'b': 2, 'c': 3}, ordering
     assert roots == {-5}
     # debugging
-    # h = to_nx(bdd, n_vars, ordering, roots)
-    # pd = nx.drawing.nx_pydot.to_pydot(h)
-    # pd.write_pdf('bdd.pdf')
+    # h.dump('bdd.pdf', roots, filetype='pdf')
 
 
 def test_sample1():

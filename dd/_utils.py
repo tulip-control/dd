@@ -2,8 +2,11 @@
 # Copyright 2017-2018 by California Institute of Technology
 # All rights reserved. Licensed under 3-clause BSD.
 #
+import collections as _cl
 import collections.abc as _abc
 import os
+import shlex as _sh
+import subprocess as _sbp
 import textwrap as _tw
 import types
 import typing as _ty
@@ -15,17 +18,10 @@ try:
 except ImportError as error:
     _nx = None
     _nx_error = error
-try:
-    import pydot as _pydot
-except ImportError as error:
-    _pydot = None
-    _pydot_error = error
 
 
 if _nx is not None:
     MultiDiGraph: _ty.TypeAlias = _nx.MultiDiGraph
-if _pydot is not None:
-    Dot: _ty.TypeAlias = _pydot.Dot
 
 
 # The mapping from values of argument `op` of
@@ -50,13 +46,11 @@ def import_module(
     Raise `ImportError` otherwise.
     """
     modules = dict(
-        networkx=_nx,
-        pydot=_pydot)
+        networkx=_nx)
     if module_name in modules:
         return modules[module_name]
     errors = dict(
-        networkx=_nx_error,
-        pydot=_pydot_error)
+        networkx=_nx_error)
     raise errors[module_name]
 
 
@@ -321,3 +315,148 @@ def assert_operator_arity(
         if w is None:
             raise ValueError(
                 '`w is None`')
+
+
+_GraphType: _ty.TypeAlias = _ty.Literal[
+    'digraph',
+    'graph',
+    'subgraph']
+DOT_FILE_TYPES: _ty.Final = {
+    'pdf', 'svg', 'png', 'dot'}
+
+
+class DotGraph:
+    def __init__(
+            self,
+            graph_type:
+                _GraphType='digraph',
+            rank:
+                str |
+                None=None
+            ) -> None:
+        """A DOT graph."""
+        self.graph_type = graph_type
+        self.rank = rank
+        self.nodes = _cl.defaultdict(dict)
+        self.edges = _cl.defaultdict(list)
+        self.subgraphs = list()
+
+    def add_node(
+            self,
+            node,
+            **kw
+            ) -> None:
+        """Add node with attributes `kw`.
+
+        If node exists, update its attributes.
+        """
+        self.nodes[node].update(kw)
+
+    def add_edge(
+            self,
+            start_node,
+            end_node,
+            **kw
+            ) -> None:
+        """Add edge with attributes `kw`.
+
+        Multiple edges can exist between the same nodes.
+        """
+        self.edges[start_node, end_node].append(kw)
+
+    def to_dot(
+            self,
+            graph_type:
+                _GraphType |
+                None=None
+            ) -> str:
+        """Return DOT code."""
+        subgraphs = ''.join(
+            g.to_dot(
+                graph_type='subgraph')
+            for g in self.subgraphs)
+        def format_attributes(
+                attr
+                ) -> str:
+            """Return formatted assignment."""
+            return ', '.join(
+                f'{k}="{v}"'
+                for k, v in attr.items())
+        def format_node(
+                u,
+                attr
+                ) -> str:
+            """Return DOT code for node."""
+            attributes = format_attributes(attr)
+            return f'{u} [{attributes}];'
+        def format_edge(
+                u,
+                v,
+                attr
+                ) -> str:
+            """Return DOT code for edge."""
+            attributes = format_attributes(attr)
+            return f'{u} -> {v} [{attributes}];'
+        nodes = '\n'.join(
+            format_node(u, attr)
+            for u, attr in self.nodes.items())
+        edges = list()
+        for (u, v), attrs in self.edges.items():
+            for attr in attrs:
+                edge = format_edge(u, v, attr)
+                edges.append(edge)
+        edges = '\n'.join(edges)
+        indent_level = 4 * '\x20'
+        def fmt(
+                text:
+                    str
+                ) -> str:
+            """Return indented text."""
+            newline = '\n' if text else ''
+            return newline + _tw.indent(
+                text,
+                prefix=4 * indent_level)
+        nodes = fmt(nodes)
+        edges = fmt(edges)
+        subgraphs = fmt(subgraphs)
+        if graph_type is None:
+            graph_type = self.graph_type
+        if self.rank is None:
+            rank = ''
+        else:
+            rank = f'rank = {self.rank}'
+        return _tw.dedent(f'''
+            {graph_type} {{
+                {rank}{nodes}{edges}{subgraphs}
+            }}
+            ''')
+
+    def dump(
+            self,
+            filename:
+                str,
+            filetype:
+                str,
+            **kw
+            ) -> None:
+        """Write to file."""
+        if filetype not in DOT_FILE_TYPES:
+            raise ValueError(
+                f'Unknown file type "{filetype}" '
+                f'for "{filename}"')
+        dot_code = self.to_dot()
+        if filetype == 'dot':
+            with open(filename, 'w') as fd:
+                fd.write(dot_code)
+            return
+        dot = _sh.split(f'''
+            dot
+                -T{filetype}
+                -o '{filename}'
+            ''')
+        _sbp.run(
+            dot,
+            encoding='utf8',
+            input=dot_code,
+            capture_output=True,
+            check=True)

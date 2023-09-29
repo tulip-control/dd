@@ -1,6 +1,8 @@
 """Common tests for `autoref`, `cudd`, `cudd_zdd`."""
 # This file is released in the public domain.
 #
+import os
+
 import pytest
 
 
@@ -801,3 +803,62 @@ class Tests:
         node_str = str(u)
         s = f'@{node_id}'
         assert node_str == s, (node_str, s)
+
+    def test_dump_using_graphviz(
+            self):
+        bdd = self.DD()
+        bdd.declare('x', 'y')
+        u = bdd.add_expr(r'x /\ y')
+        for ext in ('dot', 'pdf', 'png', 'svg', 'ext'):
+            filename = f'bdd.{ext}'
+            if os.path.isfile(filename):
+                os.remove(filename)
+        # dot
+        bdd.dump('bdd.dot', [u])
+        assert os.path.isfile('bdd.dot')
+        os.remove('bdd.dot')
+        bdd.dump(
+            'bdd.dot', [u],
+            filetype='dot')
+        assert os.path.isfile('bdd.dot')
+        # pdf
+        bdd.dump('bdd.pdf', [u])
+        assert os.path.isfile('bdd.pdf')
+        os.remove('bdd.pdf')
+        bdd.dump(
+            'bdd.pdf', [u],
+            filetype='pdf')
+        assert os.path.isfile('bdd.pdf')
+        # no ext
+        if os.path.isfile('bdd'):
+            os.remove('bdd')
+        bdd.dump(
+            'bdd', [u],
+            filetype='pdf')
+        assert os.path.isfile('bdd')
+        # png
+        bdd.dump(
+            'bdd.png', [u])
+        assert os.path.isfile('bdd.png')
+        os.remove('bdd.png')
+        bdd.dump(
+            'bdd.png', [u],
+            filetype='png')
+        assert os.path.isfile('bdd.png')
+        # svg
+        bdd.dump(
+            'bdd.svg', [u])
+        assert os.path.isfile('bdd.svg')
+        os.remove('bdd.svg')
+        bdd.dump(
+            'bdd.svg', [u],
+            filetype='svg')
+        assert os.path.isfile('bdd.svg')
+        # ext
+        bdd.dump(
+            'bdd.ext', [u],
+            filetype='pdf')
+        assert os.path.isfile('bdd.ext')
+        with pytest.raises(ValueError):
+            bdd.dump(
+                'bdd.ext', [u])

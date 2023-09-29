@@ -45,7 +45,7 @@ Contains:
 - Zero-omitted binary decision diagrams (ZDDs) in CUDD
 - Conversion from BDDs to MDDs.
 - Conversion functions to [`networkx`](https://networkx.org) and
-  [`pydot`](https://pypi.org/project/pydot) graphs.
+  [DOT](https://www.graphviz.org/doc/info/lang.html) graphs.
 - BDDs have methods to `dump` and `load` them using [JSON](
     https://wikipedia.org/wiki/JSON), or [`pickle`](
     https://docs.python.org/3/library/pickle.html).
@@ -148,7 +148,7 @@ from dd.cudd import BDD
 ```
 
 Most useful functionality is available via methods of the class `BDD`.
-A few of the functions can prove handy too, mainly `to_nx`, `to_pydot`.
+A few of the functions can prove useful too, among them `to_nx()`.
 Use the method `BDD.dump` to write a `BDD` to a `pickle` file, and
 `BDD.load` to load it back. A CUDD dddmp file can be loaded using
 the function `dd.dddmp.load`.

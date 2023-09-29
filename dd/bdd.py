@@ -2314,6 +2314,8 @@ class BDD(dd._abc.BDD[_Ref]):
                 filetype = 'png'
             elif name.endswith('.svg'):
                 filetype = 'svg'
+            elif name.endswith('.dot'):
+                filetype = 'dot'
             elif name.endswith('.p'):
                 filetype = 'pickle'
             else:
@@ -2321,7 +2323,7 @@ class BDD(dd._abc.BDD[_Ref]):
                     'cannot infer file type '
                     'from extension of file '
                     f'name "{filename}"')
-        if filetype in ('pdf', 'png', 'svg'):
+        if filetype in _utils.DOT_FILE_TYPES:
             self._dump_figure(
                 roots, filename,
                 filetype, **kw)
@@ -2343,16 +2345,8 @@ class BDD(dd._abc.BDD[_Ref]):
             **kw
             ) -> None:
         """Write BDDs to `filename` as figure."""
-        g = to_pydot(roots, self)
-        if filetype == 'pdf':
-            g.write_pdf(filename, **kw)
-        elif filetype == 'png':
-            g.write_png(filename, **kw)
-        elif filetype == 'svg':
-            g.write_svg(filename, **kw)
-        else:
-            raise ValueError(
-                f'Unknown file type of "{filename}"')
+        g = _to_dot(roots, self)
+        g.dump(filename, filetype=filetype, **kw)
 
     def _dump_bdd(
             self,
@@ -3283,14 +3277,14 @@ def to_nx(
     return g
 
 
-def to_pydot(
+def _to_dot(
         roots:
             _abc.Iterable[_Ref] |
             None,
         bdd:
             BDD
-        ) -> '_utils.Dot':
-    """Convert `BDD` to pydot graph.
+        ) -> _utils.DotGraph:
+    """Convert `BDD` to DOT graph.
 
     Nodes are ordered by variable levels in support.
     Edges to low successors are dashed.
@@ -3302,7 +3296,6 @@ def to_pydot(
     The roots are plotted as external references,
     with complemented edges where applicable.
     """
-    _pydot = _utils.import_module('pydot')
     # all nodes ?
     if roots is None:
         nodes = bdd._succ
@@ -3317,8 +3310,7 @@ def to_pydot(
         raise AssertionError(
             'level of node 1 is missing from computed '
             'set of BDD nodes reachable from `roots`')
-    g = _pydot.Dot(
-        'bdd',
+    g = _utils.DotGraph(
         graph_type='digraph')
     skeleton = list()
     subgraphs = dict()
@@ -3326,13 +3318,12 @@ def to_pydot(
     layers = [-1] + sorted(levels)
     # add nodes for BDD levels
     for i in layers:
-        h = _pydot.Subgraph(
-            '',
+        h = _utils.DotGraph(
             rank='same')
-        g.add_subgraph(h)
+        g.subgraphs.append(h)
         subgraphs[i] = h
         # add phantom node
-        u = f'L{i}'
+        u = f'"L{i}"'
         skeleton.append(u)
         if i == -1:
             # layer for external BDD references
@@ -3340,18 +3331,16 @@ def to_pydot(
         else:
             # BDD level
             label = str(i)
-        nd = _pydot.Node(
-            name=u,
+        h.add_node(
+            u,
             label=label,
             shape='none')
-        h.add_node(nd)
     # auxiliary edges for ranking
     for i, u in enumerate(skeleton[:-1]):
         v = skeleton[i + 1]
-        e = _pydot.Edge(
-            str(u), str(v),
+        g.add_edge(
+            u, v,
             style='invis')
-        g.add_edge(e)
     # add nodes
     idx2var = {
         k: v
@@ -3368,46 +3357,43 @@ def to_pydot(
             var = idx2var[i]
         su = f(u)
         label = f'{var}-{su}'
-        nd = _pydot.Node(
-            name=su,
-            label=label)
         # add node to subgraph for level i
         h = subgraphs[i]
-        h.add_node(nd)
+        h.add_node(
+            su,
+            label=label)
         # add edges
         if v is None:
             continue
         sv = f(v)
         sw = f(w)
-        vlabel = '-1' if v < 0 else ' '
-        e = _pydot.Edge(
+        kw = dict(style='dashed')
+        if v < 0:
+            kw['taillabel'] = '-1'
+        g.add_edge(
             su, sv,
-            style='dashed',
-            taillabel=vlabel)
-        g.add_edge(e)
-        e = _pydot.Edge(
+            **kw)
+        g.add_edge(
             su, sw,
             style='solid')
-        g.add_edge(e)
     # external references to BDD nodes
     for u in roots:
         i, _, _ = bdd._succ[abs(u)]
-        su = f'ref{u}'
+        su = f'"ref{u}"'
         label = f'@{u}'
-        nd = _pydot.Node(
-            name=su,
-            label=label)
         # add node to subgraph for level -1
         h = subgraphs[-1]
-        h.add_node(nd)
+        h.add_node(
+            su,
+            label=label)
         # add edge from external reference to BDD node
         if u is None:
             raise ValueError(f'{u} in `roots`')
         sv = str(abs(u))
-        vlabel = '-1' if u < 0 else ' '
-        e = _pydot.Edge(
+        kw = dict(style='dashed')
+        if u < 0:
+            kw.update(taillabel='-1')
+        g.add_edge(
             su, sv,
-            style='dashed',
-            taillabel=vlabel)
-        g.add_edge(e)
+            **kw)
     return g

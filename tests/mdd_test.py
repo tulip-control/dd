@@ -1,5 +1,6 @@
 """Tests of the module `dd.mdd`."""
 import logging
+import os
 
 import dd.bdd
 import dd.mdd
@@ -40,13 +41,27 @@ def test_bdd_to_mdd():
         x=dict(level=1, len=2, bitnames=['x']),
         y=dict(level=0, len=2, bitnames=['y']))
     mdd, umap = dd.mdd.bdd_to_mdd(bdd, dvars)
-    # mdd.dump('mdd.pdf')
-    # bdd.dump('bdd.pdf')
     v = umap[abs(u)]
     if u < 0:
         v = -v
     print(v)
     bdd.decref(u)
+
+
+def test_mdd_dump_to_pdf():
+    dvars = dict(
+        x=dict(level=0, len=2),
+        y=dict(level=1, len=2))
+    mdd = dd.mdd.MDD(dvars)
+    v = mdd.find_or_add(1, -1, 1)
+    u = mdd.find_or_add(0, -1, -v)
+        # x /\ ~ y
+    assert u < 0, u
+    filename = 'mdd.pdf'
+    if os.path.isfile(filename):
+        os.remove(filename)
+    mdd.dump('mdd.pdf')
+    assert os.path.isfile(filename)
 
 
 if __name__ == '__main__':

@@ -25,24 +25,9 @@ import logging
 import sys
 import typing as _ty
 
-try:
-    import networkx as _nx
-except ImportError as error:
-    _nx = None
-    _nx_error = error
-try:
-    import pydot as _pydot
-except ImportError as error:
-    _pydot = None
-    _pydot_error = error
-
 import dd._abc
 import dd.bdd as _bdd
 import dd._utils as _utils
-
-
-if _pydot is not None:
-    _Dot: _ty.TypeAlias = _pydot.Dot
 
 
 logger = logging.getLogger(__name__)
@@ -482,12 +467,17 @@ class MDD:
         The diagram includes all nodes in the MDD.
         The diagram is created using GraphViz.
         """
+        g = _to_dot(self)
         if fname.endswith('.pdf'):
-            pd = to_pydot(self)
-            pd.write_pdf(fname)
+            filetype = 'pdf'
+        elif fname.endswith('.dot'):
+            filetype = 'dot'
         else:
-            raise Exception(
+            raise ValueError(
                 f'unknown file extension: {fname}')
+        g.dump(
+            fname,
+            filetype=filetype)
 
 
 def bdd_to_mdd(
@@ -622,15 +612,13 @@ def _debug_dump(
         bdd
         ) -> None:
     """Dump nodes of `bdd`, coloring nodes in `pred`."""
-    if _nx is None:
-        raise _nx_error
-    g = _bdd.to_nx(bdd, roots=bdd._succ)
+    g = _bdd._to_dot(bdd._succ, bdd)
     color = 'red'
     for u in pred:
         if u < 1:
             raise ValueError(u)
         g.add_node(u, color=color)
-    for u in g:
+    for u in g.nodes:
         if u < 1:
             raise AssertionError(u)
         if u == 1:
@@ -639,35 +627,39 @@ def _debug_dump(
         var = bdd.var_at_level(level)
         label = f'{var}-{u}'
         g.add_node(u, label=label)
-    pd = _nx.drawing.nx_pydot.to_pydot(g)
-    pd.write_pdf('bdd_colored.pdf')
+    g.dump(
+        'bdd_colored.pdf',
+        filetype='pdf')
     bdd.dump('bdd.pdf')
 
 
-def to_pydot(
+def _to_dot(
         mdd:
             MDD
-        ) -> '_Dot':
-    if _pydot is None:
-        raise _pydot_error
-    g = _pydot.Dot('mdd', graph_type='digraph')
+        ) -> _utils.DotGraph:
+    g = _utils.DotGraph(
+        graph_type='digraph')
     skeleton = list()
     subgraphs = dict()
     n = len(mdd.vars) + 1
     for i in range(n):
-        h = _pydot.Subgraph('', rank='same')
-        g.add_subgraph(h)
+        h = _utils.DotGraph(
+            rank='same')
+        g.subgraphs.append(h)
         subgraphs[i] = h
         # add phantom node
-        u = f'-{i}'
+        u = f'"-{i}"'
         skeleton.append(u)
-        nd = _pydot.Node(name=u, label=str(i), shape='none')
-        h.add_node(nd)
+        h.add_node(
+            u,
+            label=str(i),
+            shape='none')
     # auxiliary edges for ranking
     for i, u in enumerate(skeleton[:-1]):
         v = skeleton[i + 1]
-        e = _pydot.Edge(str(u), str(v), style='invis')
-        g.add_edge(e)
+        g.add_edge(
+            u, v,
+            style='invis')
     # add nodes
     for u, t in mdd._succ.items():
         if u <= 0:
@@ -681,9 +673,10 @@ def to_pydot(
             var = mdd.var_at_level(i)
         # add node
         label = f'{var}-{u}'
-        nd = _pydot.Node(name=str(u), label=label)
         h = subgraphs[i]  # level i
-        h.add_node(nd)
+        h.add_node(
+            u,
+            label=label)
         # add edges
         if nodes[0] is None:
             continue
@@ -695,9 +688,8 @@ def to_pydot(
                 style = 'dashed'
             else:
                 style = 'solid'
-            su = str(u)
-            sv = str(abs(v))
-            e = _pydot.Edge(su, sv, label=label,
-                           style=style)
-            g.add_edge(e)
+            g.add_edge(
+                u, abs(v),
+                label=label,
+                style=style)
     return g

@@ -957,10 +957,6 @@ The function `dd.bdd.to_nx(bdd, roots)` converts the subgraph of `bdd` rooted
 at `roots` to a [`networkx.MultiDiGraph`](
     https://networkx.org/documentation/stable/tutorial.html#multigraphs).
 
-The function `dd.bdd.to_pydot(roots, bdd)` converts the BDD manager nodes
-that are reachable from the BDD references in `roots` in manager `bdd` to an
-instance of the class [`pydot.Dot`](https://github.com/erocarrera/pydot).
-
 
 ### Other methods
 

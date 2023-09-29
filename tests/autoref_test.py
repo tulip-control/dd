@@ -5,6 +5,8 @@ import logging
 
 import dd.autoref as _bdd
 import dd.bdd
+import dd._utils as _utils
+import pytest
 
 import common
 import common_bdd
@@ -72,6 +74,24 @@ def test_dump_load():
     v, = roots_other
     v_ = other.add_expr(s)
     assert v == v_, (v, v_)
+
+
+def test_dump_using_graphviz():
+    bdd = _bdd.BDD()
+    bdd.declare('x', 'y')
+    u = bdd.add_expr(r'x /\ y')
+    bdd.dump('bdd.dot')
+    bdd.dump('bdd.dot', filetype='dot')
+    bdd.dump('bdd.pdf')
+    bdd.dump('bdd.pdf', filetype='pdf')
+    bdd.dump('bdd', filetype='pdf')
+    bdd.dump('bdd.png')
+    bdd.dump('bdd.png', filetype='png')
+    bdd.dump('bdd.svg')
+    bdd.dump('bdd.svg', filetype='svg')
+    bdd.dump('bdd.ext', filetype='pdf')
+    with pytest.raises(ValueError):
+        bdd.dump('bdd.ext')
 
 
 def test_image():

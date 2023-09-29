@@ -1041,7 +1041,7 @@ def test_dump_using_graphviz():
     v = bdd.add_expr(r'y /\ ~ z')
     roots = [u, v]
     filename_noext = 'bdd'
-    filetypes = ['pdf', 'png', 'svg']
+    filetypes = ['pdf', 'png', 'svg', 'dot']
     for filetype in filetypes:
         _dump_bdd_roots_as_filetype(
             roots, bdd, filename_noext, filetype)
@@ -1298,8 +1298,8 @@ def test_to_graphviz_dot():
         return str(abs(x))
     # with roots
     g = x_and_y()
-    pd = _bdd.to_pydot([4, 2], g)
-    r = _graph_from_dot(pd)
+    dot = _bdd._to_dot([4, 2], g)
+    r = _graph_from_dot(dot)
     for u in g:
         assert fmt(u) in r, (u, r)
     for u, (_, v, w) in g._succ.items():
@@ -1314,8 +1314,8 @@ def test_to_graphviz_dot():
         assert sv in r[su], (su, sv, r)
         assert sw in r[su], (su, sw, r)
     # no roots
-    pd = _bdd.to_pydot(None, g)
-    r = _graph_from_dot(pd)
+    dot = _bdd._to_dot(None, g)
+    r = _graph_from_dot(dot)
     # `r` has 3 hidden nodes,
     # used to layout variable levels
     assert len(r) == 8, r
@@ -1328,16 +1328,13 @@ def _graph_from_dot(dot_graph):
 
 
 def _graph_from_dot_recurse(dot_graph, g):
-    for h in dot_graph.get_subgraphs():
+    for h in dot_graph.subgraphs:
         _graph_from_dot_recurse(h, g)
-    for node in dot_graph.get_nodes():
-        name = node.get_name()
-        g[name] = set()
-    for edge in dot_graph.get_edges():
-        src = edge.get_source()
-        dst = edge.get_destination()
-        assert src in g, (src, g)
-        g[src].add(dst)
+    for u in dot_graph.nodes:
+        g[u] = set()
+    for u, v in dot_graph.edges:
+        assert u in g, (u, g)
+        g[u].add(v)
     return g
 
 
@@ -1521,12 +1518,9 @@ def ref_x_or_y():
 
 def compare(u, bdd, h):
     g = _bdd.to_nx(bdd, [u])
-    # nx.drawing.nx_pydot.to_pydot(g).write_pdf('g.pdf')
     post = nx.descendants(g, u)
     post.add(u)
     r = g.subgraph(post)
-    # nx.drawing.nx_pydot.to_pydot(r).write_pdf('r.pdf')
-    # nx.drawing.nx_pydot.to_pydot(h).write_pdf('h.pdf')
     gm = iso.GraphMatcher(r, h, node_match=_nm, edge_match=_em)
     assert gm.is_isomorphic()
     d = gm.mapping

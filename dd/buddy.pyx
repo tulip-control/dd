@@ -20,7 +20,12 @@ from libcpp cimport bool
 from libc.stdio cimport fdopen, fopen
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
+import dd._abc as _dd_abc
 cimport dd.buddy_ as buddy
+
+
+_VariableName: _ty.TypeAlias = _dd_abc.VariableName
+_Level: _ty.TypeAlias = _dd_abc.Level
 
 
 APPLY_MAP = {
@@ -137,7 +142,8 @@ cdef class BDD:
 
     cpdef int add_var(
             self,
-            str var):
+            var:
+                _VariableName):
         """Return index for variable `var`."""
         j = self.var_to_index.get(var)
         if j is not None:
@@ -150,7 +156,8 @@ cdef class BDD:
 
     cpdef Function var(
             self,
-            str var):
+            var:
+                _VariableName):
         """Return BDD for variable `var`."""
         if var not in self.var_to_index:
             raise ValueError(
@@ -163,9 +170,10 @@ cdef class BDD:
         buddy.bdd_intaddvarblock(j, j, 0)
         return Function(r)
 
-    cpdef int level_of_var(
+    cpdef _Level level_of_var(
             self,
-            str var):
+            var:
+                _VariableName):
         """Return level of variable `var`."""
         if var not in self.var_to_index:
             raise ValueError(
@@ -176,9 +184,10 @@ cdef class BDD:
         level = buddy.bdd_var2level(j)
         return level
 
-    cpdef str var_at_level(
+    cpdef _VariableName var_at_level(
             self,
-            int level):
+            level:
+                _Level):
         """Return variable at `level`."""
         index = buddy.bdd_level2var(level)
         # unknown variable error ?
@@ -316,7 +325,7 @@ cdef class Function:
     ```
     """
 
-    cdef object __weakref__
+    __weakref__: object
     cdef public int node
 
     def __cinit__(

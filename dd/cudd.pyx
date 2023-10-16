@@ -841,7 +841,7 @@ cdef class BDD(object):
 
         If `var_order` is `None`, then invoke sifting.
         """
-        reorder(self, var_order = var_order,
+        reorder(self, dvars = var_order,
                 Cudd_reordering_type = Cudd_reordering_type)
 
     cpdef support(self, Function f):
@@ -1633,8 +1633,7 @@ cpdef Function or_forall(Function u, Function v, qvars):
     return wrap(u.bdd, r)
 
 
-cpdef reorder(BDD bdd, dvars=None,
-              Cudd_reordering_type=CUDD_REORDER_GROUP_SIFT):
+cpdef reorder(BDD bdd, Cudd_ReorderingType Cudd_reordering_type,dvars=None):
     """Reorder `bdd` to order in `dvars`.
 
     If `dvars` is `None`, then invoke group sifting.

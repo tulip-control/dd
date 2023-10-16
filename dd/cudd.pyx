@@ -836,7 +836,7 @@ cdef class BDD(object):
             var: self.level_of_var(var)
             for var in self.vars}
 
-    def reorder(self, var_order=None,Cudd_reordering_type = CUDD_REORDER_GROUP_SHIFT):
+    def reorder(self, var_order=None,Cudd_reordering_type = CUDD_REORDER_GROUP_SIFT):
         """Reorder variables to `var_order`.
 
         If `var_order` is `None`, then invoke sifting.

@@ -34,5 +34,3 @@ try:
 except ImportError:
     from dd import autoref as _bdd
 BDD = _bdd.BDD
-
-__all__ = [Cudd_ReorderingType, BDD]

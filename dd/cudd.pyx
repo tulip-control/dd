@@ -836,13 +836,13 @@ cdef class BDD(object):
             var: self.level_of_var(var)
             for var in self.vars}
 
-    def reorder(self, var_order=None,Cudd_ReorderingType = CUDD_REORDER_GROUP_SHIFT):
+    def reorder(self, var_order=None,Cudd_reordering_type = CUDD_REORDER_GROUP_SHIFT):
         """Reorder variables to `var_order`.
 
         If `var_order` is `None`, then invoke sifting.
         """
         reorder(self, var_order = var_order,
-                Cudd_ReorderingType = Cudd_ReorderingType)
+                Cudd_reordering_type = Cudd_reordering_type)
 
     cpdef support(self, Function f):
         """Return `set` of variables that node `f` depends on."""
@@ -1634,14 +1634,14 @@ cpdef Function or_forall(Function u, Function v, qvars):
 
 
 cpdef reorder(BDD bdd, dvars=None,
-              Cudd_ReorderingType=CUDD_REORDER_GROUP_SIFT):
+              Cudd_reordering_type=CUDD_REORDER_GROUP_SIFT):
     """Reorder `bdd` to order in `dvars`.
 
     If `dvars` is `None`, then invoke group sifting.
     """
     # invoke sifting ?
     if dvars is None:
-        Cudd_ReduceHeap(bdd.manager,Cudd_ReorderingType,1)
+        Cudd_ReduceHeap(bdd.manager,Cudd_reordering_type,1)
         # Cudd_ReduceHeap(bdd.manager, CUDD_REORDER_SIFT, 1)
         return
     # partial reorderings not supported for now

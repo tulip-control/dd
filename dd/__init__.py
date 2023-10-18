@@ -1,7 +1,7 @@
 """Package of algorithms based on decision diagrams."""
-from enum import Enum,auto
+from enum import IntEnum,auto
 
-class Cudd_ReorderingType(Enum):
+class Cudd_ReorderingType(IntEnum):
     CUDD_REORDER_SAME = 0
     CUDD_REORDER_NONE = auto()
     CUDD_REORDER_RANDOM = auto()

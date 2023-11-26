@@ -136,6 +136,7 @@ clean_type_cache:
 
 cudd:
 	pushd cudd-*/; \
+	./configure "CFLAGS=-fPIC -std=c99" \
 	make build XCFLAGS="\
 	    -fPIC \
 	    -mtune=native \

@@ -50,7 +50,11 @@ sdist: clean wheel_deps
 	python -m build --sdist --no-isolation
 
 wheel_deps:
-	pip install --upgrade pip setuptools wheel
+	pip install --upgrade \
+	    cython \
+	    pip \
+	    setuptools \
+	    wheel
 
 # use to create binary distributions for PyPI
 wheel: clean wheel_deps

@@ -27,6 +27,7 @@ import dd._abc as _dd_abc
 from dd import _parser
 from dd import bdd as _bdd
 from dd cimport c_sylvan as sy
+import dd._utils as _utils
 
 
 logger = logging.getLogger(__name__)
@@ -547,26 +548,20 @@ cdef class BDD:
                 _ty.Optional[Function]
                 =None):
         """Return as `Function` the result of applying `op`."""
-        if op not in _dd_abc.BDD_OPERATOR_SYMBOLS:
-            raise ValueError(
-                f'unknown operator: "{op}"')
+        _utils.assert_operator_arity(op, v, w, 'bdd')
         if self is not u.bdd:
             raise ValueError(u)
+        if v is not None and v.bdd is not self:
+            raise ValueError(v)
+        if w is not None and w.bdd is not self:
+            raise ValueError(w)
         r: sy.BDD
         sy.LACE_ME_WRAP
         # unary
         if op in ('~', 'not', '!'):
-            if v is not None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             r = sy.sylvan_not(u.node)
-        elif v is None:
-            raise ValueError(v)
-        elif v.bdd is not self:
-            raise ValueError(v)
         # binary
-        if op in ('and', '/\\', '&', '&&'):
+        elif op in ('and', '/\\', '&', '&&'):
             r = sy.sylvan_and(u.node, v.node)
         elif op in ('or', r'\/', '|', '||'):
             r = sy.sylvan_or(u.node, v.node)
@@ -583,13 +578,9 @@ cdef class BDD:
         elif op in (r'\E', 'exists'):
             r = sy.sylvan_exists(u.node, v.node)
         elif op == 'ite':
-            if w is None:
-                raise ValueError(w)
-            if w.bdd is not self:
-                raise ValueError(w)
             r = sy.sylvan_ite(u.node, v.node, w.node)
-        if op != 'ite' and w is not None:
-            raise ValueError(w)
+        else:
+            raise AssertionError(op)
         if r == sy.sylvan_invalid:
             raise ValueError(
                 f'unknown operator: "{op}"')

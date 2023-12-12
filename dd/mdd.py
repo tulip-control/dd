@@ -38,6 +38,7 @@ except ImportError as error:
 
 import dd._abc
 import dd.bdd as _bdd
+import dd._utils as _utils
 
 
 if _pydot is not None:
@@ -423,73 +424,47 @@ class MDD:
                 _Ref |
                 None=None
             ) -> _Ref:
+        _utils.assert_operator_arity(op, v, w, 'bdd')
         if u not in self:
             raise ValueError(u)
-        if not (v is None or v in self):
+        if v is not None and v not in self:
             raise ValueError(v)
-        if not (w is None or w in self):
+        if w is not None and w not in self:
             raise ValueError(w)
+        # unary
         if op in ('~', 'not', '!'):
-            if v is not None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return -u
+        # Implied by `assert_operator_arity()` above,
+        # present here for type-checking.
+        elif v is None:
+            raise ValueError(
+                '`v is None`')
+        # binary
         elif op in ('or', r'\/', '|', '||'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, 1, v)
         elif op in ('and', '/\\', '&', '&&'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, v, -1)
         elif op in ('#', 'xor', '^'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, -v, v)
         elif op in ('=>', '->', 'implies'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, v, 1)
         elif op in ('<=>', '<->', 'equiv'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, -v, -1)
         elif op in (r'\A', 'forall'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             raise NotImplementedError(
                 'quantification is not implemented for MDDs.')
         elif op in (r'\E', 'exists'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             raise NotImplementedError(
                 'quantification is not implemented for MDDs.')
+        # Implied by `assert_operator_arity()` above,
+        # present here for type-checking.
+        elif w is None:
+            raise ValueError(
+                '`w is None`')
+        # ternary
         elif op == 'ite':
-            if v is None:
-                raise ValueError(v)
-            if w is None:
-                raise ValueError(w)
             return self.ite(u, v, w)
         raise ValueError(
             f'unknown operator "{op}"')

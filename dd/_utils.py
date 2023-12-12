@@ -8,6 +8,8 @@ import textwrap as _tw
 import types
 import typing as _ty
 
+import dd._abc
+
 try:
     import networkx as _nx
 except ImportError as error:
@@ -264,3 +266,58 @@ def total_memory(
     if not both_defined:
         return None
     return page_size * n_pages
+
+
+_OPERATOR_MAP: _ty.Final = dict(
+    bdd=dict(
+        unary=dd._abc.UNARY_OPERATOR_SYMBOLS,
+        binary=dd._abc.BINARY_OPERATOR_SYMBOLS,
+        ternary=dd._abc.TERNARY_OPERATOR_SYMBOLS,
+        all=dd._abc.BDD_OPERATOR_SYMBOLS))
+
+
+def assert_operator_arity(
+        op:
+            str,
+        v:
+            object |
+            None,
+        w:
+            object |
+            None,
+        diagram_type:
+            _ty.Literal[
+                'bdd']
+        ) -> None:
+    """Raise `ValueError` if unexpected values.
+
+    Asserts:
+    - `op` is an operator symbol
+    - `v` is `None` if `op` is a unary operator
+    - `w` is `None` if `op` has arity <= 2
+    """
+    operators = _OPERATOR_MAP[diagram_type]
+    if op not in operators['all']:
+        raise ValueError(
+            f'Unknown operator: "{op}"')
+    if op in operators['unary']:
+        if v is not None:
+            raise ValueError(
+                f'`v is not None`, but: {v}')
+        if w is not None:
+            raise ValueError(
+                f'`w is not None`, but: {w}')
+    elif op in operators['binary']:
+        if v is None:
+            raise ValueError(
+                '`v is None`')
+        if w is not None:
+            raise ValueError(
+                f'`w is not None`, but: {w}')
+    elif op in operators['ternary']:
+        if v is None:
+            raise ValueError(
+                '`v is None`')
+        if w is None:
+            raise ValueError(
+                '`w is None`')

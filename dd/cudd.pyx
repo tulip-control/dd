@@ -1755,15 +1755,7 @@ cdef class BDD:
                 _ty.Optional[Function]
                 =None):
         """Return the result of applying `op`."""
-        if op not in _dd_abc.BDD_OPERATOR_SYMBOLS:
-            raise ValueError(
-                f'unknown operator: "{op}"')
-        binary_but_w = (
-            op != 'ite' and
-            w is not None)
-        if binary_but_w:
-            raise ValueError(
-                f'`w is not None`, but: {w}')
+        _utils.assert_operator_arity(op, v, w, 'bdd')
         if self.manager != u.manager:
             raise ValueError(
                 '`u.manager != self.manager`')
@@ -1779,13 +1771,7 @@ cdef class BDD:
         # unary
         r = NULL
         if op in ('~', 'not', '!'):
-            if v is not None:
-                raise ValueError(
-                    f'`v is not None`, but: {v}')
             r = Cudd_Not(u.node)
-        elif v is None:
-            raise ValueError(
-                '`v is None`')
         # binary
         elif op in ('and', '/\\', '&', '&&'):
             r = Cudd_bddAnd(mgr, u.node, v.node)
@@ -1811,9 +1797,6 @@ cdef class BDD:
                 mgr, v.node, u.node)
         # ternary
         elif op == 'ite':
-            if w is None:
-                raise ValueError(
-                    '`w is None`')
             r = Cudd_bddIte(
                 mgr, u.node, v.node, w.node)
         else:

@@ -2212,79 +2212,51 @@ class BDD(dd._abc.BDD[_Ref]):
                 _Ref |
                 None=None
             ) -> _Ref:
-        if op not in dd._abc.BDD_OPERATOR_SYMBOLS:
-            raise ValueError(op)
+        _utils.assert_operator_arity(op, v, w, 'bdd')
         if abs(u) not in self:
             raise ValueError(u)
-        if not (v is None or abs(v) in self):
+        if v is not None and abs(v) not in self:
             raise ValueError(v)
-        if not (w is None or abs(w) in self):
+        if w is not None and abs(w) not in self:
             raise ValueError(w)
+        # unary
         if op in ('~', 'not', '!'):
-            if v is not None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return -u
+        # Implied by `assert_operator_arity()` above,
+        # present here for type-checking.
+        elif v is None:
+            raise ValueError(
+                '`v is None`')
+        # binary
         elif op in ('or', r'\/', '|', '||'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, 1, v)
         elif op in ('and', '/\\', '&', '&&'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, v, -1)
         elif op in ('#', 'xor', '^'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, -v, v)
         elif op in ('=>', '->', 'implies'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, v, 1)
         elif op in ('<=>', '<->', 'equiv'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, v, -v)
         elif op in ('diff', '-'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             return self.ite(u, -v, -1)
         elif op in (r'\A', 'forall'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             qvars = self.support(u)
             return self.quantify(
                 v, qvars,
                 forall=True)
         elif op in (r'\E', 'exists'):
-            if v is None:
-                raise ValueError(v)
-            if w is not None:
-                raise ValueError(w)
             qvars = self.support(u)
             return self.quantify(
                 v, qvars,
                 forall=False)
+        # Implied by `assert_operator_arity()` above,
+        # present here for type-checking.
+        elif w is None:
+            raise ValueError(
+                '`w is None`')
+        # ternary
         elif op == 'ite':
-            if v is None:
-                raise ValueError(v)
-            if w is None:
-                raise ValueError(w)
             return self.ite(u, v, w)
         raise ValueError(
             f'unknown operator "{op}"')

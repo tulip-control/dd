@@ -1926,9 +1926,7 @@ cdef class ZDD:
             - `'-'`
               (`a - b` means `a /\ ~ b`)
         """
-        if op not in _dd_abc.BDD_OPERATOR_SYMBOLS:
-            raise ValueError(
-                f'unknown operator: "{op}"')
+        _utils.assert_operator_arity(op, v, w, 'bdd')
         if self.manager != u.manager:
             raise ValueError(
                 'node `u` is from different ZDD manager')
@@ -1946,75 +1944,41 @@ cdef class ZDD:
         # unary
         r = NULL
         if op in ('~', 'not', '!'):
-            if v is not None:
-                raise ValueError(
-                    f'`v is not None`, but: {v}')
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_zddDiff(
                 mgr, Cudd_ReadZddOne(mgr, 0), u.node)
         # binary
         elif op in ('and', '/\\', '&', '&&'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_zddIntersect(mgr, u.node, v.node)
         elif op in ('or', r'\/', '|', '||'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_zddUnion(mgr, u.node, v.node)
         elif op in ('#', 'xor', '^'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             neg_node = Cudd_zddDiff(
                 mgr, Cudd_ReadZddOne(mgr, 0), v.node)
             neg = wrap(self, neg_node)
             r = Cudd_zddIte(mgr, u.node, neg.node, v.node)
         elif op in ('=>', '->', 'implies'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_zddIte(
                 mgr,
                 u.node, v.node, Cudd_ReadZddOne(mgr, 0))
         elif op in ('<=>', '<->', 'equiv'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             neg_node = Cudd_zddDiff(
                 mgr, Cudd_ReadZddOne(mgr, 0), v.node)
             neg = wrap(self, neg_node)
             r = Cudd_zddIte(mgr, u.node, v.node, neg.node)
         elif op in ('diff', '-'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             r = Cudd_zddDiff(mgr, u.node, v.node)
         elif op in (r'\A', 'forall'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             qvars = self.support(u)
             cube = _dict_to_zdd(qvars, v.zdd)
             r = _forall_root(
                 mgr, v.node, cube.node)
         elif op in (r'\E', 'exists'):
-            if w is not None:
-                raise ValueError(
-                    f'`w is not None`, but: {w}')
             qvars = self.support(u)
             cube = _dict_to_zdd(qvars, v.zdd)
             r = _exist_root(
                 mgr, v.node, cube.node)
         # ternary
         elif op == 'ite':
-            if v is None:
-                raise ValueError('`v is None`')
-            if w is None:
-                raise ValueError('`w is None`')
             r = Cudd_zddIte(mgr, u.node, v.node, w.node)
         else:
             raise ValueError(

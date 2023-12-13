@@ -1,6 +1,8 @@
 # dd changelog
 
 
+## 0.6.0
+
 - REL: require Python >= 3.11
 - REL: require `cython >= 3.0.0`
 - REL: require `astutils >= 0.0.5`

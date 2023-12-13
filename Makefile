@@ -46,7 +46,7 @@ sdist_test_cudd: clean wheel_deps
 sdist: clean wheel_deps
 	-rm dist/*.tar.gz
 	pip install -U build cython
-	export DD_CUDD=1 DD_BUDDY=1 DD_SYLVAN=1; \
+	export DD_CUDD=1 DD_CUDD_ZDD=1 DD_BUDDY=1 DD_SYLVAN=1; \
 	python -m build --sdist --no-isolation
 
 wheel_deps:

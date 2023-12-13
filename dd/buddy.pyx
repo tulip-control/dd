@@ -199,7 +199,7 @@ cdef class BDD:
         buddy.bdd_intaddvarblock(j, j, 0)
         return Function(r)
 
-    cpdef _Level level_of_var(
+    cpdef int level_of_var(
             self,
             var:
                 _VariableName):
@@ -213,7 +213,7 @@ cdef class BDD:
         level = buddy.bdd_var2level(j)
         return level
 
-    cpdef _VariableName var_at_level(
+    cpdef str var_at_level(
             self,
             level:
                 _Level):

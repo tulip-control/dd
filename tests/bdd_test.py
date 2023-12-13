@@ -687,6 +687,24 @@ def test_compose():
     assert u == 1, g.to_expr(u)
 
 
+def test_vector_compose():
+    bdd = _bdd.BDD()
+    bdd.declare('w', 'z', 'x', 'y')
+    u = bdd.add_expr(
+        r'(x /\ y) \/ (z /\ y)')
+    x = bdd.var('x')
+    not_y = bdd.add_expr('~ y')
+    defs = dict(w=bdd.false, y=not_y)
+    v = bdd.let(defs, u)
+        # cache test:
+        # repeated expression
+        # changes edge sign, and
+        # is found in cache
+    v_ = bdd.add_expr(
+        r'(x /\ ~ y) \/ (z /\ ~ y)')
+    assert v == v_, (v, v_)
+
+
 def test_cofactor():
     ordering = {'x': 0, 'y': 1, 'z': 2}
     g = BDD(ordering)

@@ -113,7 +113,7 @@ def contiguous_levels(
         ''')
 
 
-def _raise_runtimerror_about_ref_count(
+def raise_runtimerror_about_ref_count(
         ref_count_lb:
             int,
         name:
@@ -163,7 +163,7 @@ def _raise_runtimerror_about_ref_count(
 
 
 @_ty.overload
-def _map_container(
+def map_container(
         mapper:
             _abc.Callable,
         container:
@@ -173,7 +173,7 @@ def _map_container(
 
 
 @_ty.overload
-def _map_container(
+def map_container(
         mapper:
             _abc.Callable,
         container:
@@ -182,7 +182,7 @@ def _map_container(
     ...
 
 
-def _map_container(
+def map_container(
         mapper,
         container):
     """Map `container`, using `mapper()`.
@@ -211,7 +211,7 @@ def _map_values(
     return {k: mapper(v) for k, v in kv.items()}
 
 
-def _values_of(
+def values_of(
         container:
             _abc.Mapping |
             _abc.Collection

@@ -508,7 +508,7 @@ class BDD(dd._abc.BDD[_Ref]):
         if roots is not None:
             def mapper(u):
                 return u.node
-            roots = _utils._map_container(
+            roots = _utils.map_container(
                 mapper, roots)
         self._bdd.dump(
             filename,
@@ -577,7 +577,7 @@ class BDD(dd._abc.BDD[_Ref]):
                 dict[str, _Ref] |
                 list[_Ref]):
         roots = self._bdd.load(filename, levels=levels)
-        return _utils._map_container(self._wrap, roots)
+        return _utils.map_container(self._wrap, roots)
 
     def assert_consistent(
             self

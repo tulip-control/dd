@@ -2362,7 +2362,7 @@ class BDD(dd._abc.BDD[_Ref]):
         if roots is None:
             nodes = self._succ
         else:
-            values = _utils._values_of(roots)
+            values = _utils.values_of(roots)
             nodes = self.descendants(values)
         succ = (
             (k, self._succ[k])
@@ -2396,7 +2396,7 @@ class BDD(dd._abc.BDD[_Ref]):
                 return - v
             else:
                 return v
-        return _utils._map_container(
+        return _utils.map_container(
             map_node, roots)
 
     def _load_pickle(

@@ -805,7 +805,7 @@ cdef class BDD:
             raise RuntimeError(
                 '`u.node` is `NULL` pointer.')
         if u._ref <= 0:
-            _utils._raise_runtimerror_about_ref_count(
+            _utils.raise_runtimerror_about_ref_count(
                 u._ref, 'method `dd.cudd.BDD.incref`',
                 '`dd.cudd.Function`')
         assert u._ref > 0, u._ref
@@ -862,7 +862,7 @@ cdef class BDD:
             self._decref(u.node, recursive)
             return
         if u._ref <= 0:
-            _utils._raise_runtimerror_about_ref_count(
+            _utils.raise_runtimerror_about_ref_count(
                 u._ref, 'method `dd.cudd.BDD.decref`',
                 '`dd.cudd.Function`')
         assert u._ref > 0, u._ref
@@ -2097,7 +2097,7 @@ cdef class BDD:
             def mapper(u):
                 return _copy.copy_bdd(
                     u, bdd, cache)
-            root_nodes = _utils._map_container(
+            root_nodes = _utils.map_container(
                 mapper, roots)
         bdd.dump(
             filename, root_nodes,

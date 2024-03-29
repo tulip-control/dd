@@ -358,7 +358,7 @@ def _dump_json(
     """
     fd.write('{')
     _dump_bdd_info(nodes, fd)
-    for u in _utils._values_of(nodes):
+    for u in _utils.values_of(nodes):
         _dump_bdd(u, fd, cache)
     fd.write('\n}\n')
 
@@ -373,8 +373,8 @@ def _dump_bdd_info(
     @param nodes:
         maps names to roots of BDDs
     """
-    roots = _utils._map_container(_node_to_int, nodes)
-    u = next(iter(_utils._values_of(nodes)))
+    roots = _utils.map_container(_node_to_int, nodes)
+    u = next(iter(_utils.values_of(nodes)))
     bdd = u.bdd
     var_level = {
         var: bdd.level_of_var(var)

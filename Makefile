@@ -126,7 +126,6 @@ typecheck:
 	    -j 'auto' \
 	        dd/*.py \
 	        setup.py \
-	        install.py \
 	        examples/*.py
 	        # tests/*.py
 	        # download.py

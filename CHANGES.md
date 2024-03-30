@@ -1,6 +1,11 @@
 # dd changelog
 
 
+## 0.6.1
+
+- DEP: rm module `dd._compat`
+
+
 ## 0.6.0
 
 - REL: require Python >= 3.11

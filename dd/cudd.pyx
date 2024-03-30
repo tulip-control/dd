@@ -141,6 +141,10 @@ cdef extern from 'cudd.h':
     DdNode *Cudd_bddXnor(
         DdManager *dd,
         DdNode *f, DdNode *g)
+    int Cudd_bddLeq(
+        DdManager *dd,
+        DdNode *f,
+        DdNode *g)
     DdNode *Cudd_Support(
         DdManager *dd, DdNode *f)
     DdNode *Cudd_bddComputeCube(
@@ -3042,7 +3046,9 @@ cdef class Function:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
-        return (other | ~ self) == self.bdd.true
+        leq = Cudd_bddLeq(
+            self.manager, self.node, other.node)
+        return (leq == 1)
 
     def __lt__(
             self:
@@ -3053,9 +3059,11 @@ cdef class Function:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
+        leq = Cudd_bddLeq(
+            self.manager, self.node, other.node)
         return (
             self.node != other.node and
-            (other | ~ self) == self.bdd.true)
+            leq == 1)
 
     def __ge__(
             self:
@@ -3066,7 +3074,9 @@ cdef class Function:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
-        return (self | ~ other) == self.bdd.true
+        geq = Cudd_bddLeq(
+            self.manager, other.node, self.node)
+        return (geq == 1)
 
     def __gt__(
             self:
@@ -3077,9 +3087,11 @@ cdef class Function:
         if self.manager != other.manager:
             raise ValueError(
                 '`self.manager != other.manager`')
+        geq = Cudd_bddLeq(
+            self.manager, other.node, self.node)
         return (
             self.node != other.node and
-            (self | ~ other) == self.bdd.true)
+            geq == 1)
 
     def __invert__(
             self

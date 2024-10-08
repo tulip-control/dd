@@ -24,8 +24,7 @@ class Lexer(astutils.Lexer):
     """Lexer for Boolean formulae."""
 
     def __init__(
-            self,
-            **kw
+            self
             ) -> None:
         self.reserved = {
             'ite':
@@ -60,7 +59,7 @@ class Lexer(astutils.Lexer):
         self.misc = [
             'NAME',
             'NUMBER']
-        super().__init__(**kw)
+        super().__init__()
 
     def t_NAME(
             self,
@@ -228,8 +227,7 @@ class Parser(
     """Parser for Boolean formulae."""
 
     def __init__(
-            self,
-            **kw
+            self
             ) -> None:
         tabmodule_is_defined = (
             hasattr(self, 'tabmodule') and
@@ -258,6 +256,7 @@ class Parser(
             ('right',
                 'NOT'),
             )
+        kw = dict()
         kw.setdefault('lexer', Lexer())
         super().__init__(**kw)
 
@@ -540,11 +539,10 @@ class _Translator(Parser):
     """Parser for Boolean formulas."""
 
     def __init__(
-            self,
-            **kw
+            self
             ) -> None:
         self.tabmodule = _TRANSLATOR_CACHE
-        super().__init__(**kw)
+        super().__init__()
         self._reset_state()
 
     def parse(

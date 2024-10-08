@@ -180,8 +180,6 @@ class Lexer(astutils.Lexer):
             token
             ) -> None:
         r' \n+ '
-        token.lexer.lineno += (
-            token.value.count('\n'))
 
 
 _ParserResult = _ty.TypeVar('_ParserResult')

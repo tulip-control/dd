@@ -127,7 +127,6 @@ class Lexer:
     def t_newline(
             self, t):
         r' \n+ '
-        t.lexer.lineno += t.value.count('\n')
 
     def t_error(
             self, t):

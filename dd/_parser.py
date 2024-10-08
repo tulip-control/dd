@@ -259,8 +259,7 @@ class Parser(
                 'EQUALS'),
             ('right',
                 'NOT'),
-            ('right',
-                'UMINUS'))
+            )
         kw.setdefault('lexer', Lexer())
         super().__init__(**kw)
 
@@ -337,8 +336,7 @@ class Parser(
             p:
                 list
             ) -> None:
-        ("""number : MINUS NUMBER """
-         """           %prec UMINUS""")
+        """number : MINUS NUMBER """
         numeric_literal = f'{p[1]}{p[2]}'
         p[0] = self._add_int(numeric_literal)
 

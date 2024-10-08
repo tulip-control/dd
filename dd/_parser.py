@@ -11,8 +11,6 @@ import astutils
 
 _TABMODULE: _ty.Final[str] =\
     'dd._expr_parser_state_machine'
-_TRANSLATOR_CACHE: _ty.Final[str] =\
-    'dd._bdd_translator_state_machine'
 
 
 class _Token(_ty.Protocol):
@@ -541,7 +539,6 @@ class _Translator(Parser):
     def __init__(
             self
             ) -> None:
-        self.tabmodule = _TRANSLATOR_CACHE
         super().__init__()
         self._reset_state()
 
@@ -660,7 +657,7 @@ def _rewrite_tables(
     astutils.rewrite_tables(
         Parser, _TABMODULE, outputdir)
     astutils.rewrite_tables(
-        _Translator, _TRANSLATOR_CACHE, outputdir)
+        _Translator, _TABMODULE, outputdir)
 
 
 def _main(

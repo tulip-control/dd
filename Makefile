@@ -77,7 +77,7 @@ install: wheel_deps
 	pip install . -vvv --use-pep517 --no-build-isolation
 
 reinstall: uninstall wheel_deps
-	export DD_CUDD=1 DD_CUDD_ZDD DD_SYLVAN; \
+	export DD_CUDD=1 DD_CUDD_ZDD=1 DD_SYLVAN=1; \
 	pip install . -vvv --use-pep517 --no-build-isolation
 
 reinstall_buddy: uninstall wheel_deps

@@ -129,8 +129,10 @@ class Lexer:
         r' \n+ '
 
     def t_error(
-            self, t):
-        raise Exception(f'Illegal character "{t.value[0]}"')
+            self,
+            token):
+        raise ValueError(
+            f'Unexpected character "{token.value[0]}"')
 
     def build(
             self,

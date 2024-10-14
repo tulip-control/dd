@@ -101,31 +101,37 @@ class Lexer:
     t_ignore = ''.join(['\x20', '\t'])
 
     def t_KEYWORD(
-            self, t):
+            self,
+            token):
         r"""
         \.
         [a-zA-Z]
         [a-zA-Z]*
         """
-        t.type = self.reserved.get(t.value, 'NAME')
-        return t
+        token.type = self.reserved.get(
+            token.value, 'NAME')
+        return token
 
     def t_NAME(
-            self, t):
+            self,
+            token):
         r"""
         [a-zA-Z_]
         [a-zA-Z_@0-9'\.]*
         """
-        t.type = self.reserved.get(t.value, 'NAME')
-        return t
+        token.type = self.reserved.get(
+            token.value, 'NAME')
+        return token
 
     def t_comment(
-            self, t):
+            self,
+            token):
         r' \# .* '
         return
 
     def t_newline(
-            self, t):
+            self,
+            token):
         r' \n+ '
 
     def t_error(

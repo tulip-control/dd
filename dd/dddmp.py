@@ -215,6 +215,8 @@ class Parser:
             lexer = self._lexer.lexer
             lexer.input(s)
             r = self.parser.parse(lexer=lexer, debug=debuglog)
+        if r is None:
+            raise Exception('failed to parse')
         self._assert_consistent()
         # prepare mapping from fixed var index to level among all vars
         # id2name = {
@@ -243,10 +245,6 @@ class Parser:
         else:
             raise Exception('unknown `varinfo` case')
         self.info2permid['T'] = self.n_vars + 1
-        # ok ?
-        if r is None:
-            raise Exception('failed to parse')
-
         # support_var_ord_ids = {
         #     d['var_index'] for u, d in g.nodes(data=True)}
         # if len(support_var_ord_ids) != self.n_support_vars:

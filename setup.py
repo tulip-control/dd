@@ -192,7 +192,6 @@ def run_setup(
         license_files=['LICENSE'],
         python_requires=PYTHON_REQUIRES,
         install_requires=INSTALL_REQUIRES,
-        tests_require=TESTS_REQUIRE,
         packages=[PACKAGE_NAME],
         package_dir={PACKAGE_NAME: PACKAGE_NAME},
         include_package_data=True,

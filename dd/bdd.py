@@ -2383,8 +2383,8 @@ class BDD(dd._abc.BDD[_Ref]):
             levels:
                 _Yes=True
             ) -> (
-                dict |
-                list):
+                dict[str, _Ref] |
+                list[_Ref]):
         name = filename.lower()
         if not name.endswith('.p'):
             raise ValueError(

@@ -2407,8 +2407,9 @@ class BDD(dd._abc.BDD[_Ref]):
             levels:
                 _Yes=True
             ) -> tuple[
-                dict | list,
-                set[_Ref]]:
+                dict,
+                dict[str, _Ref] |
+                list[_Ref]]:
         with open(filename, 'rb') as f:
             d = pickle.load(f)
         var2level = d['vars']

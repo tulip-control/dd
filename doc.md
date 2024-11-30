@@ -1511,6 +1511,14 @@ to define `CFLAGS` and `LDFLAGS` before installing.
 You need to have copied `CuddInt.h` to the installation's include location
 (CUDD omits it).
 
+For example, to use CUDD as installed by MacPorts
+(port [`libcudd`](
+    https://ports.macports.org/port/libcudd/)), use
+
+```sh
+CFLAGS="-I/opt/local/include" LDFLAGS="-L/opt/local/lib"
+```
+
 
 ## Installing the development version
 

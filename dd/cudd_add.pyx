@@ -2259,7 +2259,7 @@ cdef class ADD:
             **kw
             ) -> None:
         """Write BDDs to `filename` as figure."""
-        raise NotImplementedError()
+        # raise NotImplementedError()
         g = _to_dot(roots)
         g.dump(
             filename,
@@ -2424,6 +2424,15 @@ cdef class Function:
         if cuddIsConstant(self.node):
             return None
         return self.agd._var_with_index[self._index]
+
+    @property
+    def value(self) -> float:
+        """Return value of leaf `node`.
+
+        Raise `ValueError` if `node`
+        is nonleaf.
+        """
+        return self.agd.value_of(self)
 
     @property
     def level(
@@ -2979,7 +2988,7 @@ def _to_dot_recurse(
         return
     u_nd = umap.setdefault(u_int, len(umap))
     if u.var is None:
-        label = 'FALSE' if u == u.agd.zero else 'TRUE'
+        label = str(u.value)
     else:
         label = u.var
     h = subgraphs[u.level]

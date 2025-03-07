@@ -295,7 +295,7 @@ cdef extern from 'cudd.h':
         DdManager *dd, DD_MAOP op,
         DdNode *f)
     # arithmetic operators
-    cdef DdNode *Cudd_addLeq(
+    cdef int Cudd_addLeq(
         DdManager *dd,
         DdNode *f, DdNode *g)
     cdef DdNode *Cudd_addLog(
@@ -1909,23 +1909,13 @@ cdef class ADD:
         elif op == '<':
             # TODO: is there any better function
             # for this available in CUDD ?
-            leq = Cudd_addLeq(
-                mgr, v.node, u.node)
-            v_leq_u = wrap(self, leq)
-            r = Cudd_addCmpl(
-                mgr, v_leq_u.node)
+            raise NotImplementedError('<')
         elif op == '<=':
-            r = Cudd_addLeq(
-                mgr, u.node, v.node)
+            raise NotImplementedError('<=')
         elif op == '>':
-            leq = Cudd_addLeq(
-                mgr, u.node, v.node)
-            u_leq_v = wrap(self, leq)
-            r = Cudd_addCmpl(
-                mgr, u_leq_v.node)
+            raise NotImplementedError('>')
         elif op == '>=':
-            r = Cudd_addLeq(
-                mgr, v.node, u.node)
+            raise NotImplementedError('>=')
         elif op == '==':
             raise NotImplementedError('==')
         elif op == '=':

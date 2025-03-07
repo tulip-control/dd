@@ -295,7 +295,7 @@ cdef extern from 'cudd.h':
         DdManager *dd, DD_MAOP op,
         DdNode *f)
     # arithmetic operators
-    cdef DdNode *Cudd_addLeq(
+    cdef int Cudd_addLeq(
         DdManager *dd,
         DdNode *f, DdNode *g)
     cdef DdNode *Cudd_addLog(
@@ -1605,16 +1605,13 @@ cdef class ADD:
         if level >= high.level:
             raise ValueError(
                 level, high.level, 'high.level')
-        r: DdRef
         index = self._index_of_var[var]
-        if high == self.zero:
-            r = low.node
-        else:
-            r = cuddUniqueInter(
-                self.manager, index,
-                high.node, low.node)
-            if r is NULL:
-                raise CouldNotCreateNode()
+
+        r = cuddUniqueInter(
+            self.manager, index,
+            high.node, low.node)
+        if r is NULL:
+            raise CouldNotCreateNode()
         f = wrap(self, r)
         if level > f.level:
             raise AssertionError(
@@ -1636,8 +1633,6 @@ cdef class ADD:
             raise AssertionError('`low is NULL`')
         if high is NULL:
             raise AssertionError('`high is NULL`')
-        if high == Cudd_ReadZero(self.manager):
-            return low
         r = cuddUniqueInter(
             self.manager, index, high, low)
         if r is NULL:
@@ -1909,23 +1904,13 @@ cdef class ADD:
         elif op == '<':
             # TODO: is there any better function
             # for this available in CUDD ?
-            leq = Cudd_addLeq(
-                mgr, v.node, u.node)
-            v_leq_u = wrap(self, leq)
-            r = Cudd_addCmpl(
-                mgr, v_leq_u.node)
+            raise NotImplementedError('<')
         elif op == '<=':
-            r = Cudd_addLeq(
-                mgr, u.node, v.node)
+            raise NotImplementedError('<=')
         elif op == '>':
-            leq = Cudd_addLeq(
-                mgr, u.node, v.node)
-            u_leq_v = wrap(self, leq)
-            r = Cudd_addCmpl(
-                mgr, u_leq_v.node)
+            raise NotImplementedError('>')
         elif op == '>=':
-            r = Cudd_addLeq(
-                mgr, v.node, u.node)
+            raise NotImplementedError('>=')
         elif op == '==':
             raise NotImplementedError('==')
         elif op == '=':
@@ -2210,7 +2195,7 @@ cdef class ADD:
             roots:
                 list[Function],
             filetype:
-                _dd_abc.ImageFileType |
+                _dd_abc.ImageFileType | _ty.Literal['dot'] |
                 None=None):
         """Write ADD as a diagram to file `filename`.
 
@@ -2243,12 +2228,14 @@ cdef class ADD:
                 filetype = 'png'
             elif name.endswith('.svg'):
                 filetype = 'svg'
+            elif name.endswith('.dot'):
+                filetype = 'dot'
             else:
                 raise ValueError(
                     'cannot infer file type '
                     'from extension of file '
                     f'name "{filename}"')
-        if filetype in ('pdf', 'png', 'svg'):
+        if filetype in ('pdf', 'png', 'svg', 'dot'):
             self._dump_figure(
                 roots, filename, filetype)
         else:
@@ -2265,11 +2252,11 @@ cdef class ADD:
             filename:
                 str,
             filetype:
-                _dd_abc.ImageFileType,
+                _dd_abc.ImageFileType | _ty.Literal['dot'],
             **kw
             ) -> None:
         """Write BDDs to `filename` as figure."""
-        raise NotImplementedError()
+        # raise NotImplementedError()
         g = _to_dot(roots)
         g.dump(
             filename,
@@ -2434,6 +2421,15 @@ cdef class Function:
         if cuddIsConstant(self.node):
             return None
         return self.agd._var_with_index[self._index]
+
+    @property
+    def value(self) -> float:
+        """Return value of leaf `node`.
+
+        Raise `ValueError` if `node`
+        is nonleaf.
+        """
+        return self.agd.value_of(self)
 
     @property
     def level(
@@ -2989,7 +2985,7 @@ def _to_dot_recurse(
         return
     u_nd = umap.setdefault(u_int, len(umap))
     if u.var is None:
-        label = 'FALSE' if u == u.agd.zero else 'TRUE'
+        label = str(u.value)
     else:
         label = u.var
     h = subgraphs[u.level]
@@ -3011,11 +3007,9 @@ def _to_dot_recurse(
     w_nd = umap[w_int]
     g.add_edge(
         u_nd, v_nd,
-        taillabel='0',
         style='dashed')
     g.add_edge(
         u_nd, w_nd,
-        taillabel='1',
         style='solid')
 
 

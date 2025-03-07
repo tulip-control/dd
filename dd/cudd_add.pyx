@@ -2200,7 +2200,7 @@ cdef class ADD:
             roots:
                 list[Function],
             filetype:
-                _dd_abc.ImageFileType |
+                _dd_abc.ImageFileType | _ty.Literal['dot'] |
                 None=None):
         """Write ADD as a diagram to file `filename`.
 
@@ -2233,12 +2233,14 @@ cdef class ADD:
                 filetype = 'png'
             elif name.endswith('.svg'):
                 filetype = 'svg'
+            elif name.endswith('.dot'):
+                filetype = 'dot'
             else:
                 raise ValueError(
                     'cannot infer file type '
                     'from extension of file '
                     f'name "{filename}"')
-        if filetype in ('pdf', 'png', 'svg'):
+        if filetype in ('pdf', 'png', 'svg', 'dot'):
             self._dump_figure(
                 roots, filename, filetype)
         else:
@@ -2255,7 +2257,7 @@ cdef class ADD:
             filename:
                 str,
             filetype:
-                _dd_abc.ImageFileType,
+                _dd_abc.ImageFileType | _ty.Literal['dot'],
             **kw
             ) -> None:
         """Write BDDs to `filename` as figure."""

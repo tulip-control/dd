@@ -3010,11 +3010,9 @@ def _to_dot_recurse(
     w_nd = umap[w_int]
     g.add_edge(
         u_nd, v_nd,
-        taillabel='0',
         style='dashed')
     g.add_edge(
         u_nd, w_nd,
-        taillabel='1',
         style='solid')
 
 

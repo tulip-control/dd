@@ -1605,16 +1605,13 @@ cdef class ADD:
         if level >= high.level:
             raise ValueError(
                 level, high.level, 'high.level')
-        r: DdRef
         index = self._index_of_var[var]
-        if high == self.zero:
-            r = low.node
-        else:
-            r = cuddUniqueInter(
-                self.manager, index,
-                high.node, low.node)
-            if r is NULL:
-                raise CouldNotCreateNode()
+
+        r = cuddUniqueInter(
+            self.manager, index,
+            high.node, low.node)
+        if r is NULL:
+            raise CouldNotCreateNode()
         f = wrap(self, r)
         if level > f.level:
             raise AssertionError(
@@ -1636,8 +1633,6 @@ cdef class ADD:
             raise AssertionError('`low is NULL`')
         if high is NULL:
             raise AssertionError('`high is NULL`')
-        if high == Cudd_ReadZero(self.manager):
-            return low
         r = cuddUniqueInter(
             self.manager, index, high, low)
         if r is NULL:

@@ -2429,6 +2429,15 @@ cdef class Function:
         return self.agd._var_with_index[self._index]
 
     @property
+    def value(self) -> float:
+        """Return value of leaf `node`.
+
+        Raise `ValueError` if `node`
+        is nonleaf.
+        """
+        return self.agd.value_of(self)
+
+    @property
     def level(
             self
             ) -> _Level:

@@ -1036,3 +1036,15 @@ cdef class Function:
         sy.LACE_ME_WRAP
         r = sy.sylvan_or(self.node, other.node)
         return wrap(self.bdd, r)
+
+    def __xor__(
+            self:
+                Function,
+            other:
+                Function
+            ) -> Function:
+        if self.bdd is not other.bdd:
+            raise ValueError((self, other))
+        sy.LACE_ME_WRAP
+        r = sy.sylvan_xor(self.node, other.node)
+        return wrap(self.bdd, r)

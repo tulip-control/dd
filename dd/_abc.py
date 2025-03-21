@@ -663,6 +663,12 @@ class Operator(_ty.Protocol):
             ) -> 'Operator':
         r"""Disjunction `self \/ other`."""
 
+    def __xor__(
+            self,
+            other
+            ) -> 'Operator':
+        r"""Exclusive or `self + other`."""
+
     def implies(
             self,
             other

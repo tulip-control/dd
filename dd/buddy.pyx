@@ -451,3 +451,11 @@ cdef class Function:
             ) -> Function:
         r = buddy.bdd_or(self.node, other.node)
         return Function(r)
+
+    def __xor__(
+            self,
+            other:
+                Function
+            ) -> Function:
+        r = buddy.bdd_xor(self.node, other.node)
+        return Function(r)

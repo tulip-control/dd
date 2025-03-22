@@ -812,6 +812,13 @@ class Function(dd._abc.Operator):
             ) -> _Ref:
         return self._apply('or', other)
 
+    def __xor__(
+            self,
+            other:
+                _Ref
+            ) -> _Ref:
+        return self._apply('xor', other)
+                
     def implies(
             self,
             other:

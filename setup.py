@@ -188,7 +188,7 @@ def run_setup(
         author_email='tulip@tulip-control.org',
         url=PACKAGE_URL,
         project_urls=PROJECT_URLS,
-        license='BSD',
+        license='BSD-3-Clause',
         license_files=['LICENSE'],
         python_requires=PYTHON_REQUIRES,
         install_requires=INSTALL_REQUIRES,

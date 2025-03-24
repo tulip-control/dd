@@ -58,6 +58,59 @@ class Tests:
         assert false.var is None, false.var
         true = bdd.true
         assert true.var is None, true.var
+        not_x_ = bdd.add_expr('~ x')
+        assert not_x == not_x_, (
+            not_x, not_x_)
+        # y
+        bdd.add_var('y')
+        y = bdd.var('y')
+        # x & y
+        x_and_y = x & y
+        negated = x_and_y.negated
+        assert not negated, negated
+        var = x_and_y.var
+        assert var == 'x', var
+        low = x_and_y.low
+        assert low == bdd.false, low.var
+        y_ = x_and_y.high
+        assert y == y_, y_.var
+        x_and_y_ = bdd.add_expr(r'x /\ y')
+        assert x_and_y == x_and_y_, (
+            x_and_y, x_and_y_)
+        # x | y
+        x_or_y = x | y
+        negated = x_or_y.negated
+        assert not negated, negated
+        var = x_or_y.var
+        assert var == 'x', var
+        low = x_or_y.low
+        assert low == y, low.var
+        high = x_or_y.high
+        assert high == bdd.true, high.var
+        x_or_y_ = bdd.add_expr(r'x \/ y')
+        assert x_or_y == x_or_y_, (
+            x_or_y, x_or_y_)
+        # x ^ y
+        x_xor_y = x ^ y
+        negated = x_xor_y.negated
+        assert negated, negated
+        var = x_xor_y.var
+        assert var == 'x', var
+        high = x_xor_y.high
+        assert high == y, high.var
+        neg_y = x_xor_y.low
+        negated = neg_y.negated
+        assert negated, negated
+        var = neg_y.var
+        assert var == 'y', var
+        low = neg_y.low
+        assert low == bdd.false, low.var
+        high = neg_y.high
+        assert high == bdd.true, high.var
+        x_xor_y_ = bdd.add_expr('x ^ y')
+        assert x_xor_y == x_xor_y_, (
+            x_xor_y, x_xor_y_)
+
 
     def test_function_properties(self):
         bdd = self.DD()

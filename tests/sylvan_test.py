@@ -238,5 +238,24 @@ def equal_list_contents(x, y):
         assert u in x, (u, x, y)
 
 
+def test_py_operators():
+    bdd = _sylvan.BDD()
+    bdd.declare('x', 'y')
+    x = bdd.var('x')
+    y = bdd.var('y')
+    u = ~ x
+    u_ = bdd.add_expr('~ x')
+    assert u == u_, (u, u_)
+    u = x & y
+    u_ = bdd.add_expr(r'x /\ y')
+    assert u == u_, (u, u_)
+    u = x | y
+    u_ = bdd.add_expr(r'x \/ y')
+    assert u == u_, (u, u_)
+    u = x ^ y
+    u_ = bdd.add_expr('x # y')
+    assert u == u_, (u, u_)
+
+
 if __name__ == '__main__':
     test_pick_iter()

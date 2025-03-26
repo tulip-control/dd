@@ -47,16 +47,29 @@ def create_and_dump_bdd(
         roots=roots)
 
 
+class BDDGraph(
+        _nx.DiGraph):
+    """Storing also roots and variable levels."""
+
+    def __init__(
+            self,
+            *arg,
+            **kw):
+        super().__init__(*arg, **kw)
+        self.roots: dict | None = None
+        self.level_of_var: dict | None = None
+
+
 def load_and_map_to_nx(
         filename:
             str
-        ) -> _nx.DiGraph:
+        ) -> BDDGraph:
     """Return graph loaded from JSON."""
     with open(filename, 'r') as fd:
         data = fd.read()
     data = json.loads(data)
     # map to nx
-    graph = _nx.DiGraph()
+    graph = BDDGraph()
     for k, v in data.items():
         print(k, v)
         if k in ('roots', 'level_of_var'):

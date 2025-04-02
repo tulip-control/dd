@@ -5,6 +5,7 @@ import ctypes
 import functools as _ft
 import hashlib
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -51,7 +52,7 @@ CUDD_CFLAGS = [
     '-std=c99',
     '-DBSD',
     '-DHAVE_IEEE_754',
-    '-mtune=native', '-pthread', '-fwrapv',
+    '-pthread', '-fwrapv',
     '-fno-strict-aliasing',
     '-Wall', '-W', '-O3']
 sizeof_long = ctypes.sizeof(ctypes.c_long)
@@ -90,6 +91,8 @@ def extensions(
     cudd_cflags = list(CUDD_CFLAGS)
     sylvan_cflags = list()
     compile_time_env = dict()
+    if platform.system() != 'Darwin':
+        cudd_cflags.append('-mtune=native')
     # tell gcc to compile line tracing
     if args.linetrace:
         print('compile Cython extensions with line tracing')

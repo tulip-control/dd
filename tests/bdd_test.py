@@ -1539,7 +1539,10 @@ def compare(u, bdd, h):
     post = nx.descendants(g, u)
     post.add(u)
     r = g.subgraph(post)
-    gm = iso.GraphMatcher(r, h, node_match=_nm, edge_match=_em)
+    gm = iso.MultiDiGraphMatcher(
+        r, h,
+        node_match=_nm,
+        edge_match=_em)
     assert gm.is_isomorphic()
     d = gm.mapping
     assert d[1] == 1

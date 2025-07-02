@@ -146,16 +146,22 @@ v = bdd.add_expr(s)
 In natural language, the expression `s` reads:
 “(x and y) if and only if ( (not z) or (y xor x) )”.
 The Boolean constants are `bdd.false` and `bdd.true`, and in syntax
-`FALSE` and `TRUE`.
+`FALSE` and `TRUE`. The available operators are listed in the
+[Syntax for quantified Boolean formulas](#syntax-for-quantified-boolean-formulas)
+section.
 
-Variables can be quantified by calling the methods `exist` and `forall`
+Variables can be quantified by calling the methods `exist` and `forall`. They
+symbolically iterate over all values of the variables mentioned in the
+quantification, and these variables are therefore not present in the result.
 
 ```python
 u = bdd.add_expr(r'x /\ y')
 v = bdd.exist(['x'], u)
+print(v.to_expr())
+    # 'y'
 ```
 
-or by writing quantified formulas
+Existential quantification can also be done by writing quantified formulas
 
 ```python
 # there exists a value of x, such that (x and y)
@@ -201,6 +207,21 @@ v = bdd.let(d, u)
 print(f'support = {v.support}')
     # support = {'p', 'q', 'z'}
 ```
+
+Replacement variables are (conceptually) inserted in-place in the expression.
+If the expression also contains other occurrences of the replacements (like
+variable `p` in the example below), the result may not be what is expected:
+
+```python
+bdd.declare('x', 'p')
+u = bdd.add_expr(r'x /\ ~ p')
+d = dict(x='p')    # Rename 'x' to 'p'.
+v = bdd.let(d, u)  # Equivalent to 'p /\ ~ p', which is false.
+```
+To rename variables without side-effects like above, it is useful to first
+remove all occurrences of the replacement variables in the expression. That
+can be done by applying existential quantification over the replacement
+variables.
 
 The other forms are similar
 
@@ -1309,6 +1330,7 @@ assuming `a` and `b` take Boolean values:
 - `a => b` means `b \/ ~ a`
 - `a <=> b` means `(a /\ b) \/ (~ a /\ ~ b)`
 - `a # b` means `(a /\ ~ b) \/ (b /\ ~ a)`
+- `a - b` means `a /\ ~ b`
 - `ite(a, b, c)` means `(a /\ b) \/ (~ a /\ c)`
 
 Both and `setup.py`, and a developer may want to force a rebuild of the

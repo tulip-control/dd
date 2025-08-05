@@ -166,6 +166,35 @@ def test_rename():
     del x, y, y_, u, v, v_
 
 
+def test_count():
+    bdd = _sylvan.BDD()
+    n = bdd.count(bdd.false)
+    assert n == 0, n
+    n = bdd.count(bdd.true)
+    assert n == 1, n
+    bdd.declare('x')
+    x = bdd.var('x')
+    n = bdd.count(x)
+    assert n == 1, n
+    bdd.declare('y')
+    u = bdd.add_expr('~ y')
+    n = bdd.count(u)
+    assert n == 1, n
+    u = bdd.add_expr(r'x /\ y')
+    n = bdd.count(u)
+    assert n == 1, n
+    u = bdd.add_expr(r'~ x \/ y')
+    n = bdd.count(u)
+    assert n == 3, n
+    bdd.declare('z')
+    u = bdd.add_expr(r'x /\ (~y \/ z)')
+    n = bdd.count(u)
+    assert n == 3, n
+    u = bdd.add_expr(r'x \/ y \/ ~z')
+    n = bdd.count(u)
+    assert n == 7, n
+
+
 # The function `test_pick_iter` is copied
 # from `common.Tests.test_pick_iter`.
 def test_pick_iter():

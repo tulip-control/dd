@@ -516,6 +516,20 @@ cdef class BDD:
         for x in self._sat_iter(w, d1, value, support):
             yield x
 
+    cpdef int count(
+            self,
+            u:
+                Function):
+        """Return number of models of node `u`."""
+        sy.LACE_ME_WRAP
+        support = self.support(u)
+        cube = self.cube(support)
+        n_models = sy.sylvan_satcount(
+            u.node, cube.node)
+        if n_models < 0:
+            raise AssertionError(n_models)
+        return int(n_models)
+
     cpdef Function ite(
             self,
             g:

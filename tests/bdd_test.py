@@ -224,7 +224,17 @@ def test_count():
     r = g.count(4)
     assert r == 3, r
     g = _bdd.BDD()
+    r = g.count(g.false)
+    assert r == 0, r
+    r = g.count(g.true)
+    assert r == 1, r
     g.add_var('x')
+    x = g.var('x')
+    r = g.count(x)
+    assert r == 1, r
+    neg_x = g.add_expr('~x')
+    r = g.count(neg_x)
+    assert r == 1, r
     g.add_var('y')
     u = g.add_expr(r'x /\ y ')
     r = g.count(u)

@@ -319,13 +319,13 @@ class BDD(_ty.Protocol[Ref]):
             ) -> Cardinality:
         """Return number of models of node `u`.
 
-        @param n:
+        @param nvars:
             number of variables to assume.
 
             If omitted, then assume those in `support(u)`.
-            The levels of variables outside support
-            are ignored in counting, and `n` used to
-            increase the result at the end of recursion.
+            If `nvars >= len(support(u))` then the count
+            is multiplied by `2**(nvars-len(support(u)))`,
+            compared to the case `nvars is None`.
         """
 
     def pick(

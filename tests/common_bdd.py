@@ -113,7 +113,6 @@ class Tests:
         assert x_xor_y == x_xor_y_, (
             x_xor_y, x_xor_y_)
 
-
     def test_function_properties(self):
         bdd = self.DD()
         bdd.declare('x', 'y')

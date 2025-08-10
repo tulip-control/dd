@@ -2361,6 +2361,7 @@ class BDD(dd._abc.BDD[_Ref]):
         """Write BDDs to `filename` as pickle."""
         if roots is None:
             nodes = self._succ
+            roots = list()
         else:
             values = _utils.values_of(roots)
             nodes = self.descendants(values)

@@ -3,6 +3,8 @@
 #
 import os
 
+import pytest
+
 
 class Tests:
     def setup_method(self):
@@ -170,6 +172,13 @@ class Tests:
         bdd.dump(fname, [u])
         u_, = bdd.load(fname)
         assert u == u_, len(u_)
+        # test `ValueError`
+        with pytest.raises(ValueError):
+            bdd.dump(fname, None)
+        with pytest.raises(ValueError):
+            bdd.dump(fname, list())
+        with pytest.raises(ValueError):
+            bdd.dump(fname, dict())
 
     def rm_file(self, fname):
         if os.path.isfile(fname):

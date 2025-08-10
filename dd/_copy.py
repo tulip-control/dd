@@ -329,6 +329,9 @@ def dump_json(
         the BDDs that will be written to
         the JSON file
     """
+    if not nodes:
+        raise ValueError(
+            'Need nonempty `nodes` as roots.')
     tmp_fname = os.path.join(
         SHELVE_DIR, 'temporary_shelf')
     os.makedirs(SHELVE_DIR)

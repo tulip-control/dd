@@ -36,6 +36,7 @@ from dd import _parser
 from dd import _utils
 from dd import autoref
 from dd import bdd as _bdd
+import dd.dddmp as _dddmp
 
 
 _Yes: _ty.TypeAlias = python_bool
@@ -324,38 +325,6 @@ cdef CUDD_REORDER_GROUP_SIFT = 14
 cdef CUDD_OUT_OF_MEM = -1
 cdef MAX_CACHE = <unsigned int> - 1  # entries
 __version__ = CUDD_VERSION.decode('utf-8')
-
-
-# TODO: replace DDDMP
-cdef extern from 'dddmp.h':
-    ctypedef enum Dddmp_VarInfoType:
-        pass
-    ctypedef enum Dddmp_VarMatchType:
-        pass
-    int Dddmp_cuddBddStore(
-        DdManager *ddMgr,
-        char *ddname,
-        DdNode *f,
-        char **varnames,
-        int *auxids,
-        int mode,
-        Dddmp_VarInfoType varinfo,
-        char *fname,
-        FILE *fp)
-    DdNode *Dddmp_cuddBddLoad(
-        DdManager *ddMgr,
-        Dddmp_VarMatchType varMatchMode,
-        char **varmatchnames,
-        int *varmatchauxids,
-        int *varcomposeids,
-        int mode,
-        char *fname,
-        FILE *fp)
-cdef DDDMP_MODE_TEXT = 65  # <int>'A'
-cdef DDDMP_VARIDS = 0
-cdef DDDMP_VARNAMES = 3
-cdef DDDMP_VAR_MATCHNAMES = 3
-cdef DDDMP_SUCCESS = 1
 
 
 # 2**30 = 1 GiB (gibibyte, read ISO/IEC 80000)
@@ -2125,35 +2094,87 @@ cdef class BDD:
                 '_dump_dddmp', self)
             raise AssertionError(
                 f'{counts}\n{contiguous}')
-        cdef FILE *f
-        cdef char **names
-        cdef bytes py_bytes
-        names = <char **> PyMem_Malloc(
-            n_cudd_vars * sizeof(char *))
-        str_mem = list()
-        for index, var in self._var_with_index.items():
-            py_bytes = var.encode()
-            str_mem.append(py_bytes)
-                # prevent garbage collection
-            names[index] = py_bytes
-        try:
-            f = fopen(fname.encode(), 'w')
-            i = Dddmp_cuddBddStore(
-                self.manager,
-                NULL,
-                u.node,
-                names,
-                NULL,
-                DDDMP_MODE_TEXT,
-                DDDMP_VARNAMES,
-                NULL,
-                f)
-        finally:
-            fclose(f)
-            PyMem_Free(names)
-        if i != DDDMP_SUCCESS:
-            raise RuntimeError(
-                'failed to write to DDDMP file')
+        # prepare output
+        support = self.support(u)
+        varnames = sorted(
+            support,
+            key=self.level_of_var)
+        var_indices = {
+            var: k
+            for k, var in enumerate(varnames)}
+        nnodes = u.dag_size
+        nvars = len(support)
+        nsuppvars = nvars
+        suppvarnames = ' '.join(varnames)
+        orderedvarnames = suppvarnames
+        ids = ' '.join(map(str, range(nvars)))
+        permids = ids
+        # collect node info
+        node_info = dict()
+        k = int(self.true)
+        node_info[k] = (1, 'T', 1, 0, 0)
+            # node_id, var_name, var_index,
+            # high, low (signed)
+        self._dump_dddmp_recurse(
+            u, node_info, var_indices)
+        # root node
+        z = ~u if u.negated else u
+        z_id = node_info[int(z)][0]
+        u_id = -z_id if u.negated else z_id
+        rootids = str(u_id)
+        text = (
+            '.ver DDDMP-2.0\n'
+            '.mode A\n'
+            '.varinfo 3\n'  # var names
+            f'.nnodes {nnodes}\n'
+            f'.nvars {nvars}\n'
+            f'.nsuppvars {nsuppvars}\n'
+            f'.suppvarnames {suppvarnames}\n'
+            f'.orderedvarnames {orderedvarnames}\n'
+            f'.ids {ids}\n'
+            f'.permids {permids}\n'
+            '.nroots 1\n'
+            f'.rootids {rootids}\n'
+            '.nodes')
+        lines = list()
+        for data in node_info.values():
+            line = ' '.join(map(str, data))
+            lines.append(line)
+        node_text = '\n'.join(lines)
+        text = f'{text}\n{node_text}\n.end\n'
+        with open(fname, 'wt', encoding='utf-8') as fid:
+            fid.write(text)
+
+    cdef int _dump_dddmp_recurse(
+            self,
+            u:
+                Function,
+            node_info:
+                dict,
+            var_indices:
+                dict):
+        """Recursively collect node information."""
+        z = ~u if u.negated else u
+        k = int(z)
+        # memoized ?
+        if k in node_info:
+            z_id = node_info[k][0]
+            u_id = -z_id if u.negated else z_id
+            return u_id
+        # nonleaf
+        # recurse
+        v_id = self._dump_dddmp_recurse(
+            u.low, node_info, var_indices)
+        w_id = self._dump_dddmp_recurse(
+            u.high, node_info, var_indices)
+        # store
+        z_id = 1 + len(node_info)
+        var_index = var_indices[u.var]
+        node_info[k] = (
+            z_id, u.var, var_index,
+            w_id, v_id)
+        u_id = -z_id if u.negated else z_id
+        return u_id
 
     cpdef load(
             self,
@@ -2184,6 +2205,7 @@ cdef class BDD:
             self,
             filename:
                 str):
+        """Return root after loading file."""
         n_declared_vars = len(self._var_with_index)
         n_cudd_vars = self._number_of_cudd_vars()
         if n_declared_vars != n_cudd_vars:
@@ -2191,43 +2213,19 @@ cdef class BDD:
             contiguous = _utils.contiguous_levels(
                 '_load_dddmp', self)
             raise AssertionError(f'{counts}\n{contiguous}')
-        r: DdRef
-        cdef FILE *f
-        cdef char **names
-        cdef bytes py_bytes
-        names = <char **> PyMem_Malloc(
-            n_cudd_vars * sizeof(char *))
-        str_mem = list()
-        for index, var in self._var_with_index.items():
-            py_bytes = var.encode()
-            str_mem.append(py_bytes)
-            names[index] = py_bytes
-        try:
-            f = fopen(filename.encode(), 'r')
-            r = Dddmp_cuddBddLoad(
-                self.manager,
-                DDDMP_VAR_MATCHNAMES,
-                names,
-                NULL,
-                NULL,
-                DDDMP_MODE_TEXT,
-                NULL,
-                f)
-        except:
-            raise Exception(
-                'A malformed DDDMP file '
-                'can cause segmentation '
-                'faults to `cudd/dddmp`.')
-        finally:
-            fclose(f)
-            PyMem_Free(names)
-        if r is NULL:
-            raise RuntimeError(
-                'failed to load DDDMP file.')
-        h = wrap(self, r)
-        # `Dddmp_cuddBddArrayLoad` references `r`
-        Cudd_RecursiveDeref(self.manager, r)
-        return h
+        # load
+        bdd_1 = _dddmp.load(filename)
+        root_int, = bdd_1.roots
+        # autoref
+        bdd_2 = autoref.BDD()
+        bdd_2._bdd = bdd_1
+        bdd_2.vars = bdd_1.vars
+        root = bdd_2._wrap(root_int)
+        varnames = list(bdd_1.vars)
+        bdd_2.declare(*varnames)
+        # copy to here
+        self.declare(*varnames)
+        return _copy.copy_bdd(root, self)
 
     @property
     def false(

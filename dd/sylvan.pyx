@@ -1062,3 +1062,9 @@ cdef class Function:
         sy.LACE_ME_WRAP
         r = sy.sylvan_xor(self.node, other.node)
         return wrap(self.bdd, r)
+
+    def count(
+            self:
+                Function
+            ) -> _Cardinality:
+        return self.bdd.count(self)

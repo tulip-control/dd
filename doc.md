@@ -208,6 +208,17 @@ print(f'support = {v.support}')
     # support = {'p', 'q', 'z'}
 ```
 
+The other forms of substitution are similar
+
+```python
+# substitute constants for variables (cofactor)
+values = dict(x=True, y=False)
+v = bdd.let(values, u)
+# substitute BDDs for variables (compose)
+d = dict(x=bdd.add_expr(r'z \/ w'))
+v = bdd.let(d, u)
+```
+
 Replacement variables are (conceptually) inserted in-place in the expression.
 If the expression also contains other occurrences of the replacements (like
 variable `p` in the example below), the result may not be what is expected:
@@ -225,17 +236,6 @@ remove all occurrences of the replacement variables in the expression.
 Depending on the algorithm being implemented, it might be appropriate
 to first rename variable `p` above before the substitution, or
 to quantify it.
-
-The other forms are similar
-
-```python
-# substitute constants for variables (cofactor)
-values = dict(x=True, y=False)
-v = bdd.let(values, u)
-# substitute BDDs for variables (compose)
-d = dict(x=bdd.add_expr(r'z \/ w'))
-v = bdd.let(d, u)
-```
 
 A BDD represents a formula, a syntactic object. Semantics is about how
 syntax is used to describe the world. We could interpret the same formula

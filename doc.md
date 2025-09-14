@@ -151,7 +151,7 @@ The Boolean constants are `bdd.false` and `bdd.true`, and in syntax
 section.
 
 Variables can be quantified by calling the methods `exist` and `forall`. They
-symbolically iterate over all values of the variables mentioned in the
+symbolically consider all values of the variables mentioned in the
 quantification, and these variables are therefore not present in the result.
 
 ```python
@@ -215,13 +215,16 @@ variable `p` in the example below), the result may not be what is expected:
 ```python
 bdd.declare('x', 'p')
 u = bdd.add_expr(r'x /\ ~ p')
-d = dict(x='p')    # Rename 'x' to 'p'.
-v = bdd.let(d, u)  # Equivalent to 'p /\ ~ p', which is false.
+d = dict(x='p')  # rename `x` to `p`
+v = bdd.let(d, u)  # equivalent to `p /\ ~ p`, which is `FALSE`
+assert v == bdd.false
 ```
+
 To rename variables without side-effects like above, it is useful to first
-remove all occurrences of the replacement variables in the expression. That
-can be done by applying existential quantification over the replacement
-variables.
+remove all occurrences of the replacement variables in the expression.
+Depending on the algorithm being implemented, it might be appropriate
+to first rename variable `p` above before the substitution, or
+to quantify it.
 
 The other forms are similar
 
@@ -1330,7 +1333,7 @@ assuming `a` and `b` take Boolean values:
 - `a => b` means `b \/ ~ a`
 - `a <=> b` means `(a /\ b) \/ (~ a /\ ~ b)`
 - `a # b` means `(a /\ ~ b) \/ (b /\ ~ a)`
-- `a - b` means `a /\ ~ b`
+- `a - b` means `a /\ ~ b` (for BDDs only)
 - `ite(a, b, c)` means `(a /\ b) \/ (~ a /\ c)`
 
 Both and `setup.py`, and a developer may want to force a rebuild of the

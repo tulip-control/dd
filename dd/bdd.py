@@ -275,8 +275,11 @@ class BDD(dd._abc.BDD[_Ref]):
             for v in self._ref.values())
         if not refs_exist:
             return
-        stack = inspect.stack()
-        stack_str = _pp.pformat(stack)
+        try:
+            stack = inspect.stack()
+            stack_str = _pp.pformat(stack)
+        except KeyError:
+            stack_str = None
         raise AssertionError(
             'There are nodes still referenced '
             'upon shutdown. Details:\n'

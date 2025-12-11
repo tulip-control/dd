@@ -1165,7 +1165,7 @@ EXTENDS
 
 COMMA == tok(",")
 maybe(x) ==
-    | Nil
+      Nil
     | x
 comma1(x) ==
     x & (COMMA & x)^*
@@ -1209,16 +1209,16 @@ is_dd_lexer_grammar(L) ==
     /\ L.NAME =
         LET
             LETTER ==
-                | OneOf("abcdefghijklmnopqrstuvwxyz")
+                  OneOf("abcdefghijklmnopqrstuvwxyz")
                 | OneOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             UNDERSCORE == tok("_")
             start ==
-                | LETTER
+                  LETTER
                 | UNDERSCORE
             DOT == tok(".")
             PRIME == tok("'")
             symbol ==
-                | start
+                  start
                 | NUMERAL
                 | DOT
                 | PRIME
@@ -1239,7 +1239,7 @@ is_dd_parser_grammar(L, G) ==
         G[symbol] = L[symbol]
     /\ G.expr =
         (* predicate logic *)
-        | L.A & G.names & L.COLON & G.expr
+          L.A & G.names & L.COLON & G.expr
             (* universal quantification ("forall") *)
         | L.E & G.names & L.COLON & G.expr
             (* existential quantification ("exists") *)

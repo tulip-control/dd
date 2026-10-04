@@ -86,7 +86,7 @@ cdef extern from 'sylvan.h':
         size_t max_tablesize,
         size_t initial_cachesize,
         size_t max_cachesize)
-    void sylvan_init_bdd(int granularity)
+    void sylvan_init_bdd()
     void sylvan_quit()
     # quantification
     BDD sylvan_exists(BDD a, BDD qvars)

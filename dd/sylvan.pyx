@@ -80,7 +80,7 @@ cdef class BDD:
         sy.lace_startup(0, NULL, NULL)
         sy.LACE_ME_WRAP
         sy.sylvan_init_package(1LL<<25, 1LL<<26, 1LL<<24, 1LL<<25)
-        sy.sylvan_init_bdd(1)
+        sy.sylvan_init_bdd()
 
     def __init__(
             self,

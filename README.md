@@ -4,7 +4,7 @@
 About
 =====
 
-A pure-Python (Python >= 3.11) package for manipulating:
+A pure-Python (Python >= 3.12) package for manipulating:
 
 - [Binary decision diagrams](
     https://en.wikipedia.org/wiki/Binary_decision_diagram) (BDDs).

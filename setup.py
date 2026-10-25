@@ -38,7 +38,7 @@ VERSION = '0.6.1'
 VERSION_FILE_TEXT = (
     '# This file was generated from setup.py\n'
     "version = '{version}'\n")
-PYTHON_REQUIRES = '>=3.11'
+PYTHON_REQUIRES = '>=3.12'
 INSTALL_REQUIRES = [
     'astutils >= 0.0.5',
     'networkx >= 2.4',

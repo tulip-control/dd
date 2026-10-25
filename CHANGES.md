@@ -3,6 +3,7 @@
 
 ## 0.6.1
 
+- REL: require Python >= 3.12
 - DEP: rm module `dd._compat`
 
 

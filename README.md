@@ -183,7 +183,7 @@ or from the directory of source files:
 pip install .
 ```
 
-For graph layout, install also [graphviz](https://graphviz.org).
+For graph layout, install also [Graphviz](https://graphviz.org).
 
 The `dd` package requires Python 3.11 or later.
 For Python 2.7, use `dd == 0.5.7`.
@@ -297,6 +297,7 @@ popd
 ```
 
 Tests of Cython modules that were not installed will fail.
+Testing graph layout requires [Graphviz](https://graphviz.org).
 The code is covered well by tests.
 
 

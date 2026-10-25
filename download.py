@@ -109,6 +109,11 @@ def extensions(
         _copy_extern_licenses(args)
     except FileNotFoundError:
         print('license files of build dependencies not found')
+    define_macros = [
+        ('Py_LIMITED_API', 0x30c0000)]
+        # keep in sync with `setup_options`
+        # in `setup.py`
+    py_limited_api = True
     c_extensions = dict(
         cudd=_extension.Extension(
             'dd.cudd',
@@ -116,25 +121,33 @@ def extensions(
             include_dirs=_join(cudd_include),
             library_dirs=_join(cudd_link),
             libraries=CUDD_LIB,
-            extra_compile_args=cudd_cflags),
+            extra_compile_args=cudd_cflags,
+            define_macros=define_macros,
+            py_limited_api=py_limited_api),
         cudd_zdd=_extension.Extension(
             'dd.cudd_zdd',
             sources=[f'dd/cudd_zdd{pyx}'],
             include_dirs=_join(cudd_include),
             library_dirs=_join(cudd_link),
             libraries=CUDD_LIB,
-            extra_compile_args=cudd_cflags),
+            extra_compile_args=cudd_cflags,
+            define_macros=define_macros,
+            py_limited_api=py_limited_api),
         buddy=_extension.Extension(
             'dd.buddy',
             sources=[f'dd/buddy{pyx}'],
-            libraries=['bdd']),
+            libraries=['bdd'],
+            define_macros=define_macros,
+            py_limited_api=py_limited_api),
         sylvan=_extension.Extension(
             'dd.sylvan',
             sources=[f'dd/sylvan{pyx}'],
             include_dirs=_join(SYLVAN_INCLUDE),
             library_dirs=_join(SYLVAN_LINK),
             libraries=['sylvan'],
-            extra_compile_args=sylvan_cflags))
+            extra_compile_args=sylvan_cflags,
+            define_macros=define_macros,
+            py_limited_api=py_limited_api))
     for ext in EXTENSIONS:
         if getattr(args, ext) is None:
             c_extensions.pop(ext)

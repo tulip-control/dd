@@ -179,6 +179,11 @@ def run_setup(
     with open(VERSION_FILE, 'w') as f:
         f.write(s)
     _build_parsers()
+    setup_options = {
+        'bdist_wheel': {
+            'py_limited_api': 'cp312'}}
+        # keep in sync with `Py_LIMITED_API`
+        # in `download.py`
     setuptools.setup(
         name=PACKAGE_NAME,
         version=version,
@@ -197,6 +202,7 @@ def run_setup(
         include_package_data=True,
         zip_safe=False,
         ext_modules=ext_modules,
+        options=setup_options,
         classifiers=CLASSIFIERS,
         keywords=KEYWORDS)
 

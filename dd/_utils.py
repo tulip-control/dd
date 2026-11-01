@@ -13,14 +13,9 @@ import typing as _ty
 
 import dd._abc
 
-try:
+
+if _ty.TYPE_CHECKING:
     import networkx as _nx
-except ImportError as error:
-    _nx = None
-    _nx_error = error
-
-
-if _nx is not None:
     MultiDiGraph: _ty.TypeAlias = _nx.MultiDiGraph
 
 
@@ -43,15 +38,14 @@ def import_module(
         ) -> types.ModuleType:
     """Return module with `module_name`, if present.
 
-    Raise `ImportError` otherwise.
+    Raise `ImportError` otherwise,
+    or `ValueError` if `module_name` is unexpected.
     """
-    modules = dict(
-        networkx=_nx)
-    if module_name in modules:
-        return modules[module_name]
-    errors = dict(
-        networkx=_nx_error)
-    raise errors[module_name]
+    if module_name == 'networkx':
+        import networkx as _nx
+        return _nx
+    else:
+        raise ValueError(module_name)
 
 
 def print_var_levels(

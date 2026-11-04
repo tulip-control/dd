@@ -251,9 +251,38 @@ class BDD(dd._abc.BDD[_Ref]):
             return u
         var = next(iter(definitions))
         value = definitions[var]
+        d: (dict[str, str] |
+            dict[str, bool] |
+            dict[str, int])
         match value:
-            case str() | bool():
-                d = definitions
+            case str():
+                def ensure_str(
+                        name
+                        ) -> str:
+                    if isinstance(name, str):
+                        return name
+                    raise TypeError(
+                        'Expected homogeneous type '
+                        'of `dict` values. Found '
+                        f'non-string: {name}')
+                d = {
+                    var: ensure_str(value)
+                    for var, value
+                        in definitions.items()}
+            case bool():
+                def ensure_bool(
+                        value
+                        ) -> bool:
+                    if isinstance(value, bool):
+                        return value
+                    raise TypeError(
+                       'Expected homogeneous type '
+                       'of `dict` values. Found '
+                       f'non-bool: {value}')
+                d = {
+                    var: ensure_bool(value)
+                    for var, value
+                        in definitions.items()}
             case Function():
                 def node_of(
                         ref
@@ -262,7 +291,8 @@ class BDD(dd._abc.BDD[_Ref]):
                         return ref.node
                     raise ValueError(
                         'Expected homogeneous type '
-                        'for `dict` values.')
+                        'of `dict` values. Found '
+                        f'non-Function: {ref}')
                 d = {
                     var: node_of(value)
                     for var, value in
@@ -442,6 +472,7 @@ class BDD(dd._abc.BDD[_Ref]):
             filetype:
                 dd._abc.BDDFileType |
                 dd._abc.PickleFileType |
+                _ty.Literal['dot'] |
                 None=None,
             **kw
             ) -> None:
@@ -458,6 +489,7 @@ class BDD(dd._abc.BDD[_Ref]):
           - `'png'` for PNG
           - `'svg'` for SVG
           - `'json'` for JSON
+          - `'dot'` for DOT
 
         If `filetype is None`, then `filename`
         must have an extension that matches
@@ -702,6 +734,10 @@ class Function(dd._abc.Operator):
     The design here is inspired by the PyEDA package.
     """
 
+    bdd: BDD
+    manager: _bdd.BDD
+    node: int
+
     def __init__(
             self,
             node:
@@ -818,7 +854,7 @@ class Function(dd._abc.Operator):
                 _Ref
             ) -> _Ref:
         return self._apply('xor', other)
-                
+
     def implies(
             self,
             other:

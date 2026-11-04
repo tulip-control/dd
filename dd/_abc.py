@@ -254,7 +254,10 @@ class BDD(_ty.Protocol[Ref]):
             u:
                 Ref,
             other:
-                'BDD'
+                '_ty.Self'
+                # `dd.cudd.BDD` implements this
+                # protocol and accepts more
+                # types as `other`
             ) -> Ref:
         """Copy operator `u` from `self` to `other` manager."""
 
@@ -564,19 +567,25 @@ def reorder(
 class Operator(_ty.Protocol):
     """Convenience wrapper for edges returned by `BDD`."""
 
+    # These attributes are defined by
+    # implementations, though considered
+    # internal.
+    #
+    # bdd: BDD
+    # manager: object
+    # node: int
+
     def __init__(
             self,
             node,
             bdd
             ) -> None:
-        self.bdd: BDD
-        self.manager: object
-        self.node: object
+        ...
 
     def __hash__(
             self
             ) -> int:
-        return self.node
+        ...
 
     def to_expr(
             self

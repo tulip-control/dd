@@ -118,8 +118,8 @@ class _ReorderingContext:
             bdd:
                 'BDD'
             ) -> None:
-        self.bdd = bdd
-        self.nested = None
+        self.bdd: 'BDD' = bdd
+        self.nested: bool | None = None
 
     def __enter__(
             self):
@@ -131,6 +131,8 @@ class _ReorderingContext:
             ex_type,
             ex_value,
             tb):
+        if self.nested is None:
+            raise AssertionError(self.nested)
         self.bdd._reordering_context = self.nested
         not_nested = (
             ex_type is _NeedsReordering and
@@ -646,18 +648,11 @@ class BDD(dd._abc.BDD[_Ref]):
         If `d` is an iterable but not a mapping,
         then an iterable is returned.
         """
-        match d:
-            case _abc.Mapping():
-                d = dict(d)
-            case _abc.Set():
-                d = set(d)
-            case _:
-                raise TypeError(d)
         if not d:
             match d:
-                case dict():
+                case _abc.Mapping():
                     return dict()
-                case set():
+                case _abc.Set():
                     return set()
                 case _:
                     raise TypeError(d)
@@ -666,22 +661,28 @@ class BDD(dd._abc.BDD[_Ref]):
         if u not in self.vars:
             self._assert_keys_are_levels(d)
             match d:
-                case dict():
+                case _abc.Mapping():
                     return {
                         int(k): v
                         for k, v in d.items()}
-                case set():
+                case _abc.Set():
                     return set(map(int, d))
                 case _:
-                    raise ValueError(d)
+                    raise TypeError(d)
+        def check(
+                var
+                ) -> str:
+            if isinstance(var, str):
+                return var
+            raise TypeError(var)
         if isinstance(d, _abc.Mapping):
             return {
-                self.vars[var]: bool(val)
+                self.vars[check(var)]: bool(val)
                 for var, val in
                     d.items()}
         else:
             return {
-                self.vars[k]
+                self.vars[check(k)]
                 for k in d}
 
     def _assert_keys_are_levels(
@@ -809,14 +810,45 @@ class BDD(dd._abc.BDD[_Ref]):
             return True
         return False
 
+    @_ty.overload
+    def support(
+            self,
+            u:
+                _Ref,
+            as_levels:
+                _ty.Literal[False]=False
+            ) -> set[_VariableName]:
+        ...
+
+    @_ty.overload
+    def support(
+            self,
+            u:
+                _Ref,
+            as_levels:
+                _ty.Literal[True]
+            ) -> set[_Level]:
+        ...
+
+    @_ty.overload
+    def support(
+            self,
+            u:
+                _Ref,
+            as_levels:
+                bool=False
+            ) -> (set[_VariableName] |
+                  set[_Level]):
+        ...
+
     def support(
             self,
             u:
                 _Ref,
             as_levels:
                 _Yes=False
-            ) -> set[
-                _VariableName]:
+            ) -> (set[_VariableName] |
+                  set[_Level]):
         levels = set()
         nodes = set()
         self._support(u, levels, nodes)
@@ -863,8 +895,8 @@ class BDD(dd._abc.BDD[_Ref]):
                 tuple[
                     _Ref,
                     _Level,
-                    _Ref,
-                    _Node]]:
+                    _Ref | None,
+                    _Node | None]]:
         """Return generator of tuples `(u, i, v, w)`.
 
         Where `i` ranges from terminals to root.
@@ -916,6 +948,10 @@ class BDD(dd._abc.BDD[_Ref]):
         for u, i, v, w in levels:
             if u <= 0:
                 raise AssertionError(u)
+            if v is None:
+                raise AssertionError(v)
+            if w is None:
+                raise AssertionError(w)
             p, q = umap[abs(v)], umap[abs(w)]
             p = _flip(p, v)
             q = _flip(q, w)
@@ -1056,19 +1092,21 @@ class BDD(dd._abc.BDD[_Ref]):
         @param var_sub:
             `dict` that maps variables to BDD nodes
         """
-        cache = dict()
         if len(var_sub) == 1:
             (var, g), = var_sub.items()
             j = self.level_of_var(var)
             return self._compose(
-                f, j, g, cache)
+                f, j, g, cache=dict())
+                # `cache` assigned here for
+                # type checking of each
+                # `if` branch
         else:
             dvars = {
                 self.level_of_var(var): g
                 for var, g in
                     var_sub.items()}
             return self._vector_compose(
-                f, dvars, cache)
+                f, dvars, cache=dict())
 
     def _compose(
             self,
@@ -1317,13 +1355,13 @@ class BDD(dd._abc.BDD[_Ref]):
             then quantify `qvars` universally,
             else existentially.
         """
-        qvars = self._map_to_level(set(qvars))
+        qlevels = self._map_to_level(set(qvars))
         cache = dict()
-        ordvar = sorted(qvars)
+        ordvar = sorted(qlevels)
         j = 0
         return self._quantify(
             u, j, ordvar,
-            qvars, forall,
+            qlevels, forall,
             cache)
 
     def _quantify(
@@ -1929,6 +1967,9 @@ class BDD(dd._abc.BDD[_Ref]):
         slack = n - k
         if slack < 0:
             raise ValueError(slack)
+        map_level: dict[
+            int | _ty.Literal['all'],
+            int]
         map_level = dict()
         for new, old in enumerate(sorted(levels)):
             map_level[old] = new + slack
@@ -2066,10 +2107,9 @@ class BDD(dd._abc.BDD[_Ref]):
         # terminal ?
         if abs(u) == 1:
             if value:
-                cube = {
+                yield {
                     self._level_to_var[i]: v
                     for i, v in cube.items()}
-                yield cube
             return
         # non-terminal
         i, v, w = self._succ[abs(u)]
@@ -2306,6 +2346,7 @@ class BDD(dd._abc.BDD[_Ref]):
              filetype:
                 dd._abc.ImageFileType |
                 dd._abc.PickleFileType |
+                _ty.Literal['dot'] |
                 None=None,
             **kw
             ) -> None:
@@ -2344,7 +2385,8 @@ class BDD(dd._abc.BDD[_Ref]):
             filename:
                 str,
             filetype:
-                dd._abc.ImageFileType,
+                dd._abc.ImageFileType |
+                _ty.Literal['dot'],
             **kw
             ) -> None:
         """Write BDDs to `filename` as figure."""
@@ -2591,10 +2633,11 @@ def _assert_isomorphic_orders(
         for k, v in
             new.items()
         if k in support}
-    old = sorted(s, key=s.get)
-    new = sorted(t, key=t.get)
-    if old != new:
-        raise AssertionError((old, new))
+    old_vars = sorted(s, key=s.__getitem__)
+    new_vars = sorted(t, key=t.__getitem__)
+    if old_vars != new_vars:
+        raise AssertionError(
+            (old_vars, new_vars))
 
 
 def _assert_valid_ordering(
@@ -2641,11 +2684,11 @@ def rename(
         return u
     # map variable names to levels
     levels = bdd.vars
-    dvars = {
+    d_levels = {
         levels[var]: levels[dvars.get(var, var)]
         for var in bdd.vars}
     cache = dict()
-    return _copy_bdd(u, dvars, bdd, bdd, cache)
+    return _copy_bdd(u, d_levels, bdd, bdd, cache)
 
 
 def _assert_valid_rename(
@@ -2758,7 +2801,7 @@ def image(
         else existentially.
     """
     # map to levels
-    qvars = bdd._map_to_level(set(qvars))
+    qlevels = bdd._map_to_level(set(qvars))
     rename = {
         bdd.vars.get(k, k): bdd.vars.get(v, v)
         for k, v in rename.items()}
@@ -2771,17 +2814,17 @@ def image(
     if not _all_adjacent(rename, bdd):
         logger.warning(
             'BDD.image: not all vars adjacent')
-    # unpriming maps to qvars or
+    # unpriming maps to qlevels or
     # outside support of conjunction
     s = bdd.support(trans, as_levels=True)
     s.update(bdd.support(source, as_levels=True))
-    s.difference_update(qvars)
+    s.difference_update(qlevels)
     s.intersection_update(rename.values())
     if s:
         raise AssertionError(s)
     return _image(
         trans, source, rename_u, rename_v,
-        qvars, bdd, forall, cache)
+        qlevels, bdd, forall, cache)
 
 
 def preimage(
@@ -2822,7 +2865,7 @@ def preimage(
         else existentially.
     """
     # map to levels
-    qvars = bdd._map_to_level(set(qvars))
+    qlevels = bdd._map_to_level(set(qvars))
     rename = {
         bdd.vars.get(k, k): bdd.vars.get(v, v)
         for k, v in rename.items()}
@@ -2834,7 +2877,7 @@ def preimage(
     _assert_valid_rename(target, bdd, rename)
     return _image(
         trans, target, rename_u, rename_v,
-        qvars, bdd, forall, cache)
+        qlevels, bdd, forall, cache)
 
 
 def _image(
@@ -2992,7 +3035,7 @@ def _reorder_var(
         start, end = end, start
     _shift(bdd, level, start, levels)
     sizes = _shift(bdd, start, end, levels)
-    k = min(sizes, key=sizes.get)
+    k = min(sizes, key=sizes.__getitem__)
     _shift(bdd, end, k, levels)
     m_ = len(bdd)
     if sizes[k] != m_:

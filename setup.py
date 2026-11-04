@@ -107,7 +107,11 @@ def _parse_version(
     numerals = version.split('.')
     if len(numerals) != 3:
         raise ValueError(numerals)
-    return tuple(map(int, numerals))
+    numbers = tuple(map(int, numerals))
+    # for type checking
+    if len(numbers) != 3:
+        raise AssertionError(numbers)
+    return numbers
 
 
 def parse_args(
@@ -141,6 +145,7 @@ def parse_args(
 def read_env_vars(
         ) -> dict:
     """Read relevant environment variables."""
+    keys: dict[str, str | bool]
     keys = {
         k: ''
         for k in download.EXTENSIONS}

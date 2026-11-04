@@ -90,23 +90,31 @@ Ref = _ty.TypeVar('Ref')
 
 
 class _Ref(_ty.Protocol):
-    var: str | None
-    level: int
-    low: '_Ref | None'
-    high: '_Ref | None'
-    bdd: _BDD
-    negated: _Yes
-    ref: int
 
-    def __int__(
-            self
-            ) -> int:
-        ...
+    def __int__(self) -> int: ...
 
-    def __invert__(
-            self
-            ) -> '_Ref':
-        ...
+    def __invert__(self) -> '_Ref': ...
+
+    @property
+    def var(self) -> str | None: ...
+
+    @property
+    def level(self) -> int: ...
+
+    @property
+    def low(self) -> '_Ref | None': ...
+
+    @property
+    def high(self) -> '_Ref | None': ...
+
+    @property
+    def bdd(self) -> _BDD: ...
+
+    @property
+    def negated(self) -> _Yes: ...
+
+    @property
+    def ref(self) -> int: ...
 
 
 class _Shelf(
@@ -219,16 +227,26 @@ def _copy_bdd(
     if k in cache:
         r = cache[k]
         return _flip(r, u)
+    # assert attributes are not `None`
+    u_low = u.low
+    u_high = u.high
+    u_var = u.var
+    if u_low is None:
+        raise AssertionError(u, u.low)
+    if u_high is None:
+        raise AssertionError(u, u.high)
+    if u_var is None:
+        raise AssertionError(u, u.var)
     # recurse
-    low = _copy_bdd(u.low, bdd, cache)
-    high = _copy_bdd(u.high, bdd, cache)
+    low = _copy_bdd(u_low, bdd, cache)
+    high = _copy_bdd(u_high, bdd, cache)
     # canonicity
     # if low.negated != u.low.negated:
     #     raise AssertionError((low, u.low))
     # if high.negated:
     #     raise AssertionError(high)
     # add node
-    g = bdd.var(u.var)
+    g = bdd.var(u_var)
     r = bdd.ite(g, high, low)
     # if r.negated:
     #     raise AssertionError(r)
@@ -310,8 +328,8 @@ def _copy_zdd(
 
 def dump_json(
         nodes:
-            dict[str, Ref] |
-            list[Ref],
+            dict[str, _Ref] |
+            list[_Ref],
         file_name:
             str
         ) -> None:
@@ -413,9 +431,16 @@ def _dump_bdd(
     k = int(z)
     if str(k) in cache:
         return -k if u.negated else k
+    # assert attributes are not `None`
+    u_low = u.low
+    u_high = u.high
+    if u_low is None:
+        raise AssertionError(u, u.low)
+    if u_high is None:
+        raise AssertionError(u, u.high)
     # recurse
-    low = _dump_bdd(u.low, fd, cache)
-    high = _dump_bdd(u.high, fd, cache)
+    low = _dump_bdd(u_low, fd, cache)
+    high = _dump_bdd(u_high, fd, cache)
     # dump node
     s = f',\n"{k}": [{u.level}, {low}, {high}]'
     fd.write(s)
@@ -468,6 +493,7 @@ def _load_json(
             dict[str, _Ref] |
             list[_Ref]):
     """Load BDDs from JSON file `fd` to `bdd`."""
+    context: dict[str, object]
     context = dict(load_order=load_order)
     # if the variable order is going to be loaded,
     # then turn off dynamic reordering,
@@ -478,6 +504,9 @@ def _load_json(
     if load_order:
         old_reordering = bdd.configure(
             reordering=False)
+    else:
+        old_reordering = None
+            # for type checking
     for line in fd:
         d = _parse_line(line)
         _store_line(d, bdd, context, cache)
@@ -486,10 +515,12 @@ def _load_json(
         roots = {
             name: _node_from_int(k, bdd, cache)
             for name, k in roots.items()}
-    else:
+    elif isinstance(roots, _abc.Iterable):
         roots = [
             _node_from_int(k, bdd, cache)
             for k in roots]
+    else:
+        raise TypeError(roots)
     # rm refs to cached nodes
     for uid in cache:
         u = _node_from_int(int(uid), bdd, cache)

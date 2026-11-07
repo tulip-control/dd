@@ -628,8 +628,8 @@ class BDD(dd._abc.BDD[_Ref]):
             d:
                 _abc.Set[
                     _VariableName] |
-                _abc.Set
-                    [_Level]
+                _abc.Set[
+                    _Level]
             ) -> set[_Level]:
         ...
 

@@ -92,6 +92,12 @@ def test_dump_using_graphviz():
     bdd.dump('bdd.ext', filetype='pdf')
     with pytest.raises(ValueError):
         bdd.dump('bdd.ext')
+    # pass dict as `roots`
+    roots = dict(a=u)
+    bdd.dump('bdd.dot', roots=roots)
+    bdd.dump('bdd.pdf', roots=roots)
+    bdd.dump('bdd.png', roots=roots)
+    bdd.dump('bdd.svg', roots=roots)
 
 
 def test_image():

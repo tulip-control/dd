@@ -2376,8 +2376,12 @@ class BDD(dd._abc.BDD[_Ref]):
                     'from extension of file '
                     f'name "{filename}"')
         if filetype in _utils.DOT_FILE_TYPES:
+            if isinstance(roots, dict):
+                figure_roots = list(roots.values())
+            else:
+                figure_roots = roots
             self._dump_figure(
-                roots, filename,
+                figure_roots, filename,
                 filetype, **kw)
         elif filetype == 'pickle':
             self._dump_bdd(roots, filename, **kw)

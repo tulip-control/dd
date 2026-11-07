@@ -145,7 +145,8 @@ class _Shelf(
 
     def __contains__(
             self,
-            item
+            key:
+                str
             ) -> _Yes:
         ...
 

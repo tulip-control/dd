@@ -292,6 +292,14 @@ class BDD(dd._abc.BDD[_Ref]):
             f'{type(self)}\n'
             f'{stack_str}')
 
+    def __eq__(
+            self,
+            other
+            ) -> bool:
+        if not isinstance(other, BDD):
+            raise NotImplementedError
+        return self is other
+
     def __len__(
             self
             ) -> _Cardinality:

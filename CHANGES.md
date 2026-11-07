@@ -6,6 +6,15 @@
 - REL: require Python >= 3.12
 - DEP: rm module `dd._compat`
 
+API:
+
+- rename parameter to `variables` in:
+  - `dd.autoref.BDD` methods `quantify()`,
+    `forall()`, `exist()`
+  - `dd.bdd.BDD` methods `forall()`, `exist()`
+- rename parameter to `expr` in method
+  `dd.autoref.BDD.add_expr()`
+
 
 ## 0.6.0
 

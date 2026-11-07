@@ -306,7 +306,7 @@ class BDD(dd._abc.BDD[_Ref]):
             self,
             u:
                 _Ref,
-            qvars:
+            variables:
                 _abc.Iterable[
                     _VariableName],
             forall:
@@ -314,27 +314,27 @@ class BDD(dd._abc.BDD[_Ref]):
             ) -> _Ref:
         if u not in self:
             raise ValueError(u)
-        r = self._bdd.quantify(u.node, qvars, forall)
+        r = self._bdd.quantify(u.node, variables, forall)
         return self._wrap(r)
 
     def forall(
             self,
-            qvars:
+            variables:
                 _abc.Iterable[_VariableName],
             u:
                 _Ref
             ) -> _Ref:
-        return self.quantify(u, qvars, forall=True)
+        return self.quantify(u, variables, forall=True)
 
     def exist(
             self,
-            qvars:
+            variables:
                 _abc.Iterable[
                     _VariableName],
             u:
                 _Ref
             ) -> _Ref:
-        return self.quantify(u, qvars, forall=False)
+        return self.quantify(u, variables, forall=False)
 
     def ite(
             self,
@@ -395,10 +395,10 @@ class BDD(dd._abc.BDD[_Ref]):
 
     def add_expr(
             self,
-            e:
+            expr:
                 _Formula
             ) -> _Ref:
-        r = self._bdd.add_expr(e)
+        r = self._bdd.add_expr(expr)
         return self._wrap(r)
 
     def to_expr(

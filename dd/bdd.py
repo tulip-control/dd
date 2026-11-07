@@ -1426,26 +1426,26 @@ class BDD(dd._abc.BDD[_Ref]):
 
     def forall(
             self,
-            qvars:
+            variables:
                 _abc.Iterable[
                     _VariableName],
             u:
                 _Ref
             ) -> _Ref:
         return self.quantify(
-            u, qvars,
+            u, variables,
             forall=True)
 
     def exist(
             self,
-            qvars:
+            variables:
                 _abc.Iterable[
                     _VariableName],
             u:
                 _Ref
             ) -> _Ref:
         return self.quantify(
-            u, qvars,
+            u, variables,
             forall=False)
 
     @_try_to_reorder
